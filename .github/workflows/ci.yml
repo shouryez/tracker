@@ -23,5 +23,6 @@ jobs:
       - run: pnpm exec prettier --check .
       - run: pnpm lint
       - run: pnpm typecheck
+      - run: pnpm test
       # Builds in demo mode (no Supabase env) — still catches route and caching errors.
       - run: pnpm build

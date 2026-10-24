@@ -21,13 +21,16 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
   type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { anonRole, authenticatedRole, authUid, authUsers } from "drizzle-orm/supabase";
+import type { PlatformSnapshot, SyncCursor } from "@upsolve/adapters";
 
 // ---------------------------------------------------------------- enums
 
+// Keep in sync with PLATFORMS in @upsolve/adapters.
 export const platform = pgEnum("platform", [
   "leetcode",
   "codeforces",
@@ -93,7 +96,7 @@ export const colleges = pgTable(
     emailDomain: text("email_domain"),
     createdAt: createdAt(),
   },
-  (t) => [index("colleges_name_idx").on(t.name), publicRead()],
+  (t) => [uniqueIndex("colleges_name_lower_uq").on(sql`lower(${t.name})`), publicRead()],
 ).enableRLS();
 
 export const profiles = pgTable(
@@ -144,10 +147,16 @@ export const platformAccounts = pgTable(
     handle: text("handle").notNull(),
     /** Code the user pastes into their platform bio to prove ownership. */
     verifyCode: text("verify_code"),
+    /** When the current verification challenge was issued (Codeforces checks submissions after it). */
+    verifyRequestedAt: timestamp("verify_requested_at", { withTimezone: true }),
     verifiedAt: timestamp("verified_at", { withTimezone: true }),
     status: syncStatus("status").notNull().default("pending"),
+    /** Set while a sync runs; doubles as a lock so two syncs don't overlap. */
+    syncStartedAt: timestamp("sync_started_at", { withTimezone: true }),
     lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
-    syncCursor: jsonb("sync_cursor"),
+    syncCursor: jsonb("sync_cursor").$type<SyncCursor>(),
+    /** Latest profile-level numbers from the platform (counts, rating, calendar, topics). */
+    snapshot: jsonb("snapshot").$type<PlatformSnapshot>(),
     lastError: text("last_error"),
     createdAt: createdAt(),
   },

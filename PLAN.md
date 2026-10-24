@@ -273,14 +273,14 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [x] Next.js app with auth (Google + email magic link), theme toggle
 - **Exit:** sign in → empty dashboard shell in both themes.
 
-### Phase 1 — Profiles & first sync (2–3 weeks)
+### Phase 1 — Profiles & first sync (2–3 weeks) ✅ done 25 Oct 2026
 
-- [ ] Onboarding steps 1–4 (DESIGN §9.2); college list seeded (a few hundred colleges first, grows over time)
-- [ ] Bio-code verification
-- [ ] Adapters: **Codeforces** (full), **LeetCode** (GraphQL profile, counts, calendar, contests)
-- [ ] Inngest sync jobs + backoff; platform status in Settings
-- [ ] Overview v1: KPIs, merged heatmap, platform cards, contest ratings
-- [ ] Public profile `/u/handle` v0
+- [x] Onboarding: about you → goal → connect platforms; 149 colleges seeded, students can add missing ones
+- [x] Ownership verification (LeetCode: code in profile Summary; Codeforces: compilation error on 4A within 15 min)
+- [x] Adapters: **Codeforces** (full history), **LeetCode** (counts, topics, calendar, contests, last 20 accepted)
+- [x] Sync with per-account lock, 6 h staleness auto-refresh and error status in Settings. _Runs in server actions for now; move to Inngest when sync must run without a visit (weekly email, Phase 4)._
+- [x] Overview v1: KPIs, merged heatmap, difficulty split, platform cards with rating sparklines, top topics, recent solves
+- [x] Public profile `/u/handle` v0 (opt-in from Settings)
 - **Exit:** 5 friends onboarded with real data.
 
 ### Phase 2 — Extension v1 (3 weeks)

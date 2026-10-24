@@ -15,6 +15,27 @@
       "when": 1792882528029,
       "tag": "0001_profile_on_signup",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792884639007,
+      "tag": "0002_platform_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792884639741,
+      "tag": "0003_seed_colleges",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792884771100,
+      "tag": "0004_college_name_unique",
+      "breakpoints": true
     }
   ]
 }

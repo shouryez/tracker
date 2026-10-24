@@ -11,9 +11,11 @@
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:store": "node --env-file=.env scripts/check-store.ts"
   },
   "dependencies": {
+    "@upsolve/adapters": "workspace:*",
     "drizzle-orm": "^0.45.4",
     "postgres": "^3.4.9"
   },

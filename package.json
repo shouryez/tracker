@@ -9,7 +9,8 @@
     "typecheck": "turbo run typecheck",
     "format": "prettier --write .",
     "db:generate": "pnpm --filter @upsolve/db generate",
-    "db:migrate": "pnpm --filter @upsolve/db migrate"
+    "db:migrate": "pnpm --filter @upsolve/db migrate",
+    "test": "turbo run test"
   },
   "devDependencies": {
     "prettier": "^3.9.10",
