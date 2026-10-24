@@ -1,0 +1,5 @@
+@import "tailwindcss";
+@import "@upsolve/ui/styles.css";
+
+/* Tailwind must also scan the shared component sources. */
+@source "../../../../packages/ui/src";

@@ -1,0 +1,89 @@
+/*
+ * Upsolve design tokens. Source of truth: DESIGN.md §4 and design/preview.html.
+ * Components use these through Tailwind (see index.css), never raw hex.
+ */
+
+:root {
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --d-1: 120ms;
+  --d-2: 240ms;
+  --d-3: 480ms;
+  --d-4: 800ms;
+
+  /* same in both themes */
+  --signal: #d7ff3a;
+  --signal-ink: #0b0b0f;
+}
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #09090c;
+  --bg-2: #0e0e13;
+  --surface: #131319;
+  --surface-2: #1a1a22;
+  --surface-3: #22222c;
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.13);
+  --ink: #f4f4f6;
+  --ink-2: #a3a3b0;
+  --ink-3: #686876;
+  --primary: #6e7bff;
+  --primary-2: #4f5bf0;
+  --primary-ink: #ffffff;
+  --primary-soft: rgba(110, 123, 255, 0.14);
+  --ember: #ff7a45;
+  --easy: #2bd4b4;
+  --medium: #ffb938;
+  --hard: #ff5470;
+  --ok: #3ddc97;
+  --warn: #ffb938;
+  --bad: #ff5470;
+  --hatch: rgba(255, 255, 255, 0.09);
+  --pixel-off: rgba(255, 255, 255, 0.05);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 60px 120px -40px rgba(0, 0, 0, 0.85);
+  --glow-a: rgba(110, 123, 255, 0.55);
+  --glow-b: rgba(255, 122, 69, 0.38);
+  --signal-text: #d7ff3a;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f4f4f1;
+  --bg-2: #ecece7;
+  --surface: #ffffff;
+  --surface-2: #f6f6f3;
+  --surface-3: #edede9;
+  --line: rgba(14, 14, 22, 0.08);
+  --line-2: rgba(14, 14, 22, 0.14);
+  --ink: #0e0e12;
+  --ink-2: #545466;
+  --ink-3: #8c8c99;
+  --primary: #4b57f5;
+  --primary-2: #3843d9;
+  --primary-ink: #ffffff;
+  --primary-soft: rgba(75, 87, 245, 0.1);
+  --ember: #f2622e;
+  --easy: #0ea58c;
+  --medium: #d99100;
+  --hard: #e3385a;
+  --ok: #16a36d;
+  --warn: #d99100;
+  --bad: #e3385a;
+  --hatch: rgba(14, 14, 22, 0.1);
+  --pixel-off: rgba(14, 14, 22, 0.06);
+  --shadow: 0 1px 2px rgba(14, 14, 22, 0.04), 0 18px 40px -22px rgba(14, 14, 22, 0.18);
+  --shadow-lg: 0 2px 4px rgba(14, 14, 22, 0.04), 0 50px 100px -40px rgba(14, 14, 22, 0.3);
+  --glow-a: rgba(75, 87, 245, 0.35);
+  --glow-b: rgba(242, 98, 46, 0.22);
+  --signal-text: #4e6a00;
+}

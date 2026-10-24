@@ -1,0 +1,19 @@
+{
+  "name": "upsolve",
+  "private": true,
+  "packageManager": "pnpm@12.6.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "db:generate": "pnpm --filter @upsolve/db generate",
+    "db:migrate": "pnpm --filter @upsolve/db migrate"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "turbo": "^2.11.10",
+    "typescript": "^5.9.3"
+  }
+}

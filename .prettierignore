@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+.next
+.turbo
+node_modules
+design/preview.html
+packages/db/drizzle
