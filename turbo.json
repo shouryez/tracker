@@ -3,8 +3,8 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["NEXT_PUBLIC_*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "env": ["NEXT_PUBLIC_*", "UPSOLVE_WEB_URL"],
+      "outputs": [".next/**", "!.next/cache/**", ".output/**"]
     },
     "lint": {},
     "typecheck": {},

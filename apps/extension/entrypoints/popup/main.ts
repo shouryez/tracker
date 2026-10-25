@@ -1,0 +1,181 @@
+import { browser } from "wxt/browser";
+import type { Message, Status } from "../../lib/messages.ts";
+import { WEB_URL } from "../../lib/storage.ts";
+import { formatClock } from "../../lib/timer.ts";
+
+const app = document.getElementById("app")!;
+
+function h<K extends keyof HTMLElementTagNameMap>(
+  tag: K,
+  props: { class?: string; text?: string; onclick?: () => void } = {},
+  ...children: (Node | string)[]
+): HTMLElementTagNameMap[K] {
+  const el = document.createElement(tag);
+  if (props.class) el.className = props.class;
+  if (props.text !== undefined) el.textContent = props.text;
+  if (props.onclick) el.addEventListener("click", props.onclick);
+  el.append(...children);
+  return el;
+}
+
+const send = (msg: Message) => browser.runtime.sendMessage(msg);
+const open = (path: string) => browser.tabs.create({ url: `${WEB_URL}${path}` });
+
+function logo() {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("width", "20");
+  svg.setAttribute("height", "20");
+  svg.setAttribute("viewBox", "0 0 22 22");
+  for (const [x, y, fill, op] of [
+    [0, 14, "#f4f4f6", ".35"],
+    [7.5, 7, "#f4f4f6", ".7"],
+    [15, 0, "#d7ff3a", "1"],
+  ] as const) {
+    const r = document.createElementNS(ns, "rect");
+    r.setAttribute("x", String(x));
+    r.setAttribute("y", String(y));
+    r.setAttribute("width", "7");
+    r.setAttribute("height", "7");
+    r.setAttribute("rx", "1.5");
+    r.setAttribute("fill", fill);
+    r.setAttribute("opacity", op);
+    svg.append(r);
+  }
+  return svg;
+}
+
+function stat(value: string, unit: string, label: string) {
+  const num = h("div", { class: "num", text: value }, h("small", { text: unit }));
+  return h("div", {}, num, h("p", { class: "sub", text: label }));
+}
+
+function render(s: Status) {
+  const header = h("header", {}, logo(), "upsolve");
+
+  if (!s.connected) {
+    app.replaceChildren(
+      header,
+      h(
+        "div",
+        { class: "card" },
+        h("p", { text: "Connect to your Upsolve account to sync your LeetCode sessions." }),
+        h("p", {
+          class: "sub",
+          text: "Sessions are already being timed and saved here; they upload once you connect.",
+        }),
+      ),
+      h("button", { class: "primary", text: "Connect", onclick: () => open("/extension/connect") }),
+    );
+    return;
+  }
+
+  const children: Node[] = [header];
+
+  if (s.authError) {
+    children.push(
+      h(
+        "div",
+        { class: "card" },
+        h("p", { class: "bad", text: s.authError }),
+        h("button", {
+          class: "primary",
+          text: "Reconnect",
+          onclick: () => open("/extension/connect"),
+        }),
+      ),
+    );
+  }
+
+  const name = s.me?.user.name?.split(" ")[0];
+  const today = s.me?.today;
+  children.push(
+    h(
+      "div",
+      { class: "card" },
+      h("p", { class: "eyebrow", text: name ? `Today · ${name}` : "Today" }),
+      today
+        ? h(
+            "div",
+            { class: "stats" },
+            stat(String(today.solved), "", "solved"),
+            stat(String(today.sessions), "", "sessions"),
+            stat(formatClock(today.activeMs), "", "focused"),
+          )
+        : h("p", {
+            class: "sub",
+            text: "Offline: today's numbers will show when the server is reachable.",
+          }),
+    ),
+  );
+
+  if (s.current) {
+    children.push(
+      h(
+        "div",
+        { class: "card" },
+        h("p", {
+          class: "eyebrow",
+          text: s.current.status === "solved" ? "Just solved" : "Now solving",
+        }),
+        h("p", { text: s.current.title ?? s.current.slug }),
+        h(
+          "p",
+          { class: "sub mono" },
+          `${formatClock(s.current.activeMs)} active · ${s.current.submits} submit${s.current.submits === 1 ? "" : "s"} · ${s.current.status}`,
+        ),
+      ),
+    );
+  }
+
+  const hist = s.history;
+  const historyText = !hist
+    ? "History import starts the next time you open leetcode.com."
+    : hist.status === "running"
+      ? `Importing your LeetCode history… ${hist.imported} so far`
+      : hist.status === "done"
+        ? `History imported (${hist.imported} submissions).`
+        : hist.status === "error"
+          ? `History import paused: ${hist.error}`
+          : "History import waiting.";
+  children.push(
+    h(
+      "div",
+      { class: "card" },
+      h("p", { class: "sub", text: historyText }),
+      h("p", {
+        class: `sub ${s.pending > 0 ? "warn" : "ok"}`,
+        text: s.pending > 0 ? `${s.pending} session(s) waiting to upload` : "Everything synced",
+      }),
+    ),
+  );
+
+  children.push(
+    h(
+      "div",
+      { class: "row" },
+      h("button", { class: "primary", text: "Open dashboard", onclick: () => open("/dashboard") }),
+      ...(s.pending > 0
+        ? [
+            h("button", {
+              text: "Sync now",
+              onclick: () => void send({ type: "flush" }).then(load),
+            }),
+          ]
+        : []),
+      h("button", {
+        class: "ghost",
+        text: "Disconnect",
+        onclick: () => void send({ type: "auth:clear" }).then(load),
+      }),
+    ),
+  );
+
+  app.replaceChildren(...children);
+}
+
+async function load() {
+  render((await send({ type: "status" })) as Status);
+}
+
+void load();

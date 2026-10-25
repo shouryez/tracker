@@ -7,12 +7,13 @@ import {
   CircleCheck,
   Flame,
   Grid3x3,
-  Layers,
+  History,
   Plug,
+  Puzzle,
   Sparkles,
   Tags,
-  Trophy,
-  History,
+  Target,
+  Timer,
 } from "lucide-react";
 import { ratingToDifficulty } from "@upsolve/adapters";
 import {
@@ -30,6 +31,7 @@ import {
 } from "@upsolve/ui";
 import { SolvedSplit, Sparkline, TopicBar } from "@/components/charts";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL, PLATFORM_STROKE } from "@/components/platform-meta";
+import { FocusBars, SessionItem } from "@/components/sessions";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import {
@@ -42,6 +44,12 @@ import {
   type RecentSolve,
 } from "@/lib/data";
 import { GOALS } from "@/lib/profile-options";
+import {
+  formatDuration,
+  getExtensionTokens,
+  getSessionStats,
+  getSessions,
+} from "@/lib/sessions-data";
 import { AutoSync } from "./_components/auto-sync";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -65,15 +73,20 @@ async function Overview() {
   const profile = await getProfile(user.id);
   if (!profile?.onboardedAt) redirect("/onboarding");
 
-  const [accounts, contestSeries, recent] = await Promise.all([
+  const [accounts, contestSeries, recent, sessionStats, sessions, tokens] = await Promise.all([
     getAccounts(user.id),
     getContestSeries(user.id),
     getRecentSolves(user.id),
+    getSessionStats(user.id),
+    getSessions(user.id, 8),
+    getExtensionTokens(user.id),
   ]);
+  const hasExtension = tokens.length > 0;
+  const answered =
+    sessionStats.honest.solo + sessionStats.honest.hint + sessionStats.honest.solution;
   const stats = buildStats(accounts);
   const firstName = profile.name?.split(" ")[0] ?? "there";
   const goal = GOALS.find((g) => g.value === profile.goal);
-  const totalContests = accounts.reduce((n, a) => n + (a.snapshot?.contests ?? 0), 0);
 
   return (
     <div className="flex flex-col gap-5">
@@ -117,21 +130,28 @@ async function Overview() {
           foot={`${stats.activeDays} active days this year`}
         />
         <Kpi
-          title="Best rating"
-          icon={icon(Trophy)}
-          value={stats.bestRating ? String(stats.bestRating.rating) : "—"}
+          title="Focus this week"
+          icon={icon(Timer)}
+          value={(sessionStats.focusWeekMs / 3_600_000).toFixed(1)}
+          unit="h"
           foot={
-            stats.bestRating
-              ? `${PLATFORM_LABEL[stats.bestRating.platform]}${stats.bestRating.label ? ` · ${stats.bestRating.label}` : ""}`
-              : "Take part in a rated contest"
+            hasExtension
+              ? `Goal ${((profile.dailyGoalMin * 7) / 60).toFixed(1)} h · tracked by the extension`
+              : "Install the extension to track time"
           }
         />
         <Kpi
-          title="Contests"
-          icon={icon(Layers)}
-          value={String(totalContests)}
-          unit="rated"
-          foot="Across your platforms"
+          title="Solo rate"
+          icon={icon(Target)}
+          value={
+            sessionStats.soloRate === null ? "—" : String(Math.round(sessionStats.soloRate * 100))
+          }
+          unit={sessionStats.soloRate === null ? undefined : "%"}
+          foot={
+            answered > 0
+              ? `${sessionStats.honest.solo} of ${answered} solved without help`
+              : "Answer the prompt after Accepted"
+          }
         />
 
         <Card className="col-span-12 xl:col-span-8">
@@ -159,6 +179,49 @@ async function Overview() {
           <p className="mt-4 text-[12.5px] text-ink-3">
             The same problem solved on two sites counts twice until the problem catalog lands.
           </p>
+        </Card>
+
+        <Card className="col-span-12 xl:col-span-5">
+          <CardHeader>
+            <CardTitle icon={icon(Timer)}>Focus</CardTitle>
+            <CardSub>last 7 days · goal {profile.dailyGoalMin}m/day</CardSub>
+          </CardHeader>
+          <FocusBars stats={sessionStats} goalMin={profile.dailyGoalMin} />
+        </Card>
+
+        <Card className="col-span-12 xl:col-span-7">
+          <CardHeader>
+            <CardTitle icon={icon(History)}>Sessions</CardTitle>
+            {hasExtension ? (
+              <Link
+                href="/dashboard/sessions"
+                className={buttonClasses({ variant: "ghost", size: "sm" })}
+              >
+                All sessions <ButtonArrow />
+              </Link>
+            ) : (
+              <Tag mono>extension</Tag>
+            )}
+          </CardHeader>
+          {!hasExtension ? (
+            <InstallExtension />
+          ) : sessions.length === 0 ? (
+            <p className="text-[13px] text-ink-2">
+              No sessions yet. Open any LeetCode problem; the timer starts on its own.
+            </p>
+          ) : (
+            <ul>
+              {sessions.map((s) => (
+                <SessionItem key={s.id} s={s} />
+              ))}
+            </ul>
+          )}
+          {hasExtension && sessionStats.totalSessions > 0 && (
+            <p className="mt-3 font-mono text-[11px] text-ink-3">
+              {sessionStats.totalSessions} sessions · {sessionStats.solvedSessions} solved ·{" "}
+              {formatDuration(sessionStats.focusWeekMs)} this week
+            </p>
+          )}
         </Card>
 
         <Card className="col-span-12 xl:col-span-7">
@@ -268,14 +331,14 @@ async function Overview() {
             <CardTitle icon={icon(Sparkles)}>Coming next</CardTitle>
           </CardHeader>
           <ul className="flex flex-col gap-3 text-[13px]">
-            <Upcoming phase="Phase 2" title="Chrome extension">
-              Automatic timer per problem, solo / hint / solution, full LeetCode history.
-            </Upcoming>
             <Upcoming phase="Phase 3" title="Sheets">
               Striver A2Z, NeetCode 150 and Blind 75 tick themselves.
             </Upcoming>
             <Upcoming phase="Phase 4" title="Revision queue">
               Spaced repetition that checks you can still solve it.
+            </Upcoming>
+            <Upcoming phase="Phase 5" title="Your college">
+              Leaderboards by college and batch, study rooms.
             </Upcoming>
           </ul>
         </Card>
@@ -381,6 +444,29 @@ function Upcoming({
       </span>
       <Tag mono>{phase}</Tag>
     </li>
+  );
+}
+
+function InstallExtension() {
+  return (
+    <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-line-2 p-4">
+      <span
+        aria-hidden="true"
+        className="hatch grid h-10 w-full place-items-center rounded-sm text-ink-3"
+      >
+        <Puzzle size={16} strokeWidth={1.75} />
+      </span>
+      <p className="text-[15px] font-[550] tracking-[-0.01em]">
+        <span className="text-ink-3">Time every problem.</span> Automatically.
+      </p>
+      <p className="text-[13px] text-ink-2">
+        The Upsolve extension times each LeetCode problem, catches every verdict and imports your
+        full history.
+      </p>
+      <Link href="/extension/connect" className={buttonClasses({ variant: "signal", size: "sm" })}>
+        Set up the extension <ButtonArrow />
+      </Link>
+    </div>
   );
 }
 

@@ -14,7 +14,8 @@ packages/db       Drizzle schema, migrations, DB client, sync persistence
 packages/adapters Codeforces + LeetCode clients (public data only, no DB)
 ```
 
-The Chrome extension (`apps/extension`) arrives in Phase 2.
+apps/extension Chrome extension (WXT): LeetCode timer, verdicts, history import
+packages/contracts Zod schemas shared by the extension and the API
 
 ## Run it
 
@@ -38,6 +39,20 @@ Open http://localhost:3000. Without Supabase keys the app runs in **demo mode**:
 7. Restart `pnpm dev`. Visiting `/dashboard` now redirects to `/login` until you sign in.
 
 Magic links open in the same browser that requested them (PKCE flow).
+
+## Load the extension (development)
+
+1. Build it. It talks to `http://localhost:3005` by default; set `UPSOLVE_WEB_URL` to point elsewhere.
+   ```bash
+   pnpm --filter @upsolve/extension build
+   ```
+2. In Chrome open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `apps/extension/.output/chrome-mv3`.
+3. Start the web app (`pnpm --filter @upsolve/web exec next dev --port 3005`), sign in, and open **Settings → Browser extension → Connect a browser** (or click the extension icon → Connect).
+4. Open any LeetCode problem. A small timer appears bottom-left and starts after 10 seconds or your first keystroke. Submit, and after **Accepted** it asks how you solved it.
+
+After changing extension code, rebuild and press the reload icon on the extension card in `chrome://extensions`.
+
+What the extension can access: `leetcode.com` and the Upsolve site only, plus `storage` and `alarms`. On LeetCode it reads verdict responses and, for the history import, your submission list (never code). Your LeetCode cookies never leave the browser.
 
 ## Scripts
 

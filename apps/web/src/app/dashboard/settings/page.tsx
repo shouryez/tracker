@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { Globe, Plug, UserRound } from "lucide-react";
+import { Globe, Plug, Puzzle, UserRound } from "lucide-react";
 import { ButtonArrow, Card, CardHeader, CardTitle, buttonClasses } from "@upsolve/ui";
 import { PlatformConnections } from "@/components/platform-connections";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
+import { getExtensionTokens } from "@/lib/sessions-data";
+import { ExtensionTokens } from "./extension-tokens";
 import { PublicToggle } from "./public-toggle";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -29,7 +31,7 @@ async function SettingsContent() {
   if (isDemoUser(user)) {
     return <p className="text-ink-2">Sign in to manage your settings.</p>;
   }
-  const profile = await getProfile(user.id);
+  const [profile, tokens] = await Promise.all([getProfile(user.id), getExtensionTokens(user.id)]);
   const icon = (I: typeof Plug) => <I size={13} strokeWidth={2} />;
 
   return (
@@ -62,6 +64,26 @@ async function SettingsContent() {
           <CardTitle icon={icon(Plug)}>Platforms</CardTitle>
         </CardHeader>
         <PlatformConnections userId={user.id} />
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle icon={icon(Puzzle)}>Browser extension</CardTitle>
+          <Link
+            href="/extension/connect"
+            className={buttonClasses({ variant: "secondary", size: "sm" })}
+          >
+            Connect a browser
+          </Link>
+        </CardHeader>
+        <ExtensionTokens
+          tokens={tokens.map((t) => ({
+            id: t.id,
+            label: t.label,
+            createdAt: t.createdAt.toISOString(),
+            lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
+          }))}
+        />
       </Card>
 
       <Card>

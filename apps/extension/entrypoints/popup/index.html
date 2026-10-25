@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Upsolve</title>
+    <style>
+      :root {
+        --bg: #09090c;
+        --surface: #131319;
+        --surface-2: #1a1a22;
+        --line: rgba(255, 255, 255, 0.08);
+        --line-2: rgba(255, 255, 255, 0.13);
+        --ink: #f4f4f6;
+        --ink-2: #a3a3b0;
+        --ink-3: #686876;
+        --signal: #d7ff3a;
+        --ok: #3ddc97;
+        --warn: #ffb938;
+        --bad: #ff5470;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        width: 340px;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          14px/1.45 "Geist",
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+      }
+      main {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 650;
+        letter-spacing: -0.03em;
+        font-size: 16px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+      }
+      .mono {
+        font-family: ui-monospace, "Geist Mono", Consolas, monospace;
+      }
+      .muted {
+        color: var(--ink-3);
+      }
+      .sub {
+        color: var(--ink-2);
+        font-size: 12.5px;
+        margin: 2px 0 0;
+      }
+      .eyebrow {
+        font:
+          500 10.5px/1 ui-monospace,
+          "Geist Mono",
+          Consolas,
+          monospace;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+        margin: 0 0 8px;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .num {
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .num small {
+        font-size: 11px;
+        color: var(--ink-3);
+        letter-spacing: 0;
+        margin-left: 2px;
+      }
+      button {
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid var(--line-2);
+        background: var(--surface-2);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 550;
+        cursor: pointer;
+        padding: 0 14px;
+      }
+      button.primary {
+        background: var(--signal);
+        color: #0b0b0f;
+        border-color: transparent;
+      }
+      button.ghost {
+        background: none;
+        border-color: transparent;
+        color: var(--ink-2);
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .warn {
+        color: var(--warn);
+      }
+      .bad {
+        color: var(--bad);
+      }
+      .ok {
+        color: var(--ok);
+      }
+    </style>
+  </head>
+  <body>
+    <main id="app">
+      <p class="muted">Loading…</p>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

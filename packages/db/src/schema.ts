@@ -166,6 +166,25 @@ export const platformAccounts = pgTable(
   ],
 ).enableRLS();
 
+/**
+ * Long-lived API tokens for the browser extension. Only a SHA-256 hash is
+ * stored; the plain token lives in the user's extension storage.
+ */
+export const extensionTokens = pgTable(
+  "extension_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    tokenHash: text("token_hash").notNull().unique(),
+    /** Browser description shown in Settings, e.g. "Chrome on Windows". */
+    label: text("label"),
+    createdAt: createdAt(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  },
+  (t) => [index("extension_tokens_user_idx").on(t.userId), ownerCanRead(t.userId)],
+).enableRLS();
+
 // ---------------------------------------------------------------- problem catalog
 
 /** Our canonical problem: one row per real-world problem, across platforms. */
@@ -234,7 +253,7 @@ export const submissions = pgTable(
     createdAt: createdAt(),
   },
   (t) => [
-    unique("submissions_platform_external_uq").on(t.platform, t.externalId),
+    unique("submissions_user_platform_external_uq").on(t.userId, t.platform, t.externalId),
     index("submissions_user_time_idx").on(t.userId, t.submittedAt.desc()),
     ownerCanRead(t.userId),
   ],
@@ -246,6 +265,8 @@ export const practiceSessions = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: userRef(),
+    /** Id the extension generated, so repeated uploads update one row. */
+    clientId: text("client_id").notNull(),
     platformProblemId: uuid("platform_problem_id")
       .notNull()
       .references(() => platformProblems.id, { onDelete: "cascade" }),
@@ -263,8 +284,10 @@ export const practiceSessions = pgTable(
       .notNull()
       .default(sql`'{}'::text[]`),
     createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
   (t) => [
+    unique("practice_sessions_user_client_uq").on(t.userId, t.clientId),
     index("practice_sessions_user_time_idx").on(t.userId, t.startedAt.desc()),
     ownerCanRead(t.userId),
   ],

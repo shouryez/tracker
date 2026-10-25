@@ -36,6 +36,20 @@
       "when": 1792884771100,
       "tag": "0004_college_name_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792886704030,
+      "tag": "0005_extension",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792886881205,
+      "tag": "0006_submissions_per_user",
+      "breakpoints": true
     }
   ]
 }

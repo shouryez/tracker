@@ -1,0 +1,38 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Logo, ThemeToggle } from "@upsolve/ui";
+import { getCurrentUser } from "@/lib/auth";
+import { ConnectExtension } from "./connect-extension";
+
+export const metadata: Metadata = { title: "Connect the extension" };
+
+export default function ConnectExtensionPage() {
+  return (
+    <div className="min-h-dvh">
+      <header className="mx-auto flex h-[72px] w-[min(640px,100%-32px)] items-center justify-between">
+        <Link href="/dashboard" aria-label="Upsolve dashboard">
+          <Logo />
+        </Link>
+        <ThemeToggle />
+      </header>
+      <main className="mx-auto w-[min(640px,100%-32px)] pt-10 pb-24">
+        <h1 className="mb-3 font-display text-[clamp(36px,6vw,52px)] leading-none tracking-[-0.02em]">
+          <span className="text-ink-3">One click.</span> <em>Then just solve.</em>
+        </h1>
+        <p className="mb-8 max-w-[52ch] text-ink-2">
+          Connecting lets the extension send your timed sessions and verdicts to your dashboard. It
+          only ever talks to LeetCode and Upsolve.
+        </p>
+        <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-surface" />}>
+          <Gate />
+        </Suspense>
+      </main>
+    </div>
+  );
+}
+
+async function Gate() {
+  await getCurrentUser(); // redirects to /login when signed out
+  return <ConnectExtension />;
+}

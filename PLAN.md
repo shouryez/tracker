@@ -283,14 +283,14 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [x] Public profile `/u/handle` v0 (opt-in from Settings)
 - **Exit:** 5 friends onboarded with real data.
 
-### Phase 2 — Extension v1 (3 weeks)
+### Phase 2 — Extension v1 (3 weeks) ✅ built 25 Oct 2026 (LeetCode only, by choice)
 
-- [ ] WXT scaffold, auth handshake, event queue + `/api/ext/events`
-- [ ] LeetCode: problem detection, timer state machine, verdict hook, full-history backfill
-- [ ] In-page pill (Shadow DOM) + after-AC prompt (independence, note, mistake tag)
-- [ ] Popup: today count, live session, today's list
-- [ ] Sessions page + live session card on overview + 30-day pixel stack + focus bars
-- [ ] Chrome Web Store **unlisted** release ($5 one-time developer registration)
+- [x] WXT scaffold, token handshake from `/extension/connect`, offline outbox, `/api/ext/{me,sessions,history}` (Zod-validated, `packages/contracts`)
+- [x] LeetCode: problem detection, timer state machine (auto-start, idle/sleep-safe), verdict hook, full-history import from the user's own session (no code uploaded)
+- [x] In-page pill (Shadow DOM) + after-AC prompt (independence, note, mistake tags)
+- [x] Popup: today's solved/sessions/focus, live session, import + sync status
+- [x] Sessions page, focus bars, solo rate and recent sessions on overview, extension management in Settings. _30-day pixel stack moves to Phase 4 analytics._
+- [ ] Chrome Web Store **unlisted** release ($5 one-time developer registration). Needs your developer account; build with `UPSOLVE_WEB_URL=<prod url> pnpm --filter @upsolve/extension zip`
 - **Exit:** you use it for 2 weeks without opening a spreadsheet.
 
 ### Phase 3 — Catalog & sheets (2–3 weeks)

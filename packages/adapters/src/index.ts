@@ -5,6 +5,7 @@ import type { Platform, PlatformAdapter } from "./types.ts";
 export * from "./types.ts";
 export { topicName } from "./topics.ts";
 export { ratingToDifficulty } from "./codeforces.ts";
+export { leetcodeCatalogPage, leetcodeQuestion } from "./leetcode.ts";
 
 /** Platforms with a working adapter. Others arrive in Phases 3 and 5. */
 export const ADAPTERS: Partial<Record<Platform, PlatformAdapter>> = { leetcode, codeforces };

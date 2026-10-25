@@ -1,8 +1,8 @@
 // Persistence for platform sync. Imports use explicit .ts extensions so this file
-// also runs under plain Node (see store.check.ts).
+// also runs under plain Node (see scripts/check-store.ts).
 import { sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
-import type { Platform, RawContestResult, RawSubmission } from "@upsolve/adapters";
+import type { Platform, RawContestResult, RawProblem, RawSubmission } from "@upsolve/adapters";
 import { contestResults, platformProblems, submissions } from "./schema.ts";
 
 // Accepts the shared client or a transaction.
@@ -15,19 +15,15 @@ function chunk<T>(items: T[], size: number): T[][] {
   return out;
 }
 
-/** Upserts the problems, then inserts submissions that aren't stored yet. Returns rows inserted. */
-export async function saveSubmissions(
+/** Inserts or refreshes platform problems. Returns externalId → row id. */
+export async function upsertProblems(
   db: Database,
-  userId: string,
   platform: Platform,
-  subs: RawSubmission[],
-): Promise<number> {
-  if (subs.length === 0) return 0;
-
-  const problems = new Map(subs.map((s) => [s.problem.externalId, s.problem]));
-  const problemIds = new Map<string, string>();
-
-  for (const batch of chunk([...problems.values()], 500)) {
+  problems: RawProblem[],
+): Promise<Map<string, string>> {
+  const ids = new Map<string, string>();
+  const unique = [...new Map(problems.map((p) => [p.externalId, p])).values()];
+  for (const batch of chunk(unique, 500)) {
     const rows = await db
       .insert(platformProblems)
       .values(
@@ -46,38 +42,78 @@ export async function saveSubmissions(
         target: [platformProblems.platform, platformProblems.externalId],
         set: {
           title: sql`excluded.title`,
-          difficultyRaw: sql`excluded.difficulty_raw`,
-          rating: sql`excluded.rating`,
-          tags: sql`excluded.tags`,
+          // Never overwrite known difficulty/tags with blanks from a minimal row.
+          difficultyRaw: sql`coalesce(excluded.difficulty_raw, ${platformProblems.difficultyRaw})`,
+          rating: sql`coalesce(excluded.rating, ${platformProblems.rating})`,
+          tags: sql`case when cardinality(excluded.tags) > 0 then excluded.tags else ${platformProblems.tags} end`,
         },
       })
       .returning({ id: platformProblems.id, externalId: platformProblems.externalId });
-    for (const r of rows) problemIds.set(r.externalId, r.id);
+    for (const r of rows) ids.set(r.externalId, r.id);
   }
+  return ids;
+}
 
+export type SubmissionRow = {
+  platformProblemId: string;
+  externalId: string;
+  verdict: RawSubmission["verdict"];
+  language: string | null;
+  runtimeMs: number | null;
+  memoryKb: number | null;
+  submittedAt: Date;
+};
+
+/** Inserts submissions that aren't stored yet. Returns how many were new. */
+export async function insertSubmissions(
+  db: Database,
+  userId: string,
+  platform: Platform,
+  source: "api" | "extension",
+  rows: SubmissionRow[],
+): Promise<number> {
   let inserted = 0;
-  for (const batch of chunk(subs, 1000)) {
-    const rows = await db
+  for (const batch of chunk(rows, 1000)) {
+    const out = await db
       .insert(submissions)
-      .values(
-        batch.map((s) => ({
-          userId,
-          platformProblemId: problemIds.get(s.problem.externalId)!,
-          platform,
-          externalId: s.externalId,
-          verdict: s.verdict,
-          language: s.language,
-          runtimeMs: s.runtimeMs,
-          memoryKb: s.memoryKb,
-          submittedAt: s.submittedAt,
-          source: "api" as const,
-        })),
-      )
-      .onConflictDoNothing({ target: [submissions.platform, submissions.externalId] })
+      .values(batch.map((r) => ({ ...r, userId, platform, source })))
+      .onConflictDoNothing({
+        target: [submissions.userId, submissions.platform, submissions.externalId],
+      })
       .returning({ id: submissions.id });
-    inserted += rows.length;
+    inserted += out.length;
   }
   return inserted;
+}
+
+/** Upserts the problems, then inserts submissions that aren't stored yet. Returns rows inserted. */
+export async function saveSubmissions(
+  db: Database,
+  userId: string,
+  platform: Platform,
+  subs: RawSubmission[],
+): Promise<number> {
+  if (subs.length === 0) return 0;
+  const problemIds = await upsertProblems(
+    db,
+    platform,
+    subs.map((s) => s.problem),
+  );
+  return insertSubmissions(
+    db,
+    userId,
+    platform,
+    "api",
+    subs.map((s) => ({
+      platformProblemId: problemIds.get(s.problem.externalId)!,
+      externalId: s.externalId,
+      verdict: s.verdict,
+      language: s.language,
+      runtimeMs: s.runtimeMs,
+      memoryKb: s.memoryKb,
+      submittedAt: s.submittedAt,
+    })),
+  );
 }
 
 /** Inserts or refreshes rated contest results. */

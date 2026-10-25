@@ -89,7 +89,8 @@ type QuestionData = {
   } | null;
 };
 
-async function question(slug: string): Promise<RawProblem> {
+/** One problem's details from the public API. */
+export async function leetcodeQuestion(slug: string): Promise<RawProblem> {
   const { question: q } = await gql<QuestionData>(QUESTION_QUERY, { s: slug });
   return {
     externalId: slug,
@@ -115,6 +116,49 @@ export function parseCalendar(raw: string | undefined | null): Record<string, nu
     // Malformed calendar: treat as no activity rather than failing the sync.
   }
   return out;
+}
+
+const CATALOG_QUERY = `
+query catalog($skip: Int!, $limit: Int!) {
+  questionList(categorySlug: "", limit: $limit, skip: $skip, filters: {}) {
+    totalNum
+    data { questionFrontendId title titleSlug difficulty topicTags { slug } }
+  }
+}`;
+
+type CatalogData = {
+  questionList: {
+    totalNum: number;
+    data: {
+      questionFrontendId: string;
+      title: string;
+      titleSlug: string;
+      difficulty: "Easy" | "Medium" | "Hard";
+      topicTags: { slug: string }[];
+    }[];
+  } | null;
+};
+
+/** One page of LeetCode's full public problem list (about 4,000 problems in total). */
+export async function leetcodeCatalogPage(
+  skip: number,
+  limit = 100,
+): Promise<{ total: number; problems: RawProblem[] }> {
+  const { questionList } = await gql<CatalogData>(CATALOG_QUERY, { skip, limit });
+  if (!questionList) throw new PlatformError("LeetCode: problem list unavailable", true);
+  return {
+    total: questionList.totalNum,
+    problems: questionList.data.map((q) => ({
+      externalId: q.titleSlug,
+      slug: q.titleSlug,
+      url: `https://leetcode.com/problems/${q.titleSlug}/`,
+      title: `${q.questionFrontendId}. ${q.title}`,
+      difficulty: q.difficulty.toLowerCase() as Difficulty,
+      difficultyRaw: q.difficulty,
+      rating: null,
+      tags: q.topicTags.map((t) => t.slug),
+    })),
+  };
 }
 
 export const leetcode: PlatformAdapter = {
@@ -176,7 +220,7 @@ export const leetcode: PlatformAdapter = {
     for (const s of recent) {
       let problem = problems.get(s.titleSlug);
       if (!problem) {
-        problem = await question(s.titleSlug);
+        problem = await leetcodeQuestion(s.titleSlug);
         problems.set(s.titleSlug, problem);
       }
       submissions.push({

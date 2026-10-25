@@ -19,7 +19,7 @@ type Item = { label: string; icon: LucideIcon; href?: string };
 
 const MENU: Item[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutGrid },
-  { label: "Sessions", icon: Timer },
+  { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
   { label: "Revision", icon: RotateCcw },
   { label: "Sheets", icon: ListChecks },
   { label: "Analytics", icon: ChartColumn },
