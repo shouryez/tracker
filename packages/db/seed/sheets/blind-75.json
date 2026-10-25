@@ -1,0 +1,608 @@
+{
+  "name": "Blind 75",
+  "author": "NeetCode",
+  "sourceUrl": "https://neetcode.io/practice/practice/blind75",
+  "extractedAt": "2026-10-25",
+  "items": [
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Contains Duplicate",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "contains-duplicate"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Valid Anagram",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "valid-anagram"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Two Sum",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "two-sum"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Group Anagrams",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "group-anagrams"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Top K Frequent Elements",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "top-k-frequent-elements"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Encode and Decode Strings",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "encode-and-decode-strings"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Product of Array Except Self",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "product-of-array-except-self"
+    },
+    {
+      "step": "Arrays & Hashing",
+      "section": null,
+      "title": "Longest Consecutive Sequence",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "longest-consecutive-sequence"
+    },
+    {
+      "step": "Two Pointers",
+      "section": null,
+      "title": "Valid Palindrome",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "valid-palindrome"
+    },
+    {
+      "step": "Two Pointers",
+      "section": null,
+      "title": "3Sum",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "3sum"
+    },
+    {
+      "step": "Two Pointers",
+      "section": null,
+      "title": "Container With Most Water",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "container-with-most-water"
+    },
+    {
+      "step": "Sliding Window",
+      "section": null,
+      "title": "Best Time to Buy And Sell Stock",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "best-time-to-buy-and-sell-stock"
+    },
+    {
+      "step": "Sliding Window",
+      "section": null,
+      "title": "Longest Substring Without Repeating Characters",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "longest-substring-without-repeating-characters"
+    },
+    {
+      "step": "Sliding Window",
+      "section": null,
+      "title": "Longest Repeating Character Replacement",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "longest-repeating-character-replacement"
+    },
+    {
+      "step": "Sliding Window",
+      "section": null,
+      "title": "Minimum Window Substring",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "minimum-window-substring"
+    },
+    {
+      "step": "Stack",
+      "section": null,
+      "title": "Valid Parentheses",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "valid-parentheses"
+    },
+    {
+      "step": "Binary Search",
+      "section": null,
+      "title": "Find Minimum In Rotated Sorted Array",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "find-minimum-in-rotated-sorted-array"
+    },
+    {
+      "step": "Binary Search",
+      "section": null,
+      "title": "Search In Rotated Sorted Array",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "search-in-rotated-sorted-array"
+    },
+    {
+      "step": "Linked List",
+      "section": null,
+      "title": "Reverse Linked List",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "reverse-linked-list"
+    },
+    {
+      "step": "Linked List",
+      "section": null,
+      "title": "Merge Two Sorted Lists",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "merge-two-sorted-lists"
+    },
+    {
+      "step": "Linked List",
+      "section": null,
+      "title": "Linked List Cycle",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "linked-list-cycle"
+    },
+    {
+      "step": "Linked List",
+      "section": null,
+      "title": "Reorder List",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "reorder-list"
+    },
+    {
+      "step": "Linked List",
+      "section": null,
+      "title": "Remove Nth Node From End of List",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "remove-nth-node-from-end-of-list"
+    },
+    {
+      "step": "Linked List",
+      "section": null,
+      "title": "Merge K Sorted Lists",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "merge-k-sorted-lists"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Invert Binary Tree",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "invert-binary-tree"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Maximum Depth of Binary Tree",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "maximum-depth-of-binary-tree"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Same Tree",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "same-tree"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Subtree of Another Tree",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "subtree-of-another-tree"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Lowest Common Ancestor of a Binary Search Tree",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Binary Tree Level Order Traversal",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "binary-tree-level-order-traversal"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Validate Binary Search Tree",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "validate-binary-search-tree"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Kth Smallest Element In a Bst",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "kth-smallest-element-in-a-bst"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Construct Binary Tree From Preorder And Inorder Traversal",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Binary Tree Maximum Path Sum",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "binary-tree-maximum-path-sum"
+    },
+    {
+      "step": "Trees",
+      "section": null,
+      "title": "Serialize And Deserialize Binary Tree",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "serialize-and-deserialize-binary-tree"
+    },
+    {
+      "step": "Heap / Priority Queue",
+      "section": null,
+      "title": "Find Median From Data Stream",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "find-median-from-data-stream"
+    },
+    {
+      "step": "Backtracking",
+      "section": null,
+      "title": "Combination Sum",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "combination-sum"
+    },
+    {
+      "step": "Backtracking",
+      "section": null,
+      "title": "Word Search",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "word-search"
+    },
+    {
+      "step": "Tries",
+      "section": null,
+      "title": "Implement Trie Prefix Tree",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "implement-trie-prefix-tree"
+    },
+    {
+      "step": "Tries",
+      "section": null,
+      "title": "Design Add And Search Words Data Structure",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "design-add-and-search-words-data-structure"
+    },
+    {
+      "step": "Tries",
+      "section": null,
+      "title": "Word Search II",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "word-search-ii"
+    },
+    {
+      "step": "Graphs",
+      "section": null,
+      "title": "Number of Islands",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "number-of-islands"
+    },
+    {
+      "step": "Graphs",
+      "section": null,
+      "title": "Clone Graph",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "clone-graph"
+    },
+    {
+      "step": "Graphs",
+      "section": null,
+      "title": "Pacific Atlantic Water Flow",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "pacific-atlantic-water-flow"
+    },
+    {
+      "step": "Graphs",
+      "section": null,
+      "title": "Course Schedule",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "course-schedule"
+    },
+    {
+      "step": "Graphs",
+      "section": null,
+      "title": "Graph Valid Tree",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "graph-valid-tree"
+    },
+    {
+      "step": "Graphs",
+      "section": null,
+      "title": "Number of Connected Components In An Undirected Graph",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "number-of-connected-components-in-an-undirected-graph"
+    },
+    {
+      "step": "Advanced Graphs",
+      "section": null,
+      "title": "Alien Dictionary",
+      "kind": "practice",
+      "tier": "hard",
+      "leetcode": "alien-dictionary"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Climbing Stairs",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "climbing-stairs"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "House Robber",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "house-robber"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "House Robber II",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "house-robber-ii"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Longest Palindromic Substring",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "longest-palindromic-substring"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Palindromic Substrings",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "palindromic-substrings"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Decode Ways",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "decode-ways"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Coin Change",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "coin-change"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Maximum Product Subarray",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "maximum-product-subarray"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Word Break",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "word-break"
+    },
+    {
+      "step": "1-D Dynamic Programming",
+      "section": null,
+      "title": "Longest Increasing Subsequence",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "longest-increasing-subsequence"
+    },
+    {
+      "step": "2-D Dynamic Programming",
+      "section": null,
+      "title": "Unique Paths",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "unique-paths"
+    },
+    {
+      "step": "2-D Dynamic Programming",
+      "section": null,
+      "title": "Longest Common Subsequence",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "longest-common-subsequence"
+    },
+    {
+      "step": "Greedy",
+      "section": null,
+      "title": "Maximum Subarray",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "maximum-subarray"
+    },
+    {
+      "step": "Greedy",
+      "section": null,
+      "title": "Jump Game",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "jump-game"
+    },
+    {
+      "step": "Intervals",
+      "section": null,
+      "title": "Insert Interval",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "insert-interval"
+    },
+    {
+      "step": "Intervals",
+      "section": null,
+      "title": "Merge Intervals",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "merge-intervals"
+    },
+    {
+      "step": "Intervals",
+      "section": null,
+      "title": "Non Overlapping Intervals",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "non-overlapping-intervals"
+    },
+    {
+      "step": "Intervals",
+      "section": null,
+      "title": "Meeting Rooms",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "meeting-rooms"
+    },
+    {
+      "step": "Intervals",
+      "section": null,
+      "title": "Meeting Rooms II",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "meeting-rooms-ii"
+    },
+    {
+      "step": "Math & Geometry",
+      "section": null,
+      "title": "Rotate Image",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "rotate-image"
+    },
+    {
+      "step": "Math & Geometry",
+      "section": null,
+      "title": "Spiral Matrix",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "spiral-matrix"
+    },
+    {
+      "step": "Math & Geometry",
+      "section": null,
+      "title": "Set Matrix Zeroes",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "set-matrix-zeroes"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": null,
+      "title": "Number of 1 Bits",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "number-of-1-bits"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": null,
+      "title": "Counting Bits",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "counting-bits"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": null,
+      "title": "Reverse Bits",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "reverse-bits"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": null,
+      "title": "Missing Number",
+      "kind": "practice",
+      "tier": "easy",
+      "leetcode": "missing-number"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": null,
+      "title": "Sum of Two Integers",
+      "kind": "practice",
+      "tier": "medium",
+      "leetcode": "sum-of-two-integers"
+    }
+  ]
+}

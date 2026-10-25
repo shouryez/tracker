@@ -33,7 +33,7 @@ Open http://localhost:3000. Without Supabase keys the app runs in **demo mode**:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. **Web env:** copy `apps/web/.env.example` → `apps/web/.env.local` and paste the project URL, publishable key (Project Settings → API Keys) and `DATABASE_URL` (same connection string as step 3).
 3. **DB env:** copy `packages/db/.env.example` → `packages/db/.env` and paste the Session pooler connection string (Project Settings → Database).
-4. **Create the tables:** `pnpm db:migrate`. This creates the schema with row-level security, plus a trigger that makes a profile row for every new user.
+4. **Create the tables:** `pnpm db:migrate`, then `pnpm --filter @upsolve/db seed:sheets` to load the coding sheets. This creates the schema with row-level security, plus a trigger that makes a profile row for every new user.
 5. **Auth settings** (Authentication → URL Configuration): set Site URL to `http://localhost:3000` and add `http://localhost:3000/auth/callback` to Redirect URLs.
 6. **Google sign-in (optional):** Authentication → Providers → Google. Create an OAuth client in Google Cloud Console with the callback URL Supabase shows you.
 7. Restart `pnpm dev`. Visiting `/dashboard` now redirects to `/login` until you sign in.
@@ -56,16 +56,18 @@ What the extension can access: `leetcode.com` and the Upsolve site only, plus `s
 
 ## Scripts
 
-| Command                                 | What it does                                                     |
-| --------------------------------------- | ---------------------------------------------------------------- |
-| `pnpm dev`                              | Run all apps in dev mode                                         |
-| `pnpm build`                            | Production build                                                 |
-| `pnpm lint` / `pnpm typecheck`          | ESLint / TypeScript across the monorepo                          |
-| `pnpm format`                           | Prettier                                                         |
-| `pnpm db:generate`                      | Generate a migration after editing `packages/db/src/schema.ts`   |
-| `pnpm db:migrate`                       | Apply migrations to `DATABASE_URL`                               |
-| `pnpm test`                             | Unit tests (adapters, stats)                                     |
-| `pnpm --filter @upsolve/db check:store` | Live check: fetch real data, save it in a transaction, roll back |
+| Command                                    | What it does                                                                                                  |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `pnpm dev`                                 | Run all apps in dev mode                                                                                      |
+| `pnpm build`                               | Production build                                                                                              |
+| `pnpm lint` / `pnpm typecheck`             | ESLint / TypeScript across the monorepo                                                                       |
+| `pnpm format`                              | Prettier                                                                                                      |
+| `pnpm db:generate`                         | Generate a migration after editing `packages/db/src/schema.ts`                                                |
+| `pnpm db:migrate`                          | Apply migrations to `DATABASE_URL`                                                                            |
+| `pnpm --filter @upsolve/db seed:sheets`    | Load the coding sheets (Striver, NeetCode, Blind 75, Grind 75) into the database. Run once after `db:migrate` |
+| `pnpm --filter @upsolve/db sheets:extract` | Re-download sheet lists from their sources into `packages/db/seed/sheets/`                                    |
+| `pnpm test`                                | Unit tests (adapters, stats)                                                                                  |
+| `pnpm --filter @upsolve/db check:store`    | Live check: fetch real data, save it in a transaction, roll back                                              |
 
 ## Notes for contributors
 

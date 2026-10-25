@@ -21,7 +21,7 @@ const MENU: Item[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutGrid },
   { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
   { label: "Revision", icon: RotateCcw },
-  { label: "Sheets", icon: ListChecks },
+  { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
   { label: "Analytics", icon: ChartColumn },
   { label: "Contests", icon: Trophy },
 ];
@@ -31,8 +31,13 @@ const ACCOUNT: Item[] = [{ label: "Settings", href: "/dashboard/settings", icon:
 const itemClass =
   "relative flex items-center gap-2.5 rounded-sm px-2.5 py-2 text-[13.5px] transition-colors duration-[240ms]";
 
+/** Sidebar with the current page highlighted. Reads the URL, so render it inside <Suspense>. */
 export function NavLinks() {
-  const pathname = usePathname();
+  return <NavList pathname={usePathname()} />;
+}
+
+/** Sidebar for a given path; with null nothing is highlighted (the Suspense fallback). */
+export function NavList({ pathname }: { pathname: string | null }) {
   return (
     <>
       <Group label="Menu" items={MENU} pathname={pathname} />
@@ -42,7 +47,15 @@ export function NavLinks() {
   );
 }
 
-function Group({ label, items, pathname }: { label: string; items: Item[]; pathname: string }) {
+function Group({
+  label,
+  items,
+  pathname,
+}: {
+  label: string;
+  items: Item[];
+  pathname: string | null;
+}) {
   return (
     <>
       <div className="px-2.5 pt-4 pb-1.5 font-mono text-[10.5px] font-medium tracking-[.1em] text-ink-3 uppercase">
@@ -65,7 +78,11 @@ function Group({ label, items, pathname }: { label: string; items: Item[]; pathn
               </span>
             );
           }
-          const active = pathname === href;
+          const active =
+            pathname !== null &&
+            (href === "/dashboard"
+              ? pathname === href
+              : pathname === href || pathname.startsWith(`${href}/`));
           return (
             <Link
               key={label}

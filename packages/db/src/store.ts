@@ -140,3 +140,40 @@ export async function saveContests(
       });
   }
 }
+
+/**
+ * Gives every platform problem a canonical `problems` row (PLAN.md §6.1).
+ * LeetCode slugs are the canonical key; other platforms use "<platform>:<id>"
+ * until cross-platform matching (GFG, Phase 3b) links them to LeetCode twins.
+ * Returns how many platform problems were newly linked.
+ */
+export async function linkCatalog(db: Database): Promise<number> {
+  const canonical = sql`case when pp.platform = 'leetcode' then pp.external_id else pp.platform || ':' || pp.external_id end`;
+  await db.execute(sql`
+    insert into problems (canonical_slug, title, difficulty, topics)
+    select ${canonical},
+           regexp_replace(pp.title, '^[0-9]+\.\s+', ''),
+           (case
+              when pp.platform = 'codeforces' then
+                case when pp.rating is null then null
+                     when pp.rating < 1400 then 'easy'
+                     when pp.rating < 1900 then 'medium'
+                     else 'hard' end
+              else case lower(pp.difficulty_raw)
+                     when 'easy' then 'easy' when 'medium' then 'medium' when 'hard' then 'hard' end
+            end)::difficulty,
+           pp.tags
+    from platform_problems pp
+    where pp.problem_id is null
+    on conflict (canonical_slug) do update
+      set difficulty = coalesce(problems.difficulty, excluded.difficulty),
+          topics = case when cardinality(problems.topics) > 0 then problems.topics else excluded.topics end
+  `);
+  const linked = await db.execute(sql`
+    update platform_problems pp
+    set problem_id = p.id
+    from problems p
+    where pp.problem_id is null and p.canonical_slug = ${canonical}
+  `);
+  return (linked as unknown as { count?: number }).count ?? 0;
+}

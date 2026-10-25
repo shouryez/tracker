@@ -1,7 +1,7 @@
 import "server-only";
 import { sql } from "drizzle-orm";
 import type { ExtHistoryItem, ExtSession } from "@upsolve/contracts";
-import { insertSubmissions, practiceSessions } from "@upsolve/db";
+import { insertSubmissions, linkCatalog, practiceSessions } from "@upsolve/db";
 import { db } from "@/lib/db";
 import { ensureLeetcodeProblems } from "@/lib/leetcode-problems";
 
@@ -10,6 +10,7 @@ export async function saveExtSessions(userId: string, sessions: ExtSession[]): P
   const problemIds = await ensureLeetcodeProblems(
     sessions.map((s) => ({ slug: s.titleSlug, title: s.title })),
   );
+  await linkCatalog(db());
 
   for (const s of sessions) {
     const platformProblemId = problemIds.get(s.titleSlug)!;
@@ -71,6 +72,7 @@ export async function saveExtHistory(userId: string, items: ExtHistoryItem[]): P
   const problemIds = await ensureLeetcodeProblems(
     items.map((i) => ({ slug: i.titleSlug, title: i.title })),
   );
+  await linkCatalog(db());
   return insertSubmissions(
     db(),
     userId,

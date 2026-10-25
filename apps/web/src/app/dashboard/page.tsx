@@ -8,6 +8,7 @@ import {
   Flame,
   Grid3x3,
   History,
+  ListChecks,
   Plug,
   Puzzle,
   Sparkles,
@@ -31,6 +32,7 @@ import {
 } from "@upsolve/ui";
 import { SolvedSplit, Sparkline, TopicBar } from "@/components/charts";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL, PLATFORM_STROKE } from "@/components/platform-meta";
+import { formatEta, SegmentedProgress } from "@/components/progress";
 import { FocusBars, SessionItem } from "@/components/sessions";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -44,6 +46,7 @@ import {
   type RecentSolve,
 } from "@/lib/data";
 import { GOALS } from "@/lib/profile-options";
+import { getSheetSummaries } from "@/lib/sheets-data";
 import {
   formatDuration,
   getExtensionTokens,
@@ -81,6 +84,7 @@ async function Overview() {
     getSessions(user.id, 8),
     getExtensionTokens(user.id),
   ]);
+  const followed = (await getSheetSummaries(user.id)).filter((s) => s.following);
   const hasExtension = tokens.length > 0;
   const answered =
     sessionStats.honest.solo + sessionStats.honest.hint + sessionStats.honest.solution;
@@ -172,13 +176,10 @@ async function Overview() {
         <Card className="col-span-12 xl:col-span-4">
           <CardHeader>
             <CardTitle icon={icon(CircleCheck)}>By difficulty</CardTitle>
-            <CardSub>not yet de-duplicated</CardSub>
+            <CardSub>all platforms</CardSub>
           </CardHeader>
           <Stat value={stats.solved.total} unit="solved" className="mb-4" />
           <SolvedSplit solved={stats.solved} />
-          <p className="mt-4 text-[12.5px] text-ink-3">
-            The same problem solved on two sites counts twice until the problem catalog lands.
-          </p>
         </Card>
 
         <Card className="col-span-12 xl:col-span-5">
@@ -308,7 +309,7 @@ async function Overview() {
           )}
         </Card>
 
-        <Card className="col-span-12 xl:col-span-7">
+        <Card className="col-span-12">
           <CardHeader>
             <CardTitle icon={icon(History)}>Recent solves</CardTitle>
             <CardSub>accepted</CardSub>
@@ -326,13 +327,56 @@ async function Overview() {
           )}
         </Card>
 
+        <Card className="col-span-12 xl:col-span-7">
+          <CardHeader>
+            <CardTitle icon={icon(ListChecks)}>Sheets</CardTitle>
+            <Link
+              href="/dashboard/sheets"
+              className={buttonClasses({ variant: "ghost", size: "sm" })}
+            >
+              All sheets <ButtonArrow />
+            </Link>
+          </CardHeader>
+          {followed.length === 0 ? (
+            <div className="flex flex-col items-start gap-3">
+              <p className="text-[13.5px] text-ink-2">
+                Follow Striver A2Z, NeetCode 150 or any other sheet and its progress shows here,
+                ticked automatically as you solve.
+              </p>
+              <Link
+                href="/dashboard/sheets"
+                className={buttonClasses({ variant: "signal", size: "sm" })}
+              >
+                Pick your sheets <ButtonArrow />
+              </Link>
+            </div>
+          ) : (
+            followed.map((s) => (
+              <Link
+                key={s.id}
+                href={`/dashboard/sheets/${s.slug}`}
+                className="block border-t border-dashed border-line-2 py-3 first:border-t-0 first:pt-0 last:pb-0"
+              >
+                <div className="mb-2 flex items-baseline justify-between gap-2 text-[13.5px]">
+                  <span className="font-[550]">{s.name}</span>
+                  <span className="font-mono text-[11.5px] text-ink-3">
+                    {s.done} / {s.total}
+                    {s.eta ? ` · est. ${formatEta(s.eta)}` : ""}
+                  </span>
+                </div>
+                <SegmentedProgress done={s.done} total={s.total} />
+              </Link>
+            ))
+          )}
+        </Card>
+
         <Card className="col-span-12 xl:col-span-5">
           <CardHeader>
             <CardTitle icon={icon(Sparkles)}>Coming next</CardTitle>
           </CardHeader>
           <ul className="flex flex-col gap-3 text-[13px]">
-            <Upcoming phase="Phase 3" title="Sheets">
-              Striver A2Z, NeetCode 150 and Blind 75 tick themselves.
+            <Upcoming phase="Next" title="GeeksforGeeks">
+              Sync your GFG profile and the timer on GFG problems; Striver items tick there too.
             </Upcoming>
             <Upcoming phase="Phase 4" title="Revision queue">
               Spaced repetition that checks you can still solve it.

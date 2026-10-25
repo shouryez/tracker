@@ -6,7 +6,7 @@ import {
   getAdapter,
   type PlatformSnapshot,
 } from "@upsolve/adapters";
-import { platformAccounts, saveContests, saveSubmissions } from "@upsolve/db";
+import { linkCatalog, platformAccounts, saveContests, saveSubmissions } from "@upsolve/db";
 import { db } from "@/lib/db";
 
 /** Data older than this is refreshed automatically when the dashboard opens. */
@@ -62,6 +62,7 @@ export async function syncAccount(
     const contests = await adapter.fetchContests(snapshot.handle);
 
     await saveSubmissions(db(), userId, account.platform, subs);
+    await linkCatalog(db());
     await saveContests(db(), userId, account.platform, contests);
 
     await db()

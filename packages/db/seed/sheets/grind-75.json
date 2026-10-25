@@ -1,0 +1,608 @@
+{
+  "name": "Grind 75",
+  "author": "Yangshun Tay (Tech Interview Handbook)",
+  "sourceUrl": "https://www.techinterviewhandbook.org/grind75/",
+  "extractedAt": "2026-10-25",
+  "items": [
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Two Sum",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "two-sum"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Valid Parentheses",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "valid-parentheses"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Merge Two Sorted Lists",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "merge-two-sorted-lists"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Best Time to Buy and Sell Stock",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "best-time-to-buy-and-sell-stock"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Valid Palindrome",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "valid-palindrome"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Invert Binary Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "invert-binary-tree"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Valid Anagram",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "valid-anagram"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Binary Search",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "binary-search"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Flood Fill",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "flood-fill"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Lowest Common Ancestor of a Binary Search Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Balanced Binary Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "balanced-binary-tree"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Linked List Cycle",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "linked-list-cycle"
+    },
+    {
+      "step": "Week 1",
+      "section": null,
+      "title": "Implement Queue using Stacks",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "implement-queue-using-stacks"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "First Bad Version",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "first-bad-version"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Ransom Note",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "ransom-note"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Climbing Stairs",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "climbing-stairs"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Longest Palindrome",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "longest-palindrome"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Reverse Linked List",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "reverse-linked-list"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Majority Element",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "majority-element"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Add Binary",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "add-binary"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Diameter of Binary Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "diameter-of-binary-tree"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Middle of the Linked List",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "middle-of-the-linked-list"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Maximum Depth of Binary Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "maximum-depth-of-binary-tree"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Contains Duplicate",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "contains-duplicate"
+    },
+    {
+      "step": "Week 2",
+      "section": null,
+      "title": "Maximum Subarray",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "maximum-subarray"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "Insert Interval",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "insert-interval"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "01 Matrix",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "01-matrix"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "K Closest Points to Origin",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "k-closest-points-to-origin"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "Longest Substring Without Repeating Characters",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "longest-substring-without-repeating-characters"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "3Sum",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "3sum"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "Binary Tree Level Order Traversal",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "binary-tree-level-order-traversal"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "Clone Graph",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "clone-graph"
+    },
+    {
+      "step": "Week 3",
+      "section": null,
+      "title": "Evaluate Reverse Polish Notation",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "evaluate-reverse-polish-notation"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Course Schedule",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "course-schedule"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Implement Trie (Prefix Tree)",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "implement-trie-prefix-tree"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Coin Change",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "coin-change"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Product of Array Except Self",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "product-of-array-except-self"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Min Stack",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "min-stack"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Validate Binary Search Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "validate-binary-search-tree"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Number of Islands",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "number-of-islands"
+    },
+    {
+      "step": "Week 4",
+      "section": null,
+      "title": "Rotting Oranges",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "rotting-oranges"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Search in Rotated Sorted Array",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "search-in-rotated-sorted-array"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Combination Sum",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "combination-sum"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Permutations",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "permutations"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Merge Intervals",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "merge-intervals"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Lowest Common Ancestor of a Binary Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "lowest-common-ancestor-of-a-binary-tree"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Time Based Key-Value Store",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "time-based-key-value-store"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Accounts Merge",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "accounts-merge"
+    },
+    {
+      "step": "Week 5",
+      "section": null,
+      "title": "Sort Colors",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "sort-colors"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Word Break",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "word-break"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Partition Equal Subset Sum",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "partition-equal-subset-sum"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "String to Integer (atoi)",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "string-to-integer-atoi"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Spiral Matrix",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "spiral-matrix"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Subsets",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "subsets"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Binary Tree Right Side View",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "binary-tree-right-side-view"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Longest Palindromic Substring",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "longest-palindromic-substring"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Unique Paths",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "unique-paths"
+    },
+    {
+      "step": "Week 6",
+      "section": null,
+      "title": "Construct Binary Tree from Preorder and Inorder Traversal",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "Container With Most Water",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "container-with-most-water"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "Letter Combinations of a Phone Number",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "letter-combinations-of-a-phone-number"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "Word Search",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "word-search"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "Find All Anagrams in a String",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "find-all-anagrams-in-a-string"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "Minimum Height Trees",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "minimum-height-trees"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "Task Scheduler",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "task-scheduler"
+    },
+    {
+      "step": "Week 7",
+      "section": null,
+      "title": "LRU Cache",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "lru-cache"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Kth Smallest Element in a BST",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "kth-smallest-element-in-a-bst"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Minimum Window Substring",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "minimum-window-substring"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Serialize and Deserialize Binary Tree",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "serialize-and-deserialize-binary-tree"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Trapping Rain Water",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "trapping-rain-water"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Find Median from Data Stream",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "find-median-from-data-stream"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Word Ladder",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "word-ladder"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Basic Calculator",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "basic-calculator"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Maximum Profit in Job Scheduling",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "maximum-profit-in-job-scheduling"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Merge k Sorted Lists",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "merge-k-sorted-lists"
+    },
+    {
+      "step": "Week 8",
+      "section": null,
+      "title": "Largest Rectangle in Histogram",
+      "kind": "practice",
+      "tier": null,
+      "leetcode": "largest-rectangle-in-histogram"
+    }
+  ]
+}

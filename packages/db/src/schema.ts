@@ -320,11 +320,16 @@ export const sheets = pgTable(
     name: text("name").notNull(),
     author: text("author"),
     sourceUrl: text("source_url"),
-    version: integer("version").notNull().default(1),
+    /** Date the list was extracted from its source (YYYY-MM-DD). */
+    version: text("version"),
+    /** Display order on the Sheets page. */
+    position: integer("position").notNull().default(0),
     createdAt: createdAt(),
   },
   () => [publicRead()],
 ).enableRLS();
+
+export const sheetItemKind = pgEnum("sheet_item_kind", ["practice", "learning"]);
 
 export const sheetItems = pgTable(
   "sheet_items",
@@ -332,16 +337,53 @@ export const sheetItems = pgTable(
     sheetId: uuid("sheet_id")
       .notNull()
       .references(() => sheets.id, { onDelete: "cascade" }),
+    /** Stable id within the sheet (survives reordering), e.g. the source's slug. */
+    itemKey: text("item_key").notNull(),
     position: integer("position").notNull(),
+    step: text("step").notNull(),
     section: text("section"),
     title: text("title").notNull(),
+    kind: sheetItemKind("kind").notNull().default("practice"),
+    /** Source's own difficulty label (easy/medium/hard, or basic/core/pro on Striver). */
+    tier: text("tier"),
+    /** Where to solve it: the LeetCode page, or the sheet's own page for non-LeetCode items. */
+    url: text("url"),
+    /** Canonical problem, when it exists on a platform we track. Null = tick manually. */
     problemId: uuid("problem_id").references(() => problems.id, { onDelete: "set null" }),
   },
   (t) => [
-    primaryKey({ columns: [t.sheetId, t.position] }),
+    primaryKey({ columns: [t.sheetId, t.itemKey] }),
+    index("sheet_items_sheet_position_idx").on(t.sheetId, t.position),
     index("sheet_items_problem_idx").on(t.problemId),
     publicRead(),
   ],
+).enableRLS();
+
+/** Sheets a user follows; their progress shows on the dashboard. */
+export const userSheets = pgTable(
+  "user_sheets",
+  {
+    userId: userRef(),
+    sheetId: uuid("sheet_id")
+      .notNull()
+      .references(() => sheets.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.sheetId] }), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** Items a user ticked by hand (problems we can't detect automatically). */
+export const sheetMarks = pgTable(
+  "sheet_marks",
+  {
+    userId: userRef(),
+    sheetId: uuid("sheet_id")
+      .notNull()
+      .references(() => sheets.id, { onDelete: "cascade" }),
+    itemKey: text("item_key").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.sheetId, t.itemKey] }), ownerCanRead(t.userId)],
 ).enableRLS();
 
 // ---------------------------------------------------------------- learning

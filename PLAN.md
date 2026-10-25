@@ -293,12 +293,17 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [ ] Chrome Web Store **unlisted** release ($5 one-time developer registration). Needs your developer account; build with `UPSOLVE_WEB_URL=<prod url> pnpm --filter @upsolve/extension zip`
 - **Exit:** you use it for 2 weeks without opening a spreadsheet.
 
-### Phase 3 — Catalog & sheets (2–3 weeks)
+### Phase 3 — Catalog & sheets (2–3 weeks) ✅ sheets done 25 Oct 2026; GFG moved to 3b
 
-- [ ] Catalog + matcher + admin review screen
-- [ ] Seed sheets: Striver A2Z, Striver SDE, NeetCode 150, Blind 75 (titles + links only; credit and link the creators)
-- [ ] Auto-tick, sheet pages, segmented progress, ETA
-- [ ] **GFG** adapter + extension support
+- [x] Canonical catalog: every platform problem linked to one `problems` row (`linkCatalog`, runs after every sync/upload). Cross-platform title matching + review screen arrive with GFG (3b)
+- [x] Sheets: Striver A2Z (495), Striver SDE (156), NeetCode 150, Blind 75, Grind 75. Names, sections, LeetCode links and tiers only; creators credited and linked. Re-extract with `pnpm --filter @upsolve/db sheets:extract`, load with `seed:sheets`
+- [x] Auto-tick from Accepted submissions on any platform, manual ticks for non-LeetCode items, follow sheets, sheet pages with per-step progress, ETA at your 14-day pace, dashboard card
+- **Exit:** ✅ solving a problem on LeetCode ticks every sheet item linked to it.
+
+### Phase 3b — GeeksforGeeks
+
+- [ ] GFG profile adapter (public page) + extension timer/verdicts on GFG
+- [ ] Match GFG problems to LeetCode twins by title; link Striver's GFG/Code360-only items
 - **Exit:** solving a problem on GFG ticks the A2Z item linked to it.
 
 ### Phase 4 — Learning engine (3 weeks)

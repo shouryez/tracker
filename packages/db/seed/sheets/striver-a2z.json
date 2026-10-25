@@ -1,0 +1,4463 @@
+{
+  "name": "Striver's A2Z DSA Sheet",
+  "author": "Striver (takeUforward)",
+  "sourceUrl": "https://takeuforward.org/prep-hub/strivers-a2z-dsa-sheet",
+  "extractedAt": "2026-10-25",
+  "items": [
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "Breaking The Myth",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "breaking-the-myth",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "Programming and What Are Computers?",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "programming-and-what-are-computers",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "How to Think Like a Programmer",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "how-to-think-like-a-programmer",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "Flowcharts and Pseudocode",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "flowcharts-and-pseudocode",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "Flowchart Problem-Solving",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "flowchart-problem-solving",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "Dry Runs, Edge Cases and Debugging",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "dry-runs-edge-cases-and-debugging",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Fundamentals of Programming",
+      "title": "Programming Languages and Choosing a Path",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "programming-languages-and-choosing-a-path",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Language Basics",
+      "title": "Learn C++",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "learn-cpp",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Language Basics",
+      "title": "Learn Java",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "learn-java",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Language Basics",
+      "title": "Learn Python",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "learn-python",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Logic Building (Patterns)",
+      "title": "Easy and Medium",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "easy-and-medium",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Logic Building (Patterns)",
+      "title": "Hard",
+      "kind": "learning",
+      "tier": "pro",
+      "tufSlug": "hard",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 1",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-1",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 2",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-2",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 3",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-3",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 4",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-4",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 5",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-5",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 6",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-6",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 7",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-7",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 8",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-8",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 9",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-9",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 10",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-10",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 11",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-11",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 12",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-12",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 13",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-13",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 14",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-14",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 15",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-15",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 16",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-16",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 17",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-17",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 18",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-18",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 19",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "pattern-19",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 20",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pattern-20",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 21",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pattern-21",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Patterns",
+      "title": "Pattern 22",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pattern-22",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Time Complexity",
+      "title": "Theory with examples",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "theory-with-examples",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Standard Libraries & Collections",
+      "title": "STL",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "stl",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Standard Libraries & Collections",
+      "title": "Java Collections",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "java-collections",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Standard Libraries & Collections",
+      "title": "Python Libraries Part 1",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "python-libraries-part-1",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Standard Libraries & Collections",
+      "title": "Python Libraries Part 2",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "python-libraries-part-2",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Concept Basics",
+      "title": "Basic Maths",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "basic-maths",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Concept Basics",
+      "title": "Basic Arrays",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "basic-arrays-hashing-and-strings",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Concept Basics",
+      "title": "Basic Hashing",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "basic-hashing",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Concept Basics",
+      "title": "Basic String",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "basic-string",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Count all Digits of a Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "count-all-digits-of-a-number",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Count number of odd digits in a number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "count-number-of-odd-digits-in-a-number",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Reverse a number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "reverse-a-number",
+      "leetcode": "reverse-integer"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Palindrome Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "palindrome-number",
+      "leetcode": "palindrome-number"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Return the Largest Digit in a Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "return-the-largest-digit-in-a-number",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Factorial of a given number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "factorial-of-a-given-number-i",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Check if the Number is Armstrong",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-the-number-if-armstrong",
+      "leetcode": "armstrong-number"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Check for Perfect Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-for-perfect-number",
+      "leetcode": "perfect-number"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Check for Prime Number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-for-prime-number",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Count of Prime Numbers till N",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "count-of-prime-numbers-till-n",
+      "leetcode": "count-primes"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "GCD of Two Numbers",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "gcd-of-two-numbers",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "LCM of two numbers",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "lcm-of-two-numbers",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Maths",
+      "title": "Divisors of a Number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "divisors-of-a-number",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Arrays",
+      "title": "Sum of Array Elements",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "sum-of-array-elements",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Arrays",
+      "title": "Count of odd numbers in Array",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "count-of-odd-numbers-in-array",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Arrays",
+      "title": "Check if the Array is Sorted I",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-the-array-is-sorted-i",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Arrays",
+      "title": "Reverse an array",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "reverse-an-array",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Hashing",
+      "title": "Highest Occurring Element in an Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "highest-occurring-element-in-an-array",
+      "leetcode": "frequency-of-the-most-frequent-element"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Hashing",
+      "title": "Second Highest Occurring Element",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "second-highest-occurring-element",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Hashing",
+      "title": "Sum of Highest and Lowest Frequency",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sum-of-highest-and-lowest-frequency",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Reverse a String II",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "reverse-a-string-ii",
+      "leetcode": "reverse-string"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Palindrome Check",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "palindrome-check",
+      "leetcode": "valid-palindrome"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Largest Odd Number in a String",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "largest-odd-number-in-a-string",
+      "leetcode": "largest-odd-number-in-string"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Longest Common Prefix",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-common-prefix",
+      "leetcode": "longest-common-prefix"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Isomorphic Strings",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "isomorphic-string",
+      "leetcode": "isomorphic-strings"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Rotate String",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "rotate-string",
+      "leetcode": "rotate-string"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Valid Anagram",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "valid-anagram",
+      "leetcode": "valid-anagram"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Strings",
+      "title": "Sort Characters by Frequency",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sort-characters-by-frequency",
+      "leetcode": "sort-characters-by-frequency"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Recursion Theory",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "recursion-theory",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Recursion Concepts with Parameters",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "recursion-concepts-with-parameters",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Sum of First N Numbers",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "sum-of-first-n-numbers",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Factorial of a Given Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "factorial-of-a-given-number-ii",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Sum of Array Elements II",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "sum-of-array-elements-ii",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Reverse a String I",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "reverse-a-string-i",
+      "leetcode": "reverse-string"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Check if String is Palindrome or Not",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-string-is-palindrome-or-not-",
+      "leetcode": "valid-palindrome"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Check if a Number is Prime or Not",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-if-a-number-is-prime-or-not",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Reverse an array 2",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "reverse-an-array-ii",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Check if the Array is Sorted II",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-the-array-is-sorted-ii",
+      "leetcode": "check-if-array-is-sorted-and-rotated"
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Sum of Digits in a Given Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "sum-of-digits-in-a-given-number",
+      "leetcode": null
+    },
+    {
+      "step": "Beginner Problems",
+      "section": "Basic Recursion",
+      "title": "Fibonacci Number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "fibonacci-number",
+      "leetcode": "fibonacci-number"
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Selection Sort",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "selection-sort",
+      "leetcode": null
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Bubble Sort",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "bubble-sort",
+      "leetcode": null
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Insertion Sorting",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insertion-sorting",
+      "leetcode": null
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Merge Sorting",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "merge-sorting",
+      "leetcode": null
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Quick Sorting",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "quick-sorting",
+      "leetcode": null
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Recursive Bubble Sort",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "recursive-bubble-sort",
+      "leetcode": null
+    },
+    {
+      "step": "Sorting",
+      "section": "Algorithms",
+      "title": "Recursive Insertion Sort",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "recursive-insertion-sort",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "Fundamentals",
+      "title": "Linear Search",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "linear-search",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "Fundamentals",
+      "title": "Largest Element",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "largest-element",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "Fundamentals",
+      "title": "Second Largest Element",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "second-largest-element",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "Fundamentals",
+      "title": "Maximum Consecutive Ones",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "maximum-consecutive-ones",
+      "leetcode": "max-consecutive-ones"
+    },
+    {
+      "step": "Arrays",
+      "section": "Fundamentals",
+      "title": "Left Rotate Array by One",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "left-rotate-array-by-one",
+      "leetcode": "rotate-array"
+    },
+    {
+      "step": "Arrays",
+      "section": "Fundamentals",
+      "title": "Left Rotate Array by K Places",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "left-rotate-array",
+      "leetcode": "rotate-array"
+    },
+    {
+      "step": "Arrays",
+      "section": "Logic Building",
+      "title": "Move Zeros to End",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "move-zeros-to-end",
+      "leetcode": "move-zeroes"
+    },
+    {
+      "step": "Arrays",
+      "section": "Logic Building",
+      "title": "Remove duplicates from sorted array",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "remove-duplicates-from-sorted-array",
+      "leetcode": "remove-duplicates-from-sorted-array"
+    },
+    {
+      "step": "Arrays",
+      "section": "Logic Building",
+      "title": "Find missing number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "find-missing-number",
+      "leetcode": "missing-number"
+    },
+    {
+      "step": "Arrays",
+      "section": "Logic Building",
+      "title": "Union of two sorted arrays",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "union-of-two-sorted-arrays",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "Logic Building",
+      "title": "Intersection of two sorted arrays",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "intersection-of-two-sorted-arrays",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Majority Element-I",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "majority-element-i",
+      "leetcode": "majority-element"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Leaders in an Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "leaders-in-an-array",
+      "leetcode": "buildings-with-an-ocean-view"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Rearrange array elements by sign",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "rearrange-array-elements-by-sign",
+      "leetcode": "rearrange-array-elements-by-sign"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Print the matrix in spiral manner",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "print-the-matrix-in-spiral-manner",
+      "leetcode": "spiral-matrix"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Pascal's Triangle I",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pascals-triangle-i",
+      "leetcode": "pascals-triangle"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Pascal's Triangle II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pascals-triangle-ii",
+      "leetcode": "pascals-triangle-ii"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Pascal's Triangle III",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pascals-triangle-iii",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Rotate matrix by 90 degrees",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "rotate-matrix-by-90-degrees",
+      "leetcode": "rotate-image"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Set Matrix Zeroes",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "set-matrix-zeroes",
+      "leetcode": "set-matrix-zeroes"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Two Sum",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "two-sum",
+      "leetcode": "two-sum"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "3 Sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "3-sum",
+      "leetcode": "3sum"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "4 Sum",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "4-sum",
+      "leetcode": "4sum"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Sort an array of 0's 1's and 2's",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sort-an-array-of-0's-1's-and-2's",
+      "leetcode": "sort-colors"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Kadane's Algorithm",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "kadane's-algorithm",
+      "leetcode": "maximum-subarray"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Medium)",
+      "title": "Next Permutation",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "next-permutation",
+      "leetcode": "next-permutation"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Hard)",
+      "title": "Majority Element-II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "majority-element-ii",
+      "leetcode": "majority-element-ii"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Hard)",
+      "title": "Find the repeating and missing number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-the-repeating-and-missing-number",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Hard)",
+      "title": "Count Inversions",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "count-inversions",
+      "leetcode": null
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Hard)",
+      "title": "Reverse Pairs",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "reverse-pairs",
+      "leetcode": "reverse-pairs"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Hard)",
+      "title": "Maximum Product Subarray in an Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-product-subarray-in-an-array",
+      "leetcode": "maximum-product-subarray"
+    },
+    {
+      "step": "Arrays",
+      "section": "FAQs(Hard)",
+      "title": "Merge two sorted arrays without extra space",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "merge-two-sorted-arrays-without-extra-space",
+      "leetcode": "merge-sorted-array"
+    },
+    {
+      "step": "Hashing",
+      "section": "Theory",
+      "title": "Basic Hashing",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "basic-hashing",
+      "leetcode": null
+    },
+    {
+      "step": "Hashing",
+      "section": "FAQs",
+      "title": "Longest Consecutive Sequence in an Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-consecutive-sequence-in-an-array",
+      "leetcode": "longest-consecutive-sequence"
+    },
+    {
+      "step": "Hashing",
+      "section": "FAQs",
+      "title": "Longest subarray with sum K",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-subarray-with-sum-k",
+      "leetcode": "maximum-size-subarray-sum-equals-k"
+    },
+    {
+      "step": "Hashing",
+      "section": "FAQs",
+      "title": "Largest Subarray with Sum 0",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "largest-subarray-with-sum-0",
+      "leetcode": "maximum-size-subarray-sum-equals-k"
+    },
+    {
+      "step": "Hashing",
+      "section": "FAQs",
+      "title": "Count subarrays with given sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-subarrays-with-given-sum",
+      "leetcode": "subarray-sum-equals-k"
+    },
+    {
+      "step": "Hashing",
+      "section": "FAQs",
+      "title": "Count subarrays with given xor K",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "count-subarrays-with-given-xor-k",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "Fundamentals",
+      "title": "Search X in sorted array",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "search-x-in-sorted-array",
+      "leetcode": "binary-search"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Fundamentals",
+      "title": "Lower Bound",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "lower-bound-",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "Fundamentals",
+      "title": "Upper Bound",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "upper-bound",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Search insert position",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "search-insert-position",
+      "leetcode": "search-insert-position"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Floor and Ceil in Sorted Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "floor-and-ceil-in-sorted-array",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "First and last occurrence",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "first-and-last-occurrence",
+      "leetcode": "find-first-and-last-position-of-element-in-sorted-array"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Search in rotated sorted array-I",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "search-in-rotated-sorted-array-i",
+      "leetcode": "search-in-rotated-sorted-array"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Search in rotated sorted array-II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "search-in-rotated-sorted-array-2",
+      "leetcode": "search-in-rotated-sorted-array-ii"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Find minimum in Rotated Sorted Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-minimum-in-rotated-sorted-array",
+      "leetcode": "find-minimum-in-rotated-sorted-array"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Find out how many times the array is rotated",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-out-how-many-times-the-array-is-rotated",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Single element in sorted array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "single-element-in-sorted-array",
+      "leetcode": "single-element-in-a-sorted-array"
+    },
+    {
+      "step": "Binary Search",
+      "section": "Logic Building",
+      "title": "Count Occurrences in a Sorted Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-occurrences-in-a-sorted-array",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Find square root of a number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-square-root-of-a-number",
+      "leetcode": "sqrtx"
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Find Nth root of a number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-nth-root-of-a-number",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Find the smallest divisor",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-the-smallest-divisor",
+      "leetcode": "find-the-smallest-divisor-given-a-threshold"
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Koko eating bananas",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "koko-eating-bananas",
+      "leetcode": "koko-eating-bananas"
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Minimum days to make M bouquets",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-days-to-make-m-bouquets",
+      "leetcode": "minimum-number-of-days-to-make-m-bouquets"
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Capacity to Ship Packages Within D Days",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "capacity-to-ship-packages-within-d-days",
+      "leetcode": "capacity-to-ship-packages-within-d-days"
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Kth Missing Positive Number",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "kth-missing-positive-number",
+      "leetcode": "kth-missing-positive-number"
+    },
+    {
+      "step": "Binary Search",
+      "section": "On answers",
+      "title": "Painter's Partition",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "painters-partition",
+      "leetcode": "split-array-largest-sum"
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Aggressive Cows",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "aggressive-cows",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Book Allocation Problem",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "book-allocation-problem",
+      "leetcode": "split-array-largest-sum"
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Find peak element",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-peak-element",
+      "leetcode": "find-peak-element"
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Median of 2 sorted arrays",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "median-of-2-sorted-arrays",
+      "leetcode": "median-of-two-sorted-arrays"
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Kth element of 2 sorted arrays",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "kth-element-of-2-sorted-arrays",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Minimize Max Distance to Gas Station",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimise-max-distance-to-gas-stations",
+      "leetcode": "minimize-max-distance-to-gas-station"
+    },
+    {
+      "step": "Binary Search",
+      "section": "FAQs",
+      "title": "Split array - largest sum",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "split-array---largest-sum",
+      "leetcode": "split-array-largest-sum"
+    },
+    {
+      "step": "Binary Search",
+      "section": "2D Arrays",
+      "title": "Find row with maximum 1's",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-row-with-maximum-1's",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search",
+      "section": "2D Arrays",
+      "title": "Search in a 2D Matrix",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "search-in-a-2d-matrix",
+      "leetcode": "search-a-2d-matrix"
+    },
+    {
+      "step": "Binary Search",
+      "section": "2D Arrays",
+      "title": "Search in 2D matrix - II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "search-in-2d-matrix-ii",
+      "leetcode": "search-a-2d-matrix-ii"
+    },
+    {
+      "step": "Binary Search",
+      "section": "2D Arrays",
+      "title": "Find Peak Element - II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-peak-element-ii",
+      "leetcode": "find-a-peak-element-ii"
+    },
+    {
+      "step": "Binary Search",
+      "section": "2D Arrays",
+      "title": "Matrix Median",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "matrix-median",
+      "leetcode": "median-of-a-row-wise-sorted-matrix"
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "Parentheses",
+      "title": "Remove Outermost Parentheses",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "remove-outermost-parentheses",
+      "leetcode": "remove-outermost-parentheses"
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "Parentheses",
+      "title": "Maximum Nesting Depth of the Parentheses",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-nesting-depth-of-the-parentheses",
+      "leetcode": "maximum-nesting-depth-of-the-parentheses"
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "String Conversions",
+      "title": "Roman to Integer",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "roman-to-integer",
+      "leetcode": "roman-to-integer"
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "String Conversions",
+      "title": "String to Integer (atoi)",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "string-to-integer-atoi",
+      "leetcode": "string-to-integer-atoi"
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "Substring Problems",
+      "title": "Count Number of Substrings",
+      "kind": "practice",
+      "tier": null,
+      "tufSlug": "count-number-of-substring",
+      "leetcode": null
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "Substring Problems",
+      "title": "Longest Palindromic Substring",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-palindromic-substring",
+      "leetcode": "longest-palindromic-substring"
+    },
+    {
+      "step": "Strings (Basic and Medium)",
+      "section": "Substring Problems",
+      "title": "Sum of Beauty of All Substrings",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sum-of-beauty-of-all-substrings",
+      "leetcode": "sum-of-beauty-of-all-substrings"
+    },
+    {
+      "step": "Recursion",
+      "section": "Implementation Problems",
+      "title": "Pow(x,n)",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pow(x,n)",
+      "leetcode": "powx-n"
+    },
+    {
+      "step": "Recursion",
+      "section": "Implementation Problems",
+      "title": "Generate Parentheses",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "generate-parentheses",
+      "leetcode": "generate-parentheses"
+    },
+    {
+      "step": "Recursion",
+      "section": "Implementation Problems",
+      "title": "Power Set",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "power-set",
+      "leetcode": "subsets"
+    },
+    {
+      "step": "Recursion",
+      "section": "Implementation Problems",
+      "title": "Count Good Numbers",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-good-numbers",
+      "leetcode": "count-good-numbers"
+    },
+    {
+      "step": "Recursion",
+      "section": "Implementation Problems",
+      "title": "Reverse a Stack",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "reverse-a-stack",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "Subsequence Pattern Problems",
+      "title": "Learn All Patterns of Subsequences (Theory)",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "learn-all-patterns-of-subsequences",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "Subsequence Pattern Problems",
+      "title": "Check if there exists a subsequence with sum K",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-if-there-exists-a-subsequence-with-sum-k",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "Subsequence Pattern Problems",
+      "title": "Count all subsequences with sum K",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-all-subsequences-with-sum-k",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "Subsequence Pattern Problems",
+      "title": "Generate Binary Strings Without Consecutive 1s",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "generate-binary-strings-without-consecutive-1s",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Medium)",
+      "title": "Combination Sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "combination-sum",
+      "leetcode": "combination-sum"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Medium)",
+      "title": "Combination Sum II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "combination-sum-ii",
+      "leetcode": "combination-sum-ii"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Medium)",
+      "title": "Subsets I",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "subsets-i",
+      "leetcode": "subsets"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Medium)",
+      "title": "Subsets II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "subsets-ii",
+      "leetcode": "subsets-ii"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Medium)",
+      "title": "Combination Sum III",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "combination-sum-iii",
+      "leetcode": "combination-sum-iii"
+    },
+    {
+      "step": "Recursion",
+      "section": "Hard",
+      "title": "Letter Combinations of a Phone Number",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "letter-combinations-of-a-phone-number",
+      "leetcode": "letter-combinations-of-a-phone-number"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "Palindrome partitioning",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "palindrome-partitioning",
+      "leetcode": "palindrome-partitioning"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "Word Search",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "word-search",
+      "leetcode": "word-search"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "N Queen",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "n-queen",
+      "leetcode": "n-queens"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "Rat in a Maze",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "rat-in-a-maze",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "M Coloring Problem",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "m-coloring-problem",
+      "leetcode": null
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "Sudoku Solver",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "sudoko-solver",
+      "leetcode": "sudoku-solver"
+    },
+    {
+      "step": "Recursion",
+      "section": "FAQs (Hard)",
+      "title": "Expression Add Operators",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "expression-add-operators",
+      "leetcode": "expression-add-operators"
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Introduction to Singly LinkedList",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-to-singly-linkedlist",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Traversal in Linked List",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "traversal-in-linked-list",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Deletion in Linked List",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "deletion-in-linked-list",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Insertion in Linked List",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "insertion-in-linked-list",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Deletion of the head of LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "deletion-of-the-head-of-ll",
+      "leetcode": "delete-node-in-a-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Deletion of the tail of Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "deletion-of-the-tail-of-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Deletion of the Kth element of Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "deletion-of-the-kth-element-of-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Delete the element with value X",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-the-element-with-value-x",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Insertion at the head of Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insertion-at-the-head-of-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Insertion at the tail of Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insertion-at-the-tail-of-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Insertion at the Kth position of Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insertion-at-the-kth-position-of-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Insertion before the value X in Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insertion-before-the-value-x-in-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Find the length of the Linked List",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "find-the-length-of-the-linked-list",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Single LL)",
+      "title": "Search in Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "search-in-linked-list",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Introduction to Doubly LL",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-to-doubly-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Deletion in Doubly LL",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "deletion-in-doubly-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Insertion in DLL",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "insertion-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Convert Array to Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "convert-array-to-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Delete Tail of Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-tail-of-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Delete Kth Element of Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-kth-element-of-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Removing given node in Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "removing-given-node-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Insert node before head in Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insert-node-before-head-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Insert node before tail in Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insert-node-before-tail-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Insert node before (kth node) in Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insert-node-before-kth-node-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Insert before given node in Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insert-before-given-node-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Delete head of Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-head-of-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Fundamentals (Doubly LL)",
+      "title": "Reverse a Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "reverse-a-doubly-linked-list",
+      "leetcode": "reverse-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "Logic Building",
+      "title": "Add two numbers in Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "add-two-numbers-in-ll",
+      "leetcode": "add-two-numbers"
+    },
+    {
+      "step": "Linked-List",
+      "section": "Logic Building",
+      "title": "Segregate odd and even nodes in Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "segregate-odd-and-even-nodes-in-ll",
+      "leetcode": "odd-even-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "Logic Building",
+      "title": "Sort a Linked List of 0's 1's and 2's",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sort-a-ll-of-0's-1's-and-2's",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "Logic Building",
+      "title": "Remove Nth node from the back of the LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "remove-nth-node-from-the-back-of-the-ll",
+      "leetcode": "remove-nth-node-from-end-of-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "Logic Building",
+      "title": "Reverse a LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "reverse-a-ll",
+      "leetcode": "reverse-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Add one to a number represented by LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "add-one-to-a-number-represented-by-ll",
+      "leetcode": "plus-one-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Find Middle of Linked List",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "find-middle-of-linked-list",
+      "leetcode": "middle-of-the-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Delete the middle node in LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-the-middle-node-in-ll",
+      "leetcode": "delete-the-middle-node-of-a-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Check if LL is palindrome or not",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-if-ll-is-palindrome-or-not",
+      "leetcode": "palindrome-linked-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Find the intersection point of Y LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-the-intersection-point-of-y-ll",
+      "leetcode": "intersection-of-two-linked-lists"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Detect a loop in LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "detect-a-loop-in-ll",
+      "leetcode": "linked-list-cycle"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Find the starting point in LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-the-starting-point-in-ll",
+      "leetcode": "linked-list-cycle-ii"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Medium)",
+      "title": "Length of loop in LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "length-of-loop-in-ll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Hard)",
+      "title": "Reverse LL in group of given size K",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "reverse-ll-in-group-of-given-size-k",
+      "leetcode": "reverse-nodes-in-k-group"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Hard)",
+      "title": "Rotate a LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "rotate-a-ll",
+      "leetcode": "rotate-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Hard)",
+      "title": "Merge two Sorted Lists",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "merge-sorted-lists-",
+      "leetcode": "merge-two-sorted-lists"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Hard)",
+      "title": "Flattening of LL",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "flattening-of-ll",
+      "leetcode": "merge-k-sorted-lists"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Hard)",
+      "title": "Sort LL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sort-ll",
+      "leetcode": "sort-list"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQs (Hard)",
+      "title": "Clone a LL with random and next pointer",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "clone-a-ll-with-random-and-next-pointer",
+      "leetcode": "copy-list-with-random-pointer"
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQS (DLL)",
+      "title": "Delete all occurrences of a key in DLL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-all-occurrences-of-a-key-in-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQS (DLL)",
+      "title": "Remove duplicates from sorted DLL",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "remove-duplicated-from-sorted-dll",
+      "leetcode": null
+    },
+    {
+      "step": "Linked-List",
+      "section": "FAQS (DLL)",
+      "title": "Find Pairs with Given Sum in Doubly Linked List",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-pairs-with-given-sum-in-doubly-linked-list",
+      "leetcode": null
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Theory",
+      "title": "Introduction to Bits and Tricks",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-to-bits-and-tricks",
+      "leetcode": null
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Bit Fundamentals",
+      "title": "Check if the i-th bit is Set or Not",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-the-i-th-bit-is-set-or-not",
+      "leetcode": null
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Bit Fundamentals",
+      "title": "Check if a Number is Odd or Not",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-a-number-is-odd-or-not",
+      "leetcode": null
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Bit Fundamentals",
+      "title": "Check if a Number is Power of 2 or Not",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "check-if-a-number-is-power-of-2-or-not",
+      "leetcode": "power-of-two"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Bit Fundamentals",
+      "title": "Count the Number of Set Bits",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "count-the-number-of-set-bits",
+      "leetcode": "number-of-1-bits"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Bit Fundamentals",
+      "title": "Set the Rightmost Unset Bit",
+      "kind": "practice",
+      "tier": null,
+      "tufSlug": "set-the-rightmost-unset-bit",
+      "leetcode": null
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Bit Fundamentals",
+      "title": "Swap Two Numbers",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "swap-two-numbers",
+      "leetcode": null
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "Minimum Bit Flips to Convert Number",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "minimum-bit-flips-to-convert-number",
+      "leetcode": "minimum-bit-flips-to-convert-number"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "Single Number - I",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "single-number---i",
+      "leetcode": "single-number"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "Single Number - II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "single-number---ii",
+      "leetcode": "single-number-ii"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "Single Number - III",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "single-number---iii",
+      "leetcode": "single-number-iii"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "Divide two numbers without multiplication and division",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "divide-two-numbers-without-multiplication-and-division",
+      "leetcode": "divide-two-integers"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "Power Set Bit Manipulation",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "power-set-bit-manipulation",
+      "leetcode": "subsets"
+    },
+    {
+      "step": "Bit Manipulation",
+      "section": "Problems",
+      "title": "XOR of numbers in a given range",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "xor-of-numbers-in-a-given-range",
+      "leetcode": null
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Easy",
+      "title": "Assign Cookies",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "assign-cookies",
+      "leetcode": "assign-cookies"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Easy",
+      "title": "Lemonade Change",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "lemonade-change",
+      "leetcode": "lemonade-change"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Easy",
+      "title": "Fractional Knapsack",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "fractional-knapsack",
+      "leetcode": null
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Easy",
+      "title": "Jump Game - I",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "jump-game---i",
+      "leetcode": "jump-game"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "Shortest Job First",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "shortest-job-first",
+      "leetcode": null
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "Job sequencing Problem",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "job-sequencing-problem",
+      "leetcode": null
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "N meetings in one room",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "n-meetings-in-one-room",
+      "leetcode": null
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "Non-overlapping Intervals",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "non-overlapping-intervals",
+      "leetcode": "non-overlapping-intervals"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "Insert Interval",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insert-interval",
+      "leetcode": "insert-interval"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "Merge Intervals",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "merge-intervals",
+      "leetcode": "merge-intervals"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Scheduling and Interval Problems",
+      "title": "Minimum number of platforms required for a railway",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "minimum-number-of-platforms-required-for-a-railway",
+      "leetcode": "divide-intervals-into-minimum-number-of-groups"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Hard",
+      "title": "Valid Paranthesis Checker",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "valid-paranthesis-checker",
+      "leetcode": "valid-parenthesis-string"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Hard",
+      "title": "Candy",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "candy",
+      "leetcode": "candy"
+    },
+    {
+      "step": "Greedy Algorithms",
+      "section": "Hard",
+      "title": "Jump Game II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "jump-game-ii",
+      "leetcode": "jump-game-ii"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Pattern and Template",
+      "title": "Theory",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "theory",
+      "leetcode": null
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Constant Window",
+      "title": "Maximum Points You Can Obtain from Cards",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-points-you-can-obtain-from-cards-",
+      "leetcode": "maximum-points-you-can-obtain-from-cards"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Longest Substring Without Repeating Characters",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-substring-without-repeating-characters",
+      "leetcode": "longest-substring-without-repeating-characters"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Max Consecutive Ones III",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "max-consecutive-ones-iii",
+      "leetcode": "max-consecutive-ones-iii"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Fruit Into Baskets",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "fruit-into-baskets",
+      "leetcode": "fruit-into-baskets"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Longest Substring With At Most K Distinct Characters",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "longest-substring-with-at-most-k-distinct-characters",
+      "leetcode": "longest-substring-with-at-most-k-distinct-characters"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Longest Repeating Character Replacement",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "longest-repeating-character-replacement",
+      "leetcode": "longest-repeating-character-replacement"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Minimum Window Substring",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-window-substring-",
+      "leetcode": "minimum-window-substring"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Longest and Smallest Window Problems",
+      "title": "Minimum Window Subsequence",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-window-subsequence",
+      "leetcode": "minimum-window-subsequence"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Counting Subarrays / Substrings Problems",
+      "title": "Number of Substrings Containing All Three Characters",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-substrings-containing-all-three-characters",
+      "leetcode": "number-of-substrings-containing-all-three-characters"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Counting Subarrays / Substrings Problems",
+      "title": "Binary Subarrays With Sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "binary-subarrays-with-sum",
+      "leetcode": "binary-subarrays-with-sum"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Counting Subarrays / Substrings Problems",
+      "title": "Count number of Nice subarrays",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "count-number-of-nice-subarrays",
+      "leetcode": "count-number-of-nice-subarrays"
+    },
+    {
+      "step": "Sliding Window / 2 Pointer",
+      "section": "Counting Subarrays / Substrings Problems",
+      "title": "Subarrays with K Different Integers",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "subarrays-with-k-different-integers",
+      "leetcode": "subarrays-with-k-different-integers"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implementation using different DS",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "implementation-using-different-ds",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implement Stack using Arrays",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-stack-using-arrays",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implement Queue using Arrays",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-queue-using-arrays",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implement Stack using Queue",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-stack-using-queue",
+      "leetcode": "implement-stack-using-queues"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implement Queue using Stack",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-queue-using-stack",
+      "leetcode": "implement-queue-using-stacks"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implement stack using Linkedlist",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-stack-using-linkedlist",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Implement queue using Linkedlist",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-queue-using-linkedlist",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Implementation",
+      "title": "Balanced Paranthesis",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "balanced-paranthesis",
+      "leetcode": "valid-parentheses"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Prefix, Infix and Postfix Conversions",
+      "title": "Infix to Postfix Conversion",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "infix-to-postfix-conversion",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Prefix, Infix and Postfix Conversions",
+      "title": "Infix to Prefix Conversion",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "infix-to-prefix-conversion",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Prefix, Infix and Postfix Conversions",
+      "title": "Prefix to Infix Conversion",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "prefix-to-infix-conversion",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Prefix, Infix and Postfix Conversions",
+      "title": "Prefix to Postfix Conversion",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "prefix-to-postfix-conversion",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Prefix, Infix and Postfix Conversions",
+      "title": "Postfix to Infix Conversion",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "postfix-to-infix-conversion",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Prefix, Infix and Postfix Conversions",
+      "title": "Postfix to Prefix Conversion",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "postfix-to-prefix-conversion",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Next Greater Element",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "next-greater-element",
+      "leetcode": "next-greater-element-i"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Next Greater Element - 2",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "next-greater-element---2",
+      "leetcode": "next-greater-element-ii"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Asteroid Collision",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "asteroid-collision",
+      "leetcode": "asteroid-collision"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Sum of Subarray Minimums",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sum-of-subarray-minimums",
+      "leetcode": "sum-of-subarray-minimums"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Sum of Subarray Ranges",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "sum-of-subarray-ranges",
+      "leetcode": "sum-of-subarray-ranges"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Remove K Digits",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "remove-k-digits",
+      "leetcode": "remove-k-digits"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "Monotonic Stack",
+      "title": "Next Smaller Element",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "next-smaller-element",
+      "leetcode": null
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Implement Min Stack",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-min-stack",
+      "leetcode": "min-stack"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Sliding Window Maximum",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "sliding-window-maximum",
+      "leetcode": "sliding-window-maximum"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Trapping Rainwater",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "trapping-rainwater",
+      "leetcode": "trapping-rain-water"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Largest rectangle in a histogram",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "largest-rectangle-in-a-histogram",
+      "leetcode": "largest-rectangle-in-histogram"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Maximum Rectangles",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "maximum-rectangles",
+      "leetcode": "maximal-rectangle"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Stock span problem",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "stock-span-problem",
+      "leetcode": "online-stock-span"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Celebrity Problem",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "celebrity-problem",
+      "leetcode": "find-the-celebrity"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "LRU Cache",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "lru-cache",
+      "leetcode": "lru-cache"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "LFU Cache",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "lfu-cache",
+      "leetcode": "lfu-cache"
+    },
+    {
+      "step": "Stack / Queues",
+      "section": "FAQs",
+      "title": "Number of Greater Elements to the Right",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-greater-elements-to-the-right",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Theory/Traversals",
+      "title": "Introduction",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Theory/Traversals",
+      "title": "Inorder Traversal",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "inorder-traversal",
+      "leetcode": "binary-tree-inorder-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Theory/Traversals",
+      "title": "Preorder Traversal",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "preorder-traversal",
+      "leetcode": "binary-tree-preorder-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Theory/Traversals",
+      "title": "Postorder Traversal",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "postorder-traversal",
+      "leetcode": "binary-tree-postorder-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Theory/Traversals",
+      "title": "Level Order Traversal",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "level-order-traversal",
+      "leetcode": "binary-tree-level-order-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Theory/Traversals",
+      "title": "Pre, Post, Inorder in one traversal",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "pre,-post,-inorder-in-one-traversal",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Maximum Depth in BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-depth-in-bt",
+      "leetcode": "maximum-depth-of-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Check if two trees are identical or not",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-if-two-trees-are-identical-or-not",
+      "leetcode": "same-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Check for balanced binary tree",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-for-balanced-binary-tree",
+      "leetcode": "balanced-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Diameter of Binary Tree",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "diameter-of-binary-tree",
+      "leetcode": "diameter-of-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Maximum path sum",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "maximum-path-sum-",
+      "leetcode": "binary-tree-maximum-path-sum"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Check for symmetrical BTs",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-for-symmetrical-bts",
+      "leetcode": "symmetric-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Medium Problems",
+      "title": "Children Sum Property in Binary Tree",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "children-sum-property-in-binary-tree",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Zig Zag or Spiral Traversal",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "zig-zag-or-spiral-traversal",
+      "leetcode": "binary-tree-zigzag-level-order-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Boundary Traversal",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "boundary-traversal",
+      "leetcode": "boundary-of-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Vertical Order Traversal",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "vertical-order-traversal",
+      "leetcode": "vertical-order-traversal-of-a-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Top View of BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "top-view-of-bt",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Bottom view of BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "bottom-view-of-bt",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Right/Left View of BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "right-left-view-of-bt",
+      "leetcode": "binary-tree-right-side-view"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Print root to leaf path in BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "print-root-to-leaf-path-in-bt",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "LCA in BT",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "lca-in-bt",
+      "leetcode": "lowest-common-ancestor-of-a-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Maximum Width of BT",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "maximum-width-of-bt",
+      "leetcode": "maximum-width-of-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Print all nodes at a distance of K in BT",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "print-all-nodes-at-a-distance-of-k-in-bt",
+      "leetcode": "all-nodes-distance-k-in-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Minimum time taken to burn the BT from a given Node",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-time-taken-to-burn-the-bt-from-a-given-node",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Count total nodes in a complete BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-total-nodes-in-a-complete-bt",
+      "leetcode": "count-complete-tree-nodes"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "FAQs",
+      "title": "Flatten Binary Tree to Linked List",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "flatten-binary-tree-to-linked-list",
+      "leetcode": "flatten-binary-tree-to-linked-list"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Construction Problems",
+      "title": "Requirements needed to construct a unique BT",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "requirements-needed-to-construct-a-unique-bt",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Construction Problems",
+      "title": "Construct a BT from Preorder and Inorder",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "construct-a-bt-from-preorder-and-inorder",
+      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Construction Problems",
+      "title": "Construct a BT from Postorder and Inorder",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "construct-a-bt-from-postorder-and-inorder",
+      "leetcode": "construct-binary-tree-from-inorder-and-postorder-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Construction Problems",
+      "title": "Serialize and De-serialize BT",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "serialize-and-de-serialize-bt",
+      "leetcode": "serialize-and-deserialize-binary-tree"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Traversal in Constant Space",
+      "title": "Morris Inorder Traversal",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "morris-inorder-traversal-",
+      "leetcode": "binary-tree-inorder-traversal"
+    },
+    {
+      "step": "Binary Trees",
+      "section": "Traversal in Constant Space",
+      "title": "Morris Preorder Traversal",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "morris-preorder-traversal-",
+      "leetcode": "binary-tree-preorder-traversal"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Theory and Basics",
+      "title": "Introduction to BST",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-to-bst",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Theory and Basics",
+      "title": "Search in BST",
+      "kind": "practice",
+      "tier": "basic",
+      "tufSlug": "search-in-bst",
+      "leetcode": "search-in-a-binary-search-tree"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Theory and Basics",
+      "title": "Floor and Ceil in a BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "floor-and-ceil-in-a-bst",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Theory and Basics",
+      "title": "Minimum and Maximum in BST",
+      "kind": "practice",
+      "tier": null,
+      "tufSlug": "minimum-and-maximum-in-bst",
+      "leetcode": null
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "Insert a given node in BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "insert-a-given-node-in-bst",
+      "leetcode": "insert-into-a-binary-search-tree"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "Delete a node in BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "delete-a-node-in-bst",
+      "leetcode": "delete-node-in-a-bst"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "Kth Smallest and Largest element in BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "kth-smallest-and-largest-element-in-bst",
+      "leetcode": "kth-smallest-element-in-a-bst"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "Check if a tree is a BST or not",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-if-a-tree-is-a-bst-or-not",
+      "leetcode": "validate-binary-search-tree"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "LCA in BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "lca-in-bst",
+      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "Construct a BST from a preorder traversal",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "construct-a-bst-from-a-preorder-traversal",
+      "leetcode": "construct-binary-search-tree-from-preorder-traversal"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "Medium",
+      "title": "Inorder successor and predecessor in BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "inorder-successor-and-predecessor-in-bst",
+      "leetcode": "inorder-successor-in-bst"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "FAQs",
+      "title": "BST iterator",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "bst-iterator",
+      "leetcode": "binary-search-tree-iterator"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "FAQs",
+      "title": "Two sum in BST",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "two-sum-in-bst",
+      "leetcode": "two-sum-iv-input-is-a-bst"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "FAQs",
+      "title": "Correct BST with two nodes swapped",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "correct-bst-with-two-nodes-swapped",
+      "leetcode": "recover-binary-search-tree"
+    },
+    {
+      "step": "Binary Search Trees",
+      "section": "FAQs",
+      "title": "Largest BST in Binary Tree",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "largest-bst-in-binary-tree",
+      "leetcode": "largest-bst-subtree"
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Heaps (Theory Video)",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "heaps-theory",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Heapify Algorithm",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "heapify-algorithm",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Build heap from a given Array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "build-heap-from-a-given-array",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Implement Min Heap",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-min-heap",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Implement Max Heap",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "implement-max-heap",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Check if an array represents a min heap",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "check-if-an-array-represents-a-min-heap-",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Convert Min Heap to Max Heap",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "convert-min-heap-to-max-heap",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "Heap Sort",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "heap-sort",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "Theory and Implementation",
+      "title": "K-th Largest element in an array",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "k-th-largest-element-in-an-array",
+      "leetcode": "kth-largest-element-in-an-array"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Kth largest element in a stream of running integers",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "kth-largest-element-in-a-stream-of-running-integers",
+      "leetcode": "kth-largest-element-in-a-stream"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Sort a K-Sorted Array",
+      "kind": "practice",
+      "tier": null,
+      "tufSlug": "sort-a-k-sorted-array",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Merge K sorted Lists",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "merge-k-sorted-lists",
+      "leetcode": "merge-k-sorted-lists"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Replace Elements by Their Rank",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "replace-elements-by-their-rank",
+      "leetcode": "rank-transform-of-an-array"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Task Scheduler",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "task-scheduler",
+      "leetcode": "task-scheduler"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Hand of Straights",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "hand-of-straights",
+      "leetcode": "hand-of-straights"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Design Twitter",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "design-twitter",
+      "leetcode": "design-twitter"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Minimum Cost to Connect Sticks",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "minimum-cost-to-connect-sticks",
+      "leetcode": "minimum-cost-to-connect-sticks"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Maximum Sum Combination",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-sum-combination",
+      "leetcode": null
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Find Median from Data Stream",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "find-median-from-data-stream",
+      "leetcode": "find-median-from-data-stream"
+    },
+    {
+      "step": "Heaps",
+      "section": "FAQs",
+      "title": "Top K Frequent Elements",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "top-k-frequent-elements",
+      "leetcode": "top-k-frequent-elements"
+    },
+    {
+      "step": "Graphs",
+      "section": "Theory and traversals",
+      "title": "Introduction to Graph",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-to-graph",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Theory and traversals",
+      "title": "Traversal Techniques",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "traversal-techniques",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Theory and traversals",
+      "title": "Connected Components",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "connected-components",
+      "leetcode": "number-of-connected-components-in-an-undirected-graph"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Number of provinces",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-provinces",
+      "leetcode": "number-of-provinces"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Number of islands",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-islands",
+      "leetcode": "number-of-islands"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Flood fill algorithm",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "flood-fill-algorithm",
+      "leetcode": "flood-fill"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Number of enclaves",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-enclaves",
+      "leetcode": "number-of-enclaves"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Rotten Oranges",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "rotten-oranges",
+      "leetcode": "rotting-oranges"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Distance of nearest cell having one",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "distance-of-nearest-cell-having-one",
+      "leetcode": "01-matrix"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Surrounded Regions",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "surrounded-regions",
+      "leetcode": "surrounded-regions"
+    },
+    {
+      "step": "Graphs",
+      "section": "Traversal Problems",
+      "title": "Number of distinct islands",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-distinct-islands",
+      "leetcode": "number-of-distinct-islands"
+    },
+    {
+      "step": "Graphs",
+      "section": "Cycles",
+      "title": "Detect a cycle in an undirected graph",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "detect-a-cycle-in-an-undirected-graph",
+      "leetcode": "course-schedule"
+    },
+    {
+      "step": "Graphs",
+      "section": "Cycles",
+      "title": "Bipartite graph",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "bipartite-graph",
+      "leetcode": "is-graph-bipartite"
+    },
+    {
+      "step": "Graphs",
+      "section": "Cycles",
+      "title": "Topological sort or Kahn's algorithm",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "topological-sort-or-kahns-algorithm",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Cycles",
+      "title": "Detect a cycle in a directed graph",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "detect-a-cycle-in-a-directed-graph",
+      "leetcode": "course-schedule"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Find eventual safe states",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "find-eventual-safe-states",
+      "leetcode": "find-eventual-safe-states"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Course Schedule I",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "course-schedule-i",
+      "leetcode": "course-schedule"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Course Schedule II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "course-schedule-ii",
+      "leetcode": "course-schedule-ii"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Alien Dictionary",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "alient-dictionary",
+      "leetcode": "alien-dictionary"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Shortest path in DAG",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "shortest-path-in-dag",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Shortest path in undirected graph with unit weights",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "shortest-path-in-undirected-graph-with-unit-weights",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Word ladder I",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "word-ladder-i",
+      "leetcode": "word-ladder"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems",
+      "title": "Word ladder II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "word-ladder-ii",
+      "leetcode": "word-ladder-ii"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Dijkstra's algorithm",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "dijkstra's-algorithm",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Print Shortest Path",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "print-shortest-path-",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Shortest Distance in a Binary Maze",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "shortest-path-with-minimum-effort",
+      "leetcode": "shortest-path-in-binary-matrix"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Path with minimum effort",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "path-with-minimum-effort",
+      "leetcode": "path-with-minimum-effort"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Cheapest flight within K stops",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "cheapest-flight-within-k-stops",
+      "leetcode": "cheapest-flights-within-k-stops"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Minimum multiplications to reach end",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-multiplications-to-reach-end",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Number of ways to arrive at destination",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "number-of-ways-to-arrive-at-destination",
+      "leetcode": "number-of-ways-to-arrive-at-destination"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Bellman ford algorithm",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "bellman-ford-algorithm",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Floyd warshall algorithm",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "floyd-warshall-algorithm",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Find the city with the smallest number of neighbors",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "find-the-city-with-the-smallest-number-of-neighbors",
+      "leetcode": "find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Network Delay Time",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "network-delay-time",
+      "leetcode": "network-delay-time"
+    },
+    {
+      "step": "Graphs",
+      "section": "Shortest Path Algorithms",
+      "title": "Swim in Rising Water",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "swim-in-rising-water",
+      "leetcode": "swim-in-rising-water"
+    },
+    {
+      "step": "Graphs",
+      "section": "Minimum Spanning Tree",
+      "title": "MST theory",
+      "kind": "learning",
+      "tier": "core",
+      "tufSlug": "mst-theory",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Minimum Spanning Tree",
+      "title": "Disjoint Set",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "disjoint-set-",
+      "leetcode": null
+    },
+    {
+      "step": "Graphs",
+      "section": "Minimum Spanning Tree",
+      "title": "Find the MST weight",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "find-the-mst-weight",
+      "leetcode": "connecting-cities-with-minimum-cost"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems II",
+      "title": "Number of operations to make network connected",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-operations-to-make-network-connected",
+      "leetcode": "number-of-operations-to-make-network-connected"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems II",
+      "title": "Accounts merge",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "accounts-merge",
+      "leetcode": "accounts-merge"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems II",
+      "title": "Number of islands II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "number-of-islands-ii",
+      "leetcode": "number-of-islands-ii"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems II",
+      "title": "Making a large island",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "making-a-large-island",
+      "leetcode": "making-a-large-island"
+    },
+    {
+      "step": "Graphs",
+      "section": "Hard Problems II",
+      "title": "Most stones removed with same row or column",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "most-stones-removed-with-same-row-or-column",
+      "leetcode": "most-stones-removed-with-same-row-or-column"
+    },
+    {
+      "step": "Graphs",
+      "section": "Additional Algorithms",
+      "title": "Kosaraju's algorithm",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "kosaraju's-algorithm",
+      "leetcode": "maximum-number-of-non-overlapping-substrings"
+    },
+    {
+      "step": "Graphs",
+      "section": "Additional Algorithms",
+      "title": "Bridges in graph",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "bridges-in-graph",
+      "leetcode": "critical-connections-in-a-network"
+    },
+    {
+      "step": "Graphs",
+      "section": "Additional Algorithms",
+      "title": "Articulation point in graph",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "articulation-point-in-graph",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "Introduction",
+      "title": "Introduction to DP",
+      "kind": "learning",
+      "tier": "basic",
+      "tufSlug": "introduction-to-dp",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "1D DP",
+      "title": "Climbing stairs",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "climbing-stairs",
+      "leetcode": "climbing-stairs"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "1D DP",
+      "title": "Frog Jump",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "frog-jump",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "1D DP",
+      "title": "Frog jump with K distances",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "frog-jump-with-k-distances",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "1D DP",
+      "title": "Maximum sum of non adjacent elements",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-sum-of-non-adjacent-elements",
+      "leetcode": "house-robber"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "1D DP",
+      "title": "House robber",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "house-robber",
+      "leetcode": "house-robber"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "2D DP",
+      "title": "Ninja's training",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "ninja's-training",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on grids",
+      "title": "Grid unique paths",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "grid-unique-paths",
+      "leetcode": "unique-paths"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on grids",
+      "title": "Unique paths II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "unique-paths-ii",
+      "leetcode": "unique-paths-ii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on grids",
+      "title": "Minimum Falling Path Sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "minimum-falling-path-sum",
+      "leetcode": "minimum-falling-path-sum"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on grids",
+      "title": "Triangle",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "triangle",
+      "leetcode": "triangle"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on grids",
+      "title": "Cherry pickup II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "cherry-pickup-ii",
+      "leetcode": "cherry-pickup-ii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on grids",
+      "title": "Count Square Submatrices with All Ones",
+      "kind": "practice",
+      "tier": null,
+      "tufSlug": "count-square-submatrices-with-all-one",
+      "leetcode": "count-square-submatrices-with-all-ones"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on stocks",
+      "title": "Best time to buy and sell stock",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "best-time-to-buy-and-sell-stock",
+      "leetcode": "best-time-to-buy-and-sell-stock"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on stocks",
+      "title": "Best time to buy and sell stock II",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "best-time-to-buy-and-sell-stock-ii",
+      "leetcode": "best-time-to-buy-and-sell-stock-ii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on stocks",
+      "title": "Best time to buy and sell stock III",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "best-time-to-buy-and-sell-stock-iii",
+      "leetcode": "best-time-to-buy-and-sell-stock-iii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on stocks",
+      "title": "Best time to buy and sell stock IV",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "best-time-to-buy-and-sell-stock-iv",
+      "leetcode": "best-time-to-buy-and-sell-stock-iv"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on stocks",
+      "title": "Best time to buy and sell stock with transaction fees",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "best-time-to-buy-and-sell-stock-with-cooldown-and-transaction-fees",
+      "leetcode": "best-time-to-buy-and-sell-stock-with-transaction-fee"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on stocks",
+      "title": "Best Time to Buy and Sell Stock with Cooldown",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "best-time-to-buy-and-sell-stock-with-cooldown",
+      "leetcode": "best-time-to-buy-and-sell-stock-with-cooldown"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Subset sum equals to target",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "subset-sum-equals-to-target",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Partition equal subset sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "partition-equal-subset-sum",
+      "leetcode": "partition-equal-subset-sum"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Partition a set into two subsets with minimum absolute sum difference",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference",
+      "leetcode": "last-stone-weight-ii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Count subsets with sum K",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-subsets-with-sum-k",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Count partitions with given difference",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-partitions-with-given-difference",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "0 and 1 Knapsack",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "0-and-1-knapsack",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Minimum coins",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "minimum-coins",
+      "leetcode": "coin-change"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Target sum",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "target-sum",
+      "leetcode": "target-sum"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Coin change II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "coin-change-ii",
+      "leetcode": "coin-change-ii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Unbounded knapsack",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "unbounded-knapsack",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on subsequences",
+      "title": "Rod cutting problem",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "rod-cutting-problem",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "LIS",
+      "title": "Longest Increasing Subsequence",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-increasing-subsequence",
+      "leetcode": "longest-increasing-subsequence"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "LIS",
+      "title": "Print Longest Increasing Subsequence",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "print-longest-increasing-subsequence",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "LIS",
+      "title": "Largest Divisible Subset",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "largest-divisible-subset",
+      "leetcode": "largest-divisible-subset"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "LIS",
+      "title": "Longest String Chain",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-string-chain",
+      "leetcode": "longest-string-chain"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "LIS",
+      "title": "Longest Bitonic Subsequence",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-bitonic-subsequence",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "LIS",
+      "title": "Number of Longest Increasing Subsequences",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "number-of-longest-increasing-subsequences",
+      "leetcode": "number-of-longest-increasing-subsequence"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Longest common subsequence",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-common-subsequence",
+      "leetcode": "longest-common-subsequence"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Longest common substring",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-common-substring",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Longest palindromic subsequence",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-palindromic-subsequence",
+      "leetcode": "longest-palindromic-subsequence"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Minimum insertions to make string palindrome",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-insertions-to-make-string-palindrome",
+      "leetcode": "minimum-insertion-steps-to-make-a-string-palindrome"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Minimum insertions or deletions to convert string A to B",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "minimum-insertions-or-deletions-to-convert-string-a-to-b",
+      "leetcode": "delete-operation-for-two-strings"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Shortest common supersequence",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "shortest-common-supersequence",
+      "leetcode": "shortest-common-supersequence"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Distinct subsequences",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "distinct-subsequences",
+      "leetcode": "distinct-subsequences"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Edit distance",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "edit-distance",
+      "leetcode": "edit-distance"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Wildcard matching",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "wildcard-matching",
+      "leetcode": "wildcard-matching"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Word Break",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "word-break",
+      "leetcode": "word-break"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "DP on strings",
+      "title": "Count Palindromic Subsequences",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "count-palindromic-subsequences",
+      "leetcode": "count-palindromic-subsequences"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "MCM DP",
+      "title": "Matrix chain multiplication",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "matrix-chain-multiplication",
+      "leetcode": null
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "MCM DP",
+      "title": "Burst balloons",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "burst-balloons",
+      "leetcode": "burst-balloons"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "MCM DP",
+      "title": "Palindrome partitioning II",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "palindrome-partitioning-ii-",
+      "leetcode": "palindrome-partitioning-ii"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "MCM DP",
+      "title": "Partition Array for Maximum Sum",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "partition-array-for-maximum-sum",
+      "leetcode": "partition-array-for-maximum-sum"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "MCM DP",
+      "title": "Minimum cost to cut the stick",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "minimum-cost-to-cut-the-stick",
+      "leetcode": "minimum-cost-to-cut-a-stick"
+    },
+    {
+      "step": "Dynamic Programming",
+      "section": "MCM DP",
+      "title": "Different Ways to Evaluate a Boolean Expression",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "different-ways-to-evaluate-a-boolean-expression",
+      "leetcode": "parsing-a-boolean-expression"
+    },
+    {
+      "step": "Tries",
+      "section": "Theory",
+      "title": "Bit PreRequisites for TRIE Problems",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "bit-prerequisites-for-trie-problems",
+      "leetcode": null
+    },
+    {
+      "step": "Tries",
+      "section": "Theory",
+      "title": "Trie Implementation and Operations",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "trie-implementation-and-operations",
+      "leetcode": "implement-trie-prefix-tree"
+    },
+    {
+      "step": "Tries",
+      "section": "Theory",
+      "title": "Trie Implementation and Advanced Operations",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "trie-implementation-and-advanced-operations",
+      "leetcode": "implement-trie-ii-prefix-tree"
+    },
+    {
+      "step": "Tries",
+      "section": "Problems",
+      "title": "Longest Word with All Prefixes",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "longest-word-with-all-prefixes",
+      "leetcode": "longest-word-with-all-prefixes"
+    },
+    {
+      "step": "Tries",
+      "section": "Problems",
+      "title": "Number of distinct substrings in a string",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "number-of-distinct-substrings-in-a-string",
+      "leetcode": "number-of-distinct-substrings-in-a-string"
+    },
+    {
+      "step": "Tries",
+      "section": "Problems",
+      "title": "Maximum XOR of two numbers in an array",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "maximum-xor-of-two-numbers-in-an-array",
+      "leetcode": "maximum-xor-of-two-numbers-in-an-array"
+    },
+    {
+      "step": "Tries",
+      "section": "Problems",
+      "title": "Maximum Xor with an element from an array",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "maximum-xor-with-an-element-from-an-array",
+      "leetcode": "maximum-xor-with-an-element-from-array"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Medium Problems",
+      "title": "Reverse every word in a string",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "reverse-every-word-in-a-string",
+      "leetcode": "reverse-words-in-a-string"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Medium Problems",
+      "title": "Minimum number of bracket reversals to make an expression balanced",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "minimum-number-of-bracket-reversals-to-make-an-expression-balanced",
+      "leetcode": "minimum-add-to-make-parentheses-valid"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Medium Problems",
+      "title": "Count and say",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "count-and-say",
+      "leetcode": "count-and-say"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Advanced Problems (Less asked)",
+      "title": "Hashing In Strings | Theory",
+      "kind": "learning",
+      "tier": null,
+      "tufSlug": "hashing-in-strings-theory",
+      "leetcode": null
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Advanced Problems (Less asked)",
+      "title": "Rabin Karp Algorithm",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "rabin-karp-algorithm",
+      "leetcode": "repeated-string-match"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Advanced Problems (Less asked)",
+      "title": "Z function",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "z-function",
+      "leetcode": null
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Advanced Problems (Less asked)",
+      "title": "KMP Algorithm or LPS array",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "kmp-algorithm-or-lps-array",
+      "leetcode": "implement-strstr"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Advanced Problems (Less asked)",
+      "title": "Shortest Palindrome",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "shortest-palindrome",
+      "leetcode": "shortest-palindrome"
+    },
+    {
+      "step": "Strings (Advanced Algo)",
+      "section": "Advanced Problems (Less asked)",
+      "title": "Longest happy prefix",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "longest-happy-prefix",
+      "leetcode": "longest-happy-prefix"
+    },
+    {
+      "step": "Maths",
+      "section": "Sieve of Eratosthenes",
+      "title": "Print all primes till N",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "print-all-primes-till-n",
+      "leetcode": null
+    },
+    {
+      "step": "Maths",
+      "section": "Sieve of Eratosthenes",
+      "title": "Prime factorisation of a Number",
+      "kind": "practice",
+      "tier": "core",
+      "tufSlug": "prime-factorisation-of-a-number",
+      "leetcode": null
+    },
+    {
+      "step": "Maths",
+      "section": "Sieve of Eratosthenes",
+      "title": "Count primes in range L to R",
+      "kind": "practice",
+      "tier": "pro",
+      "tufSlug": "count-primes-in-range-l-to-r",
+      "leetcode": "count-primes"
+    }
+  ]
+}

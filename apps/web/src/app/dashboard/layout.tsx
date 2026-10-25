@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Search, Settings } from "lucide-react";
 import { Logo, ThemeToggle } from "@upsolve/ui";
-import { NavLinks } from "./_components/nav-links";
+import { NavLinks, NavList } from "./_components/nav-links";
 import { UserMenu, UserMenuSkeleton } from "./_components/user-menu";
 
 export default function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
@@ -12,7 +12,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
         <Link href="/" className="px-2.5 pt-1 pb-2.5" aria-label="Upsolve home">
           <Logo />
         </Link>
-        <NavLinks />
+        <Suspense fallback={<NavList pathname={null} />}>
+          <NavLinks />
+        </Suspense>
       </aside>
 
       <div className="min-w-0 px-4 py-4 sm:px-[22px] sm:py-[22px]">
