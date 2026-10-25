@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  checkUrlSubmissionId,
   historyItem,
   newerId,
   parseMemoryKb,
   parseRuntimeMs,
   problemSlug,
   submissionFromCheck,
+  submissionIdFromPath,
   titleFromDocument,
 } from "./leetcode.ts";
 import { canResume, newSession, toWire, worthUploading } from "./session.ts";
@@ -150,4 +152,18 @@ test("sessions resume within 30 min and only real attempts upload", () => {
   const started = { ...s, timer: { ...onInput(s.timer, T0), activeMs: 20_000 } };
   assert.equal(worthUploading(started), true);
   assert.equal(toWire(started).startedAt, T0);
+});
+
+test("judge-result URLs: old and v2 paths, never run-code", () => {
+  assert.equal(
+    checkUrlSubmissionId("https://leetcode.com/submissions/detail/2181194085/v2/check/"),
+    "2181194085",
+  );
+  assert.equal(checkUrlSubmissionId("/submissions/detail/2181194085/check/"), "2181194085");
+  assert.equal(checkUrlSubmissionId("/submissions/detail/2181194085/check/?x=1"), "2181194085");
+  assert.equal(checkUrlSubmissionId("/submissions/detail/runcode_1_abc/v2/check/"), null);
+  assert.equal(checkUrlSubmissionId("/submissions/detail/2181194085/"), null);
+  assert.equal(submissionIdFromPath("/problems/two-sum/submissions/2181194085/"), "2181194085");
+  assert.equal(submissionIdFromPath("/problems/two-sum/submissions/"), null);
+  assert.equal(submissionIdFromPath("/problems/two-sum/description/"), null);
 });

@@ -8,6 +8,22 @@ export function problemSlug(pathname: string): string | null {
   return m ? m[1]! : null;
 }
 
+/**
+ * Submission id from a judge-result URL. LeetCode has used both
+ * /submissions/detail/<id>/check/ and /submissions/detail/<id>/v2/check/.
+ * Run-code ids ("runcode_…") are not numeric and are ignored.
+ */
+export function checkUrlSubmissionId(url: string): string | null {
+  const m = /\/submissions\/detail\/(\d{1,20})\/(?:v\d+\/)?check\/?(?:[?#]|$)/.exec(url);
+  return m ? m[1]! : null;
+}
+
+/** "/problems/two-sum/submissions/2181194085/" → "2181194085" (the page LeetCode shows after Submit). */
+export function submissionIdFromPath(pathname: string): string | null {
+  const m = /^\/problems\/[a-z0-9-]+\/submissions\/(\d{1,20})(?:\/|$)/.exec(pathname);
+  return m ? m[1]! : null;
+}
+
 /** "875. Koko Eating Bananas - LeetCode" → "875. Koko Eating Bananas". */
 export function titleFromDocument(title: string): string | null {
   const t = title.replace(/\s*-\s*LeetCode\s*$/i, "").trim();

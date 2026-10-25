@@ -4,6 +4,7 @@ import { maybeImportHistory } from "../lib/history-import.ts";
 import {
   problemSlug,
   submissionFromCheck,
+  submissionIdFromPath,
   titleFromDocument,
   type CheckResponse,
 } from "../lib/leetcode.ts";
@@ -31,6 +32,8 @@ export default defineContentScript({
     let session: LocalSession | null = null;
     let lastInputAt = Date.now();
     let ticks = 0;
+    /** Submission pages we've already looked up, so each is fetched once. */
+    const lookedUp = new Set<string>();
     let connected = Boolean(await store.token());
     const ui = new TimerUi(togglePause);
 
@@ -107,6 +110,32 @@ export default defineContentScript({
       if (session?.timer.status === "armed") {
         session.timer = onInput(session.timer, lastInputAt);
         render();
+      }
+    }
+
+    /**
+     * Backup for the hook: after Submit, LeetCode navigates to
+     * /problems/<slug>/submissions/<id>/. Read that submission's result directly,
+     * but only count it if it finished during this session (not an old one being viewed).
+     */
+    async function lookUpSubmission(id: string) {
+      for (let attempt = 0; attempt < 6; attempt++) {
+        try {
+          const res = await fetch(`/submissions/detail/${id}/v2/check/`, {
+            credentials: "same-origin",
+            headers: { Accept: "application/json" },
+          });
+          if (!res.ok) return;
+          const data = (await res.json()) as CheckResponse;
+          if (data.state === "SUCCESS") {
+            const finished = typeof data.task_finish_time === "number" ? data.task_finish_time : 0;
+            if (session && finished >= session.createdAt - 60_000) await onCheck(id, data);
+            return;
+          }
+        } catch {
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 2000)); // still judging
       }
     }
 
@@ -196,6 +225,15 @@ export default defineContentScript({
         return;
       }
       if (!session) return;
+      const pageSubmission = submissionIdFromPath(window.location.pathname);
+      if (
+        pageSubmission &&
+        !lookedUp.has(pageSubmission) &&
+        !session.submissions.some((x) => x.id === pageSubmission)
+      ) {
+        lookedUp.add(pageSubmission);
+        void lookUpSubmission(pageSubmission);
+      }
       session.timer = tick(session.timer, Date.now(), {
         visible: document.visibilityState === "visible",
         focused: document.hasFocus(),
