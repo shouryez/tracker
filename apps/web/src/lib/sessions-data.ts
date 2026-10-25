@@ -84,7 +84,8 @@ export async function getSessionStats(userId: string): Promise<SessionStats> {
       .select({ day: localDay, activeMs: sql<number>`sum(${practiceSessions.activeMs})::int` })
       .from(practiceSessions)
       .where(and(eq(practiceSessions.userId, userId), gte(practiceSessions.startedAt, weekStart)))
-      .groupBy(localDay),
+      // Group by position: the same tz param twice still counts as two different expressions.
+      .groupBy(sql`1`),
     db()
       .select({
         total: sql<number>`count(*)::int`,
