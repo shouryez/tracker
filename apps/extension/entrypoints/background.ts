@@ -28,28 +28,43 @@ async function handleAuthFailure(res: Response) {
   return false;
 }
 
-/** Uploads queued sessions. Entries changed while uploading stay queued for next time. */
-let flushing: Promise<void> | null = null;
-function flush(): Promise<void> {
-  flushing ??= (async () => {
-    try {
-      const outbox = await store.outbox();
-      const sessions = Object.values(outbox).slice(0, BATCH);
-      if (sessions.length === 0) return;
-      const res = await api("/api/ext/sessions", {
-        method: "POST",
-        body: JSON.stringify({ sessions }),
-      });
-      if (!res || (await handleAuthFailure(res)) || !res.ok) return;
-      await store.setAuthError(null);
-      const latest = await store.outbox();
-      for (const s of sessions) {
-        if (JSON.stringify(latest[s.clientId]) === JSON.stringify(s)) delete latest[s.clientId];
-      }
-      await store.setOutbox(latest);
-    } catch {
-      // Offline or server down: everything stays queued.
+/** One upload of queued sessions. Returns false when the server can't be reached. */
+async function flushOnce(): Promise<boolean> {
+  try {
+    const outbox = await store.outbox();
+    const sessions = Object.values(outbox).slice(0, BATCH);
+    if (sessions.length === 0) return true;
+    const res = await api("/api/ext/sessions", {
+      method: "POST",
+      body: JSON.stringify({ sessions }),
+    });
+    if (!res || (await handleAuthFailure(res)) || !res.ok) return false;
+    await store.setAuthError(null);
+    // Entries that changed while uploading stay queued for the next pass.
+    const latest = await store.outbox();
+    for (const s of sessions) {
+      if (JSON.stringify(latest[s.clientId]) === JSON.stringify(s)) delete latest[s.clientId];
     }
+    await store.setOutbox(latest);
+    return true;
+  } catch {
+    return false; // Offline or server down: everything stays queued.
+  }
+}
+
+let flushing: Promise<void> | null = null;
+let flushAgain = false;
+/** Uploads queued sessions. A request during an upload triggers one more pass right after. */
+function flush(): Promise<void> {
+  if (flushing) {
+    flushAgain = true;
+    return flushing;
+  }
+  flushing = (async () => {
+    do {
+      flushAgain = false;
+      if (!(await flushOnce())) break;
+    } while (flushAgain);
   })().finally(() => (flushing = null));
   return flushing;
 }

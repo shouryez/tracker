@@ -210,6 +210,8 @@ export class TimerUi {
       const timer = setTimeout(() => {
         if (!touched) finish();
       }, 12_000);
+      // Reading (hovering), clicking or typing keeps the prompt open.
+      card.addEventListener("pointerenter", () => (touched = true));
       card.addEventListener("pointerdown", () => (touched = true));
       card.addEventListener("keydown", () => (touched = true));
 
