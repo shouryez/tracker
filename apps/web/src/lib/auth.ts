@@ -1,5 +1,6 @@
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,6 +21,9 @@ const DEMO_USER: CurrentUser = { id: "demo", email: null, name: null, avatarUrl:
 export async function getCurrentUser(): Promise<CurrentUser> {
   if (!isSupabaseConfigured) return DEMO_USER;
 
+  // Supabase reads the clock while loading the session; tell Next this is
+  // request-time work so it never runs during prerendering.
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
