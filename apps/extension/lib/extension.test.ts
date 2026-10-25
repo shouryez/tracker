@@ -13,6 +13,12 @@ import {
 } from "./leetcode.ts";
 import { canResume, newSession, toWire, worthUploading } from "./session.ts";
 import {
+  gfgProblemSlug,
+  gfgTitleFromDocument,
+  gfgVerdictFromText,
+  isGfgSubmitRequest,
+} from "./gfg.ts";
+import {
   ARM_AFTER_MS,
   IDLE_AFTER_MS,
   formatClock,
@@ -144,7 +150,13 @@ test("history rows map without code and skip pending ones", () => {
 });
 
 test("sessions resume within 30 min and only real attempts upload", () => {
-  const s = newSession("two-sum", "1. Two Sum", T0, "00000000-0000-4000-8000-000000000000");
+  const s = newSession(
+    "leetcode",
+    "two-sum",
+    "1. Two Sum",
+    T0,
+    "00000000-0000-4000-8000-000000000000",
+  );
   assert.equal(canResume({ ...s, updatedAt: T0 }, T0 + 29 * 60_000), true);
   assert.equal(canResume({ ...s, updatedAt: T0 }, T0 + 31 * 60_000), false);
   assert.equal(canResume({ ...s, outcome: "solved" }, T0), false);
@@ -166,4 +178,48 @@ test("judge-result URLs: old and v2 paths, never run-code", () => {
   assert.equal(submissionIdFromPath("/problems/two-sum/submissions/2181194085/"), "2181194085");
   assert.equal(submissionIdFromPath("/problems/two-sum/submissions/"), null);
   assert.equal(submissionIdFromPath("/problems/two-sum/description/"), null);
+});
+
+test("GFG pages: slug, title, submit request and verdict text", () => {
+  assert.equal(gfgProblemSlug("/problems/reverse-a-linked-list/1"), "reverse-a-linked-list");
+  assert.equal(gfgProblemSlug("/problems/reverse-a-linked-list/1/"), "reverse-a-linked-list");
+  assert.equal(gfgProblemSlug("/explore"), null);
+  assert.equal(
+    gfgTitleFromDocument("Reverse Linked List | Practice | GeeksforGeeks"),
+    "Reverse Linked List",
+  );
+  assert.equal(
+    isGfgSubmitRequest(
+      "https://practiceapiorigin.geeksforgeeks.org/api/latest/problems/reverse-a-linked-list/submit/compile/",
+    ),
+    true,
+  );
+  assert.equal(
+    isGfgSubmitRequest(
+      "https://practiceapiorigin.geeksforgeeks.org/api/latest/problems/reverse-a-linked-list/compile-sub-id/",
+    ),
+    false,
+    "Compile & Run is not a submit",
+  );
+  assert.equal(
+    gfgVerdictFromText(
+      ["Output Window", "Problem Solved Successfully", "Test Cases Passed 1115 / 1115"].join(" "),
+    ),
+    "AC",
+  );
+  assert.equal(gfgVerdictFromText("Wrong Answer. !!! Test Cases Passed: 3/1115"), "WA");
+  assert.equal(gfgVerdictFromText("Compilation Error"), "CE");
+  assert.equal(gfgVerdictFromText("Time Limit Exceeded"), "TLE");
+  assert.equal(gfgVerdictFromText("Submitting..."), null);
+});
+
+test("GFG sessions keep their platform", () => {
+  const s = newSession(
+    "geeksforgeeks",
+    "reverse-a-linked-list",
+    "Reverse Linked List",
+    T0,
+    "00000000-0000-4000-8000-000000000001",
+  );
+  assert.equal(toWire(s).platform, "geeksforgeeks");
 });

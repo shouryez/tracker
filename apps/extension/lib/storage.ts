@@ -1,7 +1,11 @@
 import { browser } from "wxt/browser";
 import type { ExtSession } from "@upsolve/contracts";
 import type { CurrentSession, HistoryState } from "./messages.ts";
-import type { LocalSession } from "./session.ts";
+import type { LocalSession, SessionPlatform } from "./session.ts";
+
+/** LeetCode sessions keep their original key so in-progress ones survive the update. */
+const sessionKey = (platform: SessionPlatform | undefined, slug: string) =>
+  !platform || platform === "leetcode" ? `session:${slug}` : `session:${platform}:${slug}`;
 
 const local = () => browser.storage.local;
 
@@ -17,15 +21,16 @@ export const store = {
   authError: () => get<string>("authError"),
   setAuthError: (e: string | null) => (e ? set("authError", e) : local().remove("authError")),
 
-  session: (slug: string) => get<LocalSession>(`session:${slug}`),
-  setSession: (s: LocalSession) => set(`session:${s.titleSlug}`, s),
+  session: (platform: SessionPlatform, slug: string) =>
+    get<LocalSession>(sessionKey(platform, slug)),
+  setSession: (s: LocalSession) => set(sessionKey(s.platform, s.titleSlug), s),
   async allSessions(): Promise<LocalSession[]> {
     const all = await local().get(null);
     return Object.entries(all)
       .filter(([k]) => k.startsWith("session:"))
       .map(([, v]) => v as LocalSession);
   },
-  removeSession: (slug: string) => local().remove(`session:${slug}`),
+  removeSession: (s: LocalSession) => local().remove(sessionKey(s.platform, s.titleSlug)),
 
   outbox: async () => (await get<Record<string, ExtSession>>("outbox")) ?? {},
   setOutbox: (o: Record<string, ExtSession>) => set("outbox", o),

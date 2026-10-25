@@ -300,11 +300,13 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [x] Auto-tick from Accepted submissions on any platform, manual ticks for non-LeetCode items, follow sheets, sheet pages with per-step progress, ETA at your 14-day pace, dashboard card
 - **Exit:** ✅ solving a problem on LeetCode ticks every sheet item linked to it.
 
-### Phase 3b — GeeksforGeeks
+### Phase 3b — GeeksforGeeks ✅ done 25 Oct 2026
 
-- [ ] GFG profile adapter (public page) + extension timer/verdicts on GFG
-- [ ] Match GFG problems to LeetCode twins by title; link Striver's GFG/Code360-only items
-- **Exit:** solving a problem on GFG ticks the A2Z item linked to it.
+- [x] GFG adapter (public profile + solved-problems APIs), Designation-field verification, full GFG catalog import (`seed:gfg`, ~3,000 problems)
+- [x] Extension on GFG: timer + verdicts read from the result panel after Submit
+- [x] Strict title matching (order-aware for "X to Y" titles); LeetCode–GFG twins share one canonical problem, Striver's non-LeetCode items link to GFG when matched, else takeUforward
+- [x] Sheet page redesign: table per step, search, To do/Done and difficulty filters, platform link buttons
+- **Exit:** ✅ solving a problem on GFG ticks the sheet items linked to it (verified with a public profile: A2Z 78, SDE 41, NeetCode 150 24).
 
 ### Phase 4 — Learning engine (3 weeks)
 

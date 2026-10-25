@@ -35,7 +35,7 @@ export const ExtSubmission = z.object({
 /** One timed attempt. The extension re-sends the whole record as it changes. */
 export const ExtSession = z.object({
   clientId: z.uuid(),
-  platform: z.literal("leetcode"),
+  platform: z.enum(["leetcode", "geeksforgeeks"]),
   titleSlug: slug,
   title: z.string().max(200).nullable(),
   mode: z.enum(["practice", "review", "interview"]).default("practice"),

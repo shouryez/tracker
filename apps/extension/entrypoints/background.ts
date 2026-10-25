@@ -84,7 +84,7 @@ async function sweep() {
       const closed = { ...s, outcome: "abandoned" as const, endedAt: s.endedAt ?? s.updatedAt };
       if (worthUploading(closed)) await queue(toWire(closed));
     }
-    await store.removeSession(s.titleSlug);
+    await store.removeSession(s);
   }
   await flush();
 }

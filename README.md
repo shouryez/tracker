@@ -33,7 +33,7 @@ Open http://localhost:3000. Without Supabase keys the app runs in **demo mode**:
 1. Create a free project at [supabase.com](https://supabase.com).
 2. **Web env:** copy `apps/web/.env.example` → `apps/web/.env.local` and paste the project URL, publishable key (Project Settings → API Keys) and `DATABASE_URL` (same connection string as step 3).
 3. **DB env:** copy `packages/db/.env.example` → `packages/db/.env` and paste the Session pooler connection string (Project Settings → Database).
-4. **Create the tables:** `pnpm db:migrate`, then `pnpm --filter @upsolve/db seed:sheets` to load the coding sheets. This creates the schema with row-level security, plus a trigger that makes a profile row for every new user.
+4. **Create the tables:** `pnpm db:migrate`, then `pnpm --filter @upsolve/db seed:gfg` (GFG problem list, ~2 min) and `pnpm --filter @upsolve/db seed:sheets` (coding sheets, matched to LeetCode and GFG). This creates the schema with row-level security, plus a trigger that makes a profile row for every new user.
 5. **Auth settings** (Authentication → URL Configuration): set Site URL to `http://localhost:3000` and add `http://localhost:3000/auth/callback` to Redirect URLs.
 6. **Google sign-in (optional):** Authentication → Providers → Google. Create an OAuth client in Google Cloud Console with the callback URL Supabase shows you.
 7. Restart `pnpm dev`. Visiting `/dashboard` now redirects to `/login` until you sign in.
@@ -48,7 +48,7 @@ Magic links open in the same browser that requested them (PKCE flow).
    ```
 2. In Chrome open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `apps/extension/.output/chrome-mv3`.
 3. Start the web app (`pnpm --filter @upsolve/web exec next dev --port 3005`), sign in, and open **Settings → Browser extension → Connect a browser** (or click the extension icon → Connect).
-4. Open any LeetCode problem. A small timer appears bottom-left and starts after 10 seconds or your first keystroke. Submit, and after **Accepted** it asks how you solved it.
+4. Open any LeetCode or GeeksforGeeks problem. A small timer appears bottom-left and starts after 10 seconds or your first keystroke. Submit, and after **Accepted** it asks how you solved it.
 
 After changing extension code, rebuild and press the reload icon on the extension card in `chrome://extensions`.
 
@@ -64,6 +64,7 @@ What the extension can access: `leetcode.com` and the Upsolve site only, plus `s
 | `pnpm format`                              | Prettier                                                                                                      |
 | `pnpm db:generate`                         | Generate a migration after editing `packages/db/src/schema.ts`                                                |
 | `pnpm db:migrate`                          | Apply migrations to `DATABASE_URL`                                                                            |
+| `pnpm --filter @upsolve/db seed:gfg`       | Import GeeksforGeeks' public problem list (run before `seed:sheets`)                                          |
 | `pnpm --filter @upsolve/db seed:sheets`    | Load the coding sheets (Striver, NeetCode, Blind 75, Grind 75) into the database. Run once after `db:migrate` |
 | `pnpm --filter @upsolve/db sheets:extract` | Re-download sheet lists from their sources into `packages/db/seed/sheets/`                                    |
 | `pnpm test`                                | Unit tests (adapters, stats)                                                                                  |

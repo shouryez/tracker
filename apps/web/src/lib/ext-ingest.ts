@@ -3,17 +3,20 @@ import { sql } from "drizzle-orm";
 import type { ExtHistoryItem, ExtSession } from "@upsolve/contracts";
 import { insertSubmissions, linkCatalog, practiceSessions } from "@upsolve/db";
 import { db } from "@/lib/db";
-import { ensureLeetcodeProblems } from "@/lib/leetcode-problems";
+import { ensureGfgProblems, ensureLeetcodeProblems } from "@/lib/leetcode-problems";
 
 /** Stores sessions from the extension. Re-sending a session updates the same row. */
 export async function saveExtSessions(userId: string, sessions: ExtSession[]): Promise<number> {
-  const problemIds = await ensureLeetcodeProblems(
-    sessions.map((s) => ({ slug: s.titleSlug, title: s.title })),
-  );
+  const forPlatform = (p: ExtSession["platform"]) =>
+    sessions.filter((s) => s.platform === p).map((s) => ({ slug: s.titleSlug, title: s.title }));
+  const problemIds = {
+    leetcode: await ensureLeetcodeProblems(forPlatform("leetcode")),
+    geeksforgeeks: await ensureGfgProblems(forPlatform("geeksforgeeks")),
+  };
   await linkCatalog(db());
 
   for (const s of sessions) {
-    const platformProblemId = problemIds.get(s.titleSlug)!;
+    const platformProblemId = problemIds[s.platform].get(s.titleSlug)!;
     const values = {
       userId,
       clientId: s.clientId,
@@ -51,7 +54,7 @@ export async function saveExtSessions(userId: string, sessions: ExtSession[]): P
     await insertSubmissions(
       db(),
       userId,
-      "leetcode",
+      s.platform,
       "extension",
       s.submissions.map((sub) => ({
         platformProblemId,

@@ -331,6 +331,11 @@ export const sheets = pgTable(
 
 export const sheetItemKind = pgEnum("sheet_item_kind", ["practice", "learning"]);
 
+export type SheetItemLink = {
+  site: "leetcode" | "geeksforgeeks" | "takeuforward" | "source";
+  url: string;
+};
+
 export const sheetItems = pgTable(
   "sheet_items",
   {
@@ -346,8 +351,13 @@ export const sheetItems = pgTable(
     kind: sheetItemKind("kind").notNull().default("practice"),
     /** Source's own difficulty label (easy/medium/hard, or basic/core/pro on Striver). */
     tier: text("tier"),
-    /** Where to solve it: the LeetCode page, or the sheet's own page for non-LeetCode items. */
+    /** Primary place to solve it (first of `links`). */
     url: text("url"),
+    /** Every known place to solve it, e.g. LeetCode, GeeksforGeeks, takeUforward. */
+    links: jsonb("links")
+      .$type<SheetItemLink[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
     /** Canonical problem, when it exists on a platform we track. Null = tick manually. */
     problemId: uuid("problem_id").references(() => problems.id, { onDelete: "set null" }),
   },

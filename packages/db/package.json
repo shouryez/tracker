@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "check:store": "node --env-file=.env scripts/check-store.ts",
     "seed:sheets": "node --env-file=.env scripts/seed-sheets.ts",
-    "sheets:extract": "node scripts/extract-tuf-sheet.mjs strivers-a2z-dsa-sheet striver-a2z && node scripts/extract-tuf-sheet.mjs strivers-sde-sheet striver-sde && node scripts/extract-neetcode-sheets.mjs"
+    "sheets:extract": "node scripts/extract-tuf-sheet.mjs strivers-a2z-dsa-sheet striver-a2z && node scripts/extract-tuf-sheet.mjs strivers-sde-sheet striver-sde && node scripts/extract-neetcode-sheets.mjs",
+    "seed:gfg": "node --env-file=.env scripts/import-gfg-catalog.ts"
   },
   "dependencies": {
     "@upsolve/adapters": "workspace:*",

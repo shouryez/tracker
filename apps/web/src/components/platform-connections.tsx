@@ -3,7 +3,11 @@ import { CONNECTABLE, getAccounts } from "@/lib/data";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL } from "./platform-meta";
 import { PlatformRow } from "./platform-row";
 
-const PLACEHOLDER = { leetcode: "LeetCode username", codeforces: "Codeforces handle" } as const;
+const PLACEHOLDER = {
+  leetcode: "LeetCode username",
+  codeforces: "Codeforces handle",
+  geeksforgeeks: "GeeksforGeeks username",
+} as const;
 
 export async function PlatformConnections({ userId }: { userId: string }) {
   const accounts = await getAccounts(userId);
@@ -45,9 +49,7 @@ export async function PlatformConnections({ userId }: { userId: string }) {
           />
         );
       })}
-      <p className="mt-4 font-mono text-[11px] text-ink-3">
-        GeeksforGeeks, CodeChef and AtCoder are coming next.
-      </p>
+      <p className="mt-4 font-mono text-[11px] text-ink-3">CodeChef and AtCoder are coming next.</p>
     </div>
   );
 }

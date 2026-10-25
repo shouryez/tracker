@@ -1,12 +1,18 @@
 // Loads seed/sheets/*.json into the database. Safe to re-run: sheets and items
 // are upserted by stable keys, so users' follows and manual ticks survive.
 //
+// Each item gets links to every place it can be solved. Items are matched to
+// GeeksforGeeks problems by title (strict, see adapters/src/match.ts); a
+// LeetCode item's GFG twin is linked to the same canonical problem, so solving
+// it on either site ticks the item. Run seed:gfg first so the GFG catalog exists.
+//
 //   node --env-file=.env scripts/seed-sheets.ts
 import { readFileSync } from "node:fs";
 import { and, eq, inArray, notInArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { platformProblems, sheetItems, sheets } from "../src/schema.ts";
+import { matchKey, matchTitles } from "../../adapters/src/match.ts";
+import { platformProblems, sheetItems, sheets, type SheetItemLink } from "../src/schema.ts";
 import { linkCatalog } from "../src/store.ts";
 
 type SeedItem = {
@@ -46,6 +52,23 @@ const db = drizzle(client);
 try {
   const linked = await linkCatalog(db);
   console.log(`catalog: linked ${linked} platform problems`);
+
+  const gfgRows = await db
+    .select({
+      id: platformProblems.id,
+      slug: platformProblems.externalId,
+      title: platformProblems.title,
+      url: platformProblems.url,
+      problemId: platformProblems.problemId,
+    })
+    .from(platformProblems)
+    .where(eq(platformProblems.platform, "geeksforgeeks"));
+  const gfgById = new Map(gfgRows.map((g) => [g.id, g]));
+  const gfgCandidates = gfgRows.map((g) => ({ id: g.id, key: matchKey(g.title) }));
+  /** GFG platform problem id → LeetCode canonical problem id it duplicates. */
+  const twins = new Map<string, string>();
+  const samples: string[] = [];
+  console.log(`gfg catalog: ${gfgRows.length} problems to match against`);
 
   for (const [position, { slug, file }] of SHEETS.entries()) {
     const seed = JSON.parse(
@@ -100,6 +123,32 @@ try {
       let itemKey = base;
       for (let n = 2; seen.has(itemKey); n++) itemKey = `${base}~${n}`;
       seen.add(itemKey);
+      const links: SheetItemLink[] = [];
+      let problemId: string | null = null;
+      if (leetcode) {
+        links.push({ site: "leetcode", url: `https://leetcode.com/problems/${leetcode}/` });
+        problemId = problemBySlug.get(leetcode) ?? null;
+      }
+      const gfgMatch = item.kind === "practice" ? matchTitles(item.title, gfgCandidates) : null;
+      const gfgProblem = gfgMatch ? gfgById.get(gfgMatch.id) : undefined;
+      if (gfgProblem) {
+        links.push({ site: "geeksforgeeks", url: gfgProblem.url });
+        if (problemId) twins.set(gfgProblem.id, problemId);
+        else problemId = gfgProblem.problemId;
+        if (samples.length < 12 && gfgMatch!.score < 1) {
+          samples.push(`  ~${gfgMatch!.score.toFixed(2)} "${item.title}" → "${gfgProblem.title}"`);
+        }
+      }
+      if (item.tufSlug) {
+        links.push({
+          site: "takeuforward",
+          url:
+            item.kind === "practice"
+              ? `https://takeuforward.org/practice/dsa/${item.tufSlug}`
+              : seed.sourceUrl,
+        });
+      }
+      if (links.length === 0) links.push({ site: "source", url: seed.sourceUrl });
       return {
         sheetId: sheet!.id,
         itemKey,
@@ -109,8 +158,9 @@ try {
         title: item.title,
         kind: item.kind,
         tier: item.tier,
-        url: leetcode ? `https://leetcode.com/problems/${leetcode}/` : seed.sourceUrl,
-        problemId: leetcode ? (problemBySlug.get(leetcode) ?? null) : null,
+        url: links[0]!.url,
+        links,
+        problemId,
       };
     });
 
@@ -128,6 +178,7 @@ try {
             kind: sql`excluded.kind`,
             tier: sql`excluded.tier`,
             url: sql`excluded.url`,
+            links: sql`excluded.links`,
             problemId: sql`excluded.problem_id`,
           },
         });
@@ -144,13 +195,21 @@ try {
     );
 
     const tracked = rows.filter((r) => r.problemId).length;
+    const withGfg = rows.filter((r) => r.links.some((l) => l.site === "geeksforgeeks")).length;
     const unresolved = rows
-      .filter((r) => r.url?.includes("leetcode.com") && !r.problemId)
+      .filter((r) => r.links.some((l) => l.site === "leetcode") && !r.problemId)
       .map((r) => r.itemKey);
     console.log(
-      `${slug}: ${rows.length} items, ${tracked} auto-tracked${unresolved.length ? `, UNRESOLVED: ${unresolved.join(", ")}` : ""}`,
+      `${slug}: ${rows.length} items, ${tracked} auto-tracked, ${withGfg} matched on GFG${unresolved.length ? `, UNRESOLVED: ${unresolved.join(", ")}` : ""}`,
     );
   }
+
+  // Point each LeetCode problem's GFG twin at the LeetCode canonical problem.
+  for (const [gfgId, problemId] of twins) {
+    await db.update(platformProblems).set({ problemId }).where(eq(platformProblems.id, gfgId));
+  }
+  console.log(`linked ${twins.size} GFG problems to their LeetCode twins`);
+  if (samples.length) console.log(["fuzzy matches to spot-check:", ...samples].join("\n"));
 } finally {
   await client.end();
 }

@@ -169,7 +169,7 @@ export function PlatformRow({
           {account.verifying && verifyInstructions ? (
             <>
               <p className="text-[13px] text-ink-2">{verifyInstructions}</p>
-              {account.verifyCode && platform === "leetcode" && (
+              {account.verifyCode && platform !== "codeforces" && (
                 <code className="mt-2 inline-block rounded-xs bg-signal px-2 py-1 font-mono text-[13px] text-signal-ink select-all">
                   {account.verifyCode}
                 </code>

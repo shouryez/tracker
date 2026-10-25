@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   PlatformError,
+  gfgProblemUrl,
   leetcodeCatalogPage,
   leetcodeQuestion,
   type RawProblem,
@@ -92,5 +93,47 @@ export async function ensureLeetcodeProblems(
 
   const created = await upsertProblems(db(), "leetcode", [...found, ...minimal]);
   for (const [slug, id] of created) ids.set(slug, id);
+  return ids;
+}
+
+/**
+ * slug → platform_problems.id for GeeksforGeeks problems. The catalog is
+ * imported by `pnpm --filter @upsolve/db seed:gfg`; problems it lacks get a
+ * minimal row from the title the extension saw.
+ */
+export async function ensureGfgProblems(
+  items: { slug: string; title: string | null }[],
+): Promise<Map<string, string>> {
+  const titles = new Map(items.map((i) => [i.slug, i.title]));
+  const slugs = [...titles.keys()];
+  if (slugs.length === 0) return new Map();
+  const rows = await db()
+    .select({ id: platformProblems.id, slug: platformProblems.externalId })
+    .from(platformProblems)
+    .where(
+      and(
+        eq(platformProblems.platform, "geeksforgeeks"),
+        inArray(platformProblems.externalId, slugs),
+      ),
+    );
+  const ids = new Map(rows.map((r) => [r.slug, r.id]));
+  const missing = slugs.filter((s) => !ids.has(s));
+  if (missing.length) {
+    const created = await upsertProblems(
+      db(),
+      "geeksforgeeks",
+      missing.map((slug) => ({
+        externalId: slug,
+        slug,
+        url: gfgProblemUrl(slug),
+        title: titles.get(slug) ?? slug,
+        difficulty: null,
+        difficultyRaw: null,
+        rating: null,
+        tags: [],
+      })),
+    );
+    for (const [slug, id] of created) ids.set(slug, id);
+  }
   return ids;
 }

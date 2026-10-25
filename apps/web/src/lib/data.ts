@@ -232,4 +232,6 @@ export async function getPublicProfile(handle: string): Promise<PublicProfile | 
 }
 
 /** Platforms that can be connected right now, in display order. */
-export const CONNECTABLE = (["leetcode", "codeforces"] as const).filter((p) => ADAPTERS[p]);
+export const CONNECTABLE = (["leetcode", "codeforces", "geeksforgeeks"] as const).filter(
+  (p) => ADAPTERS[p],
+);

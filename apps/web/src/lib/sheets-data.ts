@@ -82,6 +82,7 @@ export type SheetItemView = {
   kind: "practice" | "learning";
   tier: string | null;
   url: string | null;
+  links: { site: "leetcode" | "geeksforgeeks" | "takeuforward" | "source"; url: string }[];
   tracked: boolean;
   /** "auto" = solved on a tracked platform, "manual" = ticked by hand. */
   status: "auto" | "manual" | null;
@@ -99,7 +100,7 @@ export async function getSheetDetail(userId: string, slug: string): Promise<Shee
 
   const items = (await db().execute(sql`
     with ${solvedCte(userId)}
-    select si.item_key as "itemKey", si.step, si.section, si.title, si.kind, si.tier, si.url,
+    select si.item_key as "itemKey", si.step, si.section, si.title, si.kind, si.tier, si.url, si.links,
            (si.problem_id is not null) as tracked,
            case when sv.problem_id is not null then 'auto'
                 when sm.item_key is not null then 'manual' end as status

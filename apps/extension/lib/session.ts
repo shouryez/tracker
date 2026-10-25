@@ -7,7 +7,11 @@ export const SESSION_EXPIRES_MS = 30 * 60_000;
 /** Shorter visits with no submissions are just browsing and are never uploaded. */
 export const MIN_UPLOAD_ACTIVE_MS = 15_000;
 
+export type SessionPlatform = ExtSession["platform"];
+
 export type LocalSession = {
+  /** Missing on sessions saved before GFG support; those are LeetCode. */
+  platform?: SessionPlatform;
   clientId: string;
   titleSlug: string;
   title: string | null;
@@ -23,12 +27,14 @@ export type LocalSession = {
 };
 
 export function newSession(
+  platform: SessionPlatform,
   slug: string,
   title: string | null,
   now: number,
   id: string,
 ): LocalSession {
   return {
+    platform,
     clientId: id,
     titleSlug: slug,
     title,
@@ -64,7 +70,7 @@ export function worthUploading(s: LocalSession): boolean {
 export function toWire(s: LocalSession): ExtSession {
   return {
     clientId: s.clientId,
-    platform: "leetcode",
+    platform: s.platform ?? "leetcode",
     titleSlug: s.titleSlug,
     title: s.title,
     mode: "practice",
