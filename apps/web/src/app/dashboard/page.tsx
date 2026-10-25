@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense, type ReactNode } from "react";
 import {
   BadgeCheck,
+  Brain,
   CircleCheck,
   Flame,
   Grid3x3,
@@ -11,12 +12,13 @@ import {
   ListChecks,
   Plug,
   Puzzle,
+  RotateCcw,
   Sparkles,
-  Tags,
   Target,
   Timer,
 } from "lucide-react";
 import { ratingToDifficulty } from "@upsolve/adapters";
+import { suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
 import {
   ButtonArrow,
   Card,
@@ -30,7 +32,8 @@ import {
   buttonClasses,
   cn,
 } from "@upsolve/ui";
-import { SolvedSplit, Sparkline, TopicBar } from "@/components/charts";
+import { SolvedSplit, Sparkline } from "@/components/charts";
+import { dueLabel, MasteryBars, reviewUrl, StepLadder } from "@/components/learning";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL, PLATFORM_STROKE } from "@/components/platform-meta";
 import { formatEta, SegmentedProgress } from "@/components/progress";
 import { FocusBars, SessionItem } from "@/components/sessions";
@@ -45,6 +48,13 @@ import {
   needsSync,
   type RecentSolve,
 } from "@/lib/data";
+import {
+  getLearning,
+  getNextCandidates,
+  getTopicTargets,
+  masteryOf,
+  revisionQueue,
+} from "@/lib/learning";
 import { GOALS } from "@/lib/profile-options";
 import { getSheetSummaries } from "@/lib/sheets-data";
 import {
@@ -53,6 +63,7 @@ import {
   getSessionStats,
   getSessions,
 } from "@/lib/sessions-data";
+import { localDay, requestNow } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -76,14 +87,44 @@ async function Overview() {
   const profile = await getProfile(user.id);
   if (!profile?.onboardedAt) redirect("/onboarding");
 
-  const [accounts, contestSeries, recent, sessionStats, sessions, tokens] = await Promise.all([
+  const [
+    accounts,
+    contestSeries,
+    recent,
+    sessionStats,
+    sessions,
+    tokens,
+    learning,
+    targets,
+    candidates,
+  ] = await Promise.all([
     getAccounts(user.id),
     getContestSeries(user.id),
     getRecentSolves(user.id),
     getSessionStats(user.id),
     getSessions(user.id, 8),
     getExtensionTokens(user.id),
+    getLearning(user.id),
+    getTopicTargets(),
+    getNextCandidates(user.id),
   ]);
+  const now = requestNow();
+  const mastery = masteryOf(learning, targets, now);
+  const queue = revisionQueue(learning, mastery, {
+    tz: profile.timezone,
+    cap: profile.reviewCap,
+    now,
+  });
+  const { end: endOfToday } = localDay(profile.timezone, now);
+  const solvedBy: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
+  for (const p of learning) if (p.difficulty) solvedBy[p.difficulty]++;
+  const nextUp = suggestNext(candidates, mastery, solvedBy, 4);
+  // The six topics you've solved most in, strongest first.
+  const masteryShown = mastery
+    .filter((m) => m.solved > 0)
+    .sort((a, b) => b.solved - a.solved)
+    .slice(0, 6)
+    .sort((a, b) => b.score - a.score);
   const followed = (await getSheetSummaries(user.id)).filter((s) => s.following);
   const hasExtension = tokens.length > 0;
   const answered =
@@ -297,19 +338,18 @@ async function Overview() {
 
         <Card className="col-span-12 xl:col-span-5">
           <CardHeader>
-            <CardTitle icon={icon(Tags)}>Top topics</CardTitle>
-            <CardSub>problems solved</CardSub>
+            <CardTitle icon={icon(Brain)}>Topic mastery</CardTitle>
+            <Link
+              href="/dashboard/analytics"
+              className={buttonClasses({ variant: "ghost", size: "sm" })}
+            >
+              All topics <ButtonArrow />
+            </Link>
           </CardHeader>
-          {stats.topics.length === 0 ? (
-            <p className="text-[13px] text-ink-2">Topics appear after your first sync.</p>
-          ) : (
-            stats.topics.map((t) => (
-              <TopicBar key={t.slug} name={t.name} value={t.solved} max={stats.topics[0]!.solved} />
-            ))
-          )}
+          <MasteryBars topics={masteryShown} showInputs={false} />
         </Card>
 
-        <Card className="col-span-12">
+        <Card className="col-span-12 xl:col-span-7">
           <CardHeader>
             <CardTitle icon={icon(History)}>Recent solves</CardTitle>
             <CardSub>accepted</CardSub>
@@ -324,6 +364,45 @@ async function Overview() {
                 <RecentRow key={r.id} solve={r} />
               ))}
             </ul>
+          )}
+        </Card>
+
+        <Card className="col-span-12 xl:col-span-5">
+          <CardHeader>
+            <CardTitle icon={icon(Sparkles)}>Solve next</CardTitle>
+            <CardSub>from your sheets</CardSub>
+          </CardHeader>
+          {nextUp.length === 0 ? (
+            <p className="text-[13px] text-ink-2">
+              Follow a sheet and solve a few problems; suggestions target your weakest topic.
+            </p>
+          ) : (
+            <ul>
+              {nextUp.map((p) => (
+                <li
+                  key={p.problemId}
+                  className="flex items-center gap-3 border-t border-dashed border-line-2 py-2.5 first:border-t-0 first:pt-0"
+                >
+                  <span className="min-w-0 flex-1">
+                    <Link
+                      href={`/dashboard/problems/${p.problemId}`}
+                      className="block truncate text-[13.5px] font-medium hover:underline"
+                    >
+                      {p.title}
+                    </Link>
+                    <span className="block truncate font-mono text-[11px] text-ink-3">
+                      {p.reason} · {p.sheet}
+                    </span>
+                  </span>
+                  {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
+                </li>
+              ))}
+            </ul>
+          )}
+          {nextUp[0] && (
+            <p className="mt-3 font-mono text-[11px] text-ink-3">
+              Focus: {topicLabel(nextUp[0].topic)}
+            </p>
           )}
         </Card>
 
@@ -372,19 +451,66 @@ async function Overview() {
 
         <Card className="col-span-12 xl:col-span-5">
           <CardHeader>
-            <CardTitle icon={icon(Sparkles)}>Coming next</CardTitle>
+            <CardTitle icon={icon(RotateCcw)}>Revision</CardTitle>
+            <Link
+              href="/dashboard/revision"
+              className={buttonClasses({ variant: "ghost", size: "sm" })}
+            >
+              Open queue <ButtonArrow />
+            </Link>
           </CardHeader>
-          <ul className="flex flex-col gap-3 text-[13px]">
-            <Upcoming phase="Next" title="GeeksforGeeks">
-              Sync your GFG profile and the timer on GFG problems; Striver items tick there too.
-            </Upcoming>
-            <Upcoming phase="Phase 4" title="Revision queue">
-              Spaced repetition that checks you can still solve it.
-            </Upcoming>
-            <Upcoming phase="Phase 5" title="Your college">
-              Leaderboards by college and batch, study rooms.
-            </Upcoming>
-          </ul>
+          {learning.length === 0 ? (
+            <p className="text-[13px] text-ink-2">
+              Problems you solve are scheduled for review here, spaced 1 → 3 → 7 → 16 → 35 → 90
+              days.
+            </p>
+          ) : queue.today.length === 0 ? (
+            <p className="text-[13.5px] text-ink-2">
+              <span className="font-[550] text-ink">
+                {queue.reviewedToday > 0 ? "Done for today." : "Nothing due today."}
+              </span>{" "}
+              {queue.backlog > 0
+                ? `${queue.backlog} waiting for tomorrow.`
+                : `${queue.upcoming[0] ?? 0} due tomorrow.`}
+            </p>
+          ) : (
+            <>
+              <Stat
+                value={queue.today.length}
+                unit={`due today${queue.backlog ? ` · ${queue.backlog} waiting` : ""}`}
+                className="mb-3 text-[32px]"
+              />
+              <ul>
+                {queue.today.slice(0, 3).map((p) => (
+                  <li
+                    key={p.problemId}
+                    className="flex items-center gap-3 border-t border-dashed border-line-2 py-2.5"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <Link
+                        href={`/dashboard/problems/${p.problemId}`}
+                        className="block truncate text-[13.5px] font-medium hover:underline"
+                      >
+                        {p.title}
+                      </Link>
+                      <span className="flex items-center gap-2 font-mono text-[11px] text-ink-3">
+                        <StepLadder step={p.state.step} />
+                        {dueLabel(p.state.dueAt, now, endOfToday)}
+                      </span>
+                    </span>
+                    <a
+                      href={reviewUrl(p.url)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={buttonClasses({ variant: "secondary", size: "sm" })}
+                    >
+                      Re-solve
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </Card>
       </div>
     </div>
@@ -467,26 +593,6 @@ function RecentRow({ solve }: { solve: RecentSolve }) {
         </span>
       </span>
       {difficulty ? <DifficultyTag difficulty={difficulty} /> : <Tag mono>unrated</Tag>}
-    </li>
-  );
-}
-
-function Upcoming({
-  phase,
-  title,
-  children,
-}: {
-  phase: string;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <li className="flex gap-3 border-t border-dashed border-line-2 pt-3 first:border-t-0 first:pt-0">
-      <span className="min-w-0 flex-1">
-        <span className="block font-medium">{title}</span>
-        <span className="text-ink-2">{children}</span>
-      </span>
-      <Tag mono>{phase}</Tag>
     </li>
   );
 }

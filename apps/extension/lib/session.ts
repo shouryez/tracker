@@ -12,6 +12,8 @@ export type SessionPlatform = ExtSession["platform"];
 export type LocalSession = {
   /** Missing on sessions saved before GFG support; those are LeetCode. */
   platform?: SessionPlatform;
+  /** "review" when opened from the revision queue. Missing = practice. */
+  mode?: ExtSession["mode"];
   clientId: string;
   titleSlug: string;
   title: string | null;
@@ -55,6 +57,15 @@ export function canResume(existing: LocalSession | undefined, now: number): bool
   return !!existing && existing.outcome === "open" && now - existing.updatedAt < SESSION_EXPIRES_MS;
 }
 
+/** True for links from the revision queue (`?upsolve=review`). */
+export function isReviewUrl(href: string): boolean {
+  try {
+    return new URL(href).searchParams.get("upsolve") === "review";
+  } catch {
+    return false;
+  }
+}
+
 export function addSubmission(s: LocalSession, sub: ExtSubmission): LocalSession {
   if (s.submissions.some((x) => x.id === sub.id)) return s;
   return { ...s, submissions: [...s.submissions, sub].slice(-200) };
@@ -73,7 +84,7 @@ export function toWire(s: LocalSession): ExtSession {
     platform: s.platform ?? "leetcode",
     titleSlug: s.titleSlug,
     title: s.title,
-    mode: "practice",
+    mode: s.mode ?? "practice",
     startedAt: s.timer.startedAt ?? s.createdAt,
     endedAt: s.endedAt,
     activeMs: Math.min(s.timer.activeMs, 24 * 3_600_000),

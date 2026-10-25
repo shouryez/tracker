@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { Globe, Plug, Puzzle, UserRound } from "lucide-react";
+import { Globe, Plug, Puzzle, RotateCcw, UserRound } from "lucide-react";
 import { ButtonArrow, Card, CardHeader, CardTitle, buttonClasses } from "@upsolve/ui";
 import { PlatformConnections } from "@/components/platform-connections";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -9,6 +9,7 @@ import { getProfile } from "@/lib/data";
 import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
 import { getExtensionTokens } from "@/lib/sessions-data";
 import { ExtensionTokens } from "./extension-tokens";
+import { LearningSettings } from "./learning-settings";
 import { PublicToggle } from "./public-toggle";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -17,7 +18,7 @@ export default function SettingsPage() {
   return (
     <div className="flex max-w-[860px] flex-col gap-5">
       <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
-        Settings<span className="block text-ink-3">Profile and platforms</span>
+        Settings<span className="block text-ink-3">Profile, platforms and revision</span>
       </h1>
       <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-surface" />}>
         <SettingsContent />
@@ -85,6 +86,17 @@ async function SettingsContent() {
           }))}
         />
       </Card>
+
+      {profile && (
+        <Card id="learning" className="scroll-mt-6">
+          <CardHeader>
+            <CardTitle icon={icon(RotateCcw)}>Revision &amp; email</CardTitle>
+          </CardHeader>
+          <LearningSettings
+            initial={{ reviewCap: profile.reviewCap, weeklyEmail: profile.weeklyEmail }}
+          />
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

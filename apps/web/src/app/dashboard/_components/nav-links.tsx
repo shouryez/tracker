@@ -20,9 +20,9 @@ type Item = { label: string; icon: LucideIcon; href?: string };
 const MENU: Item[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutGrid },
   { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
-  { label: "Revision", icon: RotateCcw },
+  { label: "Revision", href: "/dashboard/revision", icon: RotateCcw },
   { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
-  { label: "Analytics", icon: ChartColumn },
+  { label: "Analytics", href: "/dashboard/analytics", icon: ChartColumn },
   { label: "Contests", icon: Trophy },
 ];
 const SOCIAL: Item[] = [{ label: "Your college", icon: UsersRound }];

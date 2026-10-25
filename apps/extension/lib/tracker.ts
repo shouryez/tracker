@@ -8,6 +8,7 @@ import type { Message } from "./messages.ts";
 import {
   addSubmission,
   canResume,
+  isReviewUrl,
   newSession,
   toWire,
   worthUploading,
@@ -43,6 +44,10 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   let ticks = 0;
   let connected = Boolean(await store.token());
   const ui = new TimerUi(togglePause);
+  // Read the review flag before the site's router can rewrite the URL.
+  const reviewSlug = isReviewUrl(window.location.href)
+    ? site.slugFromPath(window.location.pathname)
+    : null;
 
   const send = (s: LocalSession, flush: boolean) => {
     if (!worthUploading(s)) return;
@@ -75,6 +80,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
       submits: session.submissions.length,
       title: session.title,
       connected,
+      review: session.mode === "review",
     });
   }
 
@@ -93,6 +99,8 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
             now,
             crypto.randomUUID(),
           );
+    // The revision queue links here with ?upsolve=review; the problem page may drop it later.
+    if (isReviewUrl(window.location.href) || next === reviewSlug) session.mode = "review";
     ui.mount();
     ui.setHidden(false);
     render();

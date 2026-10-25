@@ -11,11 +11,11 @@ A DSA practice tracker for college students: a Chrome extension that times every
 apps/web          Next.js 16 app: landing, login, dashboard, auth routes
 packages/ui       Design tokens (Tailwind v4 theme) + shared components
 packages/db       Drizzle schema, migrations, DB client, sync persistence
-packages/adapters Codeforces + LeetCode clients (public data only, no DB)
-```
-
-apps/extension Chrome extension (WXT): LeetCode timer, verdicts, history import
+packages/adapters Codeforces, LeetCode, GFG clients (public data only, no DB)
+packages/core     Learning engine: spaced repetition, topic mastery, "solve next" (pure, tested)
 packages/contracts Zod schemas shared by the extension and the API
+apps/extension    Chrome extension (WXT): LeetCode + GFG timer, verdicts, history import
+```
 
 ## Run it
 
@@ -39,6 +39,10 @@ Open http://localhost:3000. Without Supabase keys the app runs in **demo mode**:
 7. Restart `pnpm dev`. Visiting `/dashboard` now redirects to `/login` until you sign in.
 
 Magic links open in the same browser that requested them (PKCE flow).
+
+## Weekly email (optional)
+
+Set `CRON_SECRET` (any long random string; it also signs unsubscribe links), `RESEND_API_KEY` ([resend.com](https://resend.com), free tier) and `EMAIL_FROM` in `apps/web/.env.local` or your host's env. `apps/web/vercel.json` calls `/api/cron/weekly` every Monday 08:00 IST with `Authorization: Bearer $CRON_SECRET`. Without `RESEND_API_KEY` the route does a dry run. Preview your own email at `/api/email/weekly/preview` while signed in.
 
 ## Load the extension (development)
 

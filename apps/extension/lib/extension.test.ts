@@ -11,7 +11,7 @@ import {
   submissionIdFromPath,
   titleFromDocument,
 } from "./leetcode.ts";
-import { canResume, newSession, toWire, worthUploading } from "./session.ts";
+import { canResume, isReviewUrl, newSession, toWire, worthUploading } from "./session.ts";
 import {
   gfgProblemSlug,
   gfgTitleFromDocument,
@@ -222,4 +222,12 @@ test("GFG sessions keep their platform", () => {
     "00000000-0000-4000-8000-000000000001",
   );
   assert.equal(toWire(s).platform, "geeksforgeeks");
+});
+
+test("review mode comes from the revision queue link and reaches the server", () => {
+  assert.equal(isReviewUrl("https://leetcode.com/problems/two-sum/?upsolve=review"), true);
+  assert.equal(isReviewUrl("https://leetcode.com/problems/two-sum/"), false);
+  const s = newSession("leetcode", "two-sum", "Two Sum", 0, "id");
+  assert.equal(toWire(s).mode, "practice");
+  assert.equal(toWire({ ...s, mode: "review" }).mode, "review");
 });

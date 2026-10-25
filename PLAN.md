@@ -129,8 +129,9 @@ solves(user_id, problem_id, first_solved_at, last_solved_at, best_independence, 
 sheets(id, slug, name, author, source_url, version)
 sheet_items(sheet_id, position, section, title, problem_id, PRIMARY KEY(sheet_id, position))
 
-reviews(user_id, problem_id, step INT, due_at, last_result ENUM(pass,slow,hint,fail), history jsonb,
-        PRIMARY KEY(user_id, problem_id))
+review_logs(id, user_id, problem_id, action ENUM(remembered,shaky,forgot,retire,restore), at)
+                                         -- manual actions; the schedule is derived (§6.2)
+problem_notes(user_id, problem_id, body, updated_at, PRIMARY KEY(user_id, problem_id))
 contest_results(user_id, platform, contest_id, contest_name, at, rank, old_rating, new_rating, solved INT, total INT)
 
 daily_stats(user_id, date, solved_e, solved_m, solved_h, active_ms, topics jsonb, PRIMARY KEY(user_id, date))
@@ -308,13 +309,13 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [x] Sheet page redesign: table per step, search, To do/Done and difficulty filters, platform link buttons
 - **Exit:** ✅ solving a problem on GFG ticks the sheet items linked to it (verified with a public profile: A2Z 78, SDE 41, NeetCode 150 24).
 
-### Phase 4 — Learning engine (3 weeks)
+### Phase 4 — Learning engine (3 weeks) ✅ built 26 Oct 2026
 
-- [ ] `packages/core`: spaced repetition, mastery, "next problem" (with tests)
-- [ ] Revision page + review mode in extension (proven re-solve)
-- [ ] Topic mastery card + Analytics page (time per difficulty/topic, first-try AC, verdict mix, best hours)
-- [ ] Problem detail page (notes, attempts timeline, mistake tags)
-- [ ] Weekly email
+- [x] `packages/core`: spaced repetition, mastery, "next problem" (with tests). Review state isn't stored: it's recomputed from submissions, timed sessions and `review_logs`, so it never drifts
+- [x] Revision page + review mode in extension (proven re-solve). Every solve ever is scheduled (older history lands as overdue, released by the daily cap, default 5, oldest and weakest first). A timed Accepted is proven; synced re-solves and "Remembered / Shaky / Forgot" self-grades count too but can't push past 16 days. Retire/restore per problem
+- [x] Topic mastery card + Analytics page (time per difficulty/topic, first-try AC, verdict mix, best hours, mistake tags, range control). 18 topics; targets from the curated sheets, capped at 60 points
+- [x] Problem detail page (notes, attempts timeline, mistake tags, review schedule, platform links, sheets, similar unsolved problems)
+- [x] Weekly email: digest + template, `/api/cron/weekly` (Vercel cron, Monday 08:00 IST), signed one-click unsubscribe, Settings toggle and preview. Dormant until `RESEND_API_KEY` is set
 - **Exit:** the revision queue is the first thing you open each day.
 
 ### Phase 5 — More platforms & social (3–4 weeks)

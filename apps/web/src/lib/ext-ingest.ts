@@ -39,6 +39,8 @@ export async function saveExtSessions(userId: string, sessions: ExtSession[]): P
         target: [practiceSessions.userId, practiceSessions.clientId],
         set: {
           endedAt: values.endedAt,
+          // A session opened from the revision queue stays a review.
+          mode: sql`case when ${values.mode} = 'review' then 'review'::session_mode else ${practiceSessions.mode} end`,
           activeMs: sql`greatest(${practiceSessions.activeMs}, ${values.activeMs})`,
           idleMs: sql`greatest(${practiceSessions.idleMs}, ${values.idleMs})`,
           submits: sql`greatest(${practiceSessions.submits}, ${values.submits})`,

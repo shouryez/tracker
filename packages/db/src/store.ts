@@ -152,7 +152,8 @@ export async function linkCatalog(db: Database): Promise<number> {
   await db.execute(sql`
     insert into problems (canonical_slug, title, difficulty, topics)
     select ${canonical},
-           regexp_replace(pp.title, '^[0-9]+\.\s+', ''),
+           -- No backslashes: this is a JS template literal, which would eat them.
+           regexp_replace(pp.title, '^[0-9]+[.][[:space:]]+', ''),
            (case
               when pp.platform = 'codeforces' then
                 case when pp.rating is null then null

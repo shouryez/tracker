@@ -17,6 +17,7 @@ const CSS = `
 .active .dot { background: #d7ff3a; box-shadow: 0 0 0 3px rgba(215,255,58,.18); }
 .paused .dot { background: #ffb938; }
 .solved .dot { background: #3ddc97; }
+.review { color: #9aa3ff; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
 .label { color: #a3a3b0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
 .card { width: 300px; padding: 14px; border-radius: 16px; background: rgba(19,19,25,.97); border: 1px solid rgba(255,255,255,.13);
   box-shadow: 0 24px 60px -24px rgba(0,0,0,.8); font-size: 13px; line-height: 1.45; animation: pop .32s cubic-bezier(.34,1.56,.64,1) both; }
@@ -48,6 +49,8 @@ export type PillView = {
   submits: number;
   title: string | null;
   connected: boolean;
+  /** Opened from the revision queue. */
+  review: boolean;
 };
 
 export type PromptResult = {
@@ -132,6 +135,7 @@ export class TimerUi {
     this.pill.replaceChildren(
       el("span", { class: "dot" }),
       el("span", {}, formatClock(view.activeMs)),
+      ...(view.review ? [el("span", { class: "review" }, "review")] : []),
       ...(label ? [el("span", { class: "label" }, label)] : []),
     );
     if (this.panel) this.fillPanel();
@@ -159,7 +163,7 @@ export class TimerUi {
     const meta = el(
       "p",
       { class: "meta" },
-      `active ${formatClock(v.activeMs)} · idle ${formatClock(v.idleMs)} · ${v.submits} submit${v.submits === 1 ? "" : "s"}`,
+      `${v.review ? "review · " : ""}active ${formatClock(v.activeMs)} · idle ${formatClock(v.idleMs)} · ${v.submits} submit${v.submits === 1 ? "" : "s"}`,
     );
     const row = el("div", { class: "row" });
     if (v.status !== "solved") {

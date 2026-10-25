@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ChevronRight, ExternalLink, Search } from "lucide-react";
 import { DifficultyTag, Tag, cn } from "@upsolve/ui";
@@ -243,14 +244,23 @@ export function SheetBrowser({ sheetId, items }: { sheetId: string; items: Sheet
                           {n}
                         </td>
                         <td className="py-2.5 pr-3 align-middle">
-                          <a
-                            href={item.url ?? undefined}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={cn("hover:underline", item.status && "text-ink-3")}
-                          >
-                            {item.title}
-                          </a>
+                          {item.problemId ? (
+                            <Link
+                              href={`/dashboard/problems/${item.problemId}`}
+                              className={cn("hover:underline", item.status && "text-ink-3")}
+                            >
+                              {item.title}
+                            </Link>
+                          ) : (
+                            <a
+                              href={item.url ?? undefined}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={cn("hover:underline", item.status && "text-ink-3")}
+                            >
+                              {item.title}
+                            </a>
+                          )}
                           {item.kind === "learning" && (
                             <Tag mono className="ml-2 align-middle">
                               read

@@ -49,7 +49,14 @@ export const syncStatus = pgEnum("sync_status", ["pending", "ok", "error", "rate
 export const sessionMode = pgEnum("session_mode", ["practice", "review", "interview"]);
 export const sessionOutcome = pgEnum("session_outcome", ["open", "solved", "abandoned"]);
 export const independence = pgEnum("independence", ["solo", "hint", "solution"]);
-export const reviewResult = pgEnum("review_result", ["pass", "slow", "hint", "fail"]);
+/** Things a user does in the revision queue by hand (PLAN.md §6.2). */
+export const reviewAction = pgEnum("review_action", [
+  "remembered",
+  "shaky",
+  "forgot",
+  "retire",
+  "restore",
+]);
 
 // ---------------------------------------------------------------- helpers
 
@@ -121,6 +128,9 @@ export const profiles = pgTable(
       .default(sql`'{}'::text[]`),
     mainLanguage: text("main_language"),
     dailyGoalMin: integer("daily_goal_min").notNull().default(60),
+    /** Most reviews shown per day in the revision queue. */
+    reviewCap: integer("review_cap").notNull().default(5),
+    weeklyEmail: boolean("weekly_email").notNull().default(true),
     timezone: text("timezone").notNull().default("Asia/Kolkata"),
     isPublic: boolean("is_public").notNull().default(false),
     onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
@@ -398,26 +408,36 @@ export const sheetMarks = pgTable(
 
 // ---------------------------------------------------------------- learning
 
-export const reviews = pgTable(
-  "reviews",
+/**
+ * Manual revision actions. The review schedule itself isn't stored: it's
+ * recomputed from submissions, sessions and these rows (@upsolve/core srs).
+ */
+export const reviewLogs = pgTable(
+  "review_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => problems.id, { onDelete: "cascade" }),
+    action: reviewAction("action").notNull(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("review_logs_user_idx").on(t.userId, t.problemId), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** The user's own notes on a problem (plain text, shown on the problem page). */
+export const problemNotes = pgTable(
+  "problem_notes",
   {
     userId: userRef(),
     problemId: uuid("problem_id")
       .notNull()
       .references(() => problems.id, { onDelete: "cascade" }),
-    /** Index into the interval ladder 1 → 3 → 7 → 16 → 35 → 90 days (PLAN.md §6.2). */
-    step: integer("step").notNull().default(0),
-    dueAt: timestamp("due_at", { withTimezone: true }).notNull(),
-    lastResult: reviewResult("last_result"),
-    history: jsonb("history")
-      .notNull()
-      .default(sql`'[]'::jsonb`),
+    body: text("body").notNull(),
+    updatedAt: updatedAt(),
   },
-  (t) => [
-    primaryKey({ columns: [t.userId, t.problemId] }),
-    index("reviews_user_due_idx").on(t.userId, t.dueAt),
-    ownerCanRead(t.userId),
-  ],
+  (t) => [primaryKey({ columns: [t.userId, t.problemId] }), ownerCanRead(t.userId)],
 ).enableRLS();
 
 export const contestResults = pgTable(
