@@ -318,20 +318,70 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [x] Weekly email: digest + template, `/api/cron/weekly` (Vercel cron, Monday 08:00 IST), signed one-click unsubscribe, Settings toggle and preview. Dormant until `RESEND_API_KEY` is set
 - **Exit:** the revision queue is the first thing you open each day.
 
-### Phase 5 — More platforms & social (3–4 weeks)
+### Phase 4.5 — Private beta (about 2 weeks) ← next
 
-- [ ] CodeChef, AtCoder, Code360 (extension-only)
-- [ ] Contests page + auto upsolve list
-- [ ] Groups (friends), college & batch leaderboards (honest metrics), invite links
-- [ ] Study rooms (Supabase Realtime presence)
-- [ ] Share card generator (OG image route)
-- [ ] Streak + exam-freeze
+Goal: the people who reply to the LinkedIn/Reddit posts can sign up, connect their accounts, install the extension and use it daily, while we learn what to build in Phase 5. Invite-only, 10–30 students. Everything below was checked against the code on 27 Oct 2026.
+
+**A. Fix and finish before anyone else sees it (≈2 days)**
+
+- [ ] Recent solves lists every Accepted submission, so re-solving a problem three times shows it three times (Two Sum, 25 Oct). Show each problem once, with "×3" when re-solved
+- [ ] Verify the two flows never tested live: the extension's GFG verdict capture (one GFG submit) and review mode on LeetCode (does `?upsolve=review` survive LeetCode's redirect to `/description/`?)
+- [ ] Extension copy still says "LeetCode" only (popup connect text); mention GFG
+- [ ] Header search box is a disabled placeholder: either build a simple problem search (title → problem page) or remove it for the beta
+- [ ] "Contests" and "Your college" sidebar items say _soon_; keep, but link them to a short "coming in Phase 5 — tell us what you want" page with a feedback form
+- [ ] In-app **feedback button** (bottom corner: free text + optional screenshot, stored in a `feedback` table, emailed to you). This is how beta input arrives
+- [ ] Error states for new users: a handle that fails to sync, a sheet with zero matches, an empty revision queue (mostly exist; walk through sign-up from scratch with a fresh Google account and fix what's confusing)
+
+**B. Things that break with real users (≈3 days)**
+
+- [ ] **Login email limit.** Supabase's built-in mailer sends only a handful of emails per hour (the "email rate limit exceeded" error seen earlier). Set Supabase Auth → SMTP to Resend so magic links work for everyone. Google sign-in is unaffected
+- [ ] **A domain.** Resend only delivers to your own address until a domain is verified, which blocks both magic links and the weekly email. Buy a cheap domain (e.g. `upsolve.<tld>`, ₹100–900/yr), verify it in Resend (DNS records), use it for the site too
+- [ ] **Sync without a visit.** Today a sync runs only when someone opens the dashboard (server action). Add a daily cron route (`/api/cron/sync`, same `CRON_SECRET`) that syncs the stalest accounts in small batches with a per-platform pause, so streaks, sheets and the Monday email are current. Vercel Hobby allows daily crons and 60 s functions, so process ~20 accounts per run and keep a cursor; move to Inngest/Supabase pg_cron if it outgrows that
+- [ ] **LeetCode from a datacenter.** LeetCode's GraphQL may throttle or block Vercel's IPs. Test on day one of deploy; if blocked, rely on the extension (it already imports history from the user's own browser) and show "sync via extension" for LeetCode
+- [ ] **Rate limits** on `/api/ext/*`, sync and connect actions (per user, e.g. Upstash Ratelimit free tier or a simple Postgres counter) so one buggy client can't hammer LeetCode/GFG from our IPs
+- [ ] **Privacy policy + terms** (moved up from Phase 6): what we store (handles, submissions metadata, session times, notes), what we never store (code, cookies, passwords), deletion. Required by the Chrome Web Store for an extension that handles user data
+- [ ] **Delete my account** and **export my data (JSON)** in Settings (moved up from Phase 6)
+- [ ] **Error monitoring** (Sentry free tier, web + extension) and **cookie-free analytics** (Vercel Web Analytics) to see where testers drop off
+
+**C. Deploy (≈1 day, needs your accounts)**
+
+- [ ] **Separate production Supabase project** so dev experiments never touch testers' data. Run `db:migrate`, `seed:gfg`, `seed:sheets` against it. (Your own account would be recreated there; or keep the current project as prod and make a new one for dev.)
+- [ ] Supabase Auth: Site URL = production URL; redirect URLs add `https://<domain>/auth/callback`; Google OAuth client: add the production origin and Supabase callback
+- [ ] Note: free Supabase projects pause after 7 days without traffic; the daily sync cron keeps it awake
+- [ ] **Vercel**: import the GitHub repo, root directory `apps/web`, Node 24, env vars `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `DATABASE_URL` (Transaction pooler, port 6543), `CRON_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`. Point the domain at it
+- [ ] Smoke test in production: sign up, onboarding, connect LeetCode + GFG, sync, follow a sheet, revision queue, weekly email preview, cron dry run
+- [ ] **Extension build for production**: `UPSOLVE_WEB_URL=https://<domain> pnpm --filter @upsolve/extension zip`. Testers can load the zip by hand on day one
+- [ ] **Chrome Web Store, unlisted** ($5 one-time developer fee, your Google account): listing text, the screenshots from `upsolve-posts/`, privacy policy URL, a one-line justification per permission (`storage`, `alarms`, LeetCode/GFG/site access). Review takes a few days; share the unlisted link when approved
+
+**D. Run the beta (2 weeks)**
+
+- [ ] Invite the people who replied, in batches of ~10, with a short "how to start" message: connect platforms → install extension → follow one sheet → open Revision daily
+- [ ] Watch: sign-up → connected platform → extension installed → first timed session → revision done on 3 different days. Fix the biggest drop-off each week
+- [ ] Read every feedback entry; tag each as bug / confusing / feature request; pick Phase 5 order from the counts
+- [ ] Remove anything nobody uses
+- **Exit:** 15+ testers, at least half using it on 4+ days a week, and a ranked list of what they asked for.
+
+**Tech debt to keep in mind (not blocking the beta)**
+
+- The repo lives in OneDrive, which likely caused the dev server's reload loop; moving it to e.g. `C:\dev\tracker` avoids sync conflicts on `.next` and `node_modules`
+- `daily_stats` and `topic_mastery` rollup tables exist but are unused; dashboards compute on read (fine at beta scale; switch when a page gets slow)
+- The revision schedule is recomputed from full history per request; fine up to a few thousand solves, cache per user if a heavy CF user appears
+- One dev server per directory (Next 16 rule); the extension expects port 3005 in dev
+
+### Phase 5 — More platforms & social (3–4 weeks, order decided by beta feedback)
+
+- [ ] **Groups + leaderboards**: friend groups with invite links, plus automatic college and batch boards from the profile. Opt-in only; ranks honest metrics (consistency: active days, revision done, focus hours) beside solved count, never solved count alone. Read through a security-definer view exposing only opted-in aggregates (PLAN §3)
+- [ ] **Study rooms**: Supabase Realtime presence showing who's solving what right now (problem + timer from the extension), join with one click
+- [ ] **Share cards**: OG image route (1200×630) with heatmap and 3 big numbers for LinkedIn/WhatsApp
+- [ ] **Streaks + exam-week freeze**
+- [ ] **CodeChef and AtCoder** adapters (+ extension timers); Code360 extension-only
+- [ ] **Contests page**: rating charts, contest list, and an auto "upsolve" list of problems attempted but not solved in each contest
 - **Exit:** a group of 10+ classmates using leaderboards for a week.
 
 ### Phase 6 — Launch (2 weeks)
 
 - [ ] Marketing site from DESIGN §9.1 (hero, bento, showcase, FAQ, footer)
-- [ ] Privacy policy, terms, data export/delete, cookie-free analytics config
+- [x] ~~Privacy policy, terms, data export/delete~~ (moved to Phase 4.5); cookie-free analytics config
 - [ ] Web Store public listing (screenshots from the real app, clear permission explanations)
 - [ ] Launch at your own college: coding club talk, WhatsApp groups, 2–3 campus ambassadors
 - [ ] LinkedIn posts with share cards; Product Hunt later
