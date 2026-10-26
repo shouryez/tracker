@@ -138,7 +138,7 @@ export function SheetBrowser({
             });
             setHighlight(continueItem.itemKey);
           }}
-          className="group/continue flex items-center gap-3 rounded-lg border border-line bg-surface px-[18px] py-3 text-left shadow-card transition-colors duration-[240ms] hover:border-ink-3"
+          className="group/continue flex items-center gap-3 rounded-lg border border-line bg-surface px-[18px] py-3 text-left shadow-card transition-colors duration-[var(--dur-base)] hover:border-ink-3"
         >
           <span className="grid size-8 shrink-0 place-items-center rounded-full bg-signal text-signal-ink">
             <ArrowRight size={15} aria-hidden="true" />
@@ -169,7 +169,7 @@ export function SheetBrowser({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search problems or topics"
-            className="h-[36px] w-full rounded-full border border-line-2 bg-surface pr-3.5 pl-9 text-[13px] text-ink outline-none transition-[border-color,box-shadow] duration-[240ms] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]"
+            className="h-[36px] w-full rounded-full border border-line-2 bg-surface pr-3.5 pl-9 text-[13px] text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]"
           />
         </label>
 
@@ -221,7 +221,7 @@ export function SheetBrowser({
                   aria-pressed={on}
                   onClick={() => setTiers((ts) => (on ? ts.filter((x) => x !== t) : [...ts, t]))}
                   className={cn(
-                    "h-[28px] rounded-full border px-3 font-mono text-[11.5px] capitalize transition-colors duration-[240ms]",
+                    "h-[28px] rounded-full border px-3 font-mono text-[11.5px] capitalize transition-colors duration-[var(--dur-base)]",
                     on
                       ? "border-transparent bg-ink text-bg"
                       : "border-line-2 text-ink-2 hover:text-ink",
@@ -310,7 +310,7 @@ export function SheetBrowser({
                 size={15}
                 aria-hidden="true"
                 className={cn(
-                  "shrink-0 text-ink-3 transition-transform duration-[240ms]",
+                  "shrink-0 text-ink-3 transition-transform duration-[var(--dur-base)]",
                   isOpen && "rotate-90",
                 )}
               />
@@ -397,7 +397,7 @@ export function SheetBrowser({
                           size={13}
                           aria-hidden="true"
                           className={cn(
-                            "shrink-0 text-ink-3 transition-transform duration-[240ms]",
+                            "shrink-0 text-ink-3 transition-transform duration-[var(--dur-base)]",
                             sectionOpen && "rotate-90",
                           )}
                         />
@@ -593,7 +593,7 @@ function ItemRow({
                 href={`/dashboard/problems/${item.problemId}`}
                 aria-label="Your attempts, notes and revision"
                 title="Your attempts, notes and revision"
-                className="grid size-[30px] place-items-center rounded-md text-ink-3 transition-colors duration-[240ms] hover:bg-surface-2 hover:text-ink"
+                className="grid size-[30px] place-items-center rounded-md text-ink-3 transition-colors duration-[var(--dur-base)] hover:bg-surface-2 hover:text-ink"
               >
                 <PanelRight size={14} strokeWidth={1.75} />
               </Link>
@@ -635,7 +635,7 @@ function IconLink({ href, label, children }: { href: string; label: string; chil
       rel="noreferrer"
       aria-label={label}
       title={label}
-      className="grid size-[30px] place-items-center rounded-md text-ink-2 transition-colors duration-[240ms] hover:bg-surface-2 hover:text-ink"
+      className="grid size-[30px] place-items-center rounded-md text-ink-2 transition-colors duration-[var(--dur-base)] hover:bg-surface-2 hover:text-ink"
     >
       {children}
     </a>
@@ -661,7 +661,7 @@ function IconButton({
       aria-pressed={pressed}
       onClick={onClick}
       className={cn(
-        "grid size-[30px] place-items-center rounded-md text-ink-3 transition-colors duration-[240ms] hover:bg-surface-2 hover:text-ink",
+        "grid size-[30px] place-items-center rounded-md text-ink-3 transition-colors duration-[var(--dur-base)] hover:bg-surface-2 hover:text-ink",
         pressed && "bg-surface-2 text-ink",
       )}
     >

@@ -120,7 +120,7 @@ async function CollegeContent({
                   scroll={false}
                   aria-current={s === scope ? "page" : undefined}
                   className={cn(
-                    "rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[240ms]",
+                    "rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[var(--dur-base)]",
                     s === scope ? "bg-ink text-bg" : "text-ink-2 hover:text-ink",
                   )}
                 >

@@ -61,3 +61,19 @@ screen, live/today) + indigo (data, active).
 6. Landing (Liquid Brokers hero: glossy orb, starfield, floating glass stats, magnetic CTA, real numbers), login, settings, public profile.
 7. Scroll reveals, celebrations, empty/loading/error/404 states, back-to-top.
 8. Responsive, accessibility, performance and consistency sweep.
+
+## What shipped (27 Oct 2026)
+
+All eight phases, in one pass. No route, data shape, prop contract or business rule changed.
+
+- **Tokens** (`packages/ui/src/styles`): overlay surface, `line-3`, `info`; `*-soft` / `*-line` tints for difficulty and status; `primary-50…900`, `signal-50…900`; `text-2xs/13/15/17`; `rounded-xl` 24 / `2xl` 28; `shadow-xs…xl`, `shadow-glow`, `shadow-glow-signal`; `--dur-instant…slower`; utilities `skeleton`, `glass`, `dots`; keyframes `page-in`, `fade-up`, `pop`, `grow`, `grow-x`, `draw`, `shimmer`, `float`; themed scrollbars; cross-fading theme switch. Light mode re-tuned to a Donezo-style soft canvas.
+- **Components** (`@upsolve/ui`): Button (8 variants, 5 sizes, lift, spring press, sheen on lime, `loading`), Card (`interactive`, `spotlight`), Switch, Tooltip, Skeleton/SkeletonCard, EmptyState, Kbd, StatusBadge, SpotlightTracker; web: CardLink (↗), Tabs (sliding pill), CommandPalette, Toaster, ActivityHeatmap, KpiCard, WeekCapsules, HalfGauge, CountUp, confetti on streak milestones.
+- **Shell**: collapsible sidebar (state remembered) with a sliding active marker, tooltips when collapsed, revision badge and extension promo; sticky frosted top bar; phone tab bar with a More sheet; Ctrl/⌘ K palette (pages, problem search, theme, share card, feedback, sign out); page transitions; toasts; skip link.
+- **Pages**: bento dashboard; sheet browser with sliding filter pill, removable chips, sticky step headers, quiet row actions; problem page tabs; landing hero scene (orb, starfield, glass cards, parallax, magnetic CTA), dashboard preview, scroll reveals, progress bar, back-to-top; split login; public-profile banner with avatar ring; dashboard error boundary; 404; `/styleguide` (dev only).
+- **New dependencies** (web only, client islands): `motion` (sliding indicators), `cmdk` (palette), `sonner` (toasts), `canvas-confetti` (lazy-loaded celebrations).
+
+### Not done / follow-ups
+
+- Settings save on change, so there's no sticky "unsaved changes" bar.
+- Code blocks with syntax highlighting: the app never stores code (privacy), so there's nothing to highlight.
+- The dashboard itself can't be screenshotted without signing in; its widgets are reviewed on `/styleguide` with sample data.

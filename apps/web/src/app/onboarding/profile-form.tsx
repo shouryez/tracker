@@ -190,7 +190,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                 <label
                   key={g.value}
                   className={cn(
-                    "cursor-pointer rounded-md border bg-surface p-4 transition-colors duration-[240ms]",
+                    "cursor-pointer rounded-md border bg-surface p-4 transition-colors duration-[var(--dur-base)]",
                     goal === g.value
                       ? "border-primary shadow-[0_0_0_4px_var(--primary-soft)]"
                       : "border-line hover:border-line-2",
@@ -229,7 +229,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                     aria-pressed={on}
                     onClick={() => toggleCompany(c)}
                     className={cn(
-                      "h-8 rounded-full border px-3 text-[13px] transition-colors duration-[240ms]",
+                      "h-8 rounded-full border px-3 text-[13px] transition-colors duration-[var(--dur-base)]",
                       on
                         ? "border-transparent bg-ink text-bg"
                         : "border-line-2 text-ink-2 hover:text-ink",
@@ -280,7 +280,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                     aria-pressed={dailyGoal === m}
                     onClick={() => setDailyGoal(m)}
                     className={cn(
-                      "h-[34px] rounded-full px-3.5 font-mono text-[13px] transition-colors duration-[240ms]",
+                      "h-[34px] rounded-full px-3.5 font-mono text-[13px] transition-colors duration-[var(--dur-base)]",
                       dailyGoal === m ? "bg-surface text-ink shadow-card" : "text-ink-2",
                     )}
                   >

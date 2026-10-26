@@ -84,7 +84,7 @@ async function AnalyticsContent({
               href={k === "30" ? "/dashboard/analytics" : `/dashboard/analytics?range=${k}`}
               aria-current={k === range ? "page" : undefined}
               className={cn(
-                "rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[240ms]",
+                "rounded-full px-3 py-1.5 text-[12.5px] transition-colors duration-[var(--dur-base)]",
                 k === range ? "bg-ink text-bg" : "text-ink-2 hover:text-ink",
               )}
             >

@@ -88,7 +88,7 @@ export function FeedbackButton() {
                 aria-checked={kind === k.value}
                 onClick={() => setKind(k.value)}
                 className={cn(
-                  "h-[28px] rounded-full border px-2.5 text-[12px] transition-colors duration-[240ms]",
+                  "h-[28px] rounded-full border px-2.5 text-[12px] transition-colors duration-[var(--dur-base)]",
                   kind === k.value
                     ? "border-transparent bg-ink text-bg"
                     : "border-line-2 text-ink-2 hover:text-ink",
@@ -136,7 +136,7 @@ export function FeedbackButton() {
           setOpen((o) => !o);
         }}
         aria-expanded={open}
-        className="inline-flex h-[38px] items-center gap-2 rounded-full border border-line-2 bg-surface px-3.5 text-[13px] text-ink-2 shadow-card transition-colors duration-[240ms] hover:border-ink-3 hover:text-ink"
+        className="inline-flex h-[38px] items-center gap-2 rounded-full border border-line-2 bg-surface px-3.5 text-[13px] text-ink-2 shadow-card transition-colors duration-[var(--dur-base)] hover:border-ink-3 hover:text-ink"
       >
         <MessageSquarePlus size={15} strokeWidth={1.75} aria-hidden="true" />
         Feedback

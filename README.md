@@ -58,6 +58,10 @@ After changing extension code, rebuild and press the reload icon on the extensio
 
 What the extension can access: `leetcode.com` and the Upsolve site only, plus `storage` and `alarms`. On LeetCode it reads verdict responses and, for the history import, your submission list (never code). Your LeetCode cookies never leave the browser.
 
+## Design system
+
+Tokens live in `packages/ui/src/styles` and every shared component in `packages/ui`. Run the dev server and open `/styleguide` to see every component in every state (dev only). The redesign notes and audit are in `design/REDESIGN.md`.
+
 ## Scripts
 
 | Command                                    | What it does                                                                                                  |

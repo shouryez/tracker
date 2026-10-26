@@ -1050,7 +1050,7 @@ function Faq() {
               </span>
               <span
                 aria-hidden="true"
-                className="grid size-7 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3 transition-transform duration-[240ms] group-open:rotate-45"
+                className="grid size-7 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3 transition-transform duration-[var(--dur-base)] group-open:rotate-45"
               >
                 +
               </span>

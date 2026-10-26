@@ -192,7 +192,7 @@ function ConfirmButton({
       disabled={pending}
       onClick={() => (armed ? onConfirm() : setArmed(true))}
       className={cn(
-        "rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors duration-[240ms]",
+        "rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors duration-[var(--dur-base)]",
         armed ? "bg-bad/12 text-bad" : "text-ink-3 hover:text-ink",
       )}
     >

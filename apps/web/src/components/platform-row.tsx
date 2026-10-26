@@ -139,7 +139,7 @@ export function PlatformRow({
               autoComplete="off"
               spellCheck={false}
               disabled={pending}
-              className="h-[34px] min-w-0 flex-1 rounded-sm border border-line-2 bg-surface-2 px-3 font-mono text-[13px] text-ink outline-none transition-[border-color,box-shadow] duration-[240ms] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]"
+              className="h-[34px] min-w-0 flex-1 rounded-sm border border-line-2 bg-surface-2 px-3 font-mono text-[13px] text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]"
             />
             <Button type="submit" size="sm" variant="indigo" disabled={pending || !handle.trim()}>
               {pending ? "Connecting…" : "Connect"} {!pending && <ButtonArrow />}

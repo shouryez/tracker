@@ -21,7 +21,7 @@ export function MetricTabs({
           scroll={false}
           aria-current={m.value === metric ? "page" : undefined}
           className={cn(
-            "rounded-full px-3 py-1.5 text-[12.5px] whitespace-nowrap transition-colors duration-[240ms]",
+            "rounded-full px-3 py-1.5 text-[12.5px] whitespace-nowrap transition-colors duration-[var(--dur-base)]",
             m.value === metric ? "bg-ink text-bg" : "text-ink-2 hover:text-ink",
           )}
         >
