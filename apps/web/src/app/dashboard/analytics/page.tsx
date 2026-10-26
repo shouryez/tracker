@@ -211,7 +211,7 @@ async function AnalyticsContent({
           </div>
         </Card>
 
-        <Card className="col-span-12">
+        <Card id="mastery" className="col-span-12 scroll-mt-6">
           <CardHeader>
             <CardTitle icon={icon(Brain)}>Topic mastery</CardTitle>
             <CardSub>all time · decays without practice</CardSub>

@@ -59,7 +59,9 @@ function render(s: Status) {
       h(
         "div",
         { class: "card" },
-        h("p", { text: "Connect to your Upsolve account to sync your LeetCode sessions." }),
+        h("p", {
+          text: "Connect to your Upsolve account to sync your LeetCode and GeeksforGeeks sessions.",
+        }),
         h("p", {
           class: "sub",
           text: "Sessions are already being timed and saved here; they upload once you connect.",

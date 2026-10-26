@@ -96,8 +96,8 @@ export function ConnectExtension() {
           <BadgeCheck className="text-ok" size={20} aria-hidden="true" /> Extension connected
         </p>
         <p className="text-[13.5px] text-ink-2">
-          Open any LeetCode problem. The timer starts on its own, and your history import starts the
-          next time you&apos;re on leetcode.com.
+          Open any LeetCode or GFG problem. The timer starts on its own, and your LeetCode history
+          import starts the next time you&apos;re on leetcode.com.
         </p>
         <Link href="/dashboard" className={buttonClasses({ variant: "signal" })}>
           Go to dashboard <ButtonArrow />

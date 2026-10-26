@@ -43,8 +43,8 @@ async function SessionsContent() {
     return (
       <Card className="flex flex-wrap items-center gap-4">
         <p className="min-w-0 flex-1 text-[15px]">
-          <span className="text-ink-3">No sessions yet.</span> Open any LeetCode problem with the
-          extension connected and the timer starts on its own.
+          <span className="text-ink-3">No sessions yet.</span> Open any LeetCode or GFG problem with
+          the extension connected and the timer starts on its own.
         </p>
         <Link href="/extension/connect" className={buttonClasses({ variant: "signal" })}>
           Set up the extension <ButtonArrow />

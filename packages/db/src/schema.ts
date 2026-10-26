@@ -461,6 +461,25 @@ export const contestResults = pgTable(
   ],
 ).enableRLS();
 
+// ---------------------------------------------------------------- beta feedback
+
+export const feedbackKind = pgEnum("feedback_kind", ["bug", "confusing", "idea", "other"]);
+
+/** Notes from the in-app feedback button. Read by admins (ADMIN_EMAILS) at /dashboard/feedback. */
+export const feedback = pgTable(
+  "feedback",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    kind: feedbackKind("kind").notNull(),
+    message: text("message").notNull(),
+    /** Page the user was on, e.g. "/dashboard/revision". */
+    page: text("page"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("feedback_created_idx").on(t.createdAt.desc()), ownerCanRead(t.userId)],
+).enableRLS();
+
 // ---------------------------------------------------------------- rollups (dashboard reads these)
 
 export const dailyStats = pgTable(

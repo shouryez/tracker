@@ -249,7 +249,7 @@ async function Overview() {
             <InstallExtension />
           ) : sessions.length === 0 ? (
             <p className="text-[13px] text-ink-2">
-              No sessions yet. Open any LeetCode problem; the timer starts on its own.
+              No sessions yet. Open any LeetCode or GFG problem; the timer starts on its own.
             </p>
           ) : (
             <ul>
@@ -579,17 +579,27 @@ function RecentRow({ solve }: { solve: RecentSolve }) {
   return (
     <li className="flex items-center gap-3 border-t border-dashed border-line-2 py-2.5 first:border-t-0 first:pt-0">
       <span className="min-w-0 flex-1">
-        <a
-          href={solve.url}
-          target="_blank"
-          rel="noreferrer"
-          className="block truncate text-[13.5px] font-medium hover:underline"
-        >
-          {solve.title}
-        </a>
+        {solve.problemId ? (
+          <Link
+            href={`/dashboard/problems/${solve.problemId}`}
+            className="block truncate text-[13.5px] font-medium hover:underline"
+          >
+            {solve.title}
+          </Link>
+        ) : (
+          <a
+            href={solve.url}
+            target="_blank"
+            rel="noreferrer"
+            className="block truncate text-[13.5px] font-medium hover:underline"
+          >
+            {solve.title}
+          </a>
+        )}
         <span className="font-mono text-[11px] text-ink-3">
           {PLATFORM_LABEL[solve.platform]}
           {solve.rating ? ` · ${solve.rating}` : ""} · <TimeAgo date={solve.submittedAt} />
+          {solve.accepted > 1 ? ` · solved ×${solve.accepted}` : ""}
         </span>
       </span>
       {difficulty ? <DifficultyTag difficulty={difficulty} /> : <Tag mono>unrated</Tag>}
@@ -610,8 +620,8 @@ function InstallExtension() {
         <span className="text-ink-3">Time every problem.</span> Automatically.
       </p>
       <p className="text-[13px] text-ink-2">
-        The Upsolve extension times each LeetCode problem, catches every verdict and imports your
-        full history.
+        The Upsolve extension times each LeetCode and GFG problem, catches every verdict and imports
+        your full LeetCode history.
       </p>
       <Link href="/extension/connect" className={buttonClasses({ variant: "signal", size: "sm" })}>
         Set up the extension <ButtonArrow />

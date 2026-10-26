@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@upsolve/ui";
+import { openFeedback } from "./feedback-button";
 
 type Item = { label: string; icon: LucideIcon; href?: string };
 
@@ -64,18 +65,23 @@ function Group({
       <nav className="flex flex-col gap-1" aria-label={label}>
         {items.map(({ label, icon: Icon, href }) => {
           if (!href) {
+            // Not built yet: ask what people want from it instead.
             return (
-              <span
+              <button
                 key={label}
-                aria-disabled="true"
-                className={cn(itemClass, "cursor-default text-ink-3")}
+                type="button"
+                title={`${label} is coming. Tell us what you'd want from it.`}
+                onClick={() =>
+                  openFeedback({ kind: "idea", text: `${label}: I'd like to be able to ` })
+                }
+                className={cn(itemClass, "text-left text-ink-3 hover:bg-surface hover:text-ink-2")}
               >
                 <Icon size={16} strokeWidth={1.75} aria-hidden="true" />
                 {label}
                 <span className="ml-auto font-mono text-[10px] tracking-[.06em] uppercase">
                   soon
                 </span>
-              </span>
+              </button>
             );
           }
           const active =

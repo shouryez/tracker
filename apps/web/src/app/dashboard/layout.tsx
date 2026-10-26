@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Logo, ThemeToggle } from "@upsolve/ui";
 import { NavLinks, NavList } from "./_components/nav-links";
+import { SearchBox } from "./_components/search-box";
+import { FeedbackButton } from "./_components/feedback-button";
 import { UserMenu, UserMenuSkeleton } from "./_components/user-menu";
 
 export default function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
@@ -22,16 +24,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
           <Link href="/dashboard" className="lg:hidden" aria-label="Upsolve dashboard">
             <Logo />
           </Link>
-          <div
-            aria-disabled="true"
-            className="hidden h-[38px] max-w-[360px] flex-1 items-center gap-2 rounded-full border border-line bg-surface px-3.5 text-[13px] text-ink-3 sm:flex"
-          >
-            <Search size={14} aria-hidden="true" />
-            Search problems, topics, sheets
-            <kbd className="ml-auto rounded-[5px] border border-line bg-surface-2 px-1.5 py-0.5 font-mono text-[10.5px]">
-              Ctrl K
-            </kbd>
-          </div>
+          <SearchBox />
           <div className="flex items-center gap-2">
             <Link
               href="/dashboard/settings"
@@ -47,6 +40,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
           </div>
         </header>
         <main>{children}</main>
+        <Suspense fallback={null}>
+          <FeedbackButton />
+        </Suspense>
       </div>
     </div>
   );

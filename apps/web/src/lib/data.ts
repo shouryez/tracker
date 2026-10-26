@@ -1,14 +1,12 @@
 import "server-only";
-import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { ADAPTERS, type Platform, type PlatformSnapshot } from "@upsolve/adapters";
 import {
   colleges,
   contestResults,
   platformAccounts,
-  platformProblems,
   profiles,
-  submissions,
 } from "@upsolve/db";
 import { db, userTag } from "@/lib/db";
 import {
@@ -141,34 +139,35 @@ export async function getContestSeries(userId: string): Promise<ContestSeries[]>
 
 export type RecentSolve = {
   id: string;
+  /** Canonical problem, for the problem page. */
+  problemId: string | null;
   platform: Platform;
   title: string;
   url: string;
   difficultyRaw: string | null;
   rating: number | null;
   submittedAt: Date;
+  /** Accepted submissions on this problem (re-solves included). */
+  accepted: number;
 };
 
+/** Latest solved problems, each once, newest first. */
 export async function getRecentSolves(userId: string, limit = 8): Promise<RecentSolve[]> {
   "use cache";
   cacheTag(userTag(userId));
   cacheLife("minutes");
 
-  return db()
-    .select({
-      id: submissions.id,
-      platform: submissions.platform,
-      title: platformProblems.title,
-      url: platformProblems.url,
-      difficultyRaw: platformProblems.difficultyRaw,
-      rating: platformProblems.rating,
-      submittedAt: submissions.submittedAt,
-    })
-    .from(submissions)
-    .innerJoin(platformProblems, eq(platformProblems.id, submissions.platformProblemId))
-    .where(and(eq(submissions.userId, userId), eq(submissions.verdict, "AC")))
-    .orderBy(desc(submissions.submittedAt))
-    .limit(limit);
+  const rows = (await db().execute(sql`
+    select pp.id, pp.problem_id as "problemId", pp.platform, pp.title, pp.url,
+           pp.difficulty_raw as "difficultyRaw", pp.rating,
+           max(s.submitted_at) as "submittedAt", count(*)::int as accepted
+    from submissions s
+    join platform_problems pp on pp.id = s.platform_problem_id
+    where s.user_id = ${userId} and s.verdict = 'AC'
+    group by pp.id
+    order by max(s.submitted_at) desc
+    limit ${limit}`)) as unknown as (Omit<RecentSolve, "submittedAt"> & { submittedAt: unknown })[];
+  return rows.map((r) => ({ ...r, submittedAt: new Date(String(r.submittedAt)) }));
 }
 
 export async function searchCollegesByName(query: string) {
