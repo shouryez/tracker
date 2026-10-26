@@ -56,6 +56,7 @@
   --animate-drift-a: drift-a 18s var(--ease-in-out) infinite alternate;
   --animate-drift-b: drift-b 22s var(--ease-in-out) infinite alternate;
   --animate-word: word 800ms var(--ease-out) both;
+  --animate-marquee: marquee 40s linear infinite;
 
   @keyframes drift-a {
     to {
@@ -65,6 +66,12 @@
   @keyframes drift-b {
     to {
       transform: translate(-160px, -40px) scale(0.9);
+    }
+  }
+  /* The track holds its items twice, so -50% loops seamlessly. */
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
     }
   }
   @keyframes word {

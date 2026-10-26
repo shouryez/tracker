@@ -373,15 +373,15 @@ Goal: the people who reply to the LinkedIn/Reddit posts can sign up, connect the
 
 - [x] **Groups + leaderboards** (27 Oct 2026): friend groups (≤50 members, ≤20 groups each) with resettable invite links (`/join/<code>`), owner can rename/remove, ownership passes on when the owner leaves. College and batch boards are opt-in and reciprocal (you see them only when you're on them). Default rank: weekly consistency score (0–150: 10/active day, 2/revision up to 15, 3/focus hour up to 10, 1/solve up to 20; weeks start Monday IST); tabs for solved this week and contest rating. All reads are server-side with membership checks
 - [x] **Study rooms**: per friend group, "solving now" from the extension's minute-by-minute session uploads (no Realtime needed), live timer, today's solves and focus per member, page refreshes every 20 s. Members can turn sharing off (Settings → Social & privacy)
-- [ ] **Share cards**: OG image route (1200×630) with heatmap and 3 big numbers for LinkedIn/WhatsApp
+- [x] **Share cards** (27 Oct 2026): `/api/share-card` renders 1200×630 (serif name, heatmap, 3 big numbers); "Share card" download on the overview; public profiles use it as their link preview
 - [x] **Streaks + exam-week freeze**: up to 14 days each, two planned at a time, today or later only; frozen days neither break nor extend the streak (dashboard and public profile)
 - [ ] **CodeChef and AtCoder** adapters (+ extension timers); Code360 extension-only
-- [ ] **Contests page**: rating charts, contest list, and an auto "upsolve" list of problems attempted but not solved in each contest
+- [x] **Contests page** (27 Oct 2026): rating chart per platform, contest history with per-problem status (in contest / upsolved / to do), upsolve list for the last 10 contests (attempted first). Problem lists from Codeforces' problemset (cached daily) and LeetCode's contestQuestionList
 - **Exit:** a group of 10+ classmates using leaderboards for a week.
 
 ### Phase 6 — Launch (2 weeks)
 
-- [ ] Marketing site from DESIGN §9.1 (hero, bento, showcase, FAQ, footer)
+- [x] Marketing site from DESIGN §9.1 (27 Oct 2026): glass nav, two-tone serif hero with a live product frame, platform/sheet marquee, 7-card bento (incl. groups and contests), how it works, sheet showcase, colleges teaser, pricing, privacy-first FAQ, footer wordmark. Claims limited to what ships today. Swap the hero CTA to "Add to Chrome" once the Web Store listing exists
 - [x] ~~Privacy policy, terms, data export/delete~~ (moved to Phase 4.5); cookie-free analytics config
 - [ ] Web Store public listing (screenshots from the real app, clear permission explanations)
 - [ ] Launch at your own college: coding club talk, WhatsApp groups, 2–3 campus ambassadors
