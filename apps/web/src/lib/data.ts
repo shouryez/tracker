@@ -2,12 +2,7 @@ import "server-only";
 import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { ADAPTERS, type Platform, type PlatformSnapshot } from "@upsolve/adapters";
-import {
-  colleges,
-  contestResults,
-  platformAccounts,
-  profiles,
-} from "@upsolve/db";
+import { colleges, contestResults, platformAccounts, profiles } from "@upsolve/db";
 import { db, userTag } from "@/lib/db";
 import {
   activeDays,
