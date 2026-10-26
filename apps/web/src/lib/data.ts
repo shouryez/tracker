@@ -8,6 +8,7 @@ import { db, userTag } from "@/lib/db";
 import {
   activeDays,
   currentStreak,
+  dayKey,
   heatmapLevels,
   mergeCalendars,
   sumSolved,
@@ -106,6 +107,11 @@ export function buildStats(
     streak: currentStreak(calendar, today, frozen),
     activeDays: activeDays(calendar, today),
     heatmap26: heatmapLevels(calendar, today, 26 * 7),
+    /** Submissions per UTC day for the last 26 weeks, oldest first (heatmap tooltips, sparklines). */
+    days182: Array.from({ length: 26 * 7 }, (_, i) => {
+      const date = dayKey(new Date(today.getTime() - (26 * 7 - 1 - i) * 86_400_000));
+      return { date, count: calendar[date] ?? 0 };
+    }),
     heatmap52: heatmapLevels(calendar, today, 52 * 7),
     topics: topTopics(snapshots),
     bestRating: best

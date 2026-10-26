@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ExternalLink, History, ListChecks, NotebookPen, RotateCcw, Shapes } from "lucide-react";
+import { ExternalLink, History, ListChecks, RotateCcw, Shapes } from "lucide-react";
 import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
 import {
   ButtonArrow,
   Card,
   CardHeader,
-  CardSub,
   CardTitle,
   DifficultyTag,
   Tag,
@@ -20,6 +19,7 @@ import { dueLabel, ResultTag, reviewUrl, StepLadder } from "@/components/learnin
 import { NoteEditor } from "@/components/note-editor";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton } from "@/components/review-actions";
+import { Tabs } from "@/components/tabs";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
@@ -121,94 +121,107 @@ async function ProblemContent({
       <div className="grid grid-cols-12 gap-3.5">
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-8">
           <Card>
-            <CardHeader>
-              <CardTitle icon={icon(History)}>Your attempts</CardTitle>
-              <CardSub>
-                {problem.submissions.length} submissions · {problem.sessions.length} timed
-              </CardSub>
-            </CardHeader>
-            {timeline.length === 0 ? (
-              <p className="text-[13px] text-ink-2">
-                You haven&apos;t tried this one yet. Open it with the extension connected and the
-                timer starts on its own.
-              </p>
-            ) : (
-              <ol className="relative ml-1.5 border-l border-line-2">
-                {timeline.slice(0, 60).map((t) =>
-                  t.kind === "session" ? (
-                    <li key={`s-${t.s.id}`} className="relative py-2.5 pl-4">
-                      <span
-                        aria-hidden="true"
-                        className="absolute top-[15px] -left-[4.5px] size-2 rounded-full bg-primary"
-                      />
-                      <p className="flex flex-wrap items-center gap-2 text-[13.5px]">
-                        <span className="font-medium">
-                          {t.s.mode === "review" ? "Review session" : "Timed session"}
-                        </span>
-                        <span className="font-mono text-[11.5px] text-ink-2">
-                          {formatDuration(t.s.activeMs)} active · {t.s.submits} submit
-                          {t.s.submits === 1 ? "" : "s"}
-                        </span>
-                        {t.s.outcome === "solved" ? (
-                          <Tag tone="ac" mono>
-                            solved
-                          </Tag>
-                        ) : (
-                          <Tag mono>{t.s.outcome === "open" ? "open" : "left"}</Tag>
-                        )}
-                        {t.s.independence && <Tag mono>{INDEPENDENCE[t.s.independence]}</Tag>}
-                      </p>
-                      {t.s.note && <p className="mt-1 text-[13px] text-ink-2">“{t.s.note}”</p>}
-                      <p className="mt-0.5 font-mono text-[11px] text-ink-3">
-                        <TimeAgo date={t.s.at} />
-                        {t.s.mistakeTags.length > 0 && ` · ${t.s.mistakeTags.join(", ")}`}
-                      </p>
-                    </li>
-                  ) : (
-                    <li
-                      key={`u-${t.s.id}`}
-                      className="relative flex flex-wrap items-center gap-2 py-1.5 pl-4"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="absolute top-[13px] -left-[3.5px] size-1.5 rounded-full bg-line-2"
-                      />
-                      <Tag tone={VERDICT_TONE[t.s.verdict]} mono>
-                        {t.s.verdict}
-                      </Tag>
-                      <span className="font-mono text-[11px] text-ink-3">
-                        {PLATFORM_LABEL[t.s.platform]}
-                        {t.s.language ? ` · ${t.s.language}` : ""}
-                        {t.s.runtimeMs !== null ? ` · ${t.s.runtimeMs} ms` : ""} ·{" "}
-                        <TimeAgo date={t.s.at} />
-                      </span>
-                    </li>
+            <Tabs
+              items={[
+                {
+                  id: "attempts",
+                  label: "Attempts",
+                  count: problem.submissions.length + problem.sessions.length,
+                  content: (
+                    <>
+                      {timeline.length === 0 ? (
+                        <p className="text-[13px] text-ink-2">
+                          You haven&apos;t tried this one yet. Open it with the extension connected
+                          and the timer starts on its own.
+                        </p>
+                      ) : (
+                        <ol className="relative ml-1.5 border-l border-line-2">
+                          {timeline.slice(0, 60).map((t) =>
+                            t.kind === "session" ? (
+                              <li key={`s-${t.s.id}`} className="relative py-2.5 pl-4">
+                                <span
+                                  aria-hidden="true"
+                                  className="absolute top-[15px] -left-[4.5px] size-2 rounded-full bg-primary"
+                                />
+                                <p className="flex flex-wrap items-center gap-2 text-[13.5px]">
+                                  <span className="font-medium">
+                                    {t.s.mode === "review" ? "Review session" : "Timed session"}
+                                  </span>
+                                  <span className="font-mono text-[11.5px] text-ink-2">
+                                    {formatDuration(t.s.activeMs)} active · {t.s.submits} submit
+                                    {t.s.submits === 1 ? "" : "s"}
+                                  </span>
+                                  {t.s.outcome === "solved" ? (
+                                    <Tag tone="ac" mono>
+                                      solved
+                                    </Tag>
+                                  ) : (
+                                    <Tag mono>{t.s.outcome === "open" ? "open" : "left"}</Tag>
+                                  )}
+                                  {t.s.independence && (
+                                    <Tag mono>{INDEPENDENCE[t.s.independence]}</Tag>
+                                  )}
+                                </p>
+                                {t.s.note && (
+                                  <p className="mt-1 text-[13px] text-ink-2">“{t.s.note}”</p>
+                                )}
+                                <p className="mt-0.5 font-mono text-[11px] text-ink-3">
+                                  <TimeAgo date={t.s.at} />
+                                  {t.s.mistakeTags.length > 0 && ` · ${t.s.mistakeTags.join(", ")}`}
+                                </p>
+                              </li>
+                            ) : (
+                              <li
+                                key={`u-${t.s.id}`}
+                                className="relative flex flex-wrap items-center gap-2 py-1.5 pl-4"
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className="absolute top-[13px] -left-[3.5px] size-1.5 rounded-full bg-line-2"
+                                />
+                                <Tag tone={VERDICT_TONE[t.s.verdict]} mono>
+                                  {t.s.verdict}
+                                </Tag>
+                                <span className="font-mono text-[11px] text-ink-3">
+                                  {PLATFORM_LABEL[t.s.platform]}
+                                  {t.s.language ? ` · ${t.s.language}` : ""}
+                                  {t.s.runtimeMs !== null ? ` · ${t.s.runtimeMs} ms` : ""} ·{" "}
+                                  <TimeAgo date={t.s.at} />
+                                </span>
+                              </li>
+                            ),
+                          )}
+                        </ol>
+                      )}
+                    </>
                   ),
-                )}
-              </ol>
-            )}
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle icon={icon(NotebookPen)}>Notes</CardTitle>
-              <CardSub>only you see these</CardSub>
-            </CardHeader>
-            <NoteEditor problemId={problem.id} initial={problem.note?.body ?? ""} />
-            {mistakes.length > 0 && (
-              <div className="mt-4 border-t border-dashed border-line-2 pt-3">
-                <p className="mb-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                  Mistakes you tagged
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {mistakes.map(([tag, n]) => (
-                    <Tag key={tag} tone="wa" mono>
-                      {tag} ×{n}
-                    </Tag>
-                  ))}
-                </div>
-              </div>
-            )}
+                },
+                {
+                  id: "notes",
+                  label: "Notes",
+                  count: problem.note ? 1 : undefined,
+                  content: (
+                    <>
+                      <NoteEditor problemId={problem.id} initial={problem.note?.body ?? ""} />
+                      {mistakes.length > 0 && (
+                        <div className="mt-4 border-t border-dashed border-line-2 pt-3">
+                          <p className="mb-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
+                            Mistakes you tagged
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {mistakes.map(([tag, n]) => (
+                              <Tag key={tag} tone="wa" mono>
+                                {tag} ×{n}
+                              </Tag>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ),
+                },
+              ]}
+            />
           </Card>
         </div>
 

@@ -14,6 +14,7 @@ import {
   Star,
   X,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { DifficultyTag, Tag, cn } from "@upsolve/ui";
 import { setSheetItemStarred } from "@/app/actions/sheets";
 import type { SheetItemView } from "@/lib/sheets-data";
@@ -175,7 +176,7 @@ export function SheetBrowser({
         <div
           role="radiogroup"
           aria-label="Show"
-          className="inline-flex flex-wrap rounded-full border border-line bg-surface-2 p-[3px]"
+          className="relative isolate inline-flex flex-wrap rounded-full border border-line bg-surface-2 p-[3px]"
         >
           {(["all", "todo", "done", "starred", "due"] as const).map((s) => (
             <button
@@ -185,10 +186,17 @@ export function SheetBrowser({
               aria-checked={status === s}
               onClick={() => setStatus(s)}
               className={cn(
-                "inline-flex h-[28px] items-center gap-1.5 rounded-full px-3 text-[12.5px] transition-colors duration-[240ms]",
-                status === s ? "bg-surface text-ink shadow-card" : "text-ink-2 hover:text-ink",
+                "relative inline-flex h-[28px] items-center gap-1.5 rounded-full px-3 text-[12.5px] transition-colors duration-[var(--dur-base)]",
+                status === s ? "text-ink" : "text-ink-2 hover:text-ink",
               )}
             >
+              {status === s && (
+                <motion.span
+                  layoutId="sheet-status"
+                  transition={{ type: "spring", stiffness: 500, damping: 38 }}
+                  className="absolute inset-0 -z-10 rounded-full bg-surface shadow-sm"
+                />
+              )}
               {STATUS_LABEL[s]}
               {s === "starred" && stars.size > 0 && (
                 <span className="font-mono text-[10.5px] text-ink-3">{stars.size}</span>
@@ -240,6 +248,32 @@ export function SheetBrowser({
       </div>
 
       {filtering && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {q && <FilterChip label={`“${query.trim()}”`} onRemove={() => setQuery("")} />}
+          {status !== "all" && (
+            <FilterChip label={STATUS_LABEL[status]} onRemove={() => setStatus("all")} />
+          )}
+          {tiers.map((t) => (
+            <FilterChip
+              key={t}
+              label={t}
+              onRemove={() => setTiers((ts) => ts.filter((x) => x !== t))}
+            />
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setStatus("all");
+              setTiers([]);
+            }}
+            className="ml-1 font-mono text-[11px] text-ink-3 underline-offset-4 hover:text-ink hover:underline"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
+      {filtering && (
         <p className="font-mono text-[11.5px] text-ink-3">
           {visibleCount} of {items.length} match
           {status === "due" &&
@@ -260,13 +294,17 @@ export function SheetBrowser({
         return (
           <section
             key={step.name}
-            className="overflow-hidden rounded-lg border border-line bg-surface shadow-card"
+            className="overflow-clip rounded-lg border border-line bg-surface shadow-card transition-shadow duration-[var(--dur-base)] hover:shadow-md"
           >
             <button
               type="button"
               aria-expanded={isOpen}
               onClick={() => toggle(setOpen, step.name)}
-              className="flex w-full items-center gap-3 px-[18px] py-3.5 text-left transition-colors duration-[240ms] hover:bg-surface-2/50"
+              className={cn(
+                "flex w-full items-center gap-3 rounded-t-lg px-[18px] py-3.5 text-left transition-colors duration-[var(--dur-base)] hover:bg-surface-2/50",
+                // Stays visible under the top bar while you scroll through a long step.
+                isOpen && "glass sticky top-[64px] z-20 border-b border-line",
+              )}
             >
               <ChevronRight
                 size={15}
@@ -426,7 +464,7 @@ function ItemRow({
       <li
         id={`item-${item.itemKey}`}
         className={cn(
-          "flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] first:border-t-0 hover:bg-surface-2/60 sm:flex-nowrap",
+          "group/row flex animate-[page-in_var(--dur-base)_var(--ease-out)_both] flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] first:border-t-0 hover:bg-surface-2/60 sm:flex-nowrap",
           highlighted && "bg-signal/15",
         )}
       >
@@ -515,7 +553,7 @@ function ItemRow({
             )}
           </Slot>
           <span aria-hidden="true" className="mx-1 hidden h-4 w-px bg-line-2 sm:block" />
-          <Slot className="hidden sm:inline-grid">
+          <Slot className="hidden sm:inline-grid opacity-50 transition-opacity duration-[var(--dur-base)] group-hover/row:opacity-100 group-focus-within/row:opacity-100">
             {item.problemId && (
               <IconButton
                 label={item.note ? "Your note" : "Add a note"}
@@ -530,7 +568,13 @@ function ItemRow({
               </IconButton>
             )}
           </Slot>
-          <Slot>
+          <Slot
+            className={
+              starred
+                ? undefined
+                : "opacity-50 transition-opacity duration-[var(--dur-base)] group-hover/row:opacity-100 group-focus-within/row:opacity-100"
+            }
+          >
             <IconButton
               label={starred ? "Unstar" : "Star to come back to"}
               pressed={starred}
@@ -543,7 +587,7 @@ function ItemRow({
               />
             </IconButton>
           </Slot>
-          <Slot className="hidden sm:inline-grid">
+          <Slot className="hidden sm:inline-grid opacity-50 transition-opacity duration-[var(--dur-base)] group-hover/row:opacity-100 group-focus-within/row:opacity-100">
             {item.problemId && (
               <Link
                 href={`/dashboard/problems/${item.problemId}`}
@@ -704,5 +748,22 @@ function VideoModal({ url, title, onClose }: { url: string; title: string; onClo
         </div>
       </div>
     </div>
+  );
+}
+
+/** An active filter you can remove with one click. */
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="inline-flex h-[26px] animate-pop items-center gap-1 rounded-full border border-line-2 bg-surface-2 pr-1 pl-2.5 text-[12px] capitalize">
+      {label}
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label={`Remove filter ${label}`}
+        className="grid size-5 place-items-center rounded-full text-ink-3 transition-colors hover:bg-surface-3 hover:text-ink"
+      >
+        <X size={11} aria-hidden="true" />
+      </button>
+    </span>
   );
 }
