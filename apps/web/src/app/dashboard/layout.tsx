@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { Settings } from "lucide-react";
 import { Logo, ThemeToggle } from "@upsolve/ui";
 import { NavLinks, NavList } from "./_components/nav-links";
+import { NavHistory } from "@/components/back-link";
 import { SearchBox } from "./_components/search-box";
 import { FeedbackButton } from "./_components/feedback-button";
 import { UserMenu, UserMenuSkeleton } from "./_components/user-menu";
@@ -39,6 +40,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
             </Suspense>
           </div>
         </header>
+        <Suspense fallback={null}>
+          <NavHistory />
+        </Suspense>
         <main>{children}</main>
         <Suspense fallback={null}>
           <FeedbackButton />

@@ -2,15 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import {
-  ArrowLeft,
-  ExternalLink,
-  History,
-  ListChecks,
-  NotebookPen,
-  RotateCcw,
-  Shapes,
-} from "lucide-react";
+import { ExternalLink, History, ListChecks, NotebookPen, RotateCcw, Shapes } from "lucide-react";
 import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
 import {
   ButtonArrow,
@@ -23,6 +15,7 @@ import {
   buttonClasses,
   type TagTone,
 } from "@upsolve/ui";
+import { BackLink } from "@/components/back-link";
 import { dueLabel, ResultTag, reviewUrl, StepLadder } from "@/components/learning";
 import { NoteEditor } from "@/components/note-editor";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
@@ -64,12 +57,7 @@ const SITE_LABEL: Record<SheetItemLink["site"], string> = {
 export default function ProblemPage({ params }: PageProps<"/dashboard/problems/[id]">) {
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href="/dashboard/revision"
-        className="inline-flex items-center gap-1.5 self-start font-mono text-[11.5px] text-ink-3 hover:text-ink"
-      >
-        <ArrowLeft size={13} aria-hidden="true" /> Revision
-      </Link>
+      <BackLink fallback="/dashboard/revision" fallbackLabel="Revision" />
       <Suspense fallback={<div className="h-[600px] animate-pulse rounded-lg bg-surface" />}>
         <ProblemContent params={params} />
       </Suspense>
