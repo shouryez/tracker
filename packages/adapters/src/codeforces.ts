@@ -117,6 +117,26 @@ function toRawProblem(p: CfProblem): RawProblem | null {
   };
 }
 
+/**
+ * Every Codeforces problem, grouped by contest id, for upsolve lists. One call
+ * (≈10,000 problems); callers should cache the result for a day.
+ */
+export async function codeforcesProblemsByContest(): Promise<Map<string, RawProblem[]>> {
+  const { problems } = await call<{ problems: CfProblem[] }>("problemset.problems", {}, "");
+  const byContest = new Map<string, RawProblem[]>();
+  for (const p of problems) {
+    const raw = toRawProblem(p);
+    if (!raw || !p.contestId) continue;
+    const list = byContest.get(String(p.contestId)) ?? [];
+    list.push(raw);
+    byContest.set(String(p.contestId), list);
+  }
+  // The API lists problems newest index first; contests read A, B, C…
+  for (const list of byContest.values())
+    list.sort((a, b) => a.externalId.localeCompare(b.externalId, "en", { numeric: true }));
+  return byContest;
+}
+
 /** Builds solved counts, topics and calendar from a full submission list. */
 export function summariseSubmissions(subs: CfSubmission[]) {
   const solved = { total: 0, easy: 0, medium: 0, hard: 0, unknown: 0 };

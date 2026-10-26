@@ -5,9 +5,18 @@ import * as schema from "./schema";
 /**
  * Creates a Drizzle client. `prepare: false` keeps it compatible with
  * Supabase's transaction-mode connection pooler (port 6543).
+ *
+ * The pool stays small and closes idle connections: Supabase's session pooler
+ * (port 5432) allows only ~15 clients in total, shared by the dev server,
+ * scripts and migrations. Over that, queries fail with "max clients reached".
  */
 export function createDb(databaseUrl: string) {
-  const client = postgres(databaseUrl, { prepare: false });
+  const client = postgres(databaseUrl, {
+    prepare: false,
+    max: Number(process.env.DATABASE_POOL_MAX ?? 5),
+    idle_timeout: 20,
+    connect_timeout: 15,
+  });
   return drizzle(client, { schema });
 }
 

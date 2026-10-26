@@ -161,6 +161,27 @@ export async function leetcodeCatalogPage(
   };
 }
 
+/** The problems of one LeetCode contest, e.g. "weekly-contest-400", in contest order. */
+export async function leetcodeContestProblems(contestSlug: string): Promise<RawProblem[]> {
+  const { contestQuestionList } = await gql<{
+    contestQuestionList: { title: string; titleSlug: string; credit: number }[] | null;
+  }>(
+    `query contest($s: String!) { contestQuestionList(contestSlug: $s) { title titleSlug credit } }`,
+    { s: contestSlug },
+  );
+  return (contestQuestionList ?? []).map((q) => ({
+    externalId: q.titleSlug,
+    slug: q.titleSlug,
+    url: `https://leetcode.com/problems/${q.titleSlug}/`,
+    title: q.title,
+    // Contest points roughly track difficulty: 3 easy, 4–5 medium, 6+ hard.
+    difficulty: q.credit <= 3 ? "easy" : q.credit <= 5 ? "medium" : "hard",
+    difficultyRaw: null,
+    rating: null,
+    tags: [],
+  }));
+}
+
 export const leetcode: PlatformAdapter = {
   platform: "leetcode",
   label: "LeetCode",

@@ -25,7 +25,7 @@ const MENU: Item[] = [
   { label: "Revision", href: "/dashboard/revision", icon: RotateCcw },
   { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
   { label: "Analytics", href: "/dashboard/analytics", icon: ChartColumn },
-  { label: "Contests", icon: Trophy },
+  { label: "Contests", href: "/dashboard/contests", icon: Trophy },
 ];
 const SOCIAL: Item[] = [
   { label: "Groups", href: "/dashboard/groups", icon: UsersRound },

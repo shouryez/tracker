@@ -5,8 +5,8 @@ import type { Platform, PlatformAdapter } from "./types.ts";
 
 export * from "./types.ts";
 export { topicName } from "./topics.ts";
-export { ratingToDifficulty } from "./codeforces.ts";
-export { leetcodeCatalogPage, leetcodeQuestion } from "./leetcode.ts";
+export { codeforcesProblemsByContest, ratingToDifficulty } from "./codeforces.ts";
+export { leetcodeCatalogPage, leetcodeContestProblems, leetcodeQuestion } from "./leetcode.ts";
 export { gfgCatalogPage, gfgProblemUrl } from "./gfg.ts";
 export { matchKey, matchTitles } from "./match.ts";
 
