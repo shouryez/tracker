@@ -1,17 +1,21 @@
-import type { HTMLAttributes } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../cn";
 
-export type TagTone = "neutral" | "easy" | "medium" | "hard" | "ac" | "wa" | "tle" | "signal";
+export type TagTone =
+  "neutral" | "easy" | "medium" | "hard" | "ac" | "wa" | "tle" | "info" | "primary" | "signal";
 
+// Tinted pills: soft background + matching 1px border, text in the solid colour.
 const tones: Record<TagTone, string> = {
   neutral: "border border-line bg-surface-2 text-ink-2",
-  easy: "bg-easy/12 text-easy",
-  medium: "bg-medium/12 text-medium",
-  hard: "bg-hard/12 text-hard",
-  ac: "bg-ok/12 text-ok",
-  wa: "bg-bad/12 text-bad",
-  tle: "bg-warn/12 text-warn",
-  signal: "bg-signal text-signal-ink",
+  easy: "border border-easy-line bg-easy-soft text-easy",
+  medium: "border border-medium-line bg-medium-soft text-medium",
+  hard: "border border-hard-line bg-hard-soft text-hard",
+  ac: "border border-ok/30 bg-ok-soft text-ok",
+  wa: "border border-bad/30 bg-bad-soft text-bad",
+  tle: "border border-warn/30 bg-warn-soft text-warn",
+  info: "border border-info/30 bg-info-soft text-info",
+  primary: "border border-primary/30 bg-primary-soft text-primary",
+  signal: "border border-transparent bg-signal text-signal-ink",
 };
 
 export type TagProps = HTMLAttributes<HTMLSpanElement> & {
@@ -45,6 +49,50 @@ export function DifficultyTag({ difficulty }: { difficulty: keyof typeof difficu
   return (
     <Tag tone={difficulty} dot>
       {difficultyLabel[difficulty]}
+    </Tag>
+  );
+}
+
+export type ProblemStatus = "solved" | "attempted" | "todo" | "revise";
+
+const STATUS: Record<ProblemStatus, { label: string; tone: TagTone; icon: ReactNode }> = {
+  solved: {
+    label: "Solved",
+    tone: "ac",
+    icon: <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />,
+  },
+  attempted: {
+    label: "Attempted",
+    tone: "tle",
+    icon: <path d="M8 3v5l3 2" />,
+  },
+  todo: { label: "To do", tone: "neutral", icon: <circle cx="8" cy="8" r="4.5" /> },
+  revise: {
+    label: "Revise",
+    tone: "tle",
+    icon: <path d="M3.5 8a4.5 4.5 0 1 0 1.3-3.2M3.5 3v2.5H6" />,
+  },
+};
+
+/** Solved / Attempted / To do / Revise, each with its own icon and colour. */
+export function StatusBadge({ status, className }: { status: ProblemStatus; className?: string }) {
+  const s = STATUS[status];
+  return (
+    <Tag tone={s.tone} mono className={className}>
+      <svg
+        width="11"
+        height="11"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        {s.icon}
+      </svg>
+      {s.label}
     </Tag>
   );
 }

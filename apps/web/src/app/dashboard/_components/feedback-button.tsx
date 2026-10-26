@@ -51,7 +51,7 @@ export function FeedbackButton() {
   }, [open]);
 
   return (
-    <div className="fixed right-4 bottom-4 z-40 flex flex-col items-end gap-2">
+    <div className="fixed right-4 bottom-[88px] z-40 lg:bottom-4 flex flex-col items-end gap-2">
       {open && (
         <form
           role="dialog"

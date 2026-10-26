@@ -1,7 +1,8 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
-import { cn } from "@upsolve/ui";
+import { toast } from "sonner";
+import { Switch } from "@upsolve/ui";
 import { saveLearningSettings } from "@/app/actions/learning";
 import { REVIEW_CAPS } from "@/lib/profile-options";
 
@@ -14,7 +15,9 @@ export function LearningSettings({ initial }: { initial: Values }) {
   const save = (next: Values) =>
     startTransition(async () => {
       setValues(next);
-      await saveLearningSettings(next);
+      const res = await saveLearningSettings(next);
+      if (res.ok) toast.success("Saved");
+      else toast.error("Couldn't save. Try again.");
     });
 
   return (
@@ -58,26 +61,12 @@ export function LearningSettings({ initial }: { initial: Values }) {
             </a>
           </p>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={values.weeklyEmail}
-          aria-labelledby="weekly-email-label"
+        <Switch
+          checked={values.weeklyEmail}
+          labelledBy="weekly-email-label"
           disabled={pending}
-          onClick={() => save({ ...values, weeklyEmail: !values.weeklyEmail })}
-          className={cn(
-            "relative h-[26px] w-[46px] shrink-0 rounded-full border transition-colors duration-[240ms]",
-            values.weeklyEmail ? "border-transparent bg-signal" : "border-line-2 bg-surface-3",
-          )}
-        >
-          <span
-            aria-hidden="true"
-            className={cn(
-              "absolute top-[3px] size-[18px] rounded-full transition-[left,background-color] duration-[240ms] ease-spring",
-              values.weeklyEmail ? "left-[23px] bg-signal-ink" : "left-[3px] bg-ink-2",
-            )}
-          />
-        </button>
+          onCheckedChange={(weeklyEmail) => save({ ...values, weeklyEmail })}
+        />
       </div>
     </div>
   );

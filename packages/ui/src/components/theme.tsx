@@ -7,7 +7,10 @@ export function ThemeToggle({ className }: { className?: string }) {
   function toggle() {
     const root = document.documentElement;
     const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+    // Cross-fade colours for one switch (see .theme-transition in index.css).
+    root.classList.add("theme-transition");
     root.setAttribute("data-theme", next);
+    window.setTimeout(() => root.classList.remove("theme-transition"), 400);
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {
@@ -23,7 +26,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       title="Toggle colour theme"
       className={cn(
         "inline-grid size-[34px] place-items-center rounded-full border border-line-2 bg-surface text-ink-2",
-        "transition-colors duration-[240ms] hover:border-ink-3 hover:text-ink",
+        "transition-[color,border-color,transform] duration-[var(--dur-base)] hover:border-ink-3 hover:text-ink active:scale-95 [&>svg]:transition-transform [&>svg]:duration-[var(--dur-slow)] hover:[&>svg]:rotate-[30deg]",
         className,
       )}
     >

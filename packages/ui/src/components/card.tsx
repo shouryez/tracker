@@ -1,13 +1,33 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../cn";
 
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export type CardProps = HTMLAttributes<HTMLDivElement> & {
+  /** Clickable card: lifts, brightens its border and deepens its shadow on hover. */
+  interactive?: boolean;
+  /** Soft radial light that follows the cursor (needs <SpotlightTracker /> once on the page). */
+  spotlight?: boolean;
+};
+
+/** Layered surface: 1px border, inner top highlight (dark), soft shadow. */
+export function cardClasses({
+  interactive,
+  spotlight,
+}: { interactive?: boolean; spotlight?: boolean } = {}) {
+  return cn(
+    "relative isolate rounded-lg border border-line bg-surface p-[18px] shadow-card",
+    "transition-[transform,box-shadow,border-color] duration-[var(--dur-base)] ease-[var(--ease-out)]",
+    interactive && "hover:-translate-y-0.5 hover:border-line-2 hover:shadow-md",
+    spotlight &&
+      "overflow-hidden before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:opacity-0 before:transition-opacity before:duration-[var(--dur-slow)] hover:before:opacity-100 " +
+        "before:bg-[radial-gradient(420px_circle_at_var(--mx,50%)_var(--my,0%),var(--spotlight),transparent_65%)]",
+  );
+}
+
+export function Card({ className, interactive, spotlight, ...props }: CardProps) {
   return (
     <div
-      className={cn(
-        "relative isolate rounded-lg border border-line bg-surface p-[18px] shadow-card",
-        className,
-      )}
+      data-spotlight={spotlight || undefined}
+      className={cn(cardClasses({ interactive, spotlight }), className)}
       {...props}
     />
   );

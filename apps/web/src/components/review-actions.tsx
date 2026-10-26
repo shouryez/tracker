@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Archive, ArchiveRestore } from "lucide-react";
+import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import { logReview, type ReviewActionName } from "@/app/actions/learning";
 
@@ -26,6 +27,13 @@ export function ManualReview({ problemId, className }: { problemId: string; clas
     startTransition(async () => {
       setDone(action);
       await logReview(problemId, action);
+      toast.success(
+        action === "remembered"
+          ? "Nice. Next review moved further out"
+          : action === "shaky"
+            ? "Same interval again"
+            : "Back tomorrow",
+      );
     });
 
   return (
@@ -66,6 +74,7 @@ export function RetireButton({ problemId, retired }: { problemId: string; retire
       onClick={() =>
         startTransition(async () => {
           await logReview(problemId, retired ? "restore" : "retire");
+          toast.success(retired ? "Back in your revision queue" : "Removed from revision");
         })
       }
       className="h-[30px] px-2"

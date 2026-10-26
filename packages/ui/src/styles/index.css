@@ -33,6 +33,51 @@
   --color-warn: var(--warn);
   --color-bad: var(--bad);
   --color-hatch: var(--hatch);
+  --color-overlay: var(--overlay);
+  --color-line-3: var(--line-3);
+  --color-info: var(--info);
+
+  /* Tints and borders for badges and charts (difficulty + status). */
+  --color-easy-soft: color-mix(in srgb, var(--easy) 13%, transparent);
+  --color-medium-soft: color-mix(in srgb, var(--medium) 13%, transparent);
+  --color-hard-soft: color-mix(in srgb, var(--hard) 13%, transparent);
+  --color-ok-soft: color-mix(in srgb, var(--ok) 13%, transparent);
+  --color-warn-soft: color-mix(in srgb, var(--warn) 14%, transparent);
+  --color-bad-soft: color-mix(in srgb, var(--bad) 13%, transparent);
+  --color-info-soft: color-mix(in srgb, var(--info) 13%, transparent);
+  --color-easy-line: color-mix(in srgb, var(--easy) 35%, transparent);
+  --color-medium-line: color-mix(in srgb, var(--medium) 35%, transparent);
+  --color-hard-line: color-mix(in srgb, var(--hard) 35%, transparent);
+
+  /* Brand scales derived from the two brand colours. */
+  --color-primary-50: color-mix(in srgb, var(--primary) 8%, var(--surface));
+  --color-primary-100: color-mix(in srgb, var(--primary) 16%, var(--surface));
+  --color-primary-200: color-mix(in srgb, var(--primary) 30%, var(--surface));
+  --color-primary-300: color-mix(in srgb, var(--primary) 50%, var(--surface));
+  --color-primary-400: color-mix(in srgb, var(--primary) 75%, var(--surface));
+  --color-primary-500: var(--primary);
+  --color-primary-600: var(--primary-2);
+  --color-primary-700: color-mix(in srgb, var(--primary-2) 80%, #000);
+  --color-primary-800: color-mix(in srgb, var(--primary-2) 60%, #000);
+  --color-primary-900: color-mix(in srgb, var(--primary-2) 40%, #000);
+  --color-signal-50: color-mix(in srgb, var(--signal) 10%, var(--surface));
+  --color-signal-100: color-mix(in srgb, var(--signal) 20%, var(--surface));
+  --color-signal-300: color-mix(in srgb, var(--signal) 55%, var(--surface));
+  --color-signal-500: var(--signal);
+  --color-signal-700: color-mix(in srgb, var(--signal) 70%, #000);
+  --color-signal-900: color-mix(in srgb, var(--signal) 35%, #000);
+
+  /* Type scale (Tailwind's xs–6xl stay; these fill the UI sizes between). */
+  --text-2xs: 11px;
+  --text-2xs--line-height: 1.4;
+  --text-2xs--letter-spacing: 0.02em;
+  --text-13: 13px;
+  --text-13--line-height: 1.5;
+  --text-15: 15px;
+  --text-15--line-height: 1.55;
+  --text-17: 17px;
+  --text-17--line-height: 1.4;
+  --text-17--letter-spacing: -0.01em;
   --color-pixel-off: var(--pixel-off);
 
   --font-sans:
@@ -44,10 +89,18 @@
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
 
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
   --shadow-card: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
   --shadow-frame: var(--shadow-lg);
+  --shadow-glow: var(--glow-primary);
+  --shadow-glow-signal: var(--glow-signal);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -57,6 +110,11 @@
   --animate-drift-b: drift-b 22s var(--ease-in-out) infinite alternate;
   --animate-word: word 800ms var(--ease-out) both;
   --animate-marquee: marquee 40s linear infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-fade-up: fade-up var(--dur-slow) var(--ease-out) both;
+  --animate-page: page-in var(--dur-base) var(--ease-out) both;
+  --animate-pop: pop var(--dur-slow) var(--ease-spring) both;
+  --animate-float: float 7s var(--ease-in-out) infinite alternate;
 
   @keyframes drift-a {
     to {
@@ -66,6 +124,37 @@
   @keyframes drift-b {
     to {
       transform: translate(-160px, -40px) scale(0.9);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+  @keyframes float {
+    to {
+      transform: translateY(-12px);
     }
   }
   /* The track holds its items twice, so -50% loops seamlessly. */
@@ -86,6 +175,40 @@
 /* Hatch = "remaining / not yet". Never decorative. */
 @utility hatch {
   background-image: repeating-linear-gradient(135deg, var(--hatch) 0 2px, transparent 2px 7px);
+}
+
+/* Shimmering placeholder in the shape of the content it replaces. */
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--ink) 6%, transparent),
+      transparent
+    );
+    animation: var(--animate-shimmer);
+  }
+}
+
+/* Frosted glass for sticky bars and floating panels. */
+@utility glass {
+  background: var(--overlay);
+  backdrop-filter: saturate(160%) blur(16px);
+  -webkit-backdrop-filter: saturate(160%) blur(16px);
+}
+
+/* Faint dot grid for hero and feature backgrounds. */
+@utility dots {
+  background-image: radial-gradient(var(--line-2) 1px, transparent 1px);
+  background-size: 18px 18px;
 }
 
 /* Big numbers: tight, tabular */
@@ -115,6 +238,35 @@
   :focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
+  }
+  /* Thin themed scrollbars. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+  /* Numbers never jitter. */
+  table,
+  time {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Set by ThemeToggle for one frame-set so the switch cross-fades instead of snapping. */
+  html.theme-transition,
+  html.theme-transition * {
+    transition:
+      background-color var(--dur-slow) var(--ease-out),
+      border-color var(--dur-slow) var(--ease-out),
+      color var(--dur-slow) var(--ease-out),
+      fill var(--dur-slow) var(--ease-out) !important;
   }
 }
 

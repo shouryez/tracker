@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Button } from "@upsolve/ui";
 import { saveProblemNote } from "@/app/actions/learning";
 
@@ -19,7 +20,10 @@ export function NoteEditor({ problemId, initial }: { problemId: string; initial:
         startTransition(async () => {
           const res = await saveProblemNote(problemId, value);
           setError(!res.ok);
-          if (res.ok) setSaved(value);
+          if (res.ok) {
+            setSaved(value);
+            toast.success(value.trim() ? "Note saved" : "Note removed");
+          }
         });
       }}
       className="flex flex-col gap-2.5"
@@ -48,8 +52,8 @@ export function NoteEditor({ problemId, initial }: { problemId: string; initial:
             ""
           )}
         </span>
-        <Button type="submit" size="sm" variant="secondary" disabled={!dirty || pending}>
-          {pending ? "Saving…" : "Save note"}
+        <Button type="submit" size="sm" variant="secondary" disabled={!dirty} loading={pending}>
+          Save note
         </Button>
       </div>
     </form>

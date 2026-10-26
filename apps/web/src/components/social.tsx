@@ -3,7 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Copy, RefreshCw } from "lucide-react";
-import { Button, cn } from "@upsolve/ui";
+import { toast } from "sonner";
+import { Button, Switch, cn } from "@upsolve/ui";
 import {
   createGroup,
   joinGroup,
@@ -140,6 +141,7 @@ export function InviteLink({
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(url);
+              toast.success("Invite link copied");
               setCopied(true);
               setTimeout(() => setCopied(false), 1800);
             } catch {
@@ -280,35 +282,23 @@ export function PrefSwitch({
   const router = useRouter();
   return (
     <span className="inline-flex flex-col items-end gap-1">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        aria-label={label}
+      <Switch
+        checked={on}
+        label={label}
         disabled={pending}
-        onClick={() => {
-          const next = !on;
+        onCheckedChange={(next) => {
           setOn(next);
           run(async () => {
             const res = await setSocialPrefs({ [pref]: next });
             if (!res.ok) setOn(!next);
-            else router.refresh();
+            else {
+              toast.success("Saved");
+              router.refresh();
+            }
             return res;
           });
         }}
-        className={cn(
-          "relative h-[26px] w-[46px] shrink-0 rounded-full border transition-colors duration-[240ms]",
-          on ? "border-transparent bg-signal" : "border-line-2 bg-surface-3",
-        )}
-      >
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute top-[3px] size-[18px] rounded-full transition-[left,background-color] duration-[240ms] ease-spring",
-            on ? "left-[23px] bg-signal-ink" : "left-[3px] bg-ink-2",
-          )}
-        />
-      </button>
+      />
       {error && <span className="max-w-[220px] text-right text-[12px] text-bad">{error}</span>}
     </span>
   );

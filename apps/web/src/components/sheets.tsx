@@ -2,6 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import { setSheetFollowed, setSheetItemDone } from "@/app/actions/sheets";
 
@@ -32,6 +33,24 @@ export function FollowButton({ sheetId, following }: { sheetId: string; followin
   );
 }
 
+/** The tick mark; draws itself (stroke-dashoffset) when `on` flips to true. */
+function TickMark({ on }: { on: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="12" height="12" fill="none" aria-hidden="true">
+      <path
+        d="M3.5 8.5 6.5 11.5 12.5 4.5"
+        stroke="currentColor"
+        strokeWidth="2.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray="16"
+        strokeDashoffset={on ? 0 : 16}
+        className="transition-[stroke-dashoffset] duration-[var(--dur-slow)] ease-[var(--ease-out)]"
+      />
+    </svg>
+  );
+}
+
 /** Square tick for one sheet item. Auto-solved items are read-only. */
 export function ItemTick({
   sheetId,
@@ -51,9 +70,10 @@ export function ItemTick({
     return (
       <span
         title="Solved on a connected platform"
-        className="grid size-[18px] shrink-0 place-items-center rounded-[4px] bg-ink text-bg"
+        className="grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-ink text-bg"
       >
-        <Check size={12} strokeWidth={3} aria-label="Solved" />
+        <TickMark on />
+        <span className="sr-only">Solved</span>
       </span>
     );
   }
@@ -70,14 +90,17 @@ export function ItemTick({
         startTransition(async () => {
           setOptimistic(done ? null : "manual");
           await setSheetItemDone(sheetId, itemKey, !done);
+          if (!done) toast.success("Marked done", { description: title });
         })
       }
       className={cn(
-        "grid size-[18px] shrink-0 place-items-center rounded-[4px] transition-colors duration-[240ms]",
-        done ? "bg-ink-3 text-bg" : "hatch border border-line-2 hover:border-ink-3",
+        "grid size-[18px] shrink-0 place-items-center rounded-[5px] transition-[background-color,border-color,transform] duration-[var(--dur-base)] ease-[var(--ease-spring)] active:scale-90",
+        done
+          ? "scale-100 bg-ink-2 text-bg"
+          : "hatch border border-line-2 hover:scale-110 hover:border-ink-3",
       )}
     >
-      {done && <Check size={12} strokeWidth={3} aria-hidden="true" />}
+      <TickMark on={done} />
     </button>
   );
 }

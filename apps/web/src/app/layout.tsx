@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { themeScript } from "@upsolve/ui";
+import { Toaster } from "@/components/toaster";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -43,7 +44,16 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <a
+          href="#main"
+          className="fixed top-3 left-3 z-[100] -translate-y-20 rounded-full bg-ink px-4 py-2 text-[13px] font-semibold text-bg focus:translate-y-0"
+        >
+          Skip to content
+        </a>
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

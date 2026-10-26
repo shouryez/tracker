@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { Button } from "@upsolve/ui";
 import { addStreakFreeze, removeStreakFreeze } from "@/app/actions/social";
 
@@ -65,6 +66,7 @@ export function StreakFreezes({ freezes, today }: { freezes: Freeze[]; today: st
             if (res.ok) {
               setStart("");
               setEnd("");
+              toast.success("Streak freeze planned");
             }
           });
         }}
