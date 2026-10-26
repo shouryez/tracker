@@ -1,6 +1,7 @@
 import "server-only";
 import { sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
+import type { SheetItemLink } from "@upsolve/db";
 import { db, userTag } from "@/lib/db";
 
 // Sheet progress = items whose canonical problem the user has an Accepted
@@ -82,12 +83,17 @@ export type SheetItemView = {
   kind: "practice" | "learning";
   tier: string | null;
   url: string | null;
-  links: { site: "leetcode" | "geeksforgeeks" | "takeuforward" | "source"; url: string }[];
+  links: SheetItemLink[];
+  /** The sheet's time estimate in minutes, when it gives one. */
+  minutes: number | null;
   tracked: boolean;
   /** Canonical problem (for its detail page), when tracked. */
   problemId: string | null;
   /** "auto" = solved on a tracked platform, "manual" = ticked by hand. */
   status: "auto" | "manual" | null;
+  starred: boolean;
+  /** Your note on the problem (tracked items only). */
+  note: string | null;
 };
 
 export type SheetDetail = SheetSummary & { items: SheetItemView[] };
@@ -103,13 +109,18 @@ export async function getSheetDetail(userId: string, slug: string): Promise<Shee
   const items = (await db().execute(sql`
     with ${solvedCte(userId)}
     select si.item_key as "itemKey", si.step, si.section, si.title, si.kind, si.tier, si.url, si.links,
-           (si.problem_id is not null) as tracked, si.problem_id as "problemId",
+           si.minutes, (si.problem_id is not null) as tracked, si.problem_id as "problemId",
            case when sv.problem_id is not null then 'auto'
-                when sm.item_key is not null then 'manual' end as status
+                when sm.item_key is not null then 'manual' end as status,
+           (st.item_key is not null) as starred,
+           pn.body as note
     from sheet_items si
     left join solved sv on sv.problem_id = si.problem_id
     left join sheet_marks sm
       on sm.user_id = ${userId} and sm.sheet_id = si.sheet_id and sm.item_key = si.item_key
+    left join sheet_stars st
+      on st.user_id = ${userId} and st.sheet_id = si.sheet_id and st.item_key = si.item_key
+    left join problem_notes pn on pn.user_id = ${userId} and pn.problem_id = si.problem_id
     where si.sheet_id = ${summary.id}
     order by si.position
   `)) as unknown as SheetItemView[];

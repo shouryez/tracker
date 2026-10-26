@@ -23,6 +23,11 @@ type SeedItem = {
   tier: string | null;
   tufSlug?: string;
   leetcode: string | null;
+  /** The creator's own explanation and write-up, when they have one. */
+  video?: string | null;
+  article?: string | null;
+  neetcode?: string | null;
+  minutes?: number | null;
 };
 type SeedSheet = {
   name: string;
@@ -145,10 +150,14 @@ try {
           url:
             item.kind === "practice"
               ? `https://takeuforward.org/practice/dsa/${item.tufSlug}`
-              : seed.sourceUrl,
+              : (item.article ?? seed.sourceUrl),
         });
       }
+      if (item.neetcode) links.push({ site: "neetcode", url: item.neetcode });
       if (links.length === 0) links.push({ site: "source", url: seed.sourceUrl });
+      // Learning links last: `url` (links[0]) must stay a place to solve it.
+      if (item.video) links.push({ site: "youtube", url: item.video });
+      if (item.article) links.push({ site: "article", url: item.article });
       return {
         sheetId: sheet!.id,
         itemKey,
@@ -158,6 +167,7 @@ try {
         title: item.title,
         kind: item.kind,
         tier: item.tier,
+        minutes: item.minutes ?? null,
         url: links[0]!.url,
         links,
         problemId,
@@ -177,6 +187,7 @@ try {
             title: sql`excluded.title`,
             kind: sql`excluded.kind`,
             tier: sql`excluded.tier`,
+            minutes: sql`excluded.minutes`,
             url: sql`excluded.url`,
             links: sql`excluded.links`,
             problemId: sql`excluded.problem_id`,
@@ -196,11 +207,12 @@ try {
 
     const tracked = rows.filter((r) => r.problemId).length;
     const withGfg = rows.filter((r) => r.links.some((l) => l.site === "geeksforgeeks")).length;
+    const withVideo = rows.filter((r) => r.links.some((l) => l.site === "youtube")).length;
     const unresolved = rows
       .filter((r) => r.links.some((l) => l.site === "leetcode") && !r.problemId)
       .map((r) => r.itemKey);
     console.log(
-      `${slug}: ${rows.length} items, ${tracked} auto-tracked, ${withGfg} matched on GFG${unresolved.length ? `, UNRESOLVED: ${unresolved.join(", ")}` : ""}`,
+      `${slug}: ${rows.length} items, ${tracked} auto-tracked, ${withGfg} matched on GFG, ${withVideo} videos${unresolved.length ? `, UNRESOLVED: ${unresolved.join(", ")}` : ""}`,
     );
   }
 

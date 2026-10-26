@@ -1,8 +1,8 @@
 {
-  "name": "Striver's SDE Sheet",
+  "name": "SDE Sheet",
   "author": "Striver (takeUforward)",
   "sourceUrl": "https://takeuforward.org/prep-hub/strivers-sde-sheet",
-  "extractedAt": "2026-10-25",
+  "extractedAt": "2026-10-26",
   "items": [
     {
       "step": "Arrays",
@@ -11,7 +11,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "set-matrix-zeroes",
-      "leetcode": "set-matrix-zeroes"
+      "leetcode": "set-matrix-zeroes",
+      "video": "https://youtu.be/N0MgLvceX7M",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/set-matrix-zeroes",
+      "minutes": null
     },
     {
       "step": "Arrays",
@@ -20,7 +23,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "pascals-triangle-i",
-      "leetcode": "pascals-triangle"
+      "leetcode": "pascals-triangle",
+      "video": "https://youtu.be/bR7mQgwQ_o8",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/pascals-triangle-first-n-rows",
+      "minutes": 10
     },
     {
       "step": "Arrays",
@@ -29,7 +35,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "next-permutation",
-      "leetcode": "next-permutation"
+      "leetcode": "next-permutation",
+      "video": "https://youtu.be/JDOXKqF60RQ",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/next-permutation",
+      "minutes": 26
     },
     {
       "step": "Arrays",
@@ -38,7 +47,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "kadane's-algorithm",
-      "leetcode": "maximum-subarray"
+      "leetcode": "maximum-subarray",
+      "video": "https://youtu.be/AHZpyENo7k4",
+      "article": null,
+      "minutes": 19
     },
     {
       "step": "Arrays",
@@ -47,7 +59,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "sort-an-array-of-0's-1's-and-2's",
-      "leetcode": "sort-colors"
+      "leetcode": "sort-colors",
+      "video": "https://youtu.be/tp8JIuCXBaU",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/sort-array-0s-1s-2s",
+      "minutes": 24
     },
     {
       "step": "Arrays Part-II",
@@ -56,7 +71,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "rotate-matrix-by-90-degrees",
-      "leetcode": "rotate-image"
+      "leetcode": "rotate-image",
+      "video": "https://youtu.be/Z0R2u6gd3GU",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/rotate-matrix-90-degrees-clockwise",
+      "minutes": 17
     },
     {
       "step": "Arrays Part-II",
@@ -65,7 +83,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "merge-overlapping-subintervals",
-      "leetcode": "merge-intervals"
+      "leetcode": "merge-intervals",
+      "video": "https://youtu.be/IexN60k62jo",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/merge-overlapping-intervals",
+      "minutes": null
     },
     {
       "step": "Arrays Part-II",
@@ -74,7 +95,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "merge-two-sorted-arrays-without-extra-space",
-      "leetcode": "merge-sorted-array"
+      "leetcode": "merge-sorted-array",
+      "video": "https://youtu.be/n7uwj04E0I4",
+      "article": null,
+      "minutes": 32
     },
     {
       "step": "Arrays Part-II",
@@ -83,7 +107,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "find-the-duplicate-number",
-      "leetcode": "find-the-duplicate-number"
+      "leetcode": "find-the-duplicate-number",
+      "video": "https://www.youtube.com/watch?v=32Ll35mhWg0&list=PLgUwDviBIf0rPG3Ictpu74YWBQ1CaBkm2&index=1",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Arrays Part-II",
@@ -92,7 +119,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "find-the-repeating-and-missing-number",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/2D0D8HE6uak",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/find-the-missing-and-repeating-numbers-in-an-array",
+      "minutes": 41
     },
     {
       "step": "Arrays Part-III",
@@ -101,7 +131,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "search-in-a-2d-matrix",
-      "leetcode": "search-a-2d-matrix"
+      "leetcode": "search-a-2d-matrix",
+      "video": "https://youtu.be/ZYpYur0znng",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/search-in-sorted-2d-matrix",
+      "minutes": 15
     },
     {
       "step": "Arrays Part-III",
@@ -110,7 +143,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "majority-element-i",
-      "leetcode": "majority-element"
+      "leetcode": "majority-element",
+      "video": "https://youtu.be/nP_ns3uSh80",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/majority-element-n-by-2",
+      "minutes": 17
     },
     {
       "step": "Arrays Part-III",
@@ -119,7 +155,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "majority-element-ii",
-      "leetcode": "majority-element-ii"
+      "leetcode": "majority-element-ii",
+      "video": "https://youtu.be/vwZj1K0e9U8",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/majority-element-ii-n-by-3",
+      "minutes": 25
     },
     {
       "step": "Arrays Part-III",
@@ -128,7 +167,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "grid-unique-paths",
-      "leetcode": "unique-paths"
+      "leetcode": "unique-paths",
+      "video": "https://www.youtube.com/watch?v=sdE0A2Oxofw",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/grid-unique-paths",
+      "minutes": 44
     },
     {
       "step": "Arrays Part-III",
@@ -137,7 +179,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "reverse-pairs",
-      "leetcode": "reverse-pairs"
+      "leetcode": "reverse-pairs",
+      "video": "https://youtu.be/0e4bZaP3MDI",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/count-reverse-pairs",
+      "minutes": 31
     },
     {
       "step": "Arrays Part-IV",
@@ -146,7 +191,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "two-sum",
-      "leetcode": "two-sum"
+      "leetcode": "two-sum",
+      "video": "https://youtu.be/UXDSeD9mN-k",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/two-sum",
+      "minutes": 17
     },
     {
       "step": "Arrays Part-IV",
@@ -155,7 +203,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "4-sum",
-      "leetcode": "4sum"
+      "leetcode": "4sum",
+      "video": "https://youtu.be/eD95WRfh81c",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/4sum",
+      "minutes": 27
     },
     {
       "step": "Arrays Part-IV",
@@ -164,7 +215,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-consecutive-sequence-in-an-array",
-      "leetcode": "longest-consecutive-sequence"
+      "leetcode": "longest-consecutive-sequence",
+      "video": "https://youtu.be/oO5uLE7EUlM",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/longest-consecutive-sequence-in-an-array",
+      "minutes": 22
     },
     {
       "step": "Arrays Part-IV",
@@ -173,7 +227,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "count-subarrays-with-given-xor-k",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/eZr-6p0B7ME",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/count-subarrays-with-a-given-xor-k",
+      "minutes": 23
     },
     {
       "step": "Arrays Part-IV",
@@ -182,7 +239,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-substring-without-repeating-characters",
-      "leetcode": "longest-substring-without-repeating-characters"
+      "leetcode": "longest-substring-without-repeating-characters",
+      "video": "https://youtu.be/-zSxTJkcdAo?si=I2zfR-vlDMg0zU9z",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/longest-substring-without-repeating-characters",
+      "minutes": 22
     },
     {
       "step": "Linked List",
@@ -191,7 +251,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "reverse-a-ll",
-      "leetcode": "reverse-linked-list"
+      "leetcode": "reverse-linked-list",
+      "video": "https://youtu.be/D2vI2DNJGd8?si=RCaLSx01qR21IBdh",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/reverse-a-singly-linked-list",
+      "minutes": 32
     },
     {
       "step": "Linked List",
@@ -200,7 +263,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "find-middle-of-linked-list",
-      "leetcode": "middle-of-the-linked-list"
+      "leetcode": "middle-of-the-linked-list",
+      "video": "https://youtu.be/7LjQ57RqgEc?si=ir_rRDio38rhamU_",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/find-middle-of-linked-list",
+      "minutes": 14
     },
     {
       "step": "Linked List",
@@ -209,7 +275,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "merge-sorted-lists-",
-      "leetcode": "merge-two-sorted-lists"
+      "leetcode": "merge-two-sorted-lists",
+      "video": "https://www.youtube.com/watch?v=Xb4slcp1U38&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=29",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/merge-two-sorted-linked-lists",
+      "minutes": 18
     },
     {
       "step": "Linked List",
@@ -218,7 +287,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "remove-nth-node-from-the-back-of-the-ll",
-      "leetcode": "remove-nth-node-from-end-of-list"
+      "leetcode": "remove-nth-node-from-end-of-list",
+      "video": "https://youtu.be/3kMKYQ2wNIU?si=DtFDnPU7z9HMz_GM",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/remove-the-nth-node-from-the-end-of-a-linked-list",
+      "minutes": 16
     },
     {
       "step": "Linked List",
@@ -227,7 +299,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "delete-node-in-a-linked-list-o1",
-      "leetcode": "delete-node-in-a-linked-list"
+      "leetcode": "delete-node-in-a-linked-list",
+      "video": "https://www.youtube.com/watch?v=icnp4FJdZ_c&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=31",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Linked List Part-II",
@@ -236,7 +311,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "find-the-intersection-point-of-y-ll",
-      "leetcode": "intersection-of-two-linked-lists"
+      "leetcode": "intersection-of-two-linked-lists",
+      "video": "https://youtu.be/0DYoPz2Tpt4?si=L-uJs5yXUxj4VJM2",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/intersection-of-two-linked-lists",
+      "minutes": 32
     },
     {
       "step": "Linked List Part-II",
@@ -245,7 +323,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "detect-a-loop-in-ll",
-      "leetcode": "linked-list-cycle"
+      "leetcode": "linked-list-cycle",
+      "video": "https://youtu.be/wiOo4DC5GGA?si=zagt6O6tFXc4_3cx",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/detect-cycle-linked-list",
+      "minutes": 20
     },
     {
       "step": "Linked List Part-II",
@@ -254,7 +335,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "reverse-ll-in-group-of-given-size-k",
-      "leetcode": "reverse-nodes-in-k-group"
+      "leetcode": "reverse-nodes-in-k-group",
+      "video": "https://youtu.be/lIar1skcQYI?si=_jFghHKX4eaK36a1",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/reverse-linked-list-k-groups",
+      "minutes": 24
     },
     {
       "step": "Linked List Part-II",
@@ -263,7 +347,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "check-if-ll-is-palindrome-or-not",
-      "leetcode": "palindrome-linked-list"
+      "leetcode": "palindrome-linked-list",
+      "video": "https://youtu.be/lRY_G-u_8jk?si=BpM8hRYvXSYyjl-G",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/check-if-a-linked-list-is-a-palindrome",
+      "minutes": 20
     },
     {
       "step": "Linked List Part-II",
@@ -272,7 +359,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "find-the-starting-point-in-ll",
-      "leetcode": "linked-list-cycle-ii"
+      "leetcode": "linked-list-cycle-ii",
+      "video": "https://youtu.be/2Kd0KKmmHFc?si=7UreDPRjRvapeVB0",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/find-start-of-cycle-linked-list",
+      "minutes": 21
     },
     {
       "step": "Linked List Part-II",
@@ -281,7 +371,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "flattening-of-ll",
-      "leetcode": "merge-k-sorted-lists"
+      "leetcode": "merge-k-sorted-lists",
+      "video": "https://youtu.be/ykelywHJWLg?si=InMg9MmTHzY22NSR",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/flatten-linked-list",
+      "minutes": 33
     },
     {
       "step": "Linked List and Arrays",
@@ -290,7 +383,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "rotate-a-ll",
-      "leetcode": "rotate-list"
+      "leetcode": "rotate-list",
+      "video": "https://youtu.be/uT7YI7XbTY8?si=ZaChW3a68c_v54Is",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/rotate-linked-list-right-k-places",
+      "minutes": 12
     },
     {
       "step": "Linked List and Arrays",
@@ -299,7 +395,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "clone-a-ll-with-random-and-next-pointer",
-      "leetcode": "copy-list-with-random-pointer"
+      "leetcode": "copy-list-with-random-pointer",
+      "video": "https://youtu.be/q570bKdrnlw?si=epZtpWvtNwuTf23o",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/clone-linked-list-random-pointer",
+      "minutes": 33
     },
     {
       "step": "Linked List and Arrays",
@@ -308,7 +407,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "3-sum",
-      "leetcode": "3sum"
+      "leetcode": "3sum",
+      "video": "https://youtu.be/DhFh8Kw7ymk",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/3sum",
+      "minutes": 37
     },
     {
       "step": "Linked List and Arrays",
@@ -317,7 +419,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "trapping-rainwater",
-      "leetcode": "trapping-rain-water"
+      "leetcode": "trapping-rain-water",
+      "video": "https://youtu.be/1_5VuquLbXg?si=NFG6df318_6OtGvg",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/trapping-rain-water",
+      "minutes": 29
     },
     {
       "step": "Linked List and Arrays",
@@ -326,7 +431,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "remove-duplicates-from-sorted-array",
-      "leetcode": "remove-duplicates-from-sorted-array"
+      "leetcode": "remove-duplicates-from-sorted-array",
+      "video": "https://youtu.be/37E9ckMDdTk?t=1887",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/remove-duplicates-from-a-sorted-array-in-place",
+      "minutes": 11
     },
     {
       "step": "Linked List and Arrays",
@@ -335,7 +443,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "maximum-consecutive-ones",
-      "leetcode": "max-consecutive-ones"
+      "leetcode": "max-consecutive-ones",
+      "video": "https://youtu.be/bYWLJb3vCWY?t=1124",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/maximum-consecutive-ones-in-a-binary-array",
+      "minutes": 3
     },
     {
       "step": "Greedy Algorithm",
@@ -344,7 +455,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "n-meetings-in-one-room",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/mKfhTotEguk?si=2RELeq18mpmIIN3Q",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/n-meetings-in-one-room",
+      "minutes": 13
     },
     {
       "step": "Greedy Algorithm",
@@ -353,7 +467,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "minimum-number-of-platforms-required-for-a-railway",
-      "leetcode": "divide-intervals-into-minimum-number-of-groups"
+      "leetcode": "divide-intervals-into-minimum-number-of-groups",
+      "video": "https://youtu.be/AsGzwR_FWok?si=165acXU_dtqOHuo9",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/minimum-platforms-required-for-a-railway-station",
+      "minutes": 18
     },
     {
       "step": "Greedy Algorithm",
@@ -362,7 +479,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "job-sequencing-problem",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/QbwltemZbRg?si=wvcemJ5BLPlTRmkG",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/job-sequencing-problem",
+      "minutes": 16
     },
     {
       "step": "Greedy Algorithm",
@@ -371,7 +491,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "fractional-knapsack",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/1ibsQrnuEEg?si=8R2By3wpHo0zZVHE",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Greedy Algorithm",
@@ -380,7 +503,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "minimum-coins",
-      "leetcode": "coin-change"
+      "leetcode": "coin-change",
+      "video": "https://www.youtube.com/watch?v=myPeWb3Y68A",
+      "article": null,
+      "minutes": 34
     },
     {
       "step": "Greedy Algorithm",
@@ -389,7 +515,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "assign-cookies",
-      "leetcode": "assign-cookies"
+      "leetcode": "assign-cookies",
+      "video": "https://youtu.be/DIX2p7vb9co?si=GofAIDimue-Av0Fi",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/assign-cookies",
+      "minutes": 10
     },
     {
       "step": "Recursion",
@@ -398,7 +527,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "subsets-ii",
-      "leetcode": "subsets-ii"
+      "leetcode": "subsets-ii",
+      "video": "https://www.youtube.com/watch?v=RIn3gOkbhQE&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=53",
+      "article": null,
+      "minutes": 21
     },
     {
       "step": "Recursion",
@@ -407,7 +539,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "combination-sum",
-      "leetcode": "combination-sum"
+      "leetcode": "combination-sum",
+      "video": "https://www.youtube.com/watch?v=OyZFFqQtu98&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=49",
+      "article": null,
+      "minutes": 16
     },
     {
       "step": "Recursion",
@@ -416,7 +551,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "combination-sum-ii",
-      "leetcode": "combination-sum-ii"
+      "leetcode": "combination-sum-ii",
+      "video": "https://www.youtube.com/watch?v=G1fRTGRxXU8&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=50",
+      "article": null,
+      "minutes": 15
     },
     {
       "step": "Recursion",
@@ -425,7 +563,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "palindrome-partitioning",
-      "leetcode": "palindrome-partitioning"
+      "leetcode": "palindrome-partitioning",
+      "video": "https://youtu.be/_H8V5hJUGd0",
+      "article": null,
+      "minutes": 18
     },
     {
       "step": "Recursion",
@@ -434,7 +575,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "permutation-sequence",
-      "leetcode": "permutation-sequence"
+      "leetcode": "permutation-sequence",
+      "video": "https://www.youtube.com/watch?v=wT7gcXLYoao&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=55",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Recursion and Backtracking",
@@ -443,7 +587,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "permutations-of-a-string",
-      "leetcode": "permutations-ii"
+      "leetcode": "permutations-ii",
+      "video": "https://www.youtube.com/watch?v=f2ic2Rsc9pU&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=52",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Recursion and Backtracking",
@@ -452,7 +599,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "n-queen",
-      "leetcode": "n-queens"
+      "leetcode": "n-queens",
+      "video": "https://www.youtube.com/watch?v=i05Ju7AftcM&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=57",
+      "article": null,
+      "minutes": 24
     },
     {
       "step": "Recursion and Backtracking",
@@ -461,7 +611,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "sudoko-solver",
-      "leetcode": "sudoku-solver"
+      "leetcode": "sudoku-solver",
+      "video": "https://www.youtube.com/watch?v=FWAIf_EVUKE&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=58",
+      "article": null,
+      "minutes": 31
     },
     {
       "step": "Recursion and Backtracking",
@@ -470,7 +623,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "m-coloring-problem",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://www.youtube.com/watch?v=wuVwUK25Rfc&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=59",
+      "article": null,
+      "minutes": 22
     },
     {
       "step": "Recursion and Backtracking",
@@ -479,7 +635,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "rat-in-a-maze",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://www.youtube.com/watch?v=bLGZhJlt4y0&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=60",
+      "article": null,
+      "minutes": 19
     },
     {
       "step": "Binary Search",
@@ -488,7 +647,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "matrix-median",
-      "leetcode": "median-of-a-row-wise-sorted-matrix"
+      "leetcode": "median-of-a-row-wise-sorted-matrix",
+      "video": "https://youtu.be/Q9wXgdxJq48?si=ScI_0uzJh7yg8nrX",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/median-of-a-row-wise-sorted-matrix",
+      "minutes": 23
     },
     {
       "step": "Binary Search",
@@ -497,7 +659,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "single-element-in-sorted-array",
-      "leetcode": "single-element-in-a-sorted-array"
+      "leetcode": "single-element-in-a-sorted-array",
+      "video": "https://youtu.be/AZOmHuHadxQ",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/single-element-in-a-sorted-array",
+      "minutes": 22
     },
     {
       "step": "Binary Search",
@@ -506,7 +671,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "median-of-2-sorted-arrays",
-      "leetcode": "median-of-two-sorted-arrays"
+      "leetcode": "median-of-two-sorted-arrays",
+      "video": "https://www.youtube.com/watch?v=NTop3VTjmxk&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=65",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/median-of-2-sorted-arrays",
+      "minutes": 50
     },
     {
       "step": "Binary Search",
@@ -515,7 +683,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "kth-element-of-2-sorted-arrays",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://www.youtube.com/watch?v=nv7F4PiLUzo&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=66",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/kth-element-of-two-sorted-arrays",
+      "minutes": 10
     },
     {
       "step": "Binary Search",
@@ -524,7 +695,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "allocate-minimum-number-of-pages",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://www.youtube.com/watch?v=gYmWHvRHu-s&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=69",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/book-allocation-problem",
+      "minutes": null
     },
     {
       "step": "Binary Search",
@@ -533,7 +707,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "aggressive-cows",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/R_Mfw4ew-Vo",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/aggressive-cows",
+      "minutes": 26
     },
     {
       "step": "Heaps",
@@ -542,7 +719,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "implement-max-heap",
-      "leetcode": null
+      "leetcode": null,
+      "video": null,
+      "article": null,
+      "minutes": 20
     },
     {
       "step": "Heaps",
@@ -551,7 +731,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "k-th-largest-element-in-an-array",
-      "leetcode": "kth-largest-element-in-an-array"
+      "leetcode": "kth-largest-element-in-an-array",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/k-th-largest-element-in-an-array",
+      "minutes": 44
     },
     {
       "step": "Heaps",
@@ -560,7 +743,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "maximum-sum-combination",
-      "leetcode": null
+      "leetcode": null,
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Heaps",
@@ -569,7 +755,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "find-median-from-data-stream",
-      "leetcode": "find-median-from-data-stream"
+      "leetcode": "find-median-from-data-stream",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/find-median-data-stream",
+      "minutes": null
     },
     {
       "step": "Heaps",
@@ -578,7 +767,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "merge-k-sorted-arrays",
-      "leetcode": "merge-k-sorted-lists"
+      "leetcode": "merge-k-sorted-lists",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Heaps",
@@ -587,7 +779,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "top-k-frequent-elements",
-      "leetcode": "top-k-frequent-elements"
+      "leetcode": "top-k-frequent-elements",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/top-k-frequent-elements",
+      "minutes": null
     },
     {
       "step": "Stack and Queue",
@@ -596,7 +791,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "implement-stack-using-arrays",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/implement-a-stack-using-an-array",
+      "minutes": 8
     },
     {
       "step": "Stack and Queue",
@@ -605,7 +803,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "implement-queue-using-arrays",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/implement-a-queue-using-an-array",
+      "minutes": 12
     },
     {
       "step": "Stack and Queue",
@@ -614,7 +815,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "implement-queue-using-stack",
-      "leetcode": "implement-queue-using-stacks"
+      "leetcode": "implement-queue-using-stacks",
+      "video": "https://youtu.be/tqQ5fTamIN4?si=ofLt8Zt1ZvhikZ6w",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/implement-a-queue-using-stacks",
+      "minutes": 14
     },
     {
       "step": "Stack and Queue",
@@ -623,7 +827,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "balanced-paranthesis",
-      "leetcode": "valid-parentheses"
+      "leetcode": "valid-parentheses",
+      "video": "https://youtu.be/xwjS0iZhw4I?si=UoyKpFn4Q3nf5h2R",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/check-balanced-parentheses-using-a-stack",
+      "minutes": 12
     },
     {
       "step": "Stack and Queue",
@@ -632,7 +839,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "next-greater-element",
-      "leetcode": "next-greater-element-i"
+      "leetcode": "next-greater-element-i",
+      "video": "https://youtu.be/e7XQLtOQM3I?si=QdcHpTtx6gAHsext",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/next-greater-element",
+      "minutes": 18
     },
     {
       "step": "Stack and Queue",
@@ -641,7 +851,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "sort-a-stack",
-      "leetcode": null
+      "leetcode": null,
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Stack and Queue Part-II",
@@ -650,7 +863,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "next-smaller-element",
-      "leetcode": null
+      "leetcode": null,
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Stack and Queue Part-II",
@@ -659,7 +875,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "lru-cache",
-      "leetcode": "lru-cache"
+      "leetcode": "lru-cache",
+      "video": "https://www.youtube.com/watch?v=z9bJUPxzFOw",
+      "article": null,
+      "minutes": 25
     },
     {
       "step": "Stack and Queue Part-II",
@@ -668,7 +887,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "lfu-cache",
-      "leetcode": "lfu-cache"
+      "leetcode": "lfu-cache",
+      "video": "https://www.youtube.com/watch?v=0PSB9y8ehbk&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=79",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Stack and Queue Part-II",
@@ -677,7 +899,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "largest-rectangle-in-a-histogram",
-      "leetcode": "largest-rectangle-in-histogram"
+      "leetcode": "largest-rectangle-in-histogram",
+      "video": "https://youtu.be/Bzat9vgD0fs?si=DiBlLejXcr6EJoyB",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/largest-rectangle-in-histogram",
+      "minutes": 31
     },
     {
       "step": "Stack and Queue Part-II",
@@ -686,7 +911,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "sliding-window-maximum",
-      "leetcode": "sliding-window-maximum"
+      "leetcode": "sliding-window-maximum",
+      "video": "https://youtu.be/NwBvene4Imo?si=eU1PY-bcQfk5wdog",
+      "article": null,
+      "minutes": 20
     },
     {
       "step": "Stack and Queue Part-II",
@@ -695,7 +923,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "implement-min-stack",
-      "leetcode": "min-stack"
+      "leetcode": "min-stack",
+      "video": "https://youtu.be/NdDIaH91P0g?si=4_Jbsq5trFvfSdUY",
+      "article": null,
+      "minutes": 21
     },
     {
       "step": "Stack and Queue Part-II",
@@ -704,7 +935,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "rotten-oranges",
-      "leetcode": "rotting-oranges"
+      "leetcode": "rotting-oranges",
+      "video": "https://www.youtube.com/watch?v=yf3oUhkvqA0",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/rotting-oranges",
+      "minutes": 22
     },
     {
       "step": "Stack and Queue Part-II",
@@ -713,7 +947,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "stock-span-problem",
-      "leetcode": "online-stock-span"
+      "leetcode": "online-stock-span",
+      "video": "https://youtu.be/eay-zoSRkVc?si=deNNe5i38BOAntha",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/stock-span-problem",
+      "minutes": 19
     },
     {
       "step": "Stack and Queue Part-II",
@@ -722,7 +959,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "maximum-of-minimums-for-every-window-size",
-      "leetcode": "maximum-of-minimum-values-in-all-subarrays"
+      "leetcode": "maximum-of-minimum-values-in-all-subarrays",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Stack and Queue Part-II",
@@ -731,7 +971,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "celebrity-problem",
-      "leetcode": "find-the-celebrity"
+      "leetcode": "find-the-celebrity",
+      "video": "https://youtu.be/cEadsbTeze4?si=olXYfOs7l-SEn2zl",
+      "article": null,
+      "minutes": 16
     },
     {
       "step": "String",
@@ -740,7 +983,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "reverse-every-word-in-a-string",
-      "leetcode": "reverse-words-in-a-string"
+      "leetcode": "reverse-words-in-a-string",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/reverse-every-word-in-a-string",
+      "minutes": 31
     },
     {
       "step": "String",
@@ -749,7 +995,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-palindrome-in-a-string",
-      "leetcode": "longest-palindromic-substring"
+      "leetcode": "longest-palindromic-substring",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "String",
@@ -758,7 +1007,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "roman-to-integer",
-      "leetcode": "roman-to-integer"
+      "leetcode": "roman-to-integer",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "String",
@@ -767,7 +1019,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "implement-strstr",
-      "leetcode": "string-to-integer-atoi"
+      "leetcode": "string-to-integer-atoi",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "String",
@@ -776,7 +1031,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-common-prefix",
-      "leetcode": "longest-common-prefix"
+      "leetcode": "longest-common-prefix",
+      "video": null,
+      "article": null,
+      "minutes": 11
     },
     {
       "step": "String",
@@ -785,7 +1043,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "rabin-karp-algorithm",
-      "leetcode": "repeated-string-match"
+      "leetcode": "repeated-string-match",
+      "video": null,
+      "article": null,
+      "minutes": 34
     },
     {
       "step": "String Part-II",
@@ -794,7 +1055,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "z-function",
-      "leetcode": null
+      "leetcode": null,
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/z-function",
+      "minutes": 35
     },
     {
       "step": "String Part-II",
@@ -803,7 +1067,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "kmp-algorithm-or-lps-array",
-      "leetcode": "implement-strstr"
+      "leetcode": "implement-strstr",
+      "video": null,
+      "article": null,
+      "minutes": 29
     },
     {
       "step": "String Part-II",
@@ -812,7 +1079,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "minimum-insertions-to-make-string-palindrome",
-      "leetcode": "minimum-insertion-steps-to-make-a-string-palindrome"
+      "leetcode": "minimum-insertion-steps-to-make-a-string-palindrome",
+      "video": "https://www.youtube.com/watch?v=xPBLEj41rFU",
+      "article": null,
+      "minutes": 12
     },
     {
       "step": "String Part-II",
@@ -821,7 +1091,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "valid-anagram",
-      "leetcode": "valid-anagram"
+      "leetcode": "valid-anagram",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/check-if-two-strings-are-anagrams",
+      "minutes": 8
     },
     {
       "step": "String Part-II",
@@ -830,7 +1103,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "count-and-say",
-      "leetcode": "count-and-say"
+      "leetcode": "count-and-say",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/count-and-say",
+      "minutes": 19
     },
     {
       "step": "String Part-II",
@@ -839,7 +1115,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "compare-version-numbers",
-      "leetcode": "compare-version-numbers"
+      "leetcode": "compare-version-numbers",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Binary Tree",
@@ -848,7 +1127,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "inorder-traversal",
-      "leetcode": "binary-tree-inorder-traversal"
+      "leetcode": "binary-tree-inorder-traversal",
+      "video": "https://youtu.be/lxTGsVXjwvM",
+      "article": null,
+      "minutes": 37
     },
     {
       "step": "Binary Tree",
@@ -857,7 +1139,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "postorder-traversal",
-      "leetcode": "binary-tree-postorder-traversal"
+      "leetcode": "binary-tree-postorder-traversal",
+      "video": "https://youtu.be/2YBhNLodD8Q",
+      "article": null,
+      "minutes": 14
     },
     {
       "step": "Binary Tree",
@@ -866,7 +1151,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "morris-inorder-traversal-",
-      "leetcode": "binary-tree-inorder-traversal"
+      "leetcode": "binary-tree-inorder-traversal",
+      "video": "https://youtu.be/80Zug6D1_r4",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/morris-inorder-traversal",
+      "minutes": 19
     },
     {
       "step": "Binary Tree",
@@ -875,7 +1163,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "morris-preorder-traversal-",
-      "leetcode": "binary-tree-preorder-traversal"
+      "leetcode": "binary-tree-preorder-traversal",
+      "video": "https://youtu.be/80Zug6D1_r4",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/morris-preorder-traversal",
+      "minutes": 4
     },
     {
       "step": "Binary Tree",
@@ -884,7 +1175,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "right-left-view-of-bt",
-      "leetcode": "binary-tree-right-side-view"
+      "leetcode": "binary-tree-right-side-view",
+      "video": "https://youtu.be/KV4mRzTjlAk",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/left-and-right-views-of-a-binary-tree",
+      "minutes": 12
     },
     {
       "step": "Binary Tree",
@@ -893,7 +1187,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "bottom-view-of-bt",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/0FtVY6I4pB8",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/bottom-view-of-binary-tree",
+      "minutes": 12
     },
     {
       "step": "Binary Tree",
@@ -902,7 +1199,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "top-view-of-bt",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/Et9OCDNvJ78",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/top-view-of-binary-tree",
+      "minutes": 9
     },
     {
       "step": "Binary Tree",
@@ -911,7 +1211,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "pre,-post,-inorder-in-one-traversal",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/ySp2epYvgTE",
+      "article": null,
+      "minutes": 10
     },
     {
       "step": "Binary Tree",
@@ -920,7 +1223,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "vertical-order-traversal",
-      "leetcode": "vertical-order-traversal-of-a-binary-tree"
+      "leetcode": "vertical-order-traversal-of-a-binary-tree",
+      "video": "https://youtu.be/q_a6lpbKJdw",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/vertical-order-traversal-of-a-binary-tree",
+      "minutes": 18
     },
     {
       "step": "Binary Tree",
@@ -929,7 +1235,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "print-root-to-leaf-path-in-bt",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/fmflMqVOC7k",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/print-root-to-leaf-path-in-binary-tree",
+      "minutes": 10
     },
     {
       "step": "Binary Tree",
@@ -938,7 +1247,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "maximum-width-of-bt",
-      "leetcode": "maximum-width-of-binary-tree"
+      "leetcode": "maximum-width-of-binary-tree",
+      "video": "https://youtu.be/ZbybYvcVLks",
+      "article": null,
+      "minutes": 21
     },
     {
       "step": "Binary Tree part-II",
@@ -947,7 +1259,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "level-order-traversal",
-      "leetcode": "binary-tree-level-order-traversal"
+      "leetcode": "binary-tree-level-order-traversal",
+      "video": "https://youtu.be/EoAsWbO7sqg",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/binary-tree-level-order-traversal",
+      "minutes": 8
     },
     {
       "step": "Binary Tree part-II",
@@ -956,7 +1271,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "maximum-depth-in-bt",
-      "leetcode": "maximum-depth-of-binary-tree"
+      "leetcode": "maximum-depth-of-binary-tree",
+      "video": "https://youtu.be/eD3tmO66aBA",
+      "article": null,
+      "minutes": 7
     },
     {
       "step": "Binary Tree part-II",
@@ -965,7 +1283,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "diameter-of-binary-tree",
-      "leetcode": "diameter-of-binary-tree"
+      "leetcode": "diameter-of-binary-tree",
+      "video": "https://youtu.be/Rezetez59Nk",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/diameter-of-a-binary-tree",
+      "minutes": 13
     },
     {
       "step": "Binary Tree part-II",
@@ -974,7 +1295,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "check-for-balanced-binary-tree",
-      "leetcode": "balanced-binary-tree"
+      "leetcode": "balanced-binary-tree",
+      "video": "https://youtu.be/Yt50Jfbd8Po",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/check-if-a-binary-tree-is-height-balanced",
+      "minutes": 12
     },
     {
       "step": "Binary Tree part-II",
@@ -983,7 +1307,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "lca-in-bt",
-      "leetcode": "lowest-common-ancestor-of-a-binary-tree"
+      "leetcode": "lowest-common-ancestor-of-a-binary-tree",
+      "video": "https://youtu.be/_-QHfMDde90",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/lowest-common-ancestor-in-a-binary-tree",
+      "minutes": 13
     },
     {
       "step": "Binary Tree part-II",
@@ -992,7 +1319,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "check-if-two-trees-are-identical-or-not",
-      "leetcode": "same-tree"
+      "leetcode": "same-tree",
+      "video": "https://youtu.be/BhuvF_-PWS0",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/check-identical-binary-trees",
+      "minutes": 4
     },
     {
       "step": "Binary Tree part-II",
@@ -1001,7 +1331,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "zig-zag-or-spiral-traversal",
-      "leetcode": "binary-tree-zigzag-level-order-traversal"
+      "leetcode": "binary-tree-zigzag-level-order-traversal",
+      "video": "https://youtu.be/3OXWEdlIGl4",
+      "article": null,
+      "minutes": 8
     },
     {
       "step": "Binary Tree part-II",
@@ -1010,7 +1343,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "boundary-traversal",
-      "leetcode": "boundary-of-binary-tree"
+      "leetcode": "boundary-of-binary-tree",
+      "video": "https://youtu.be/0ca1nvR0be4",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/boundary-traversal-of-a-binary-tree",
+      "minutes": 9
     },
     {
       "step": "Binary Tree part-III",
@@ -1019,7 +1355,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "maximum-path-sum-",
-      "leetcode": "binary-tree-maximum-path-sum"
+      "leetcode": "binary-tree-maximum-path-sum",
+      "video": "https://youtu.be/WszrfSwMz58",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/binary-tree-maximum-path-sum",
+      "minutes": 17
     },
     {
       "step": "Binary Tree part-III",
@@ -1028,7 +1367,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "construct-a-bt-from-preorder-and-inorder",
-      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal"
+      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal",
+      "video": "https://youtu.be/aZNaLrVebKQ",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/construct-a-binary-tree-from-preorder-and-inorder",
+      "minutes": 18
     },
     {
       "step": "Binary Tree part-III",
@@ -1037,7 +1379,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "construct-a-bt-from-postorder-and-inorder",
-      "leetcode": "construct-binary-tree-from-inorder-and-postorder-traversal"
+      "leetcode": "construct-binary-tree-from-inorder-and-postorder-traversal",
+      "video": "https://youtu.be/LgLRTaEMRVc",
+      "article": null,
+      "minutes": 19
     },
     {
       "step": "Binary Tree part-III",
@@ -1046,7 +1391,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "flatten-binary-tree-to-linked-list",
-      "leetcode": "flatten-binary-tree-to-linked-list"
+      "leetcode": "flatten-binary-tree-to-linked-list",
+      "video": "https://youtu.be/sWf7k1x9XR4",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/flatten-binary-tree-to-linked-list",
+      "minutes": null
     },
     {
       "step": "Binary Tree part-III",
@@ -1055,7 +1403,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "check-for-symmetrical-bts",
-      "leetcode": "symmetric-tree"
+      "leetcode": "symmetric-tree",
+      "video": "https://www.youtube.com/watch?v=nKggNAiEpBE",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/symmetric-binary-tree",
+      "minutes": 8
     },
     {
       "step": "Binary Tree part-III",
@@ -1064,7 +1415,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "children-sum-property-in-binary-tree",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/fnmisPM6cVo",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Binary Search Tree",
@@ -1073,7 +1427,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "populating-next-right-pointers-in-each-node",
-      "leetcode": "populating-next-right-pointers-in-each-node"
+      "leetcode": "populating-next-right-pointers-in-each-node",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Binary Search Tree",
@@ -1082,7 +1439,10 @@
       "kind": "practice",
       "tier": "basic",
       "tufSlug": "search-in-bst",
-      "leetcode": "search-in-a-binary-search-tree"
+      "leetcode": "search-in-a-binary-search-tree",
+      "video": "https://youtu.be/KcNt6v_56cc",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/search-in-a-binary-search-tree",
+      "minutes": 5
     },
     {
       "step": "Binary Search Tree",
@@ -1091,7 +1451,10 @@
       "kind": "learning",
       "tier": null,
       "tufSlug": "construct-bst-from-given-keys",
-      "leetcode": "convert-sorted-array-to-binary-search-tree"
+      "leetcode": "convert-sorted-array-to-binary-search-tree",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Binary Search Tree",
@@ -1100,7 +1463,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "construct-a-bst-from-a-preorder-traversal",
-      "leetcode": "construct-binary-search-tree-from-preorder-traversal"
+      "leetcode": "construct-binary-search-tree-from-preorder-traversal",
+      "video": "https://youtu.be/UmJT3j26t1I",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/construct-a-bst-from-preorder-traversal",
+      "minutes": 16
     },
     {
       "step": "Binary Search Tree",
@@ -1109,7 +1475,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "check-if-a-tree-is-a-bst-or-not",
-      "leetcode": "validate-binary-search-tree"
+      "leetcode": "validate-binary-search-tree",
+      "video": "https://youtu.be/f-sj7I5oXEI",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/validate-binary-search-tree",
+      "minutes": 9
     },
     {
       "step": "Binary Search Tree",
@@ -1118,7 +1487,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "lca-in-bst",
-      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree"
+      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree",
+      "video": "https://youtu.be/cX_kPV_foZc",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/lowest-common-ancestor-of-a-binary-search-tree",
+      "minutes": 8
     },
     {
       "step": "Binary Search Tree",
@@ -1127,7 +1499,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "inorder-successor-and-predecessor-in-bst",
-      "leetcode": "inorder-successor-in-bst"
+      "leetcode": "inorder-successor-in-bst",
+      "video": "https://youtu.be/SXKAD2svfmI",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/inorder-successor-and-predecessor-in-a-bst",
+      "minutes": 10
     },
     {
       "step": "Binary Search Tree Part-II",
@@ -1136,7 +1511,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "kth-smallest-and-largest-element-in-bst",
-      "leetcode": "kth-smallest-element-in-a-bst"
+      "leetcode": "kth-smallest-element-in-a-bst",
+      "video": "https://youtu.be/9TJYWh0adfk",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/kth-smallest-and-largest-elements-in-a-bst",
+      "minutes": 8
     },
     {
       "step": "Binary Search Tree Part-II",
@@ -1145,7 +1523,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "two-sum-in-bst",
-      "leetcode": "two-sum-iv-input-is-a-bst"
+      "leetcode": "two-sum-iv-input-is-a-bst",
+      "video": "https://youtu.be/ssL3sHwPeb4",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/two-sum-in-bst",
+      "minutes": 14
     },
     {
       "step": "Binary Search Tree Part-II",
@@ -1154,7 +1535,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "bst-iterator",
-      "leetcode": "binary-search-tree-iterator"
+      "leetcode": "binary-search-tree-iterator",
+      "video": "https://youtu.be/D2jMcmxU4bs",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/binary-search-tree-iterator",
+      "minutes": 14
     },
     {
       "step": "Binary Search Tree Part-II",
@@ -1163,7 +1547,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "serialize-and-de-serialize-bt",
-      "leetcode": "serialize-and-deserialize-binary-tree"
+      "leetcode": "serialize-and-deserialize-binary-tree",
+      "video": "https://youtu.be/-YbXySKJsX8",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/serialize-and-deserialize-a-binary-tree",
+      "minutes": 16
     },
     {
       "step": "Binary Trees[Miscellaneous]",
@@ -1172,7 +1559,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "binary-tree-to-doubly-linked-list",
-      "leetcode": "flatten-binary-tree-to-linked-list"
+      "leetcode": "flatten-binary-tree-to-linked-list",
+      "video": "https://www.youtube.com/watch?v=sWf7k1x9XR4&list=PLgUwDviBIf0q8Hkd7bK2Bpryj2xVJk8Vk&index=39",
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Binary Trees[Miscellaneous]",
@@ -1181,7 +1571,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "find-median-in-a-stream",
-      "leetcode": "find-median-from-data-stream"
+      "leetcode": "find-median-from-data-stream",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Binary Trees[Miscellaneous]",
@@ -1190,7 +1583,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "kth-largest-element-in-a-stream-of-running-integers",
-      "leetcode": "kth-largest-element-in-a-stream"
+      "leetcode": "kth-largest-element-in-a-stream",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/kth-largest-element-stream",
+      "minutes": 16
     },
     {
       "step": "Binary Trees[Miscellaneous]",
@@ -1199,7 +1595,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "distinct-numbers-in-each-subarray",
-      "leetcode": "distinct-numbers-in-each-subarray"
+      "leetcode": "distinct-numbers-in-each-subarray",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Graph",
@@ -1208,7 +1607,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "clone-graph",
-      "leetcode": "clone-graph"
+      "leetcode": "clone-graph",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Graph",
@@ -1217,7 +1619,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "traversal-techniques",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/Qzf1a--rhp8",
+      "article": null,
+      "minutes": 39
     },
     {
       "step": "Graph",
@@ -1226,7 +1631,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "bipartite-graph",
-      "leetcode": "is-graph-bipartite"
+      "leetcode": "is-graph-bipartite",
+      "video": "https://youtu.be/KG5YFfR0j8A",
+      "article": null,
+      "minutes": 32
     },
     {
       "step": "Graph Part-II",
@@ -1235,7 +1643,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "dijkstra's-algorithm",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://www.youtube.com/watch?v=rp1SMw7HSO8&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=35",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/dijkstras-algorithm",
+      "minutes": 47
     },
     {
       "step": "Graph Part-II",
@@ -1244,7 +1655,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "bellman-ford-algorithm",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/0vVofAhAYjc",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/bellman-ford-algorithm",
+      "minutes": 27
     },
     {
       "step": "Dynamic Programming",
@@ -1253,7 +1667,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-increasing-subsequence",
-      "leetcode": "longest-increasing-subsequence"
+      "leetcode": "longest-increasing-subsequence",
+      "video": "https://youtu.be/on2hvxBXJH4",
+      "article": null,
+      "minutes": 40
     },
     {
       "step": "Dynamic Programming",
@@ -1262,7 +1679,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-common-subsequence",
-      "leetcode": "longest-common-subsequence"
+      "leetcode": "longest-common-subsequence",
+      "video": "https://youtu.be/-zI4mrF2Pb4",
+      "article": null,
+      "minutes": 46
     },
     {
       "step": "Dynamic Programming",
@@ -1271,7 +1691,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "0-and-1-knapsack",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/GqOmJHQZivw",
+      "article": null,
+      "minutes": 40
     },
     {
       "step": "Dynamic Programming",
@@ -1280,7 +1703,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "edit-distance",
-      "leetcode": "edit-distance"
+      "leetcode": "edit-distance",
+      "video": "https://youtu.be/fJaKO8FbDdo",
+      "article": null,
+      "minutes": 37
     },
     {
       "step": "Dynamic Programming",
@@ -1289,7 +1715,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "maximum-sum-increasing-subsequence",
-      "leetcode": null
+      "leetcode": null,
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Dynamic Programming",
@@ -1298,7 +1727,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "matrix-chain-multiplication",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/vRVfmbCFW7Y",
+      "article": null,
+      "minutes": 61
     },
     {
       "step": "Dynamic Programming Part-II",
@@ -1307,7 +1739,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "coin-change-ii",
-      "leetcode": "coin-change-ii"
+      "leetcode": "coin-change-ii",
+      "video": "https://www.youtube.com/watch?v=HgyouUi11zk",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/coin-change-ii-combinations",
+      "minutes": 22
     },
     {
       "step": "Dynamic Programming Part-II",
@@ -1316,7 +1751,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "subset-sum-equals-to-target",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://www.youtube.com/watch?v=rYkfBRtMJr8&list=PLgUwDviBIf0p4ozDR_kJJkONnb1wdx2Ma&index=52",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/subset-sum-equal-to-target",
+      "minutes": 35
     },
     {
       "step": "Dynamic Programming Part-II",
@@ -1325,7 +1763,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "rod-cutting-problem",
-      "leetcode": null
+      "leetcode": null,
+      "video": "https://youtu.be/mO8XpGoJwuo",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/rod-cutting-problem",
+      "minutes": 22
     },
     {
       "step": "Dynamic Programming Part-II",
@@ -1334,7 +1775,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "super-egg-drop",
-      "leetcode": "super-egg-drop"
+      "leetcode": "super-egg-drop",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Dynamic Programming Part-II",
@@ -1343,7 +1787,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "word-break",
-      "leetcode": "word-break"
+      "leetcode": "word-break",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Dynamic Programming Part-II",
@@ -1352,7 +1799,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "maximum-profit-in-job-scheduling",
-      "leetcode": "maximum-profit-in-job-scheduling"
+      "leetcode": "maximum-profit-in-job-scheduling",
+      "video": null,
+      "article": null,
+      "minutes": null
     },
     {
       "step": "Trie",
@@ -1361,7 +1811,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "trie-implementation-and-operations",
-      "leetcode": "implement-trie-prefix-tree"
+      "leetcode": "implement-trie-prefix-tree",
+      "video": "https://www.youtube.com/watch?v=dBGUmUQhjaM&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/trie-implementation",
+      "minutes": 30
     },
     {
       "step": "Trie",
@@ -1370,7 +1823,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "trie-implementation-and-advanced-operations",
-      "leetcode": "implement-trie-ii-prefix-tree"
+      "leetcode": "implement-trie-ii-prefix-tree",
+      "video": null,
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/trie-ii-count-words-erase",
+      "minutes": 22
     },
     {
       "step": "Trie",
@@ -1379,7 +1835,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "longest-word-with-all-prefixes",
-      "leetcode": "longest-word-with-all-prefixes"
+      "leetcode": "longest-word-with-all-prefixes",
+      "video": "https://www.youtube.com/watch?v=AWnBa91lThI&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=3",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/longest-word-with-all-prefixes",
+      "minutes": 25
     },
     {
       "step": "Trie",
@@ -1388,7 +1847,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "number-of-distinct-substrings-in-a-string",
-      "leetcode": "number-of-distinct-substrings-in-a-string"
+      "leetcode": "number-of-distinct-substrings-in-a-string",
+      "video": "https://www.youtube.com/watch?v=RV0QeTyHZxo&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=4",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/number-of-distinct-substrings-in-a-string",
+      "minutes": 17
     },
     {
       "step": "Trie",
@@ -1397,7 +1859,10 @@
       "kind": "practice",
       "tier": "core",
       "tufSlug": "maximum-xor-of-two-numbers-in-an-array",
-      "leetcode": "maximum-xor-of-two-numbers-in-an-array"
+      "leetcode": "maximum-xor-of-two-numbers-in-an-array",
+      "video": "https://www.youtube.com/watch?v=EIhAwfHubE8&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=6",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/maximum-xor-of-two-numbers-in-an-array",
+      "minutes": 34
     },
     {
       "step": "Trie",
@@ -1406,7 +1871,10 @@
       "kind": "practice",
       "tier": "pro",
       "tufSlug": "maximum-xor-with-an-element-from-an-array",
-      "leetcode": "maximum-xor-with-an-element-from-array"
+      "leetcode": "maximum-xor-with-an-element-from-array",
+      "video": "https://www.youtube.com/watch?v=Q8LhG9Pi5KM&list=PLgUwDviBIf0pcIDCZnxhv0LkHf5KzG9zp&index=7",
+      "article": "https://takeuforward.org/blogs/data-structure-and-algorithm/maximum-xor-queries-trie",
+      "minutes": 23
     }
   ]
 }

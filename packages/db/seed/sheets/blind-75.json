@@ -2,7 +2,7 @@
   "name": "Blind 75",
   "author": "NeetCode",
   "sourceUrl": "https://neetcode.io/practice/practice/blind75",
-  "extractedAt": "2026-10-25",
+  "extractedAt": "2026-10-26",
   "items": [
     {
       "step": "Arrays & Hashing",
@@ -10,7 +10,9 @@
       "title": "Contains Duplicate",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "contains-duplicate"
+      "leetcode": "contains-duplicate",
+      "video": "https://youtu.be/3OamzN90kPg",
+      "neetcode": "https://neetcode.io/problems/duplicate-integer"
     },
     {
       "step": "Arrays & Hashing",
@@ -18,7 +20,9 @@
       "title": "Valid Anagram",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "valid-anagram"
+      "leetcode": "valid-anagram",
+      "video": "https://youtu.be/9UtInBqnCgA",
+      "neetcode": "https://neetcode.io/problems/is-anagram"
     },
     {
       "step": "Arrays & Hashing",
@@ -26,7 +30,9 @@
       "title": "Two Sum",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "two-sum"
+      "leetcode": "two-sum",
+      "video": "https://youtu.be/KLlXCFG5TnA",
+      "neetcode": "https://neetcode.io/problems/two-integer-sum"
     },
     {
       "step": "Arrays & Hashing",
@@ -34,7 +40,9 @@
       "title": "Group Anagrams",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "group-anagrams"
+      "leetcode": "group-anagrams",
+      "video": "https://youtu.be/vzdNOK2oB2E",
+      "neetcode": "https://neetcode.io/problems/anagram-groups"
     },
     {
       "step": "Arrays & Hashing",
@@ -42,7 +50,9 @@
       "title": "Top K Frequent Elements",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "top-k-frequent-elements"
+      "leetcode": "top-k-frequent-elements",
+      "video": "https://youtu.be/YPTqKIgVk-k",
+      "neetcode": "https://neetcode.io/problems/top-k-elements-in-list"
     },
     {
       "step": "Arrays & Hashing",
@@ -50,7 +60,9 @@
       "title": "Encode and Decode Strings",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "encode-and-decode-strings"
+      "leetcode": "encode-and-decode-strings",
+      "video": "https://youtu.be/B1k_sxOSgv8",
+      "neetcode": "https://neetcode.io/problems/string-encode-and-decode"
     },
     {
       "step": "Arrays & Hashing",
@@ -58,7 +70,9 @@
       "title": "Product of Array Except Self",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "product-of-array-except-self"
+      "leetcode": "product-of-array-except-self",
+      "video": "https://youtu.be/bNvIQI2wAjk",
+      "neetcode": "https://neetcode.io/problems/products-of-array-discluding-self"
     },
     {
       "step": "Arrays & Hashing",
@@ -66,7 +80,9 @@
       "title": "Longest Consecutive Sequence",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "longest-consecutive-sequence"
+      "leetcode": "longest-consecutive-sequence",
+      "video": "https://youtu.be/P6RZZMu_maU",
+      "neetcode": "https://neetcode.io/problems/longest-consecutive-sequence"
     },
     {
       "step": "Two Pointers",
@@ -74,7 +90,9 @@
       "title": "Valid Palindrome",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "valid-palindrome"
+      "leetcode": "valid-palindrome",
+      "video": "https://youtu.be/jJXJ16kPFWg",
+      "neetcode": "https://neetcode.io/problems/is-palindrome"
     },
     {
       "step": "Two Pointers",
@@ -82,7 +100,9 @@
       "title": "3Sum",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "3sum"
+      "leetcode": "3sum",
+      "video": "https://youtu.be/jzZsG8n2R9A",
+      "neetcode": "https://neetcode.io/problems/three-integer-sum"
     },
     {
       "step": "Two Pointers",
@@ -90,7 +110,9 @@
       "title": "Container With Most Water",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "container-with-most-water"
+      "leetcode": "container-with-most-water",
+      "video": "https://youtu.be/UuiTKBwPgAo",
+      "neetcode": "https://neetcode.io/problems/max-water-container"
     },
     {
       "step": "Sliding Window",
@@ -98,7 +120,9 @@
       "title": "Best Time to Buy And Sell Stock",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "best-time-to-buy-and-sell-stock"
+      "leetcode": "best-time-to-buy-and-sell-stock",
+      "video": "https://youtu.be/1pkOgXD63yU",
+      "neetcode": "https://neetcode.io/problems/buy-and-sell-crypto"
     },
     {
       "step": "Sliding Window",
@@ -106,7 +130,9 @@
       "title": "Longest Substring Without Repeating Characters",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "longest-substring-without-repeating-characters"
+      "leetcode": "longest-substring-without-repeating-characters",
+      "video": "https://youtu.be/wiGpQwVHdE0",
+      "neetcode": "https://neetcode.io/problems/longest-substring-without-duplicates"
     },
     {
       "step": "Sliding Window",
@@ -114,7 +140,9 @@
       "title": "Longest Repeating Character Replacement",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "longest-repeating-character-replacement"
+      "leetcode": "longest-repeating-character-replacement",
+      "video": "https://youtu.be/gqXU1UyA8pk",
+      "neetcode": "https://neetcode.io/problems/longest-repeating-substring-with-replacement"
     },
     {
       "step": "Sliding Window",
@@ -122,7 +150,9 @@
       "title": "Minimum Window Substring",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "minimum-window-substring"
+      "leetcode": "minimum-window-substring",
+      "video": "https://youtu.be/jSto0O4AJbM",
+      "neetcode": "https://neetcode.io/problems/minimum-window-with-characters"
     },
     {
       "step": "Stack",
@@ -130,7 +160,9 @@
       "title": "Valid Parentheses",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "valid-parentheses"
+      "leetcode": "valid-parentheses",
+      "video": "https://youtu.be/WTzjTskDFMg",
+      "neetcode": "https://neetcode.io/problems/validate-parentheses"
     },
     {
       "step": "Binary Search",
@@ -138,7 +170,9 @@
       "title": "Find Minimum In Rotated Sorted Array",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "find-minimum-in-rotated-sorted-array"
+      "leetcode": "find-minimum-in-rotated-sorted-array",
+      "video": "https://youtu.be/nIVW4P8b1VA",
+      "neetcode": "https://neetcode.io/problems/find-minimum-in-rotated-sorted-array"
     },
     {
       "step": "Binary Search",
@@ -146,7 +180,9 @@
       "title": "Search In Rotated Sorted Array",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "search-in-rotated-sorted-array"
+      "leetcode": "search-in-rotated-sorted-array",
+      "video": "https://youtu.be/U8XENwh8Oy8",
+      "neetcode": "https://neetcode.io/problems/find-target-in-rotated-sorted-array"
     },
     {
       "step": "Linked List",
@@ -154,7 +190,9 @@
       "title": "Reverse Linked List",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "reverse-linked-list"
+      "leetcode": "reverse-linked-list",
+      "video": "https://youtu.be/G0_I-ZF0S38",
+      "neetcode": "https://neetcode.io/problems/reverse-a-linked-list"
     },
     {
       "step": "Linked List",
@@ -162,7 +200,9 @@
       "title": "Merge Two Sorted Lists",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "merge-two-sorted-lists"
+      "leetcode": "merge-two-sorted-lists",
+      "video": "https://youtu.be/XIdigk956u0",
+      "neetcode": "https://neetcode.io/problems/merge-two-sorted-linked-lists"
     },
     {
       "step": "Linked List",
@@ -170,7 +210,9 @@
       "title": "Linked List Cycle",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "linked-list-cycle"
+      "leetcode": "linked-list-cycle",
+      "video": "https://youtu.be/gBTe7lFR3vc",
+      "neetcode": "https://neetcode.io/problems/linked-list-cycle-detection"
     },
     {
       "step": "Linked List",
@@ -178,7 +220,9 @@
       "title": "Reorder List",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "reorder-list"
+      "leetcode": "reorder-list",
+      "video": "https://youtu.be/S5bfdUTrKLM",
+      "neetcode": "https://neetcode.io/problems/reorder-linked-list"
     },
     {
       "step": "Linked List",
@@ -186,7 +230,9 @@
       "title": "Remove Nth Node From End of List",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "remove-nth-node-from-end-of-list"
+      "leetcode": "remove-nth-node-from-end-of-list",
+      "video": "https://youtu.be/XVuQxVej6y8",
+      "neetcode": "https://neetcode.io/problems/remove-node-from-end-of-linked-list"
     },
     {
       "step": "Linked List",
@@ -194,7 +240,9 @@
       "title": "Merge K Sorted Lists",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "merge-k-sorted-lists"
+      "leetcode": "merge-k-sorted-lists",
+      "video": "https://youtu.be/q5a5OiGbT6Q",
+      "neetcode": "https://neetcode.io/problems/merge-k-sorted-linked-lists"
     },
     {
       "step": "Trees",
@@ -202,7 +250,9 @@
       "title": "Invert Binary Tree",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "invert-binary-tree"
+      "leetcode": "invert-binary-tree",
+      "video": "https://youtu.be/OnSn2XEQ4MY",
+      "neetcode": "https://neetcode.io/problems/invert-a-binary-tree"
     },
     {
       "step": "Trees",
@@ -210,7 +260,9 @@
       "title": "Maximum Depth of Binary Tree",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "maximum-depth-of-binary-tree"
+      "leetcode": "maximum-depth-of-binary-tree",
+      "video": "https://youtu.be/hTM3phVI6YQ",
+      "neetcode": "https://neetcode.io/problems/depth-of-binary-tree"
     },
     {
       "step": "Trees",
@@ -218,7 +270,9 @@
       "title": "Same Tree",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "same-tree"
+      "leetcode": "same-tree",
+      "video": "https://youtu.be/vRbbcKXCxOw",
+      "neetcode": "https://neetcode.io/problems/same-binary-tree"
     },
     {
       "step": "Trees",
@@ -226,7 +280,9 @@
       "title": "Subtree of Another Tree",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "subtree-of-another-tree"
+      "leetcode": "subtree-of-another-tree",
+      "video": "https://youtu.be/E36O5SWp-LE",
+      "neetcode": "https://neetcode.io/problems/subtree-of-a-binary-tree"
     },
     {
       "step": "Trees",
@@ -234,7 +290,9 @@
       "title": "Lowest Common Ancestor of a Binary Search Tree",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree"
+      "leetcode": "lowest-common-ancestor-of-a-binary-search-tree",
+      "video": "https://youtu.be/gs2LMfuOR9k",
+      "neetcode": "https://neetcode.io/problems/lowest-common-ancestor-in-binary-search-tree"
     },
     {
       "step": "Trees",
@@ -242,7 +300,9 @@
       "title": "Binary Tree Level Order Traversal",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "binary-tree-level-order-traversal"
+      "leetcode": "binary-tree-level-order-traversal",
+      "video": "https://youtu.be/6ZnyEApgFYg",
+      "neetcode": "https://neetcode.io/problems/level-order-traversal-of-binary-tree"
     },
     {
       "step": "Trees",
@@ -250,7 +310,9 @@
       "title": "Validate Binary Search Tree",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "validate-binary-search-tree"
+      "leetcode": "validate-binary-search-tree",
+      "video": "https://youtu.be/s6ATEkipzow",
+      "neetcode": "https://neetcode.io/problems/valid-binary-search-tree"
     },
     {
       "step": "Trees",
@@ -258,7 +320,9 @@
       "title": "Kth Smallest Element In a Bst",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "kth-smallest-element-in-a-bst"
+      "leetcode": "kth-smallest-element-in-a-bst",
+      "video": "https://youtu.be/5LUXSvjmGCw",
+      "neetcode": "https://neetcode.io/problems/kth-smallest-integer-in-bst"
     },
     {
       "step": "Trees",
@@ -266,7 +330,9 @@
       "title": "Construct Binary Tree From Preorder And Inorder Traversal",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal"
+      "leetcode": "construct-binary-tree-from-preorder-and-inorder-traversal",
+      "video": "https://youtu.be/ihj4IQGZ2zc",
+      "neetcode": "https://neetcode.io/problems/binary-tree-from-preorder-and-inorder-traversal"
     },
     {
       "step": "Trees",
@@ -274,7 +340,9 @@
       "title": "Binary Tree Maximum Path Sum",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "binary-tree-maximum-path-sum"
+      "leetcode": "binary-tree-maximum-path-sum",
+      "video": "https://youtu.be/Hr5cWUld4vU",
+      "neetcode": "https://neetcode.io/problems/binary-tree-maximum-path-sum"
     },
     {
       "step": "Trees",
@@ -282,7 +350,9 @@
       "title": "Serialize And Deserialize Binary Tree",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "serialize-and-deserialize-binary-tree"
+      "leetcode": "serialize-and-deserialize-binary-tree",
+      "video": "https://youtu.be/u4JAi2JJhI8",
+      "neetcode": "https://neetcode.io/problems/serialize-and-deserialize-binary-tree"
     },
     {
       "step": "Heap / Priority Queue",
@@ -290,7 +360,9 @@
       "title": "Find Median From Data Stream",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "find-median-from-data-stream"
+      "leetcode": "find-median-from-data-stream",
+      "video": "https://youtu.be/itmhHWaHupI",
+      "neetcode": "https://neetcode.io/problems/find-median-in-a-data-stream"
     },
     {
       "step": "Backtracking",
@@ -298,7 +370,9 @@
       "title": "Combination Sum",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "combination-sum"
+      "leetcode": "combination-sum",
+      "video": "https://youtu.be/GBKI9VSKdGg",
+      "neetcode": "https://neetcode.io/problems/combination-target-sum"
     },
     {
       "step": "Backtracking",
@@ -306,7 +380,9 @@
       "title": "Word Search",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "word-search"
+      "leetcode": "word-search",
+      "video": "https://youtu.be/pfiQ_PS1g8E",
+      "neetcode": "https://neetcode.io/problems/search-for-word"
     },
     {
       "step": "Tries",
@@ -314,7 +390,9 @@
       "title": "Implement Trie Prefix Tree",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "implement-trie-prefix-tree"
+      "leetcode": "implement-trie-prefix-tree",
+      "video": "https://youtu.be/oobqoCJlHA0",
+      "neetcode": "https://neetcode.io/problems/implement-prefix-tree"
     },
     {
       "step": "Tries",
@@ -322,7 +400,9 @@
       "title": "Design Add And Search Words Data Structure",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "design-add-and-search-words-data-structure"
+      "leetcode": "design-add-and-search-words-data-structure",
+      "video": "https://youtu.be/BTf05gs_8iU",
+      "neetcode": "https://neetcode.io/problems/design-word-search-data-structure"
     },
     {
       "step": "Tries",
@@ -330,7 +410,9 @@
       "title": "Word Search II",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "word-search-ii"
+      "leetcode": "word-search-ii",
+      "video": "https://youtu.be/asbcE9mZz_U",
+      "neetcode": "https://neetcode.io/problems/search-for-word-ii"
     },
     {
       "step": "Graphs",
@@ -338,7 +420,9 @@
       "title": "Number of Islands",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "number-of-islands"
+      "leetcode": "number-of-islands",
+      "video": "https://youtu.be/pV2kpPD66nE",
+      "neetcode": "https://neetcode.io/problems/count-number-of-islands"
     },
     {
       "step": "Graphs",
@@ -346,7 +430,9 @@
       "title": "Clone Graph",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "clone-graph"
+      "leetcode": "clone-graph",
+      "video": "https://youtu.be/mQeF6bN8hMk",
+      "neetcode": "https://neetcode.io/problems/clone-graph"
     },
     {
       "step": "Graphs",
@@ -354,7 +440,9 @@
       "title": "Pacific Atlantic Water Flow",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "pacific-atlantic-water-flow"
+      "leetcode": "pacific-atlantic-water-flow",
+      "video": "https://youtu.be/s-VkcjHqkGI",
+      "neetcode": "https://neetcode.io/problems/pacific-atlantic-water-flow"
     },
     {
       "step": "Graphs",
@@ -362,7 +450,9 @@
       "title": "Course Schedule",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "course-schedule"
+      "leetcode": "course-schedule",
+      "video": "https://youtu.be/EgI5nU9etnU",
+      "neetcode": "https://neetcode.io/problems/course-schedule"
     },
     {
       "step": "Graphs",
@@ -370,7 +460,9 @@
       "title": "Graph Valid Tree",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "graph-valid-tree"
+      "leetcode": "graph-valid-tree",
+      "video": "https://youtu.be/bXsUuownnoQ",
+      "neetcode": "https://neetcode.io/problems/valid-tree"
     },
     {
       "step": "Graphs",
@@ -378,7 +470,9 @@
       "title": "Number of Connected Components In An Undirected Graph",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "number-of-connected-components-in-an-undirected-graph"
+      "leetcode": "number-of-connected-components-in-an-undirected-graph",
+      "video": "https://youtu.be/8f1XPm4WOUc",
+      "neetcode": "https://neetcode.io/problems/count-connected-components"
     },
     {
       "step": "Advanced Graphs",
@@ -386,7 +480,9 @@
       "title": "Alien Dictionary",
       "kind": "practice",
       "tier": "hard",
-      "leetcode": "alien-dictionary"
+      "leetcode": "alien-dictionary",
+      "video": "https://youtu.be/6kTZYvNNyps",
+      "neetcode": "https://neetcode.io/problems/foreign-dictionary"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -394,7 +490,9 @@
       "title": "Climbing Stairs",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "climbing-stairs"
+      "leetcode": "climbing-stairs",
+      "video": "https://youtu.be/Y0lT9Fck7qI",
+      "neetcode": "https://neetcode.io/problems/climbing-stairs"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -402,7 +500,9 @@
       "title": "House Robber",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "house-robber"
+      "leetcode": "house-robber",
+      "video": "https://youtu.be/73r3KWiEvyk",
+      "neetcode": "https://neetcode.io/problems/house-robber"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -410,7 +510,9 @@
       "title": "House Robber II",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "house-robber-ii"
+      "leetcode": "house-robber-ii",
+      "video": "https://youtu.be/rWAJCfYYOvM",
+      "neetcode": "https://neetcode.io/problems/house-robber-ii"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -418,7 +520,9 @@
       "title": "Longest Palindromic Substring",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "longest-palindromic-substring"
+      "leetcode": "longest-palindromic-substring",
+      "video": "https://youtu.be/XYQecbcd6_c",
+      "neetcode": "https://neetcode.io/problems/longest-palindromic-substring"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -426,7 +530,9 @@
       "title": "Palindromic Substrings",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "palindromic-substrings"
+      "leetcode": "palindromic-substrings",
+      "video": "https://youtu.be/4RACzI5-du8",
+      "neetcode": "https://neetcode.io/problems/palindromic-substrings"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -434,7 +540,9 @@
       "title": "Decode Ways",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "decode-ways"
+      "leetcode": "decode-ways",
+      "video": "https://youtu.be/6aEyTjOwlJU",
+      "neetcode": "https://neetcode.io/problems/decode-ways"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -442,7 +550,9 @@
       "title": "Coin Change",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "coin-change"
+      "leetcode": "coin-change",
+      "video": "https://youtu.be/H9bfqozjoqs",
+      "neetcode": "https://neetcode.io/problems/coin-change"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -450,7 +560,9 @@
       "title": "Maximum Product Subarray",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "maximum-product-subarray"
+      "leetcode": "maximum-product-subarray",
+      "video": "https://youtu.be/lXVy6YWFcRM",
+      "neetcode": "https://neetcode.io/problems/maximum-product-subarray"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -458,7 +570,9 @@
       "title": "Word Break",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "word-break"
+      "leetcode": "word-break",
+      "video": "https://youtu.be/Sx9NNgInc3A",
+      "neetcode": "https://neetcode.io/problems/word-break"
     },
     {
       "step": "1-D Dynamic Programming",
@@ -466,7 +580,9 @@
       "title": "Longest Increasing Subsequence",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "longest-increasing-subsequence"
+      "leetcode": "longest-increasing-subsequence",
+      "video": "https://youtu.be/cjWnW0hdF1Y",
+      "neetcode": "https://neetcode.io/problems/longest-increasing-subsequence"
     },
     {
       "step": "2-D Dynamic Programming",
@@ -474,7 +590,9 @@
       "title": "Unique Paths",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "unique-paths"
+      "leetcode": "unique-paths",
+      "video": "https://youtu.be/IlEsdxuD4lY",
+      "neetcode": "https://neetcode.io/problems/count-paths"
     },
     {
       "step": "2-D Dynamic Programming",
@@ -482,7 +600,9 @@
       "title": "Longest Common Subsequence",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "longest-common-subsequence"
+      "leetcode": "longest-common-subsequence",
+      "video": "https://youtu.be/Ua0GhsJSlWM",
+      "neetcode": "https://neetcode.io/problems/longest-common-subsequence"
     },
     {
       "step": "Greedy",
@@ -490,7 +610,9 @@
       "title": "Maximum Subarray",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "maximum-subarray"
+      "leetcode": "maximum-subarray",
+      "video": "https://youtu.be/5WZl3MMT0Eg",
+      "neetcode": "https://neetcode.io/problems/maximum-subarray"
     },
     {
       "step": "Greedy",
@@ -498,7 +620,9 @@
       "title": "Jump Game",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "jump-game"
+      "leetcode": "jump-game",
+      "video": "https://youtu.be/Yan0cv2cLy8",
+      "neetcode": "https://neetcode.io/problems/jump-game"
     },
     {
       "step": "Intervals",
@@ -506,7 +630,9 @@
       "title": "Insert Interval",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "insert-interval"
+      "leetcode": "insert-interval",
+      "video": "https://youtu.be/A8NUOmlwOlM",
+      "neetcode": "https://neetcode.io/problems/insert-new-interval"
     },
     {
       "step": "Intervals",
@@ -514,7 +640,9 @@
       "title": "Merge Intervals",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "merge-intervals"
+      "leetcode": "merge-intervals",
+      "video": "https://youtu.be/44H3cEC2fFM",
+      "neetcode": "https://neetcode.io/problems/merge-intervals"
     },
     {
       "step": "Intervals",
@@ -522,7 +650,9 @@
       "title": "Non Overlapping Intervals",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "non-overlapping-intervals"
+      "leetcode": "non-overlapping-intervals",
+      "video": "https://youtu.be/nONCGxWoUfM",
+      "neetcode": "https://neetcode.io/problems/non-overlapping-intervals"
     },
     {
       "step": "Intervals",
@@ -530,7 +660,9 @@
       "title": "Meeting Rooms",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "meeting-rooms"
+      "leetcode": "meeting-rooms",
+      "video": "https://youtu.be/PaJxqZVPhbg",
+      "neetcode": "https://neetcode.io/problems/meeting-schedule"
     },
     {
       "step": "Intervals",
@@ -538,7 +670,9 @@
       "title": "Meeting Rooms II",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "meeting-rooms-ii"
+      "leetcode": "meeting-rooms-ii",
+      "video": "https://youtu.be/FdzJmTCVyJU",
+      "neetcode": "https://neetcode.io/problems/meeting-schedule-ii"
     },
     {
       "step": "Math & Geometry",
@@ -546,7 +680,9 @@
       "title": "Rotate Image",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "rotate-image"
+      "leetcode": "rotate-image",
+      "video": "https://youtu.be/fMSJSS7eO1w",
+      "neetcode": "https://neetcode.io/problems/rotate-matrix"
     },
     {
       "step": "Math & Geometry",
@@ -554,7 +690,9 @@
       "title": "Spiral Matrix",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "spiral-matrix"
+      "leetcode": "spiral-matrix",
+      "video": "https://youtu.be/BJnMZNwUk1M",
+      "neetcode": "https://neetcode.io/problems/spiral-matrix"
     },
     {
       "step": "Math & Geometry",
@@ -562,7 +700,9 @@
       "title": "Set Matrix Zeroes",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "set-matrix-zeroes"
+      "leetcode": "set-matrix-zeroes",
+      "video": "https://youtu.be/T41rL0L3Pnw",
+      "neetcode": "https://neetcode.io/problems/set-zeroes-in-matrix"
     },
     {
       "step": "Bit Manipulation",
@@ -570,7 +710,9 @@
       "title": "Number of 1 Bits",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "number-of-1-bits"
+      "leetcode": "number-of-1-bits",
+      "video": "https://youtu.be/5Km3utixwZs",
+      "neetcode": "https://neetcode.io/problems/number-of-one-bits"
     },
     {
       "step": "Bit Manipulation",
@@ -578,7 +720,9 @@
       "title": "Counting Bits",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "counting-bits"
+      "leetcode": "counting-bits",
+      "video": "https://youtu.be/RyBM56RIWrM",
+      "neetcode": "https://neetcode.io/problems/counting-bits"
     },
     {
       "step": "Bit Manipulation",
@@ -586,7 +730,9 @@
       "title": "Reverse Bits",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "reverse-bits"
+      "leetcode": "reverse-bits",
+      "video": "https://youtu.be/UcoN6UjAI64",
+      "neetcode": "https://neetcode.io/problems/reverse-bits"
     },
     {
       "step": "Bit Manipulation",
@@ -594,7 +740,9 @@
       "title": "Missing Number",
       "kind": "practice",
       "tier": "easy",
-      "leetcode": "missing-number"
+      "leetcode": "missing-number",
+      "video": "https://youtu.be/WnPLSRLSANE",
+      "neetcode": "https://neetcode.io/problems/missing-number"
     },
     {
       "step": "Bit Manipulation",
@@ -602,7 +750,9 @@
       "title": "Sum of Two Integers",
       "kind": "practice",
       "tier": "medium",
-      "leetcode": "sum-of-two-integers"
+      "leetcode": "sum-of-two-integers",
+      "video": "https://youtu.be/gVUrDV4tZfY",
+      "neetcode": "https://neetcode.io/problems/sum-of-two-integers"
     }
   ]
 }

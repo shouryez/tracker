@@ -307,6 +307,7 @@ Estimates assume one student developer working around 15–20 h/week. Each phase
 - [x] Extension on GFG: timer + verdicts read from the result panel after Submit
 - [x] Strict title matching (order-aware for "X to Y" titles); LeetCode–GFG twins share one canonical problem, Striver's non-LeetCode items link to GFG when matched, else takeUforward
 - [x] Sheet page redesign: table per step, search, To do/Done and difficulty filters, platform link buttons
+- [x] Sheet page v2 (27 Oct 2026): Step → section tree with progress and time left per step; every row has the creator's video (plays in-page at the right timestamp), article, practice page, LeetCode and GFG; quick notes, stars, "revise" badges from the revision queue, "Continue where you left off". Links only: videos and articles stay on YouTube/takeUforward/NeetCode
 - **Exit:** ✅ solving a problem on GFG ticks the sheet items linked to it (verified with a public profile: A2Z 78, SDE 41, NeetCode 150 24).
 
 ### Phase 4 — Learning engine (3 weeks) ✅ built 26 Oct 2026

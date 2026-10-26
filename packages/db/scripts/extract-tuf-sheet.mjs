@@ -1,6 +1,7 @@
 // Extracts a takeUforward sheet (e.g. Striver's A2Z / SDE) into seed JSON.
-// Reads only the public sheet page; keeps problem names, sections, LeetCode
-// slugs and tiers. No videos, articles or editorial content.
+// Reads only the public sheet page; keeps problem names, sections, tiers, the
+// estimated time, and links: LeetCode, Striver's YouTube video and his free
+// article. Links only, never the videos' or articles' content.
 //
 //   node scripts/extract-tuf-sheet.mjs strivers-a2z-dsa-sheet striver-a2z
 //
@@ -55,6 +56,18 @@ const row = (r) => Object.fromEntries(sy.fields[r[0]].map((k, i) => [k, r[i + 1]
 const leetcodeSlug = (u) =>
   (typeof u === "string" && /leetcode\.com\/problems\/([a-z0-9-]+)/.exec(u)?.[1]) || null;
 
+/** Keeps only YouTube links (they carry a ?t= start time). */
+const youtubeUrl = (u) =>
+  typeof u === "string" && /^https:\/\/(www\.)?(youtu\.be|youtube\.com)\//.test(u) ? u : null;
+/** Free articles are site-relative paths like /blogs/…. */
+const articleUrl = (u) =>
+  typeof u === "string" && u.startsWith("/blogs/") ? `https://takeuforward.org${u}` : null;
+/** "17 min" → 17. */
+const minutesOf = (d) => {
+  const m = typeof d === "string" ? /(\d+)\s*min/.exec(d) : null;
+  return m ? Number(m[1]) : null;
+};
+
 const items = [];
 const walk = (index, path) => {
   const r = row(sy.rows[index]);
@@ -67,6 +80,9 @@ const walk = (index, path) => {
       tier: r.difficulty ?? null,
       tufSlug: r.slug,
       leetcode: leetcodeSlug(r.leetcode_link),
+      video: youtubeUrl(r.yt_video),
+      article: articleUrl(r.free_blog_link),
+      minutes: minutesOf(r.duration),
     });
     return;
   }
@@ -96,4 +112,8 @@ writeFileSync(
   ) + "\n",
 );
 const withLc = items.filter((i) => i.leetcode).length;
-console.log(`${out}: ${items.length} items (${withLc} with LeetCode links) → ${file.pathname}`);
+const withVideo = items.filter((i) => i.video).length;
+const withArticle = items.filter((i) => i.article).length;
+console.log(
+  `${out}: ${items.length} items (${withLc} LeetCode, ${withVideo} videos, ${withArticle} articles) → ${file.pathname}`,
+);

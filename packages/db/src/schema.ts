@@ -346,7 +346,9 @@ export const sheets = pgTable(
 export const sheetItemKind = pgEnum("sheet_item_kind", ["practice", "learning"]);
 
 export type SheetItemLink = {
-  site: "leetcode" | "geeksforgeeks" | "takeuforward" | "source";
+  /** Places to solve it, then places to learn it (the creator's video and article). */
+  site:
+    "leetcode" | "geeksforgeeks" | "takeuforward" | "neetcode" | "source" | "youtube" | "article";
   url: string;
 };
 
@@ -372,6 +374,8 @@ export const sheetItems = pgTable(
       .$type<SheetItemLink[]>()
       .notNull()
       .default(sql`'[]'::jsonb`),
+    /** The sheet's own time estimate (Striver: "17 min"). */
+    minutes: integer("minutes"),
     /** Canonical problem, when it exists on a platform we track. Null = tick manually. */
     problemId: uuid("problem_id").references(() => problems.id, { onDelete: "set null" }),
   },
@@ -399,6 +403,20 @@ export const userSheets = pgTable(
 /** Items a user ticked by hand (problems we can't detect automatically). */
 export const sheetMarks = pgTable(
   "sheet_marks",
+  {
+    userId: userRef(),
+    sheetId: uuid("sheet_id")
+      .notNull()
+      .references(() => sheets.id, { onDelete: "cascade" }),
+    itemKey: text("item_key").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.sheetId, t.itemKey] }), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** Items a user starred to come back to (the sheet's "bookmark"). */
+export const sheetStars = pgTable(
+  "sheet_stars",
   {
     userId: userRef(),
     sheetId: uuid("sheet_id")

@@ -1,7 +1,8 @@
 // Extracts NeetCode's lists (Blind 75, NeetCode 150) into seed JSON.
 // The problem list ships inside neetcode.io's JS bundle as entries like
 //   {problem:"Two Sum",pattern:"Arrays & Hashing",link:"two-sum/",difficulty:"Easy",neetcode150:!0,blind75:!0,…}
-// We keep only names, patterns, LeetCode slugs and difficulty.
+// We keep names, patterns, difficulty and links: LeetCode, NeetCode's own
+// problem page and his YouTube explanation. Links only, never the content.
 //
 //   node scripts/extract-neetcode-sheets.mjs
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -24,6 +25,8 @@ for (const m of js.matchAll(
     difficulty: /difficulty:"(Easy|Medium|Hard)"/.exec(body)?.[1]?.toLowerCase() ?? null,
     blind75: /\bblind75:!0/.test(body),
     neetcode150: /\bneetcode150:!0/.test(body),
+    video: /video:"([\w-]{11})"/.exec(body)?.[1] ?? null,
+    ncLink: /ncLink:"([a-z0-9-]+)\/"/.exec(body)?.[1] ?? null,
   });
 }
 
@@ -56,6 +59,8 @@ for (const sheet of SHEETS) {
       kind: "practice",
       tier: e.difficulty,
       leetcode: e.leetcode,
+      video: e.video ? `https://youtu.be/${e.video}` : null,
+      neetcode: e.ncLink ? `https://neetcode.io/problems/${e.ncLink}` : null,
     }));
   if (items.length !== sheet.expected) {
     throw new Error(`${sheet.name}: found ${items.length} problems, expected ${sheet.expected}`);
@@ -76,6 +81,6 @@ for (const sheet of SHEETS) {
     ) + "\n",
   );
   console.log(
-    `${sheet.out}: ${items.length} problems in ${new Set(items.map((i) => i.step)).size} patterns`,
+    `${sheet.out}: ${items.length} problems in ${new Set(items.map((i) => i.step)).size} patterns, ${items.filter((i) => i.video).length} videos`,
   );
 }

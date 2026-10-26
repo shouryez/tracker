@@ -31,6 +31,7 @@ import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { getLearning } from "@/lib/learning";
+import type { SheetItemLink } from "@upsolve/db";
 import { getProblemDetail, type ProblemDetail } from "@/lib/problem-data";
 import { formatDuration } from "@/lib/sessions-data";
 import { localDay, requestNow } from "@/lib/time";
@@ -50,11 +51,14 @@ const VERDICT_TONE: Record<ProblemDetail["submissions"][number]["verdict"], TagT
   OTHER: "neutral",
 };
 const INDEPENDENCE = { solo: "solo", hint: "used a hint", solution: "saw the solution" } as const;
-const SITE_LABEL = {
+const SITE_LABEL: Record<SheetItemLink["site"], string> = {
   leetcode: "LeetCode",
   geeksforgeeks: "GFG",
   takeuforward: "takeUforward",
+  neetcode: "NeetCode",
   source: "Source",
+  youtube: "Video explanation",
+  article: "Article",
 };
 
 export default function ProblemPage({ params }: PageProps<"/dashboard/problems/[id]">) {
@@ -288,7 +292,8 @@ async function ProblemContent({
                 .flatMap((s) => s.links)
                 .filter(
                   (l, i, all) =>
-                    l.site === "takeuforward" && all.findIndex((x) => x.url === l.url) === i,
+                    ["takeuforward", "neetcode", "youtube", "article"].includes(l.site) &&
+                    all.findIndex((x) => x.url === l.url) === i,
                 )
                 .map((l) => (
                   <a

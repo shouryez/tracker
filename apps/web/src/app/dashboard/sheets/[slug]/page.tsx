@@ -5,10 +5,13 @@ import { Suspense } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Card, CardSub } from "@upsolve/ui";
 import { formatEta, SegmentedProgress } from "@/components/progress";
-import { SheetBrowser } from "@/components/sheet-browser";
+import { SheetBrowser, type ItemReview } from "@/components/sheet-browser";
 import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { getProfile } from "@/lib/data";
+import { getLearning } from "@/lib/learning";
 import { getSheetDetail } from "@/lib/sheets-data";
+import { localDay, requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Sheet" };
 
@@ -36,8 +39,32 @@ async function SheetContent({
   const { slug } = await params;
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to track sheets.</p>;
-  const sheet = await getSheetDetail(user.id, slug);
+  const [sheet, learning, profile] = await Promise.all([
+    getSheetDetail(user.id, slug),
+    getLearning(user.id),
+    getProfile(user.id),
+  ]);
   if (!sheet) notFound();
+
+  // Revision state of every solved problem, so rows can say "revise".
+  const { end: endOfToday } = localDay(profile?.timezone ?? "Asia/Kolkata", requestNow());
+  const reviews: Record<string, ItemReview> = {};
+  for (const p of learning) {
+    reviews[p.problemId] = {
+      due: !p.state.retired && p.state.dueAt <= endOfToday,
+      step: p.state.step,
+    };
+  }
+  const tiers = ["easy", "medium", "hard", "basic", "core", "pro"]
+    .map((t) => {
+      const all = sheet.items.filter((i) => i.tier === t);
+      return { tier: t, total: all.length, done: all.filter((i) => i.status).length };
+    })
+    .filter((t) => t.total > 0);
+  const minutesLeft = sheet.items
+    .filter((i) => !i.status)
+    .reduce((n, i) => n + (i.minutes ?? 0), 0);
+  const videos = sheet.items.filter((i) => i.links.some((l) => l.site === "youtube")).length;
 
   return (
     <>
@@ -71,9 +98,18 @@ async function SheetContent({
           </CardSub>
         </div>
         <SegmentedProgress done={sheet.done} total={sheet.total} segments={40} />
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-dashed border-line-2 pt-3 font-mono text-[11.5px] text-ink-3">
+          {tiers.map((t) => (
+            <span key={t.tier}>
+              <span className="capitalize text-ink-2">{t.tier}</span> {t.done}/{t.total}
+            </span>
+          ))}
+          {minutesLeft > 0 && <span>~{Math.round(minutesLeft / 60)} h of material left</span>}
+          {videos > 0 && <span>{videos} with a video explanation</span>}
+        </div>
       </Card>
 
-      <SheetBrowser sheetId={sheet.id} items={sheet.items} />
+      <SheetBrowser sheetId={sheet.id} items={sheet.items} reviews={reviews} />
     </>
   );
 }
