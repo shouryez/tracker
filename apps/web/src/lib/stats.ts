@@ -1,4 +1,5 @@
 import type { PlatformSnapshot, SolvedCounts, TopicCount } from "@upsolve/adapters";
+import { streakWithFreezes } from "@upsolve/core";
 
 const DAY_MS = 86_400_000;
 
@@ -15,17 +16,16 @@ export function mergeCalendars(calendars: Record<string, number>[]): Record<stri
 
 /**
  * Consecutive active days ending today. If today has no activity yet the
- * streak is still alive, so we count back from yesterday.
+ * streak is still alive, so we count back from yesterday. Frozen days (exam
+ * weeks) are skipped: they neither break nor extend the streak.
  */
-export function currentStreak(calendar: Record<string, number>, today: Date): number {
-  let cursor = today.getTime();
-  if (!calendar[dayKey(today)]) cursor -= DAY_MS;
-  let streak = 0;
-  while (calendar[dayKey(new Date(cursor))]) {
-    streak++;
-    cursor -= DAY_MS;
-  }
-  return streak;
+export function currentStreak(
+  calendar: Record<string, number>,
+  today: Date,
+  frozen: ReadonlySet<string> = new Set(),
+): number {
+  const active = new Set(Object.keys(calendar).filter((d) => (calendar[d] ?? 0) > 0));
+  return streakWithFreezes(active, frozen, today.getTime());
 }
 
 export function activeDays(calendar: Record<string, number>, today: Date, days = 365): number {

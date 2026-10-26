@@ -37,3 +37,11 @@ export function localDate(tz: string, at: number): string {
 export function requestNow(): number {
   return Date.now();
 }
+
+/** Start of the local week (Monday 00:00 in `tz`) containing `now`, as epoch ms. */
+export function localWeekStart(tz: string, now: number): number {
+  const { start } = localDay(tz, now);
+  const weekday = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short" }).format(now);
+  const sinceMonday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(weekday);
+  return start - Math.max(0, sinceMonday) * DAY_MS;
+}

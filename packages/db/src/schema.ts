@@ -131,6 +131,10 @@ export const profiles = pgTable(
     /** Most reviews shown per day in the revision queue. */
     reviewCap: integer("review_cap").notNull().default(5),
     weeklyEmail: boolean("weekly_email").notNull().default(true),
+    /** Opt-in: appear on (and see) the college and batch leaderboards. */
+    onLeaderboards: boolean("on_leaderboards").notNull().default(false),
+    /** Friend-group members can see the problem you're solving right now. */
+    shareLive: boolean("share_live").notNull().default(true),
     timezone: text("timezone").notNull().default("Asia/Kolkata"),
     isPublic: boolean("is_public").notNull().default(false),
     onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
@@ -459,6 +463,60 @@ export const contestResults = pgTable(
     unique("contest_results_user_contest_uq").on(t.userId, t.platform, t.contestId),
     ownerCanRead(t.userId),
   ],
+).enableRLS();
+
+// ---------------------------------------------------------------- social
+
+export const groupRole = pgEnum("group_role", ["owner", "member"]);
+
+/** Friend groups: a shared leaderboard and study room, joined with an invite link. */
+export const groups = pgTable(
+  "groups",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    /** Secret part of the invite link (/join/<code>); the owner can reset it. */
+    inviteCode: text("invite_code").notNull().unique(),
+    createdBy: uuid("created_by").references(() => authUsers.id, { onDelete: "set null" }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    pgPolicy("members can read", {
+      for: "select",
+      to: authenticatedRole,
+      using: sql`exists (select 1 from group_members m where m.group_id = ${t.id} and m.user_id = ${authUid})`,
+    }),
+  ],
+).enableRLS();
+
+export const groupMembers = pgTable(
+  "group_members",
+  {
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    userId: userRef(),
+    role: groupRole("role").notNull().default("member"),
+    joinedAt: timestamp("joined_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.groupId, t.userId] }),
+    index("group_members_user_idx").on(t.userId),
+    ownerCanRead(t.userId),
+  ],
+).enableRLS();
+
+/** Exam-week freezes: days in [start, end] neither count towards nor break a streak. */
+export const streakFreezes = pgTable(
+  "streak_freezes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("streak_freezes_user_idx").on(t.userId), ownerCanRead(t.userId)],
 ).enableRLS();
 
 // ---------------------------------------------------------------- beta feedback

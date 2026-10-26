@@ -2,6 +2,7 @@ import "server-only";
 import { and, asc, eq, ilike, or, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { ADAPTERS, type Platform, type PlatformSnapshot } from "@upsolve/adapters";
+import { frozenDays } from "@upsolve/core";
 import { colleges, contestResults, platformAccounts, profiles } from "@upsolve/db";
 import { db, userTag } from "@/lib/db";
 import {
@@ -12,6 +13,7 @@ import {
   sumSolved,
   topTopics,
 } from "@/lib/stats";
+import { getStreakFreezes } from "@/lib/social-data";
 import { STALE_AFTER_MS } from "@/lib/sync";
 
 // All readers take an id that the caller already resolved from the session
@@ -87,7 +89,11 @@ export function needsSync(accounts: AccountView[], now = Date.now()) {
 export type ContestSeries = { platform: Platform; points: { at: Date; rating: number }[] };
 
 /** Builds every number the overview and public profile show, from stored snapshots. */
-export function buildStats(accounts: AccountView[], today = new Date()) {
+export function buildStats(
+  accounts: AccountView[],
+  today = new Date(),
+  frozen: ReadonlySet<string> = new Set(),
+) {
   const snapshots = accounts.flatMap((a) => (a.snapshot ? [a.snapshot] : []));
   const calendar = mergeCalendars(snapshots.map((s) => s.calendar));
   const rated = accounts
@@ -97,7 +103,7 @@ export function buildStats(accounts: AccountView[], today = new Date()) {
 
   return {
     solved: sumSolved(snapshots),
-    streak: currentStreak(calendar, today),
+    streak: currentStreak(calendar, today, frozen),
     activeDays: activeDays(calendar, today),
     heatmap26: heatmapLevels(calendar, today, 26 * 7),
     heatmap52: heatmapLevels(calendar, today, 52 * 7),
@@ -192,6 +198,8 @@ export type PublicProfile = {
   gradYear: number | null;
   branch: string | null;
   accounts: AccountView[];
+  /** Exam-week freeze days (YYYY-MM-DD), so the public streak matches the dashboard. */
+  frozenDays: string[];
 };
 
 /** Only returns profiles their owner made public. */
@@ -222,6 +230,7 @@ export async function getPublicProfile(handle: string): Promise<PublicProfile | 
     gradYear: row.profile.gradYear,
     branch: row.profile.branch,
     accounts,
+    frozenDays: [...frozenDays(await getStreakFreezes(row.profile.userId))],
   };
 }
 

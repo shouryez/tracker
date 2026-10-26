@@ -147,9 +147,4 @@ export async function getExtensionTokens(userId: string): Promise<ExtensionToken
     .orderBy(desc(extensionTokens.createdAt));
 }
 
-export function formatDuration(ms: number): string {
-  const m = Math.round(ms / 60_000);
-  if (m < 60) return `${m}m`;
-  const h = Math.floor(m / 60);
-  return m % 60 ? `${h}h ${m % 60}m` : `${h}h`;
-}
+export { formatDuration } from "@/lib/format";

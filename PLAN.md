@@ -324,12 +324,12 @@ Goal: the people who reply to the LinkedIn/Reddit posts can sign up, connect the
 
 **A. Fix and finish before anyone else sees it (≈2 days)**
 
-- [ ] Recent solves lists every Accepted submission, so re-solving a problem three times shows it three times (Two Sum, 25 Oct). Show each problem once, with "×3" when re-solved
+- [x] Recent solves lists every Accepted submission, so re-solving a problem three times shows it three times (Two Sum, 25 Oct). Show each problem once, with "×3" when re-solved
 - [ ] Verify the two flows never tested live: the extension's GFG verdict capture (one GFG submit) and review mode on LeetCode (does `?upsolve=review` survive LeetCode's redirect to `/description/`?)
-- [ ] Extension copy still says "LeetCode" only (popup connect text); mention GFG
-- [ ] Header search box is a disabled placeholder: either build a simple problem search (title → problem page) or remove it for the beta
-- [ ] "Contests" and "Your college" sidebar items say _soon_; keep, but link them to a short "coming in Phase 5 — tell us what you want" page with a feedback form
-- [ ] In-app **feedback button** (bottom corner: free text + optional screenshot, stored in a `feedback` table, emailed to you). This is how beta input arrives
+- [x] Extension copy still says "LeetCode" only (popup connect text); mention GFG
+- [x] Header search box is a disabled placeholder: built `/dashboard/search` (problems, sheets, topics; Ctrl K)
+- [x] _Soon_ sidebar items open the feedback box pre-filled ("Contests: I'd like to be able to …")
+- [x] In-app **feedback button** (bottom corner, kind + text, `feedback` table, 20/hour limit). Admins listed in `ADMIN_EMAILS` read it at `/dashboard/feedback`. Screenshot upload and email alerts: later
 - [ ] Error states for new users: a handle that fails to sync, a sheet with zero matches, an empty revision queue (mostly exist; walk through sign-up from scratch with a fresh Google account and fix what's confusing)
 
 **B. Things that break with real users (≈3 days)**
@@ -370,10 +370,10 @@ Goal: the people who reply to the LinkedIn/Reddit posts can sign up, connect the
 
 ### Phase 5 — More platforms & social (3–4 weeks, order decided by beta feedback)
 
-- [ ] **Groups + leaderboards**: friend groups with invite links, plus automatic college and batch boards from the profile. Opt-in only; ranks honest metrics (consistency: active days, revision done, focus hours) beside solved count, never solved count alone. Read through a security-definer view exposing only opted-in aggregates (PLAN §3)
-- [ ] **Study rooms**: Supabase Realtime presence showing who's solving what right now (problem + timer from the extension), join with one click
+- [x] **Groups + leaderboards** (27 Oct 2026): friend groups (≤50 members, ≤20 groups each) with resettable invite links (`/join/<code>`), owner can rename/remove, ownership passes on when the owner leaves. College and batch boards are opt-in and reciprocal (you see them only when you're on them). Default rank: weekly consistency score (0–150: 10/active day, 2/revision up to 15, 3/focus hour up to 10, 1/solve up to 20; weeks start Monday IST); tabs for solved this week and contest rating. All reads are server-side with membership checks
+- [x] **Study rooms**: per friend group, "solving now" from the extension's minute-by-minute session uploads (no Realtime needed), live timer, today's solves and focus per member, page refreshes every 20 s. Members can turn sharing off (Settings → Social & privacy)
 - [ ] **Share cards**: OG image route (1200×630) with heatmap and 3 big numbers for LinkedIn/WhatsApp
-- [ ] **Streaks + exam-week freeze**
+- [x] **Streaks + exam-week freeze**: up to 14 days each, two planned at a time, today or later only; frozen days neither break nor extend the streak (dashboard and public profile)
 - [ ] **CodeChef and AtCoder** adapters (+ extension timers); Code360 extension-only
 - [ ] **Contests page**: rating charts, contest list, and an auto "upsolve" list of problems attempted but not solved in each contest
 - **Exit:** a group of 10+ classmates using leaderboards for a week.

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import { Globe, Plug, Puzzle, RotateCcw, UserRound } from "lucide-react";
+import { Flame, Globe, Plug, Puzzle, RotateCcw, UserRound, UsersRound } from "lucide-react";
 import { ButtonArrow, Card, CardHeader, CardTitle, buttonClasses } from "@upsolve/ui";
 import { PlatformConnections } from "@/components/platform-connections";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -10,6 +10,10 @@ import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
 import { getExtensionTokens } from "@/lib/sessions-data";
 import { ExtensionTokens } from "./extension-tokens";
 import { LearningSettings } from "./learning-settings";
+import { StreakFreezes } from "./streak-freezes";
+import { PrefSwitch } from "@/components/social";
+import { getStreakFreezes } from "@/lib/social-data";
+import { localDate, requestNow } from "@/lib/time";
 import { PublicToggle } from "./public-toggle";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -32,7 +36,12 @@ async function SettingsContent() {
   if (isDemoUser(user)) {
     return <p className="text-ink-2">Sign in to manage your settings.</p>;
   }
-  const [profile, tokens] = await Promise.all([getProfile(user.id), getExtensionTokens(user.id)]);
+  const [profile, tokens, freezes] = await Promise.all([
+    getProfile(user.id),
+    getExtensionTokens(user.id),
+    getStreakFreezes(user.id),
+  ]);
+  const today = localDate(profile?.timezone ?? "Asia/Kolkata", requestNow());
   const icon = (I: typeof Plug) => <I size={13} strokeWidth={2} />;
 
   return (
@@ -97,6 +106,47 @@ async function SettingsContent() {
           />
         </Card>
       )}
+
+      {profile && (
+        <Card id="social" className="scroll-mt-6">
+          <CardHeader>
+            <CardTitle icon={icon(UsersRound)}>Social &amp; privacy</CardTitle>
+          </CardHeader>
+          <div className="flex flex-col divide-y divide-dashed divide-line-2">
+            <div className="flex items-center justify-between gap-4 pb-3.5">
+              <div className="min-w-0">
+                <p className="text-[13.5px] font-medium">College &amp; batch leaderboards</p>
+                <p className="text-[12.5px] text-ink-3">
+                  Show your name and this week&apos;s numbers to other opted-in students at your
+                  college, and see theirs.
+                </p>
+              </div>
+              <PrefSwitch
+                pref="onLeaderboards"
+                initial={profile.onLeaderboards}
+                label="Appear on college boards"
+              />
+            </div>
+            <div className="flex items-center justify-between gap-4 pt-3.5">
+              <div className="min-w-0">
+                <p className="text-[13.5px] font-medium">Show what I&apos;m solving to my groups</p>
+                <p className="text-[12.5px] text-ink-3">
+                  Friend-group study rooms show your current problem and timer while the extension
+                  is running.
+                </p>
+              </div>
+              <PrefSwitch pref="shareLive" initial={profile.shareLive} label="Share live status" />
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <Card id="streak" className="scroll-mt-6">
+        <CardHeader>
+          <CardTitle icon={icon(Flame)}>Exam-week streak freeze</CardTitle>
+        </CardHeader>
+        <StreakFreezes freezes={freezes} today={today} />
+      </Card>
 
       <Card>
         <CardHeader>

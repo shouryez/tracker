@@ -18,7 +18,7 @@ import {
   Timer,
 } from "lucide-react";
 import { ratingToDifficulty } from "@upsolve/adapters";
-import { suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
+import { frozenDays, suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
 import {
   ButtonArrow,
   Card,
@@ -63,7 +63,8 @@ import {
   getSessionStats,
   getSessions,
 } from "@/lib/sessions-data";
-import { localDay, requestNow } from "@/lib/time";
+import { getStreakFreezes } from "@/lib/social-data";
+import { localDate, localDay, requestNow } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -129,7 +130,14 @@ async function Overview() {
   const hasExtension = tokens.length > 0;
   const answered =
     sessionStats.honest.solo + sessionStats.honest.hint + sessionStats.honest.solution;
-  const stats = buildStats(accounts);
+  const freezes = await getStreakFreezes(user.id);
+  const stats = buildStats(
+    accounts,
+    new Date(now),
+    frozenDays(freezes.map((f) => ({ start: f.start, end: f.end }))),
+  );
+  const todayLocal = localDate(profile.timezone, now);
+  const activeFreeze = freezes.find((f) => f.start <= todayLocal && f.end >= todayLocal);
   const firstName = profile.name?.split(" ")[0] ?? "there";
   const goal = GOALS.find((g) => g.value === profile.goal);
 
@@ -172,7 +180,11 @@ async function Overview() {
           icon={icon(Flame, "text-ember")}
           value={String(stats.streak)}
           unit={stats.streak === 1 ? "day" : "days"}
-          foot={`${stats.activeDays} active days this year`}
+          foot={
+            activeFreeze
+              ? `Frozen until ${new Date(`${activeFreeze.end}T12:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" })} · exam week`
+              : `${stats.activeDays} active days this year`
+          }
         />
         <Kpi
           title="Focus this week"

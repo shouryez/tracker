@@ -50,7 +50,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
   const profile = await getPublicProfile(handle);
   if (!profile) notFound();
 
-  const stats = buildStats(profile.accounts);
+  const stats = buildStats(profile.accounts, new Date(), new Set(profile.frozenDays));
   const subtitle = [profile.college, profile.gradYear ? `Batch ${profile.gradYear}` : null]
     .filter(Boolean)
     .join(" · ");

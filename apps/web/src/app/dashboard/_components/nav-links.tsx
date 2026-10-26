@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChartColumn,
+  GraduationCap,
   LayoutGrid,
   ListChecks,
   RotateCcw,
@@ -26,7 +27,10 @@ const MENU: Item[] = [
   { label: "Analytics", href: "/dashboard/analytics", icon: ChartColumn },
   { label: "Contests", icon: Trophy },
 ];
-const SOCIAL: Item[] = [{ label: "Your college", icon: UsersRound }];
+const SOCIAL: Item[] = [
+  { label: "Groups", href: "/dashboard/groups", icon: UsersRound },
+  { label: "Your college", href: "/dashboard/college", icon: GraduationCap },
+];
 const ACCOUNT: Item[] = [{ label: "Settings", href: "/dashboard/settings", icon: Settings }];
 
 const itemClass =
