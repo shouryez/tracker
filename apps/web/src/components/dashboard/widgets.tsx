@@ -63,7 +63,7 @@ export function KpiCard({
         </span>
         <CardLink href={href} label={`Open ${title}`} tone={feature ? "inverse" : "default"} />
       </div>
-      <div className="flex items-end justify-between gap-3">
+      <div className="flex min-w-0 items-end justify-between gap-3">
         <span className="num text-[40px]">
           <CountUp value={value} decimals={decimals} />
           {unit && (
@@ -89,12 +89,15 @@ export function KpiCard({
 function MiniBars({ values, inverse }: { values: number[]; inverse?: boolean }) {
   const max = Math.max(1, ...values);
   return (
-    <span aria-hidden="true" className="flex h-9 items-end gap-[3px]">
+    <span
+      aria-hidden="true"
+      className="hidden h-9 shrink-0 items-end gap-[2px] overflow-hidden sm:flex"
+    >
       {values.map((v, i) => (
         <span
           key={i}
           className={cn(
-            "w-[5px] origin-bottom animate-grow rounded-[2px]",
+            "w-[4px] origin-bottom animate-grow rounded-[2px]",
             v === 0
               ? inverse
                 ? "bg-white/15"
@@ -181,48 +184,50 @@ export function WeekCapsules({
 export function HalfGauge({ done, total, label }: { done: number; total: number; label: string }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   return (
-    <div className="relative mx-auto w-full max-w-[260px]">
-      <svg viewBox="0 0 200 110" className="w-full" role="img" aria-label={`${pct}% ${label}`}>
-        <defs>
-          <pattern
-            id="gauge-hatch"
-            width="6"
-            height="6"
-            patternUnits="userSpaceOnUse"
-            patternTransform="rotate(45)"
-          >
-            <rect width="2" height="6" fill="var(--hatch)" />
-          </pattern>
-          <linearGradient id="gauge-fill" x1="0" x2="1">
-            <stop offset="0" stopColor="var(--primary)" />
-            <stop offset="1" stopColor="color-mix(in srgb, var(--primary) 60%, var(--signal))" />
-          </linearGradient>
-        </defs>
-        <path
-          d="M20 100 A80 80 0 0 1 180 100"
-          fill="none"
-          stroke="url(#gauge-hatch)"
-          strokeWidth="26"
-          strokeLinecap="round"
-        />
-        <path
-          d="M20 100 A80 80 0 0 1 180 100"
-          fill="none"
-          stroke="url(#gauge-fill)"
-          strokeWidth="26"
-          strokeLinecap="round"
-          pathLength={100}
-          strokeDasharray={`${Math.max(pct, 0.01)} 100`}
-          className="animate-draw"
-          style={{ ["--draw-from" as string]: `${pct}` }}
-        />
-      </svg>
-      <div className="absolute inset-x-0 bottom-1 text-center">
-        <span className="num text-[38px]">
-          <CountUp value={pct} />%
-        </span>
-        <span className="block font-mono text-[11px] text-ink-3">{label}</span>
+    <div className="mx-auto w-full max-w-[260px]">
+      <div className="relative">
+        <svg viewBox="0 0 200 110" className="w-full" role="img" aria-label={`${pct}% ${label}`}>
+          <defs>
+            <pattern
+              id="gauge-hatch"
+              width="6"
+              height="6"
+              patternUnits="userSpaceOnUse"
+              patternTransform="rotate(45)"
+            >
+              <rect width="2" height="6" fill="var(--hatch)" />
+            </pattern>
+            <linearGradient id="gauge-fill" x1="0" x2="1">
+              <stop offset="0" stopColor="var(--primary)" />
+              <stop offset="1" stopColor="color-mix(in srgb, var(--primary) 60%, var(--signal))" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M20 100 A80 80 0 0 1 180 100"
+            fill="none"
+            stroke="url(#gauge-hatch)"
+            strokeWidth="26"
+            strokeLinecap="round"
+          />
+          <path
+            d="M20 100 A80 80 0 0 1 180 100"
+            fill="none"
+            stroke="url(#gauge-fill)"
+            strokeWidth="26"
+            strokeLinecap="round"
+            pathLength={100}
+            strokeDasharray={`${Math.max(pct, 0.01)} 100`}
+            className="animate-draw"
+            style={{ ["--draw-from" as string]: `${pct}` }}
+          />
+        </svg>
+        <div className="absolute inset-x-0 bottom-0 text-center">
+          <span className="num text-[38px]">
+            <CountUp value={pct} />%
+          </span>
+        </div>
       </div>
+      <p className="mt-1 truncate text-center font-mono text-[11px] text-ink-3">{label}</p>
     </div>
   );
 }

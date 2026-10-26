@@ -41,7 +41,7 @@ export default function GroupPage({ params, searchParams }: PageProps<"/dashboar
       >
         <ArrowLeft size={13} aria-hidden="true" /> Groups
       </Link>
-      <Suspense fallback={<div className="h-[600px] animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
         <GroupContent params={params} searchParams={searchParams} />
       </Suspense>
     </div>

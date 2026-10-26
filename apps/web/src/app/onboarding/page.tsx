@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Set up your profile" };
 
 export default function OnboardingPage() {
   return (
-    <Suspense fallback={<div className="h-[600px] animate-pulse rounded-lg bg-surface-2" />}>
+    <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
       <ProfileStep />
     </Suspense>
   );

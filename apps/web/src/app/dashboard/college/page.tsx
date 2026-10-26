@@ -17,7 +17,7 @@ const icon = (Icon: typeof Trophy) => <Icon size={13} strokeWidth={2} />;
 export default function CollegePage({ searchParams }: PageProps<"/dashboard/college">) {
   return (
     <div className="flex flex-col gap-5">
-      <Suspense fallback={<div className="h-[600px] animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
         <CollegeContent searchParams={searchParams} />
       </Suspense>
     </div>

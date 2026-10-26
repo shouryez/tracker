@@ -17,7 +17,7 @@ export default function JoinPage({ params }: PageProps<"/join/[code]">) {
         <Link href="/" aria-label="Upsolve home" className="mb-6 inline-block">
           <Logo />
         </Link>
-        <Suspense fallback={<div className="h-56 animate-pulse rounded-lg bg-surface" />}>
+        <Suspense fallback={<div className="h-56 skeleton rounded-lg" />}>
           <Invite params={params} />
         </Suspense>
       </div>

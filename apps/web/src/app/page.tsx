@@ -21,12 +21,21 @@ import {
   LiveDot,
   Logo,
   PixelHeatmap,
+  SpotlightTracker,
   Tag,
   ThemeToggle,
   buttonClasses,
+  cardClasses,
   cn,
 } from "@upsolve/ui";
 import { LiveTimer } from "@/components/landing/live-timer";
+import {
+  BackToTop,
+  Magnetic,
+  Parallax,
+  Reveal,
+  ScrollProgress,
+} from "@/components/landing/motion-bits";
 import { LeetCodeMark, LetterMark, YouTubeMark } from "@/components/site-icons";
 
 // Marketing site (DESIGN.md §9.1). Static: every number here is illustrative and
@@ -50,15 +59,31 @@ export default function Home() {
   return (
     <div className="relative overflow-x-clip">
       <Nav />
+      <ScrollProgress />
       <Hero />
       <Marquee />
-      <Features />
-      <HowItWorks />
-      <SheetShowcase />
-      <ForColleges />
-      <Pricing />
-      <Faq />
+      <DashboardPreview />
+      <Reveal>
+        <Features />
+      </Reveal>
+      <Reveal>
+        <HowItWorks />
+      </Reveal>
+      <Reveal>
+        <SheetShowcase />
+      </Reveal>
+      <Reveal>
+        <ForColleges />
+      </Reveal>
+      <Reveal>
+        <Pricing />
+      </Reveal>
+      <Reveal>
+        <Faq />
+      </Reveal>
       <Footer />
+      <BackToTop />
+      <SpotlightTracker />
     </div>
   );
 }
@@ -111,57 +136,161 @@ function Nav() {
 function Hero() {
   const words = ["Every", "problem", "you", "solve,"];
   return (
-    <header className="relative -mt-[68px] pt-[68px]">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 -top-40 h-[1000px]">
-        <i className="absolute top-[6%] left-[50%] h-[520px] w-[620px] animate-drift-a rounded-full bg-[var(--glow-a)] blur-[90px]" />
-        <i className="absolute top-[16%] left-[64%] h-[420px] w-[460px] animate-drift-b rounded-full bg-[var(--glow-b)] blur-[90px]" />
-      </div>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-50 [background-image:linear-gradient(var(--line)_1px,transparent_1px),linear-gradient(90deg,var(--line)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:radial-gradient(ellipse_70%_55%_at_50%_18%,#000_30%,transparent_75%)]"
-      />
+    // The stage stays dark in both themes, like a lit product shot.
+    <header className="relative -mt-[68px] px-3 pt-[80px] sm:px-4">
+      <Parallax className="relative mx-auto w-[min(1280px,100%)] overflow-hidden rounded-[28px] bg-[#08080d] text-[#f4f4f6] shadow-xl ring-1 ring-white/10 sm:rounded-[36px]">
+        {/* Starfield + soft colour wash. */}
+        <div aria-hidden="true" className="stars pointer-events-none absolute inset-0 opacity-70" />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_20%_0%,rgba(110,123,255,.28),transparent_70%),radial-gradient(ellipse_50%_40%_at_90%_10%,rgba(255,122,69,.16),transparent_70%)]"
+        />
 
-      <div className={cn(WRAP, "relative flex flex-col items-center pt-20 text-center sm:pt-28")}>
-        <Eyebrow live>LeetCode · Codeforces · GFG · free for students</Eyebrow>
-        <h1 className="mt-[22px] mb-[18px] max-w-[14ch] font-display text-[clamp(46px,8.2vw,104px)] leading-[.98] tracking-[-0.02em] text-balance">
-          <span className="text-ink-3">
-            {words.map((w, i) => (
-              <span
-                key={w}
-                className="inline-block animate-word"
-                style={{ animationDelay: `${i * 70}ms` }}
-              >
-                {w}&nbsp;
-              </span>
-            ))}
+        <div className="relative z-10 flex flex-col items-center px-5 pt-16 text-center sm:pt-24">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1.5 font-mono text-[11px] tracking-[.08em] text-white/75 uppercase backdrop-blur">
+            <LiveDot /> LeetCode · Codeforces · GFG · free for students
           </span>
-          <em className="inline-block animate-word [animation-delay:320ms]">remembered.</em>
-        </h1>
-        <p className="mb-7 max-w-[580px] text-[clamp(15px,1.6vw,17.5px)] leading-relaxed text-ink-2">
-          Upsolve times every problem you open, catches every verdict, ticks your Striver and
-          NeetCode sheets for you, and tells you exactly what to revise before you forget it.
-        </p>
-        <div className="flex flex-wrap justify-center gap-2.5">
-          <Link href="/login" className={buttonClasses({ variant: "signal" })}>
-            Start free with Google <ButtonArrow />
-          </Link>
-          <a href="#how" className={buttonClasses({ variant: "secondary" })}>
-            See how it works
-          </a>
+          <h1 className="mt-6 mb-5 max-w-[14ch] font-display text-[clamp(44px,8vw,100px)] leading-[.98] tracking-[-0.02em] text-balance">
+            <span className="text-white/45">
+              {words.map((w, i) => (
+                <span
+                  key={w}
+                  className="inline-block animate-word"
+                  style={{ animationDelay: `${i * 70}ms` }}
+                >
+                  {w}&nbsp;
+                </span>
+              ))}
+            </span>
+            <em className="inline-block animate-word bg-[linear-gradient(100deg,#fff_30%,#d7ff3a_120%)] bg-clip-text text-transparent [animation-delay:320ms]">
+              remembered.
+            </em>
+          </h1>
+          <p className="mb-8 max-w-[560px] text-[clamp(15px,1.6vw,17px)] leading-relaxed text-white/65">
+            Upsolve times every problem you open, catches every verdict, ticks your Striver and
+            NeetCode sheets for you, and tells you exactly what to revise before you forget it.
+          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Magnetic>
+              <Link href="/login" className={buttonClasses({ variant: "signal", size: "lg" })}>
+                Start free with Google <ButtonArrow />
+              </Link>
+            </Magnetic>
+            <a
+              href="#how"
+              className="inline-flex h-[50px] items-center rounded-full border border-white/15 bg-white/5 px-6 text-[15px] font-[550] text-white backdrop-blur transition-[background-color,border-color,transform] duration-[var(--dur-base)] hover:-translate-y-px hover:border-white/30 hover:bg-white/10 active:scale-[.97]"
+            >
+              See how it works
+            </a>
+          </div>
+          <p className="mt-5 font-mono text-[12px] tracking-[.02em] text-white/40">
+            Striver A2Z · Striver SDE · NeetCode 150 · Blind 75 · Grind 75
+          </p>
         </div>
-        <p className="mt-[18px] font-mono text-xs tracking-[.02em] text-ink-3">
-          Striver A2Z · Striver SDE · NeetCode 150 · Blind 75 · Grind 75
-        </p>
 
-        <ProductFrame />
-      </div>
+        {/* The scene: a glossy orb rising from the bottom, glass cards floating around it. */}
+        <div className="relative mt-10 h-[340px] sm:mt-14 sm:h-[420px]" aria-hidden="true">
+          <div data-depth="14" className="absolute bottom-[-46%] left-1/2 -translate-x-1/2">
+            <div className="orb size-[min(560px,92vw)] animate-[blob_14s_var(--ease-in-out)_infinite_alternate]" />
+          </div>
+          <div
+            data-depth="34"
+            className="absolute top-[8%] left-[4%] hidden md:block lg:left-[10%]"
+          >
+            <GlassCard className="animate-float">
+              <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
+                Striver A2Z <ArrowCircle />
+              </span>
+              <span className="mt-2 block text-[15px] leading-snug font-medium">
+                495 problems,
+                <br /> ticked for you
+              </span>
+              <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/10">
+                <span className="block h-full w-[43%] rounded-full bg-signal" />
+              </span>
+            </GlassCard>
+          </div>
+          <div
+            data-depth="26"
+            className="absolute top-[34%] right-[4%] hidden sm:block lg:right-[12%]"
+          >
+            <GlassCard className="animate-float [animation-delay:-3s]">
+              <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
+                Revision ladder <ArrowCircle />
+              </span>
+              <span className="num mt-2 block text-[30px]">90 days</span>
+              <span className="mt-1 block font-mono text-[11px] text-white/45">
+                1 → 3 → 7 → 16 → 35 → 90
+              </span>
+            </GlassCard>
+          </div>
+          <div data-depth="40" className="absolute bottom-[12%] left-[14%] hidden lg:block">
+            <GlassCard className="animate-float [animation-delay:-5s]">
+              <span className="flex items-center gap-2 text-[12px] text-white/55">
+                <LiveDot /> Now solving
+              </span>
+              <span className="mt-1.5 block text-[14px] font-medium">875. Koko Eating Bananas</span>
+              <LiveTimer
+                startSeconds={18 * 60 + 42}
+                className="num mt-1 block font-mono text-[26px]"
+              />
+            </GlassCard>
+          </div>
+        </div>
+      </Parallax>
     </header>
+  );
+}
+
+function GlassCard({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div
+      className={cn(
+        "w-[236px] rounded-[18px] border border-white/12 bg-white/[.06] p-4 text-left text-white shadow-[0_30px_60px_-20px_rgba(0,0,0,.7)] backdrop-blur-xl",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ArrowCircle() {
+  return (
+    <span className="grid size-6 place-items-center rounded-full bg-white text-[#08080d]">
+      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M5 11 11 5M6 5h5v5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
+/** The real dashboard, as a frame (example numbers, labelled). */
+function DashboardPreview() {
+  return (
+    <section className={cn(WRAP, "pt-24")}>
+      <Reveal>
+        <SectionHead eyebrow="The dashboard" soft="Your prep," em="at a glance.">
+          Everything on one screen: what you solved, what you&apos;re about to forget, and what to
+          do next. The numbers below are an example.
+        </SectionHead>
+      </Reveal>
+      <Reveal>
+        <ProductFrame />
+      </Reveal>
+    </section>
   );
 }
 
 function ProductFrame() {
   return (
-    <div className="relative mt-14 w-full max-w-[1040px] sm:mt-16">
+    <div className="relative mx-auto w-full max-w-[1040px]">
       <div
         aria-hidden="true"
         className="absolute -inset-x-10 -top-10 bottom-0 rounded-[40px] bg-[radial-gradient(ellipse_at_top,var(--glow-a),transparent_70%)] opacity-60 blur-2xl"
@@ -343,8 +472,10 @@ function Bento({
 }) {
   return (
     <article
+      data-spotlight
       className={cn(
-        "relative flex min-h-[300px] flex-col overflow-hidden rounded-[20px] border border-line bg-surface p-[22px] shadow-card",
+        cardClasses({ interactive: true, spotlight: true }),
+        "flex min-h-[300px] flex-col",
         className,
       )}
     >

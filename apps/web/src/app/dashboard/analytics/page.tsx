@@ -27,7 +27,7 @@ const icon = (Icon: typeof Clock) => <Icon size={13} strokeWidth={2} />;
 export default function AnalyticsPage({ searchParams }: PageProps<"/dashboard/analytics">) {
   return (
     <div className="flex flex-col gap-5">
-      <Suspense fallback={<div className="h-[600px] animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
         <AnalyticsContent searchParams={searchParams} />
       </Suspense>
     </div>

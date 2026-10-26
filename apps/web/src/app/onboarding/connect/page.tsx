@@ -21,7 +21,7 @@ export default function ConnectPage() {
         Enter your usernames. We pull your solved problems, ratings and activity from public data.
         Never your password.
       </p>
-      <Suspense fallback={<div className="h-56 animate-pulse rounded-lg bg-surface-2" />}>
+      <Suspense fallback={<div className="h-56 skeleton rounded-lg" />}>
         <ConnectStep />
       </Suspense>
     </div>

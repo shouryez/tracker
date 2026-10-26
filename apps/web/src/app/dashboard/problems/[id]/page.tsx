@@ -58,7 +58,7 @@ export default function ProblemPage({ params }: PageProps<"/dashboard/problems/[
   return (
     <div className="flex flex-col gap-5">
       <BackLink fallback="/dashboard/revision" fallbackLabel="Revision" />
-      <Suspense fallback={<div className="h-[600px] animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
         <ProblemContent params={params} />
       </Suspense>
     </div>

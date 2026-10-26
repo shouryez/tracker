@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Search" };
 export default function SearchPage({ searchParams }: PageProps<"/dashboard/search">) {
   return (
     <div className="flex flex-col gap-5">
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-96 skeleton rounded-lg" />}>
         <Results searchParams={searchParams} />
       </Suspense>
     </div>

@@ -22,7 +22,7 @@ export default function SessionsPage() {
       <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
         Sessions<span className="block text-ink-3">Every timed attempt</span>
       </h1>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-96 skeleton rounded-lg" />}>
         <SessionsContent />
       </Suspense>
     </div>

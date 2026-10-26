@@ -38,7 +38,7 @@ export default function ContestsPage() {
       <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
         Contests<span className="block text-ink-3">Ratings and what&apos;s left to upsolve</span>
       </h1>
-      <Suspense fallback={<div className="h-[500px] animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-[500px] skeleton rounded-lg" />}>
         <ContestsContent />
       </Suspense>
     </div>
@@ -76,9 +76,7 @@ async function ContestsContent() {
           wide={platforms.length === 1}
         />
       ))}
-      <Suspense
-        fallback={<div className="col-span-12 h-[360px] animate-pulse rounded-lg bg-surface" />}
-      >
+      <Suspense fallback={<div className="col-span-12 h-[360px] skeleton rounded-lg" />}>
         <Upsolve userId={user.id} contests={contests} />
       </Suspense>
     </div>

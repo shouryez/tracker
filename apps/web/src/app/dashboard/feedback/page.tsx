@@ -20,7 +20,7 @@ export default function FeedbackPage() {
       <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
         Feedback<span className="block text-ink-3">From the feedback button</span>
       </h1>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-96 skeleton rounded-lg" />}>
         <FeedbackList />
       </Suspense>
     </div>

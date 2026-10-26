@@ -42,7 +42,7 @@ export default function RevisionPage() {
             <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
               Revision<span className="block text-ink-3">Loading your queue</span>
             </h1>
-            <div className="h-96 animate-pulse rounded-lg bg-surface" />
+            <div className="h-96 skeleton rounded-lg" />
           </>
         }
       >

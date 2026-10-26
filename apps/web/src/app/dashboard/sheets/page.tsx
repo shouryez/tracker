@@ -17,7 +17,7 @@ export default function SheetsPage() {
       <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
         Sheets<span className="block text-ink-3">Ticked for you as you solve</span>
       </h1>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-96 skeleton rounded-lg" />}>
         <SheetsContent />
       </Suspense>
     </div>
@@ -52,7 +52,7 @@ async function SheetsContent() {
       )}
       <div className="grid gap-3.5 md:grid-cols-2">
         {sheets.map((s) => (
-          <Card key={s.id} className="flex flex-col gap-4">
+          <Card key={s.id} interactive spotlight className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <Link

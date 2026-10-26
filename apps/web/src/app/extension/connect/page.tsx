@@ -24,7 +24,7 @@ export default function ConnectExtensionPage() {
           Connecting lets the extension send your timed sessions and verdicts to your dashboard. It
           only ever talks to LeetCode and Upsolve.
         </p>
-        <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-surface" />}>
+        <Suspense fallback={<div className="h-40 skeleton rounded-lg" />}>
           <Gate />
         </Suspense>
       </main>

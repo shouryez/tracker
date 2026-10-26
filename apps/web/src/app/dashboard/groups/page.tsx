@@ -17,7 +17,7 @@ export default function GroupsPage() {
       <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
         Groups<span className="block text-ink-3">Practise with your friends</span>
       </h1>
-      <Suspense fallback={<div className="h-72 animate-pulse rounded-lg bg-surface" />}>
+      <Suspense fallback={<div className="h-72 skeleton rounded-lg" />}>
         <GroupsContent />
       </Suspense>
     </div>

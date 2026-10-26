@@ -100,15 +100,23 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={disabled || busy}
-          className="h-[42px] w-full rounded-sm border border-line-2 bg-surface-2 px-3.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-[240ms] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)] disabled:opacity-50"
+          aria-invalid={status.kind === "error" || undefined}
+          aria-describedby={status.kind === "error" ? "login-error" : undefined}
+          className="h-[44px] w-full rounded-[12px] border border-line-2 bg-surface-2 px-3.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 hover:border-line-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)] disabled:opacity-50 aria-invalid:border-bad aria-invalid:focus:shadow-[0_0_0_4px_var(--color-bad-soft)]"
         />
-        <Button type="submit" variant="secondary" className="w-full" disabled={disabled || busy}>
-          {busy ? "Sending…" : "Email me a sign-in link"} {!busy && <ButtonArrow />}
+        <Button
+          type="submit"
+          variant="secondary"
+          className="w-full"
+          disabled={disabled}
+          loading={busy}
+        >
+          Email me a sign-in link <ButtonArrow />
         </Button>
       </form>
 
       {status.kind === "error" && (
-        <p role="alert" className="text-sm text-bad">
+        <p id="login-error" role="alert" className="text-sm text-bad">
           {status.message}
         </p>
       )}
