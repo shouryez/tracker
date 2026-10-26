@@ -20,7 +20,16 @@ import { SolvedSplit, TopicBar } from "@/components/charts";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL } from "@/components/platform-meta";
 import { buildStats, getPublicProfile } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Profile" };
+export async function generateMetadata({ params }: PageProps<"/u/[handle]">): Promise<Metadata> {
+  const { handle } = await params;
+  const image = `/api/share-card?handle=${encodeURIComponent(handle)}`;
+  return {
+    title: `@${handle}`,
+    description: `${handle}'s DSA practice on Upsolve: solved problems, streak and contest ratings.`,
+    openGraph: { images: [{ url: image, width: 1200, height: 630 }] },
+    twitter: { card: "summary_large_image", images: [image] },
+  };
+}
 
 export default function PublicProfilePage({ params }: PageProps<"/u/[handle]">) {
   return (

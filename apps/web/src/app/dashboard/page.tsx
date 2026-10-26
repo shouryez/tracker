@@ -13,6 +13,7 @@ import {
   Plug,
   Puzzle,
   RotateCcw,
+  Share2,
   Sparkles,
   Target,
   Timer,
@@ -153,6 +154,13 @@ async function Overview() {
         </h1>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <AutoSync stale={needsSync(accounts)} />
+          <a
+            href="/api/share-card?download=1"
+            title="Download a 1200×630 card with your heatmap and numbers, for LinkedIn or WhatsApp"
+            className={buttonClasses({ variant: "secondary", size: "sm" })}
+          >
+            <Share2 size={14} aria-hidden="true" /> Share card
+          </a>
           <Meta label="Goal" value={goal?.label ?? "—"} />
           <Meta label="Daily goal" value={`${profile.dailyGoalMin} min`} />
           <Meta label="Platforms" value={String(accounts.length)} />

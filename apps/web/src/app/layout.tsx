@@ -21,6 +21,8 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for link previews (share cards). Set NEXT_PUBLIC_SITE_URL in production.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3005"),
   title: {
     default: "Upsolve: every problem you solve, remembered",
     template: "%s · Upsolve",
