@@ -27,9 +27,17 @@ export function cardClasses({
   interactive,
   spotlight,
   beam,
-}: { tier?: CardTier; interactive?: boolean; spotlight?: boolean; beam?: boolean } = {}) {
+  padded = true,
+}: {
+  tier?: CardTier;
+  interactive?: boolean;
+  spotlight?: boolean;
+  beam?: boolean;
+  padded?: boolean;
+} = {}) {
   return cn(
-    "group/card relative isolate rounded-lg p-[18px]",
+    "group/card relative isolate rounded-lg",
+    padded && "p-[18px]",
     tiers[tier],
     "transition-[transform,box-shadow,border-color] duration-[var(--dur-base)] ease-[var(--ease-out)]",
     interactive && "hover:-translate-y-1 hover:border-line-2 hover:shadow-e2",
@@ -59,7 +67,17 @@ export function Card({
   return (
     <div
       data-spotlight={spotlight || undefined}
-      className={cn(cardClasses({ tier, interactive, spotlight, beam }), className)}
+      // cn() doesn't merge, so skip the default padding when the caller sets its own.
+      className={cn(
+        cardClasses({
+          tier,
+          interactive,
+          spotlight,
+          beam,
+          padded: !/(^|\s)p-/.test(className ?? ""),
+        }),
+        className,
+      )}
       style={glow ? ({ "--card-glow": glow, ...style } as CSSProperties) : style}
       {...props}
     >

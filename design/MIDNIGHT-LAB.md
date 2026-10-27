@@ -168,3 +168,11 @@ Custom SVG/CSS, no chart library. Existing components upgraded in place (same na
 - Row 5: Focus this week (goal ring + 7-day strip, sessions), Recent solves timeline (glowing nodes, platform marks, growing underline, ×n counter chip, staggered rows).
 - Row 6: platform cards (mark, verified shine, rating, sparkline, difficulty split, synced time).
 - All `from`-only keyframes now use `backwards` fill so hover/press transforms keep working.
+
+## Phase 6 shipped (Revision, Sheets, Sheet detail, Problem)
+
+- Revision: "Revision, five today." header; hero Today's-queue card (done/target ring, pass-rate + waiting chips, one lime "Start with …" CTA, beam while items remain, pixel confetti once per day when cleared); 4 rolling mini stats; queue rows as inset cards (difficulty, overdue chip pulsing past 7 days, compact strength ladder, topic tags) with Re-solve + a teal/amber/rose segmented self-grade (Remembered ✓ / Shaky ~ / Forgot ✕, confetti on Remembered); collapsible "How revision works" ladder; 14-day dot strip; history grouped by week with pass/fail glyphs.
+- Sheets: per-sheet identity (accent colour, monogram, pixel cover); followed sheet as a Continue hero (ring, recent ticks, ETA, lime Continue); other sheets as tilt + spotlight cards with rings and rolling counts; Follow toggle with drawn check.
+- Sheet detail: header in the sheet's colour, hero progress card (ring, Easy/Medium/Hard or Basic/Core/Pro bars, hours left, video count); richer Continue banner (play button, ring, aurora, row pulse); sticky glass toolbar with `/` to search; numbered step headers with gradient bars and a completion check; section mini bars; rows with difficulty accent bar, level chips, revise chip, resource dock of platform marks (tooltips, brand on hover, magnify), notes dot, star pop, pixel burst on manual tick; long lists use content-visibility.
+- Problem: status + difficulty + topic chips, one lime Re-solve plus "Open on <platform>"; attempts timeline with verdict chips, active-time bars and quoted notes; revision card with full ladder and segmented self-grade; Solve-on logo tiles; sheet chips with sheet colours; similar problems as mini cards.
+- Not done (needs data): per-sheet difficulty bars on the Sheets index; section-complete toast.

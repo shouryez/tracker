@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
-import { Card, CardSub } from "@upsolve/ui";
-import { formatEta, SegmentedProgress } from "@/components/progress";
+import { ArrowLeft, Clock, ExternalLink, Video } from "lucide-react";
+import { Card, LinearProgress, ProgressRing, Skeleton, SkeletonCard } from "@upsolve/ui";
+import { NumberTicker } from "@/components/fx/number-ticker";
+import { PageHeader } from "@/components/page-header";
+import { formatEta } from "@/components/progress";
 import { SheetBrowser, type ItemReview } from "@/components/sheet-browser";
+import { SheetCover, sheetIdentity } from "@/components/sheet-identity";
 import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
@@ -15,16 +18,38 @@ import { localDay, requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Sheet" };
 
+const TIER_COLOR: Record<string, string> = {
+  easy: "var(--easy)",
+  medium: "var(--medium)",
+  hard: "var(--hard)",
+  basic: "var(--easy)",
+  core: "var(--medium)",
+  pro: "var(--hard)",
+};
+
 export default function SheetPage({ params }: PageProps<"/dashboard/sheets/[slug]">) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <Link
         href="/dashboard/sheets"
-        className="inline-flex items-center gap-1.5 self-start font-mono text-[11.5px] text-ink-3 hover:text-ink"
+        className="group/back inline-flex items-center gap-1.5 self-start text-13 text-ink-3 transition-colors hover:text-ink"
       >
-        <ArrowLeft size={13} aria-hidden="true" /> All sheets
+        <ArrowLeft
+          size={14}
+          aria-hidden="true"
+          className="transition-transform duration-[var(--dur-base)] group-hover/back:-translate-x-0.5"
+        />{" "}
+        All sheets
       </Link>
-      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
+      <Suspense
+        fallback={
+          <div className="flex flex-col gap-6">
+            <Skeleton className="h-10 w-80" />
+            <SkeletonCard lines={3} className="h-[200px]" />
+            <SkeletonCard lines={8} className="h-[480px]" />
+          </div>
+        }
+      >
         <SheetContent params={params} />
       </Suspense>
     </div>
@@ -65,48 +90,113 @@ async function SheetContent({
     .filter((i) => !i.status)
     .reduce((n, i) => n + (i.minutes ?? 0), 0);
   const videos = sheet.items.filter((i) => i.links.some((l) => l.site === "youtube")).length;
+  const { color } = sheetIdentity(sheet.slug, sheet.name);
+  const pct = Math.round((sheet.done / Math.max(1, sheet.total)) * 100);
+  const [base, rest] = sheet.name.includes("'s")
+    ? [
+        sheet.name.slice(0, sheet.name.indexOf("'s") + 2),
+        sheet.name.slice(sheet.name.indexOf("'s") + 2),
+      ]
+    : [sheet.name, ""];
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
-            {sheet.name}
-          </h1>
-          <a
-            href={sheet.sourceUrl ?? undefined}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 font-mono text-[11.5px] text-ink-3 hover:text-ink"
-          >
-            by {sheet.author}. Full sheet with explanations on their site{" "}
-            <ExternalLink size={10} aria-hidden="true" />
-          </a>
-        </div>
-        <FollowButton sheetId={sheet.id} following={sheet.following} />
-      </div>
+      <PageHeader
+        eyebrow="Sheet"
+        glow={color}
+        title={
+          rest ? (
+            <>
+              {base} <em>{rest.trim()}</em>
+            </>
+          ) : (
+            <em>{base}</em>
+          )
+        }
+        subtitle={
+          sheet.author ? (
+            <a
+              href={sheet.sourceUrl ?? undefined}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 hover:text-ink"
+            >
+              by {sheet.author} · full sheet with explanations on their site{" "}
+              <ExternalLink size={11} aria-hidden="true" />
+            </a>
+          ) : undefined
+        }
+        actions={<FollowButton sheetId={sheet.id} following={sheet.following} />}
+      />
 
-      <Card>
-        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-          <span className="num text-[36px]">
-            {sheet.done}
-            <small className="ml-1 text-[.42em] font-normal text-ink-3">/ {sheet.total} done</small>
+      <Card
+        glow={color}
+        className="grid items-center gap-6 overflow-hidden md:grid-cols-[auto_1fr_auto]"
+      >
+        <ProgressRing
+          total={Math.max(1, sheet.total)}
+          size={148}
+          stroke={12}
+          segments={[{ label: "Done", value: sheet.done, color }]}
+          aria-label={`${sheet.done} of ${sheet.total} done`}
+        >
+          <span className="num text-36">
+            <NumberTicker value={pct} />
+            <span className="text-[.55em] text-ink-3">%</span>
           </span>
-          <CardSub>
+          <span className="tnum text-11 text-ink-3">
+            {sheet.done} / {sheet.total}
+          </span>
+        </ProgressRing>
+        <div className="flex min-w-0 flex-col gap-3">
+          {tiers.map((t) => (
+            <div key={t.tier} className="grid grid-cols-[64px_1fr_64px] items-center gap-3">
+              <span className="text-13 font-[550] capitalize">{t.tier}</span>
+              <LinearProgress
+                value={t.done}
+                max={t.total}
+                height={7}
+                color={TIER_COLOR[t.tier]}
+                aria-label={`${t.tier} ${t.done} of ${t.total}`}
+              />
+              <span className="tnum text-right font-mono text-12 text-ink-3">
+                {t.done}/{t.total}
+              </span>
+            </div>
+          ))}
+          <p className="text-12 text-ink-3">
             {sheet.autoTracked} tick automatically · the rest you tick yourself
             {sheet.eta ? ` · est. ${formatEta(sheet.eta)}` : ""}
-          </CardSub>
+          </p>
         </div>
-        <SegmentedProgress done={sheet.done} total={sheet.total} segments={40} />
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 border-t border-dashed border-line-2 pt-3 font-mono text-[11.5px] text-ink-3">
-          {tiers.map((t) => (
-            <span key={t.tier}>
-              <span className="capitalize text-ink-2">{t.tier}</span> {t.done}/{t.total}
-            </span>
-          ))}
-          {minutesLeft > 0 && <span>~{Math.round(minutesLeft / 60)} h of material left</span>}
-          {videos > 0 && <span>{videos} with a video explanation</span>}
+        <div className="flex gap-3 md:flex-col">
+          {minutesLeft > 0 && (
+            <div className="surface-inset rounded-[14px] px-4 py-3">
+              <p className="flex items-center gap-1.5 label-mono">
+                <Clock size={11} aria-hidden="true" /> Left
+              </p>
+              <p className="num mt-1 text-24">
+                ~{Math.round(minutesLeft / 60)}
+                <small className="ml-1 font-display text-[.55em] font-normal text-ink-3 italic">
+                  hours
+                </small>
+              </p>
+            </div>
+          )}
+          {videos > 0 && (
+            <div className="surface-inset rounded-[14px] px-4 py-3">
+              <p className="flex items-center gap-1.5 label-mono">
+                <Video size={11} aria-hidden="true" /> Videos
+              </p>
+              <p className="num mt-1 text-24">{videos}</p>
+            </div>
+          )}
         </div>
+        <SheetCover
+          slug={sheet.slug}
+          name={sheet.name}
+          className="pointer-events-none absolute inset-y-0 right-0 -z-10 hidden w-1/3 opacity-40 md:block [&>span]:hidden"
+        />
       </Card>
 
       <SheetBrowser sheetId={sheet.id} items={sheet.items} reviews={reviews} />

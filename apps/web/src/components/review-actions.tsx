@@ -1,31 +1,54 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Archive, ArchiveRestore } from "lucide-react";
+import { Archive, ArchiveRestore, Check, Minus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import { logReview, type ReviewActionName } from "@/app/actions/learning";
+import { burstFrom } from "@/components/dashboard/celebrate";
 
-const MANUAL: { action: ReviewActionName; label: string; hint: string }[] = [
+const MANUAL: {
+  action: ReviewActionName;
+  label: string;
+  hint: string;
+  Icon: typeof Check;
+  tone: string;
+}[] = [
   {
     action: "remembered",
     label: "Remembered",
     hint: "You could still solve it. Next review further out.",
+    Icon: Check,
+    tone: "text-easy data-[on]:bg-easy data-[on]:text-[#04201d] hover:bg-easy-soft",
   },
-  { action: "shaky", label: "Shaky", hint: "Partly. Same interval again." },
-  { action: "forgot", label: "Forgot", hint: "Back to tomorrow." },
+  {
+    action: "shaky",
+    label: "Shaky",
+    hint: "Partly. Same interval again.",
+    Icon: Minus,
+    tone: "text-medium data-[on]:bg-medium data-[on]:text-[#241600] hover:bg-medium-soft",
+  },
+  {
+    action: "forgot",
+    label: "Forgot",
+    hint: "Back to tomorrow.",
+    Icon: X,
+    tone: "text-hard data-[on]:bg-hard data-[on]:text-white hover:bg-hard-soft",
+  },
 ];
 
 /**
- * "I revised it without the extension" buttons. Manual reviews are graded more
- * cautiously than a re-solve the extension saw (they can't go past 16 days).
+ * "I revised it without the extension": a 3-way segmented self-grade
+ * (Remembered teal ✓ · Shaky amber ~ · Forgot rose ✕). The chosen segment flashes its colour.
+ * Manual reviews are graded more cautiously than a re-solve the extension saw (max 16 days).
  */
 export function ManualReview({ problemId, className }: { problemId: string; className?: string }) {
   const [pending, startTransition] = useTransition();
   const [done, setDone] = useState<ReviewActionName | null>(null);
-  const run = (action: ReviewActionName) =>
+  const run = (action: ReviewActionName, el: HTMLElement) =>
     startTransition(async () => {
       setDone(action);
+      if (action === "remembered") void burstFrom(el);
       await logReview(problemId, action);
       toast.success(
         action === "remembered"
@@ -39,21 +62,31 @@ export function ManualReview({ problemId, className }: { problemId: string; clas
   return (
     <div
       role="group"
-      aria-label="Mark revised without the extension"
-      className={cn("flex flex-wrap items-center gap-1", className)}
+      aria-label="Grade yourself (revised without the extension)"
+      className={cn(
+        "inline-flex rounded-full border border-line-2 bg-surface-inset p-[3px] shadow-inset",
+        className,
+      )}
     >
       {MANUAL.map((m) => (
-        <Button
+        <button
           key={m.action}
-          size="sm"
-          variant={done === m.action ? "secondary" : "ghost"}
+          type="button"
           disabled={pending}
           title={m.hint}
-          onClick={() => run(m.action)}
-          className="h-[30px] px-2.5 text-[12.5px]"
+          aria-pressed={done === m.action}
+          data-on={done === m.action || undefined}
+          onClick={(e) => run(m.action, e.currentTarget)}
+          className={cn(
+            "inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-12 font-[600] transition-[background-color,color,transform] duration-[var(--dur-fast)] active:scale-95 disabled:opacity-60",
+            "data-[on]:animate-[pop-in_var(--dur-slow)_var(--ease-spring)]",
+            m.tone,
+          )}
         >
-          {m.label}
-        </Button>
+          <m.Icon size={13} strokeWidth={2.5} aria-hidden="true" />
+          <span className="hidden sm:inline">{m.label}</span>
+          <span className="sr-only sm:hidden">{m.label}</span>
+        </button>
       ))}
     </div>
   );
@@ -68,7 +101,7 @@ export function RetireButton({ problemId, retired }: { problemId: string; retire
     <Button
       size="sm"
       variant="ghost"
-      disabled={pending}
+      loading={pending}
       title={label}
       aria-label={label}
       onClick={() =>

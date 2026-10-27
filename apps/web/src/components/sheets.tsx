@@ -1,10 +1,11 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
-import { Check } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Button, cn } from "@upsolve/ui";
+import { Button, CheckDraw, cn } from "@upsolve/ui";
 import { setSheetFollowed, setSheetItemDone } from "@/app/actions/sheets";
+import { burstFrom } from "@/components/dashboard/celebrate";
 
 export function FollowButton({ sheetId, following }: { sheetId: string; following: boolean }) {
   const [pending, startTransition] = useTransition();
@@ -24,10 +25,12 @@ export function FollowButton({ sheetId, following }: { sheetId: string; followin
     >
       {optimistic ? (
         <>
-          <Check size={14} aria-hidden="true" /> Following
+          <CheckDraw size={14} className="text-success" /> Following
         </>
       ) : (
-        "Follow"
+        <>
+          <Plus size={14} aria-hidden="true" data-nudge="plus" /> Follow
+        </>
       )}
     </Button>
   );
@@ -70,7 +73,7 @@ export function ItemTick({
     return (
       <span
         title="Solved on a connected platform"
-        className="grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-ink text-bg"
+        className="grid size-5 shrink-0 place-items-center rounded-[6px] bg-success text-[#06210f] shadow-[0_0_10px_-4px_var(--success)]"
       >
         <TickMark on />
         <span className="sr-only">Solved</span>
@@ -86,18 +89,20 @@ export function ItemTick({
       aria-checked={done}
       aria-label={`Mark "${title}" ${done ? "not done" : "done"}`}
       disabled={pending}
-      onClick={() =>
+      onClick={(e) => {
+        const el = e.currentTarget;
         startTransition(async () => {
           setOptimistic(done ? null : "manual");
+          if (!done) void burstFrom(el);
           await setSheetItemDone(sheetId, itemKey, !done);
           if (!done) toast.success("Marked done", { description: title });
-        })
-      }
+        });
+      }}
       className={cn(
-        "grid size-[18px] shrink-0 place-items-center rounded-[5px] transition-[background-color,border-color,transform] duration-[var(--dur-base)] ease-[var(--ease-spring)] active:scale-90",
+        "grid size-5 shrink-0 place-items-center rounded-[6px] transition-[background-color,border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-spring)] active:scale-90",
         done
-          ? "scale-100 bg-ink-2 text-bg"
-          : "hatch border border-line-2 hover:scale-110 hover:border-ink-3",
+          ? "animate-[pop-in_var(--dur-slow)_var(--ease-spring)] bg-success text-[#06210f] shadow-[0_0_10px_-4px_var(--success)]"
+          : "border-[1.5px] border-line-3 bg-surface-2 hover:scale-110 hover:border-ink-3",
       )}
     >
       <TickMark on={done} />

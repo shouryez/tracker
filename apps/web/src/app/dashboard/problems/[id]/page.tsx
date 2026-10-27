@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ExternalLink, History, ListChecks, RotateCcw, Shapes } from "lucide-react";
+import { ExternalLink, History, ListChecks, Play, RotateCcw, Shapes, Timer } from "lucide-react";
 import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
 import {
   ButtonArrow,
@@ -10,12 +10,23 @@ import {
   CardHeader,
   CardTitle,
   DifficultyTag,
+  Skeleton,
+  SkeletonCard,
+  StatusBadge,
+  StrengthLadder,
   Tag,
+  VerdictChip,
   buttonClasses,
-  type TagTone,
 } from "@upsolve/ui";
 import { BackLink } from "@/components/back-link";
-import { dueLabel, ResultTag, reviewUrl, StepLadder } from "@/components/learning";
+import { dueLabel, ResultTag, reviewUrl } from "@/components/learning";
+import {
+  PLATFORM_LABEL as MARK_LABEL,
+  PlatformMark,
+  platformMarkId,
+  type PlatformId,
+} from "@/components/site-icons";
+import { sheetIdentity } from "@/components/sheet-identity";
 import { NoteEditor } from "@/components/note-editor";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton } from "@/components/review-actions";
@@ -34,14 +45,12 @@ export const metadata: Metadata = { title: "Problem" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const icon = (Icon: typeof History) => <Icon size={13} strokeWidth={2} />;
 
-const VERDICT_TONE: Record<ProblemDetail["submissions"][number]["verdict"], TagTone> = {
-  AC: "ac",
-  WA: "wa",
-  TLE: "tle",
-  MLE: "tle",
-  RE: "wa",
-  CE: "neutral",
-  OTHER: "neutral",
+const DAY_MS = 86_400_000;
+const LINK_MARK: Partial<Record<SheetItemLink["site"], PlatformId>> = {
+  takeuforward: "tuf",
+  neetcode: "neetcode",
+  youtube: "youtube",
+  article: "article",
 };
 const INDEPENDENCE = { solo: "solo", hint: "used a hint", solution: "saw the solution" } as const;
 const SITE_LABEL: Record<SheetItemLink["site"], string> = {
@@ -56,9 +65,19 @@ const SITE_LABEL: Record<SheetItemLink["site"], string> = {
 
 export default function ProblemPage({ params }: PageProps<"/dashboard/problems/[id]">) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <BackLink fallback="/dashboard/revision" fallbackLabel="Revision" />
-      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
+      <Suspense
+        fallback={
+          <div className="flex flex-col gap-6">
+            <Skeleton className="h-10 w-96" />
+            <div className="grid grid-cols-12 gap-3.5">
+              <SkeletonCard lines={8} className="col-span-12 h-[480px] xl:col-span-8" />
+              <SkeletonCard lines={4} className="col-span-12 h-[300px] xl:col-span-4" />
+            </div>
+          </div>
+        }
+      >
         <ProblemContent params={params} />
       </Suspense>
     </div>
@@ -87,6 +106,27 @@ async function ProblemContent({
   const topics = topicsOf(problem.topics).map(topicLabel);
   const mistakes = countMistakes(problem.sessions);
   const solveUrl = problem.versions[0]?.url ?? problem.sheets[0]?.links[0]?.url ?? null;
+  const firstVersion = problem.versions[0];
+  const firstMark = firstVersion ? platformMarkId(firstVersion.platform) : null;
+  const status = review
+    ? review.state.retired
+      ? "solved"
+      : review.state.dueAt <= endOfToday
+        ? Math.floor((now - review.state.dueAt) / DAY_MS) >= 1
+          ? "overdue"
+          : "revise"
+        : "solved"
+    : problem.submissions.length + problem.sessions.length > 0
+      ? "attempted"
+      : "todo";
+  const maxActive = Math.max(1, ...problem.sessions.map((x) => x.activeMs));
+  const extraLinks = problem.sheets
+    .flatMap((x) => x.links)
+    .filter(
+      (l, i, all) =>
+        ["takeuforward", "neetcode", "youtube", "article"].includes(l.site) &&
+        all.findIndex((y) => y.url === l.url) === i,
+    );
   const timeline = [
     ...problem.sessions.map((s) => ({ kind: "session" as const, at: s.at, s })),
     ...problem.submissions.map((s) => ({ kind: "submission" as const, at: s.at, s })),
@@ -94,29 +134,52 @@ async function ProblemContent({
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <header className="relative isolate flex flex-wrap items-end justify-between gap-4">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] rounded-full opacity-[.14] blur-[90px]"
+          style={{
+            background: problem.difficulty ? `var(--${problem.difficulty})` : "var(--violet)",
+          }}
+        />
         <div className="min-w-0">
-          <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.05] font-[550] tracking-[-0.04em]">
+          <p className="mb-2 label-mono">Problem</p>
+          <h1 className="text-[clamp(28px,3.6vw,42px)] leading-[1.05] font-[600] tracking-[-0.04em]">
             {problem.title}
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <StatusBadge status={status} />
             {problem.difficulty && <DifficultyTag difficulty={problem.difficulty} />}
             {topics.map((t) => (
               <Tag key={t}>{t}</Tag>
             ))}
           </div>
         </div>
-        {solveUrl && (
-          <a
-            href={review && !review.state.retired ? reviewUrl(solveUrl) : solveUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonClasses({ variant: "signal" })}
-          >
-            {review ? "Re-solve" : "Solve it"} <ButtonArrow />
-          </a>
-        )}
-      </div>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {firstVersion && (
+            <a
+              href={firstVersion.url}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonClasses({ variant: "secondary", className: "group" })}
+            >
+              {firstMark && <PlatformMark site={firstMark} size={15} />}
+              Open on {PLATFORM_LABEL[firstVersion.platform]}
+            </a>
+          )}
+          {solveUrl && (
+            <a
+              href={review && !review.state.retired ? reviewUrl(solveUrl) : solveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonClasses({ variant: "signal" })}
+            >
+              <Play size={14} aria-hidden="true" /> {review ? "Re-solve" : "Solve it"}{" "}
+              <ButtonArrow />
+            </a>
+          )}
+        </div>
+      </header>
 
       <div className="grid grid-cols-12 gap-3.5">
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-8">
@@ -130,18 +193,25 @@ async function ProblemContent({
                   content: (
                     <>
                       {timeline.length === 0 ? (
-                        <p className="text-[13px] text-ink-2">
-                          You haven&apos;t tried this one yet. Open it with the extension connected
-                          and the timer starts on its own.
-                        </p>
+                        <div className="flex flex-col items-center py-8 text-center">
+                          <span className="mb-3 grid size-11 place-items-center rounded-[13px] border border-line-2 bg-surface-2 text-ink-2">
+                            <Timer size={18} aria-hidden="true" />
+                          </span>
+                          <p className="text-15 font-[600]">
+                            No attempts <em className="font-display font-normal">yet.</em>
+                          </p>
+                          <p className="mt-1 max-w-[42ch] text-13 text-ink-2">
+                            Open it with the extension connected and the timer starts on its own.
+                          </p>
+                        </div>
                       ) : (
-                        <ol className="relative ml-1.5 border-l border-line-2">
+                        <ol className="relative ml-2 border-l border-line-2">
                           {timeline.slice(0, 60).map((t) =>
                             t.kind === "session" ? (
-                              <li key={`s-${t.s.id}`} className="relative py-2.5 pl-4">
+                              <li key={`s-${t.s.id}`} className="relative py-3 pl-5">
                                 <span
                                   aria-hidden="true"
-                                  className="absolute top-[15px] -left-[4.5px] size-2 rounded-full bg-primary"
+                                  className={`absolute top-[17px] -left-[5px] size-[9px] rounded-full border-2 border-surface ${t.s.outcome === "solved" ? "bg-success shadow-[0_0_8px_var(--success)]" : "bg-violet"}`}
                                 />
                                 <p className="flex flex-wrap items-center gap-2 text-[13.5px]">
                                   <span className="font-medium">
@@ -152,7 +222,7 @@ async function ProblemContent({
                                     {t.s.submits === 1 ? "" : "s"}
                                   </span>
                                   {t.s.outcome === "solved" ? (
-                                    <Tag tone="ac" mono>
+                                    <Tag tone="success" mono>
                                       solved
                                     </Tag>
                                   ) : (
@@ -162,8 +232,18 @@ async function ProblemContent({
                                     <Tag mono>{INDEPENDENCE[t.s.independence]}</Tag>
                                   )}
                                 </p>
+                                <span className="mt-2 flex h-1.5 max-w-[320px] overflow-hidden rounded-full bg-surface-3">
+                                  <span
+                                    className="h-full origin-left animate-[grow-x_700ms_var(--ease-out)_backwards] rounded-full bg-violet"
+                                    style={{
+                                      width: `${Math.max(3, (t.s.activeMs / maxActive) * 100)}%`,
+                                    }}
+                                  />
+                                </span>
                                 {t.s.note && (
-                                  <p className="mt-1 text-[13px] text-ink-2">“{t.s.note}”</p>
+                                  <p className="mt-2 border-l-2 border-line-3 pl-2.5 text-13 text-ink-2 italic">
+                                    {t.s.note}
+                                  </p>
                                 )}
                                 <p className="mt-0.5 font-mono text-[11px] text-ink-3">
                                   <TimeAgo date={t.s.at} />
@@ -173,15 +253,13 @@ async function ProblemContent({
                             ) : (
                               <li
                                 key={`u-${t.s.id}`}
-                                className="relative flex flex-wrap items-center gap-2 py-1.5 pl-4"
+                                className="relative flex flex-wrap items-center gap-2 py-1.5 pl-5"
                               >
                                 <span
                                   aria-hidden="true"
-                                  className="absolute top-[13px] -left-[3.5px] size-1.5 rounded-full bg-line-2"
+                                  className="absolute top-[13px] -left-[3.5px] size-1.5 rounded-full bg-line-3"
                                 />
-                                <Tag tone={VERDICT_TONE[t.s.verdict]} mono>
-                                  {t.s.verdict}
-                                </Tag>
+                                <VerdictChip verdict={t.s.verdict} />
                                 <span className="font-mono text-[11px] text-ink-3">
                                   {PLATFORM_LABEL[t.s.platform]}
                                   {t.s.language ? ` · ${t.s.language}` : ""}
@@ -205,9 +283,7 @@ async function ProblemContent({
                       <NoteEditor problemId={problem.id} initial={problem.note?.body ?? ""} />
                       {mistakes.length > 0 && (
                         <div className="mt-4 border-t border-dashed border-line-2 pt-3">
-                          <p className="mb-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                            Mistakes you tagged
-                          </p>
+                          <p className="mb-2 label-mono">Mistakes you tagged</p>
                           <div className="flex flex-wrap gap-1.5">
                             {mistakes.map(([tag, n]) => (
                               <Tag key={tag} tone="wa" mono>
@@ -226,9 +302,11 @@ async function ProblemContent({
         </div>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
-          <Card>
+          <Card glow={review && !review.state.retired ? "var(--violet)" : undefined}>
             <CardHeader>
-              <CardTitle icon={icon(RotateCcw)}>Revision</CardTitle>
+              <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
+                Revision
+              </CardTitle>
               {review && <RetireButton problemId={problem.id} retired={review.state.retired} />}
             </CardHeader>
             {!review ? (
@@ -238,24 +316,33 @@ async function ProblemContent({
               </p>
             ) : (
               <>
-                <div className="flex items-center justify-between gap-3">
-                  <StepLadder step={review.state.step} />
-                  <span className="font-mono text-[11.5px] text-ink-2">
-                    {review.state.retired
-                      ? "retired"
-                      : `every ${INTERVAL_DAYS[review.state.step]}d · ${dueLabel(review.state.dueAt, now, endOfToday)}`}
+                <div className="surface-inset flex items-end justify-between gap-3 rounded-[14px] p-3.5">
+                  <StrengthLadder
+                    stage={review.state.step + 1}
+                    overdue={status === "overdue"}
+                    dueLabel={dueLabel(review.state.dueAt, now, endOfToday)}
+                  />
+                  <span className="text-right">
+                    <span className="block text-13 font-[600]">
+                      {review.state.retired
+                        ? "Retired"
+                        : dueLabel(review.state.dueAt, now, endOfToday)}
+                    </span>
+                    {!review.state.retired && (
+                      <span className="tnum block text-11 text-ink-3">
+                        every {INTERVAL_DAYS[review.state.step]} days
+                      </span>
+                    )}
                   </span>
                 </div>
                 {!review.state.retired && (
-                  <div className="mt-3 border-t border-dashed border-line-2 pt-3">
-                    <p className="mb-1.5 text-[12.5px] text-ink-3">
-                      Revised it without the extension?
-                    </p>
-                    <ManualReview problemId={problem.id} className="-ml-2.5" />
+                  <div className="mt-3.5">
+                    <p className="mb-2 text-12 text-ink-3">Revised it without the extension?</p>
+                    <ManualReview problemId={problem.id} />
                   </div>
                 )}
                 {review.state.history.length > 0 && (
-                  <ul className="mt-3 border-t border-dashed border-line-2 pt-1">
+                  <ul className="mt-3.5 border-t border-line pt-1.5">
                     {[...review.state.history]
                       .reverse()
                       .slice(0, 8)
@@ -277,36 +364,30 @@ async function ProblemContent({
             <CardHeader>
               <CardTitle icon={icon(ExternalLink)}>Solve on</CardTitle>
             </CardHeader>
-            <div className="flex flex-wrap gap-1.5">
-              {problem.versions.map((v) => (
-                <a
-                  key={v.url}
-                  href={v.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-[30px] items-center gap-1.5 rounded-full border border-line-2 bg-surface-2 px-3 text-[12.5px] hover:border-ink-3"
-                >
-                  {PLATFORM_LABEL[v.platform]} <ExternalLink size={11} aria-hidden="true" />
-                </a>
-              ))}
-              {problem.sheets
-                .flatMap((s) => s.links)
-                .filter(
-                  (l, i, all) =>
-                    ["takeuforward", "neetcode", "youtube", "article"].includes(l.site) &&
-                    all.findIndex((x) => x.url === l.url) === i,
-                )
-                .map((l) => (
-                  <a
+            <div className="grid grid-cols-2 gap-2">
+              {problem.versions.map((v) => {
+                const mark = platformMarkId(v.platform);
+                return (
+                  <ResourceTile
+                    key={v.url}
+                    href={v.url}
+                    label={PLATFORM_LABEL[v.platform]}
+                    site={mark}
+                  />
+                );
+              })}
+              {extraLinks.map((l) => {
+                const mark = LINK_MARK[l.site] ?? null;
+                return (
+                  <ResourceTile
                     key={l.url}
                     href={l.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-[30px] items-center gap-1.5 rounded-full border border-line-2 bg-surface-2 px-3 text-[12.5px] hover:border-ink-3"
-                  >
-                    {SITE_LABEL[l.site]} <ExternalLink size={11} aria-hidden="true" />
-                  </a>
-                ))}
+                    label={mark ? MARK_LABEL[mark] : SITE_LABEL[l.site]}
+                    site={mark}
+                    wide={l.site === "youtube"}
+                  />
+                );
+              })}
             </div>
           </Card>
 
@@ -315,21 +396,35 @@ async function ProblemContent({
               <CardHeader>
                 <CardTitle icon={icon(ListChecks)}>In your sheets</CardTitle>
               </CardHeader>
-              <ul>
-                {problem.sheets.map((s) => (
-                  <li
-                    key={s.slug}
-                    className="border-t border-dashed border-line-2 py-2 first:border-t-0 first:pt-0"
-                  >
-                    <Link
-                      href={`/dashboard/sheets/${s.slug}`}
-                      className="text-[13.5px] font-medium hover:underline"
-                    >
-                      {s.name}
-                    </Link>
-                    <p className="font-mono text-[11px] text-ink-3">{s.step}</p>
-                  </li>
-                ))}
+              <ul className="flex flex-col gap-2">
+                {problem.sheets.map((s) => {
+                  const { color, mono } = sheetIdentity(s.slug, s.name);
+                  return (
+                    <li key={s.slug}>
+                      <Link
+                        href={`/dashboard/sheets/${s.slug}`}
+                        className="group/sh flex items-center gap-3 rounded-[12px] p-2 transition-colors hover:bg-surface-2"
+                      >
+                        <span
+                          className="grid h-8 min-w-8 place-items-center rounded-[9px] border px-1 font-mono text-[10.5px] font-[700]"
+                          style={{
+                            color,
+                            borderColor: `color-mix(in srgb, ${color} 40%, transparent)`,
+                            background: `color-mix(in srgb, ${color} 14%, transparent)`,
+                          }}
+                        >
+                          {mono}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-13 font-[600] group-hover/sh:underline">
+                            {s.name}
+                          </span>
+                          <span className="block truncate text-11 text-ink-3">{s.step}</span>
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             </Card>
           )}
@@ -337,21 +432,23 @@ async function ProblemContent({
           {problem.similar.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle icon={icon(Shapes)}>Similar, not solved yet</CardTitle>
+                <CardTitle icon={icon(Shapes)} tint="var(--signal-mark)">
+                  Similar, not solved yet
+                </CardTitle>
               </CardHeader>
-              <ul>
+              <ul className="flex flex-col gap-2">
                 {problem.similar.map((s) => (
-                  <li
-                    key={s.id}
-                    className="flex items-center gap-2 border-t border-dashed border-line-2 py-2 first:border-t-0 first:pt-0"
-                  >
+                  <li key={s.id}>
                     <Link
                       href={`/dashboard/problems/${s.id}`}
-                      className="min-w-0 flex-1 truncate text-[13.5px] hover:underline"
+                      className="surface-inset group/sim flex items-center gap-3 rounded-[12px] px-3 py-2.5 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
                     >
-                      {s.title}
+                      <span className="min-w-0 flex-1 truncate text-13 font-[550] group-hover/sim:underline">
+                        {s.title}
+                      </span>
+                      {s.difficulty && <DifficultyTag difficulty={s.difficulty} />}
+                      <ButtonArrow />
                     </Link>
-                    {s.difficulty && <DifficultyTag difficulty={s.difficulty} />}
                   </li>
                 ))}
               </ul>
@@ -367,4 +464,38 @@ function countMistakes(sessions: ProblemDetail["sessions"]): [string, number][] 
   const counts = new Map<string, number>();
   for (const s of sessions) for (const t of s.mistakeTags) counts.set(t, (counts.get(t) ?? 0) + 1);
   return [...counts].sort((a, b) => b[1] - a[1]);
+}
+
+/** "Solve on" logo tile: monochrome mark, brand colour on hover. */
+function ResourceTile({
+  href,
+  label,
+  site,
+  wide,
+}: {
+  href: string;
+  label: string;
+  site: PlatformId | null;
+  wide?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className={`surface-inset group flex items-center gap-2.5 rounded-[12px] px-3 py-2.5 text-13 font-[550] transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2 ${wide ? "col-span-2" : ""}`}
+    >
+      {site ? (
+        <PlatformMark site={site} size={18} className="text-ink-2" />
+      ) : (
+        <ExternalLink size={15} aria-hidden="true" className="text-ink-3" />
+      )}
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+      <ExternalLink
+        size={12}
+        aria-hidden="true"
+        className="text-ink-4 transition-colors group-hover:text-ink-2"
+      />
+    </a>
+  );
 }

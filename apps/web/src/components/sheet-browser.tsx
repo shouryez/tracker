@@ -2,25 +2,24 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
-import {
-  ArrowRight,
-  ChevronRight,
-  FileText,
-  NotebookPen,
-  PanelRight,
-  Play,
-  RotateCcw,
-  Search,
-  Star,
-  X,
-} from "lucide-react";
+import { Check, ChevronRight, NotebookPen, PanelRight, Play, Search, X } from "lucide-react";
 import { motion } from "motion/react";
-import { DifficultyTag, Tag, cn } from "@upsolve/ui";
+import {
+  DifficultyTag,
+  Kbd,
+  LevelChip,
+  ProgressRing,
+  StatusBadge,
+  Tag,
+  Tooltip,
+  cn,
+} from "@upsolve/ui";
 import { setSheetItemStarred } from "@/app/actions/sheets";
 import type { SheetItemView } from "@/lib/sheets-data";
+import { StarToggle } from "./fx/toggles";
 import { NoteEditor } from "./note-editor";
 import { ItemTick } from "./sheets";
-import { LeetCodeMark, LetterMark, parseYouTube, YouTubeMark } from "./site-icons";
+import { PlatformMark, parseYouTube, type PlatformId } from "./site-icons";
 
 type Status = "all" | "todo" | "done" | "starred" | "due";
 type Site = SheetItemView["links"][number]["site"];
@@ -111,6 +110,21 @@ export function SheetBrowser({
       return next;
     });
 
+  // "/" focuses the search box (unless you're already typing somewhere).
+  const searchRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.key !== "/" || t?.closest("input, textarea, [contenteditable]")) return;
+      e.preventDefault();
+      searchRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const doneAll = items.filter((i) => i.status).length;
+
   // "Continue" scrolls to the item once its step has rendered.
   useEffect(() => {
     if (!highlight) return;
@@ -138,25 +152,39 @@ export function SheetBrowser({
             });
             setHighlight(continueItem.itemKey);
           }}
-          className="group/continue flex items-center gap-3 rounded-lg border border-line bg-surface px-[18px] py-3 text-left shadow-card transition-colors duration-[var(--dur-base)] hover:border-ink-3"
+          className="group/continue surface-card relative isolate flex items-center gap-4 overflow-hidden rounded-lg px-[18px] py-3.5 text-left transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-signal text-signal-ink">
-            <ArrowRight size={15} aria-hidden="true" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 animate-aurora bg-[radial-gradient(60%_120%_at_0%_50%,color-mix(in_srgb,var(--signal)_14%,transparent),transparent_70%),radial-gradient(50%_120%_at_100%_50%,color-mix(in_srgb,var(--violet)_16%,transparent),transparent_70%)] motion-reduce:animate-none"
+          />
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-signal text-signal-ink shadow-glow-signal transition-transform duration-[var(--dur-base)] group-hover/continue:scale-110">
+            <Play size={16} aria-hidden="true" className="translate-x-px fill-current" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-              Continue where you left off
+            <span className="block label-mono">Continue where you left off</span>
+            <span className="block truncate text-16 font-[600]">{continueItem.title}</span>
+            <span className="block truncate text-12 text-ink-3">
+              {continueItem.step}
+              {continueItem.section ? ` › ${continueItem.section}` : ""}
             </span>
-            <span className="block truncate text-[14px] font-[550]">{continueItem.title}</span>
           </span>
-          <span className="hidden truncate font-mono text-[11px] text-ink-3 sm:block">
-            {continueItem.step}
-            {continueItem.section ? ` › ${continueItem.section}` : ""}
-          </span>
+          <ProgressRing
+            total={Math.max(1, items.length)}
+            size={52}
+            stroke={6}
+            className="hidden sm:grid"
+            segments={[{ label: "Done", value: doneAll, color: "var(--violet)" }]}
+            aria-label={`${doneAll} of ${items.length} done`}
+          >
+            <span className="tnum text-[10px] text-ink-2">
+              {Math.round((doneAll / Math.max(1, items.length)) * 100)}%
+            </span>
+          </ProgressRing>
         </button>
       )}
 
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div className="glass z-30 -mx-1 flex flex-wrap items-center gap-2.5 rounded-[18px] border border-line px-2.5 py-2 shadow-e1 md:sticky md:top-[64px]">
         <label className="relative min-w-[200px] flex-1">
           <span className="sr-only">Search problems</span>
           <Search
@@ -165,18 +193,20 @@ export function SheetBrowser({
             className="absolute top-1/2 left-3 -translate-y-1/2 text-ink-3"
           />
           <input
+            ref={searchRef}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search problems or topics"
-            className="h-[36px] w-full rounded-full border border-line-2 bg-surface pr-3.5 pl-9 text-[13px] text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]"
+            className="h-[36px] w-full rounded-full border border-line-2 bg-surface-2 pr-10 pl-9 text-13 text-ink shadow-inset outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-4 focus:border-signal-2 focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--signal)_16%,transparent)]"
           />
+          <Kbd className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">/</Kbd>
         </label>
 
         <div
           role="radiogroup"
           aria-label="Show"
-          className="relative isolate inline-flex flex-wrap rounded-full border border-line bg-surface-2 p-[3px]"
+          className="relative isolate inline-flex flex-wrap rounded-full border border-line bg-surface-inset p-[3px] shadow-inset"
         >
           {(["all", "todo", "done", "starred", "due"] as const).map((s) => (
             <button
@@ -186,23 +216,25 @@ export function SheetBrowser({
               aria-checked={status === s}
               onClick={() => setStatus(s)}
               className={cn(
-                "relative inline-flex h-[28px] items-center gap-1.5 rounded-full px-3 text-[12.5px] transition-colors duration-[var(--dur-base)]",
-                status === s ? "text-ink" : "text-ink-2 hover:text-ink",
+                "relative inline-flex h-[28px] items-center gap-1.5 rounded-full px-3 text-[12.5px] font-[550] transition-colors duration-[var(--dur-base)]",
+                status === s ? "text-ink" : "text-ink-3 hover:text-ink",
               )}
             >
               {status === s && (
                 <motion.span
                   layoutId="sheet-status"
                   transition={{ type: "spring", stiffness: 500, damping: 38 }}
-                  className="absolute inset-0 -z-10 rounded-full bg-surface shadow-sm"
+                  className="absolute inset-0 -z-10 rounded-full border border-line-2 bg-surface-4 shadow-e1"
                 />
               )}
               {STATUS_LABEL[s]}
               {s === "starred" && stars.size > 0 && (
-                <span className="font-mono text-[10.5px] text-ink-3">{stars.size}</span>
+                <span className="tnum rounded-full bg-medium-soft px-1.5 font-mono text-[10.5px] text-medium">
+                  {stars.size}
+                </span>
               )}
               {s === "due" && dueCount > 0 && (
-                <span className="rounded-full bg-warn/15 px-1.5 font-mono text-[10.5px] text-warn">
+                <span className="tnum rounded-full bg-violet-soft px-1.5 font-mono text-[10.5px] text-violet">
                   {dueCount}
                 </span>
               )}
@@ -221,10 +253,10 @@ export function SheetBrowser({
                   aria-pressed={on}
                   onClick={() => setTiers((ts) => (on ? ts.filter((x) => x !== t) : [...ts, t]))}
                   className={cn(
-                    "h-[28px] rounded-full border px-3 font-mono text-[11.5px] capitalize transition-colors duration-[var(--dur-base)]",
+                    "h-[28px] rounded-full border px-3 text-12 font-[550] capitalize transition-colors duration-[var(--dur-base)]",
                     on
-                      ? "border-transparent bg-ink text-bg"
-                      : "border-line-2 text-ink-2 hover:text-ink",
+                      ? "border-violet-line bg-violet-soft text-ink"
+                      : "border-line-2 text-ink-2 hover:border-line-3 hover:text-ink",
                   )}
                 >
                   {t}
@@ -241,7 +273,7 @@ export function SheetBrowser({
               prev.size === steps.length ? new Set() : new Set(steps.map((s) => s.name)),
             )
           }
-          className="ml-auto font-mono text-[11.5px] text-ink-3 hover:text-ink"
+          className="ml-auto rounded-full px-2.5 py-1 text-12 font-[550] text-ink-3 transition-colors hover:bg-surface-3 hover:text-ink"
         >
           {open.size === steps.length ? "Collapse all" : "Expand all"}
         </button>
@@ -294,7 +326,10 @@ export function SheetBrowser({
         return (
           <section
             key={step.name}
-            className="overflow-clip rounded-lg border border-line bg-surface shadow-card transition-shadow duration-[var(--dur-base)] hover:shadow-md"
+            className={cn(
+              "surface-card overflow-clip rounded-lg transition-shadow duration-[var(--dur-base)] hover:shadow-e2",
+              pct === 100 && "border-success-line shadow-[var(--e1),0_0_30px_-14px_var(--success)]",
+            )}
           >
             <button
               type="button"
@@ -302,8 +337,8 @@ export function SheetBrowser({
               onClick={() => toggle(setOpen, step.name)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-t-lg px-[18px] py-3.5 text-left transition-colors duration-[var(--dur-base)] hover:bg-surface-2/50",
-                // Stays visible under the top bar while you scroll through a long step.
-                isOpen && "glass sticky top-[64px] z-20 border-b border-line",
+                // Stays visible under the top bar (and toolbar) while you scroll a long step.
+                isOpen && "glass sticky top-[64px] z-20 border-b border-line md:top-[122px]",
               )}
             >
               <ChevronRight
@@ -314,28 +349,39 @@ export function SheetBrowser({
                   isOpen && "rotate-90",
                 )}
               />
-              <span className="hidden w-6 font-mono text-[11px] text-ink-3 sm:block">
+              <span className="tnum hidden w-9 font-mono text-24 leading-none font-[600] text-ink-4 sm:block">
                 {String(stepIndex + 1).padStart(2, "0")}
               </span>
-              <span className="min-w-0 flex-1 truncate text-[14.5px] font-[550]">{step.name}</span>
+              <span className="min-w-0 flex-1 truncate text-15 font-[600]">{step.name}</span>
+              {pct === 100 && (
+                <span className="grid size-5 animate-[pop-in_var(--dur-slow)_var(--ease-spring)] place-items-center rounded-full bg-success text-[#06210f] shadow-[0_0_12px_-3px_var(--success)]">
+                  <Check size={12} strokeWidth={3} aria-label="Complete" />
+                </span>
+              )}
               {minutesLeft > 0 && (
-                <span className="hidden font-mono text-[11px] text-ink-3 md:block">
+                <span className="tnum hidden text-12 text-ink-3 md:block">
                   ~{formatMinutes(minutesLeft)} left
                 </span>
               )}
               <span className="hidden h-1.5 w-28 overflow-hidden rounded-full bg-surface-3 sm:block">
                 <span
-                  className={cn("block h-full rounded-full", pct === 100 ? "bg-ok" : "bg-ink")}
-                  style={{ width: `${pct}%` }}
+                  className="block h-full origin-left animate-[grow-x_700ms_var(--ease-out)_backwards] rounded-full"
+                  style={{
+                    width: `${pct}%`,
+                    background:
+                      pct === 100
+                        ? "var(--success)"
+                        : "linear-gradient(90deg, color-mix(in srgb, var(--violet) 55%, transparent), var(--violet))",
+                  }}
                 />
               </span>
-              <span className="w-14 text-right font-mono text-[11.5px] text-ink-3">
+              <span className="tnum w-14 text-right font-mono text-12 text-ink-3">
                 {done}/{step.all.length}
               </span>
             </button>
 
             {isOpen && (
-              <div className="border-t border-line px-2 pt-1 pb-3 sm:px-3">
+              <div className="animate-[rise-in_var(--dur-slow)_var(--ease-out)_backwards] border-t border-line px-2 pt-1 pb-3 sm:px-3">
                 {step.sections.map((section) => {
                   const rows = section.items.filter(matches);
                   if (rows.length === 0) return null;
@@ -343,7 +389,7 @@ export function SheetBrowser({
                   const sectionOpen = filtering || !closedSections.has(key);
                   const sectionDone = section.items.filter((i) => i.status).length;
                   const list = (
-                    <ul className="overflow-hidden rounded-md border border-line bg-bg-2/40">
+                    <ul className="overflow-hidden rounded-[14px] border border-line bg-surface-inset">
                       {rows.map((item) => (
                         <ItemRow
                           key={item.itemKey}
@@ -404,7 +450,27 @@ export function SheetBrowser({
                         <span className="min-w-0 flex-1 truncate text-[13.5px] font-medium">
                           {section.name}
                         </span>
-                        <span className="font-mono text-[11px] text-ink-3">
+                        <span className="hidden h-1 w-16 overflow-hidden rounded-full bg-surface-3 sm:block">
+                          <span
+                            className="block h-full rounded-full"
+                            style={{
+                              width: `${(sectionDone / Math.max(1, section.items.length)) * 100}%`,
+                              background:
+                                sectionDone === section.items.length
+                                  ? "var(--success)"
+                                  : "var(--violet)",
+                            }}
+                          />
+                        </span>
+                        {sectionDone === section.items.length ? (
+                          <Check
+                            size={13}
+                            strokeWidth={2.5}
+                            className="text-success"
+                            aria-label="Section complete"
+                          />
+                        ) : null}
+                        <span className="tnum font-mono text-11 text-ink-3">
                           {sectionDone}/{section.items.length}
                         </span>
                       </button>
@@ -456,7 +522,9 @@ function ItemRow({
   const youtube = link("youtube");
   const [, startTransition] = useTransition();
   const title = (
-    <span className={cn("text-[13.5px]", item.status && "text-ink-3")}>{item.title}</span>
+    <span className={cn("text-[13.5px] font-medium", item.status && "text-ink-2")}>
+      {item.title}
+    </span>
   );
 
   return (
@@ -464,10 +532,15 @@ function ItemRow({
       <li
         id={`item-${item.itemKey}`}
         className={cn(
-          "group/row flex animate-[page-in_var(--dur-base)_var(--ease-out)_backwards] flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] first:border-t-0 hover:bg-surface-2/60 sm:flex-nowrap",
-          highlighted && "bg-signal/15",
+          "group/row relative flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] [contain-intrinsic-size:auto_48px] [content-visibility:auto] first:border-t-0 hover:bg-surface-2/70 sm:flex-nowrap",
+          highlighted && "animate-[row-pulse_1.2s_var(--ease-out)_2] bg-signal/12",
         )}
       >
+        <span
+          aria-hidden="true"
+          className="absolute top-2 bottom-2 left-0 w-[3px] scale-y-0 rounded-r-full transition-transform duration-[var(--dur-base)] group-hover/row:scale-y-100"
+          style={{ background: accentOf(item.tier) }}
+        />
         <ItemTick
           sheetId={sheetId}
           itemKey={item.itemKey}
@@ -487,11 +560,7 @@ function ItemRow({
           )}
           <TierTag tier={item.tier} />
           {item.kind === "learning" && <Tag mono>read</Tag>}
-          {review?.due && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-warn/15 px-1.5 py-0.5 font-mono text-[10.5px] text-warn">
-              <RotateCcw size={10} aria-hidden="true" /> revise
-            </span>
-          )}
+          {review?.due && <StatusBadge status="revise" className="h-5 px-1.5 text-11" />}
           {!item.tracked && item.kind === "practice" && (
             <span
               className="hidden font-mono text-[10.5px] text-ink-3 lg:inline"
@@ -510,61 +579,57 @@ function ItemRow({
         <span className="ml-auto flex items-center gap-0.5 sm:ml-0">
           <Slot>
             {practice && practiceSite && (
-              <IconLink href={practice} label={SITE_LABEL[practiceSite]}>
-                {practiceSite === "takeuforward" ? (
-                  <LetterMark text="TUF" color="#2563eb" />
-                ) : practiceSite === "neetcode" ? (
-                  <LetterMark text="NC" color="#7c3aed" />
-                ) : (
-                  <FileText size={14} strokeWidth={1.75} />
-                )}
-              </IconLink>
+              <Resource
+                href={practice}
+                label={SITE_LABEL[practiceSite]}
+                site={
+                  practiceSite === "takeuforward"
+                    ? "tuf"
+                    : practiceSite === "neetcode"
+                      ? "neetcode"
+                      : "article"
+                }
+              />
             )}
           </Slot>
           <Slot className="hidden sm:inline-grid">
             {link("article") && (
-              <IconLink href={link("article")!} label="Read the article">
-                <FileText size={14} strokeWidth={1.75} />
-              </IconLink>
+              <Resource href={link("article")!} label="Read the article" site="article" />
             )}
           </Slot>
           <Slot>
             {youtube && (
-              <IconButton
+              <Resource
                 label="Watch the explanation"
+                site="youtube"
                 onClick={() => (parseYouTube(youtube) ? onVideo(youtube) : window.open(youtube))}
-              >
-                <YouTubeMark />
-              </IconButton>
+              />
             )}
           </Slot>
           <Slot>
             {link("leetcode") && (
-              <IconLink href={link("leetcode")!} label="Solve on LeetCode">
-                <LeetCodeMark className="text-ink" />
-              </IconLink>
+              <Resource href={link("leetcode")!} label="Solve on LeetCode" site="leetcode" />
             )}
           </Slot>
           <Slot className="hidden sm:inline-grid">
             {link("geeksforgeeks") && (
-              <IconLink href={link("geeksforgeeks")!} label="Solve on GeeksforGeeks">
-                <LetterMark text="GfG" color="#2f8d46" />
-              </IconLink>
+              <Resource href={link("geeksforgeeks")!} label="Solve on GeeksforGeeks" site="gfg" />
             )}
           </Slot>
           <span aria-hidden="true" className="mx-1 hidden h-4 w-px bg-line-2 sm:block" />
-          <Slot className="hidden sm:inline-grid opacity-50 transition-opacity duration-[var(--dur-base)] group-hover/row:opacity-100 group-focus-within/row:opacity-100">
+          <Slot className="hidden opacity-60 transition-opacity duration-[var(--dur-base)] group-focus-within/row:opacity-100 group-hover/row:opacity-100 sm:inline-grid">
             {item.problemId && (
               <IconButton
                 label={item.note ? "Your note" : "Add a note"}
                 pressed={noteOpen}
                 onClick={onNote}
               >
-                <NotebookPen
-                  size={14}
-                  strokeWidth={1.75}
-                  className={item.note ? "text-primary" : undefined}
-                />
+                <span className="relative">
+                  <NotebookPen size={14} strokeWidth={1.75} />
+                  {item.note && (
+                    <i className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-signal shadow-[0_0_6px_var(--signal)]" />
+                  )}
+                </span>
               </IconButton>
             )}
           </Slot>
@@ -572,22 +637,18 @@ function ItemRow({
             className={
               starred
                 ? undefined
-                : "opacity-50 transition-opacity duration-[var(--dur-base)] group-hover/row:opacity-100 group-focus-within/row:opacity-100"
+                : "opacity-60 transition-opacity duration-[var(--dur-base)] group-focus-within/row:opacity-100 group-hover/row:opacity-100"
             }
           >
-            <IconButton
-              label={starred ? "Unstar" : "Star to come back to"}
-              pressed={starred}
+            <StarToggle
+              on={starred}
+              aria-label={starred ? "Unstar" : "Star to come back to"}
+              title={starred ? "Unstar" : "Star to come back to"}
+              className="size-[30px] rounded-md"
               onClick={() => startTransition(() => onStar(!starred))}
-            >
-              <Star
-                size={14}
-                strokeWidth={1.75}
-                className={starred ? "fill-warn text-warn" : undefined}
-              />
-            </IconButton>
+            />
           </Slot>
-          <Slot className="hidden sm:inline-grid opacity-50 transition-opacity duration-[var(--dur-base)] group-hover/row:opacity-100 group-focus-within/row:opacity-100">
+          <Slot className="hidden opacity-60 transition-opacity duration-[var(--dur-base)] group-focus-within/row:opacity-100 group-hover/row:opacity-100 sm:inline-grid">
             {item.problemId && (
               <Link
                 href={`/dashboard/problems/${item.problemId}`}
@@ -627,19 +688,42 @@ function Slot({ children, className }: { children?: ReactNode; className?: strin
   );
 }
 
-function IconLink({ href, label, children }: { href: string; label: string; children: ReactNode }) {
+/** Resource dock icon: monochrome mark, brand colour + slight magnify on hover, tooltip. */
+function Resource({
+  href,
+  label,
+  site,
+  onClick,
+}: {
+  href?: string;
+  label: string;
+  site: PlatformId;
+  onClick?: () => void;
+}) {
+  const cls =
+    "group grid size-[30px] place-items-center rounded-md text-ink-3 transition-[background-color,transform] duration-[var(--dur-fast)] hover:scale-110 hover:bg-surface-2";
+  const mark = <PlatformMark site={site} size={15} />;
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={label}
-      title={label}
-      className="grid size-[30px] place-items-center rounded-md text-ink-2 transition-colors duration-[var(--dur-base)] hover:bg-surface-2 hover:text-ink"
-    >
-      {children}
-    </a>
+    <Tooltip content={label} side="top">
+      {href ? (
+        <a href={href} target="_blank" rel="noreferrer" aria-label={label} className={cls}>
+          {mark}
+        </a>
+      ) : (
+        <button type="button" onClick={onClick} aria-label={label} className={cls}>
+          {mark}
+        </button>
+      )}
+    </Tooltip>
   );
+}
+
+/** Left accent bar colour for a row (difficulty or level). */
+function accentOf(tier: string | null) {
+  if (tier === "easy" || tier === "basic") return "var(--easy)";
+  if (tier === "medium" || tier === "core") return "var(--medium)";
+  if (tier === "hard" || tier === "pro") return "var(--hard)";
+  return "var(--violet)";
 }
 
 function IconButton({
@@ -673,12 +757,8 @@ function IconButton({
 function TierTag({ tier }: { tier: string | null }) {
   if (tier === "easy" || tier === "medium" || tier === "hard")
     return <DifficultyTag difficulty={tier} />;
-  const tone =
-    tier === "basic" ? "easy" : tier === "core" ? "medium" : tier === "pro" ? "hard" : null;
-  return tier && tone ? (
-    <Tag tone={tone} className="shrink-0 capitalize">
-      {tier}
-    </Tag>
+  return tier === "basic" || tier === "core" || tier === "pro" ? (
+    <LevelChip level={tier} className="shrink-0" />
   ) : null;
 }
 
@@ -709,11 +789,11 @@ function VideoModal({ url, title, onClose }: { url: string; title: string; onClo
       role="dialog"
       aria-modal="true"
       aria-label={`Video: ${title}`}
-      className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid animate-[fade-in-pop_var(--dur-base)_var(--ease-out)] place-items-center bg-[rgba(4,4,8,.7)] p-4 backdrop-blur-[6px]"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[960px] overflow-hidden rounded-lg border border-line bg-surface shadow-card"
+        className="glass w-full max-w-[960px] animate-[modal-in_var(--dur-slow)_var(--ease-spring)] overflow-hidden rounded-[22px] border border-line-2 shadow-e4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3">

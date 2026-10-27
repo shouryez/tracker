@@ -54,3 +54,18 @@ export function StreakCelebration({ streak }: { streak: number }) {
   }, [streak]);
   return null;
 }
+
+/** Celebrates a real achievement once per `id` (e.g. "queue-2026-10-28"), remembered per browser. */
+export function CelebrateOnce({ id }: { id: string }) {
+  useEffect(() => {
+    const key = `upsolve:celebrated:${id}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      return;
+    }
+    void burst();
+  }, [id]);
+  return null;
+}
