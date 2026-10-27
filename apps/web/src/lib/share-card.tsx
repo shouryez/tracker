@@ -17,9 +17,11 @@ export type ShareCardData = {
 };
 
 const INK = "#f4f4f6";
-const MUTED = "#8b8b98";
+const MUTED = "#a3a3b5";
 const LIME = "#d7ff3a";
-const PIXELS = ["#1d1d25", "#3a4296", "#5562d6", "#7a86ff", "#a9b1ff"];
+// Same 5-step ramp as the app heatmap (tokens.css heat-0..4): empty → violet → lime.
+const PIXELS = ["rgba(255,255,255,0.07)", "#2c2f6b", "#4d57d9", "#9aa2ff", LIME];
+const STAT_TINT = ["#a48bff", "#ff7a45", "#ffb938"];
 
 /** Fetches a Google Font as TTF (older user agents get TTF, which next/og needs). */
 async function googleFont(family: string, weight: number): Promise<ArrayBuffer | null> {
@@ -61,29 +63,32 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
   const columns = Array.from({ length: weeks }, (_, w) =>
     Array.from({ length: 7 }, (_, day) => d.heatmap[w * 7 + day] ?? 0),
   );
-  const stat = (value: string, label: string) => (
+  const stat = (value: string, label: string, i: number) => (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <div
         style={{
           fontFamily: "Geist",
           fontWeight: 600,
-          fontSize: 64,
+          fontSize: 68,
           letterSpacing: -3,
           color: INK,
         }}
       >
         {value}
       </div>
-      <div
-        style={{
-          fontFamily: "Geist",
-          fontSize: 18,
-          color: MUTED,
-          letterSpacing: 2,
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: STAT_TINT[i] }} />
+        <div
+          style={{
+            fontFamily: "Geist",
+            fontSize: 18,
+            color: MUTED,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+          }}
+        >
+          {label}
+        </div>
       </div>
     </div>
   );
@@ -97,7 +102,9 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
         flexDirection: "column",
         justifyContent: "space-between",
         padding: 64,
-        background: "linear-gradient(160deg, #101016 0%, #0b0b0f 60%, #12142a 100%)",
+        backgroundColor: "#08080b",
+        backgroundImage:
+          "radial-gradient(circle at 0% 0%, rgba(124,92,255,0.55) 0%, rgba(8,8,11,0) 45%), radial-gradient(circle at 100% 100%, rgba(215,255,58,0.18) 0%, rgba(8,8,11,0) 40%), radial-gradient(circle at 85% 10%, rgba(110,123,255,0.35) 0%, rgba(8,8,11,0) 40%)",
         color: INK,
         fontFamily: "Geist",
       }}
@@ -112,7 +119,19 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
           </div>
           <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: -1 }}>upsolve</div>
         </div>
-        {d.handle && <div style={{ fontSize: 22, color: MUTED }}>{`upsolve · /u/${d.handle}`}</div>}
+        <div
+          style={{
+            display: "flex",
+            padding: "8px 16px",
+            borderRadius: 999,
+            border: "1px solid rgba(255,255,255,0.14)",
+            background: "rgba(255,255,255,0.06)",
+            fontSize: 18,
+            color: MUTED,
+          }}
+        >
+          {d.handle ? `upsolve.in/u/${d.handle}` : "DSA practice, remembered"}
+        </div>
       </div>
 
       <div
@@ -124,7 +143,15 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 560 }}>
-          <div style={{ fontFamily: "Serif", fontSize: 92, lineHeight: 1, letterSpacing: -2 }}>
+          <div
+            style={{
+              fontFamily: "Serif",
+              fontSize: 100,
+              lineHeight: 1,
+              letterSpacing: -2,
+              color: INK,
+            }}
+          >
             {d.name}
           </div>
           {d.subtitle && (
@@ -141,8 +168,9 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
                     width: 14,
                     height: 14,
                     borderRadius: 3,
-                    background:
-                      w === weeks - 1 && day === 6 && level > 0 ? LIME : PIXELS[Math.min(4, level)],
+                    background: PIXELS[Math.min(4, level)],
+                    border:
+                      w === weeks - 1 && day === 6 ? `2px solid ${LIME}` : "2px solid transparent",
                   }}
                 />
               ))}
@@ -151,10 +179,17 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 72, borderTop: "1px solid #24242e", paddingTop: 32 }}>
-        {stat(d.solved.toLocaleString("en-IN"), "problems solved")}
-        {stat(`${d.streak}`, "day streak")}
-        {stat(d.third.value, d.third.label)}
+      <div
+        style={{
+          display: "flex",
+          gap: 80,
+          borderTop: "1px solid rgba(255,255,255,0.1)",
+          paddingTop: 30,
+        }}
+      >
+        {stat(d.solved.toLocaleString("en-IN"), "problems solved", 0)}
+        {stat(`${d.streak}`, "day streak", 1)}
+        {stat(d.third.value, d.third.label, 2)}
       </div>
     </div>,
     {

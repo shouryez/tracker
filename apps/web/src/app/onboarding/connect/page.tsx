@@ -12,10 +12,10 @@ export const metadata: Metadata = { title: "Connect your platforms" };
 
 export default function ConnectPage() {
   return (
-    <div>
+    <div className="mx-auto max-w-[760px] animate-[slide-in-r_var(--dur-slow)_var(--ease-out)]">
       <OnboardingSteps current={2} />
       <h1 className="mb-3 font-display text-[clamp(36px,6vw,52px)] leading-none tracking-[-0.02em]">
-        <span className="text-ink-3">Bring your history.</span> <em>All of it.</em>
+        Bring your history. <em className="text-violet">All of it.</em>
       </h1>
       <p className="mb-8 max-w-[52ch] text-ink-2">
         Enter your usernames. We pull your solved problems, ratings and activity from public data.
@@ -48,7 +48,7 @@ async function ConnectStep() {
         connect or verify platforms later from Settings.
       </p>
       <form action={finishOnboarding} className="mt-8 flex justify-end">
-        <Button type="submit" variant="signal">
+        <Button type="submit" variant="signal" size="lg">
           {profile.onboardedAt ? "Back to dashboard" : "Go to my dashboard"} <ButtonArrow />
         </Button>
       </form>

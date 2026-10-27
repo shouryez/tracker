@@ -1,19 +1,23 @@
 import Link from "next/link";
-import { Logo, ThemeToggle } from "@upsolve/ui";
+import { DotGrid, GlowOrb, Logo, ThemeToggle } from "@upsolve/ui";
 
 export default function OnboardingLayout({ children }: LayoutProps<"/onboarding">) {
   return (
     <div className="relative min-h-dvh overflow-hidden">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <i className="absolute top-[-12%] left-[60%] h-[460px] w-[560px] animate-drift-a rounded-full bg-[var(--glow-a)] opacity-50 blur-[110px]" />
-      </div>
-      <header className="relative mx-auto flex h-[72px] w-[min(720px,100%-32px)] items-center justify-between">
+      <DotGrid className="opacity-60" />
+      <GlowOrb className="top-[-14%] left-[55%] animate-drift-a opacity-40" size={560} />
+      <GlowOrb
+        className="bottom-[-20%] left-[-10%] animate-drift-b opacity-25"
+        size={480}
+        color="var(--aurora-2)"
+      />
+      <header className="relative mx-auto flex h-[72px] w-[min(1000px,100%-32px)] items-center justify-between">
         <Link href="/" aria-label="Upsolve home">
           <Logo />
         </Link>
         <ThemeToggle />
       </header>
-      <main className="relative mx-auto w-[min(720px,100%-32px)] pt-6 pb-24">{children}</main>
+      <main className="relative mx-auto w-[min(1000px,100%-32px)] pt-6 pb-24">{children}</main>
     </div>
   );
 }

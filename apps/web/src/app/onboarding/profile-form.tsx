@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { Button, ButtonArrow, cn } from "@upsolve/ui";
+import { GraduationCap, Target } from "lucide-react";
+import { Button, ButtonArrow, SegmentedControl, cn } from "@upsolve/ui";
+import { Select as Combo } from "@/components/fx/select";
 import { saveProfile } from "@/app/actions/profile";
 import {
   BRANCHES,
@@ -32,7 +34,12 @@ type Defaults = {
 const STEP_ONE_FIELDS = ["name", "handle", "collegeId", "branch", "gradYear", "currentYear"];
 
 export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing: boolean }) {
-  const [step, setStep] = useState<0 | 1>(0);
+  const [step, setStepRaw] = useState<0 | 1>(0);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const setStep = (s: 0 | 1) => {
+    setDir(s > step ? 1 : -1);
+    setStepRaw(s);
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
 
@@ -102,85 +109,110 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
       <OnboardingSteps current={step} />
 
       {step === 0 ? (
-        <section>
+        <section
+          key="s0"
+          className={
+            dir === 1
+              ? "animate-[slide-in-r_var(--dur-slow)_var(--ease-out)]"
+              : "animate-[slide-in-l_var(--dur-slow)_var(--ease-out)]"
+          }
+        >
           <Heading
             muted={editing ? "Edit your profile." : "First things first."}
             main="About you."
           />
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Name" error={errors.name} htmlFor="name">
-              <input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                autoComplete="name"
-                className={inputClass}
-              />
-            </Field>
-            <Field
-              label="Profile handle"
-              hint={`upsolve.in/u/${handle || "you"}`}
-              error={errors.handle}
-              htmlFor="handle"
-            >
-              <input
-                id="handle"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
-                maxLength={20}
-                spellCheck={false}
-                className={cn(inputClass, "font-mono")}
-              />
-            </Field>
-            <Field label="College" error={errors.collegeId} className="sm:col-span-2">
-              <CollegePicker
-                value={college}
-                onChange={setCollege}
-                invalid={Boolean(errors.collegeId)}
-              />
-            </Field>
-            <Field label="Branch" error={errors.branch} htmlFor="branch">
-              <Select
-                id="branch"
-                value={branch}
-                onChange={setBranch}
-                placeholder="Pick your branch"
-                options={BRANCHES.map((b) => [b, b])}
-              />
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Graduating" error={errors.gradYear} htmlFor="gradYear">
-                <Select
-                  id="gradYear"
-                  value={gradYear}
-                  onChange={setGradYear}
-                  placeholder="Year"
-                  options={gradYearOptions().map((y) => [String(y), String(y)])}
+          <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Name" error={errors.name} htmlFor="name">
+                <input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  autoComplete="name"
+                  className={inputClass}
                 />
               </Field>
-              <Field label="Currently in" error={errors.currentYear} htmlFor="currentYear">
-                <Select
-                  id="currentYear"
-                  value={currentYear}
-                  onChange={setCurrentYear}
-                  placeholder="Year"
-                  options={CURRENT_YEARS.map((c) => [String(c.value), c.label])}
+              <Field
+                label="Profile handle"
+                hint={`upsolve.in/u/${handle || "you"}`}
+                error={errors.handle}
+                htmlFor="handle"
+              >
+                <input
+                  id="handle"
+                  value={handle}
+                  onChange={(e) =>
+                    setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))
+                  }
+                  maxLength={20}
+                  spellCheck={false}
+                  className={cn(inputClass, "font-mono")}
                 />
               </Field>
+              <Field label="College" error={errors.collegeId} className="sm:col-span-2">
+                <CollegePicker
+                  value={college}
+                  onChange={setCollege}
+                  invalid={Boolean(errors.collegeId)}
+                />
+              </Field>
+              <Field label="Branch" error={errors.branch} htmlFor="branch">
+                <Select
+                  id="branch"
+                  value={branch}
+                  onChange={setBranch}
+                  placeholder="Pick your branch"
+                  options={BRANCHES.map((b) => [b, b])}
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Graduating" error={errors.gradYear} htmlFor="gradYear">
+                  <Select
+                    id="gradYear"
+                    value={gradYear}
+                    onChange={setGradYear}
+                    placeholder="Year"
+                    options={gradYearOptions().map((y) => [String(y), String(y)])}
+                  />
+                </Field>
+                <Field label="Currently in" error={errors.currentYear} htmlFor="currentYear">
+                  <Select
+                    id="currentYear"
+                    value={currentYear}
+                    onChange={setCurrentYear}
+                    placeholder="Year"
+                    options={CURRENT_YEARS.map((c) => [String(c.value), c.label])}
+                  />
+                </Field>
+              </div>
             </div>
+            <ProfilePreview
+              name={name}
+              handle={handle}
+              college={college?.name ?? null}
+              branch={branch}
+              gradYear={gradYear}
+            />
           </div>
           <p className="mt-4 text-xs text-ink-3">
             We ask for your graduation year, not your age. Your profile is private until you make it
             public.
           </p>
           <div className="mt-8 flex justify-end">
-            <Button variant="primary" onClick={() => checkStepOne() && setStep(1)}>
+            <Button variant="signal" onClick={() => checkStepOne() && setStep(1)}>
               Next <ButtonArrow />
             </Button>
           </div>
         </section>
       ) : (
-        <section>
+        <section
+          key="s1"
+          className={
+            dir === 1
+              ? "animate-[slide-in-r_var(--dur-slow)_var(--ease-out)]"
+              : "animate-[slide-in-l_var(--dur-slow)_var(--ease-out)]"
+          }
+        >
           <Heading muted="What are you" main="practising for?" />
 
           <fieldset>
@@ -190,10 +222,10 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                 <label
                   key={g.value}
                   className={cn(
-                    "cursor-pointer rounded-md border bg-surface p-4 transition-colors duration-[var(--dur-base)]",
+                    "surface-card relative cursor-pointer rounded-[16px] p-4 transition-[border-color,box-shadow,transform] duration-[var(--dur-base)] hover:-translate-y-0.5",
                     goal === g.value
-                      ? "border-primary shadow-[0_0_0_4px_var(--primary-soft)]"
-                      : "border-line hover:border-line-2",
+                      ? "border-violet shadow-[var(--e1),0_0_0_4px_var(--color-violet-soft)]"
+                      : "hover:border-line-2",
                   )}
                 >
                   <input
@@ -204,7 +236,14 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                     onChange={() => setGoal(g.value)}
                     className="sr-only"
                   />
-                  <span className="block font-[550]">{g.label}</span>
+                  <span className="flex items-center gap-2 font-[600]">
+                    <Target
+                      size={15}
+                      aria-hidden="true"
+                      className={goal === g.value ? "text-violet" : "text-ink-3"}
+                    />
+                    {g.label}
+                  </span>
                   <span className="block text-[13px] text-ink-2">{g.detail}</span>
                 </label>
               ))}
@@ -231,8 +270,8 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                     className={cn(
                       "h-8 rounded-full border px-3 text-[13px] transition-colors duration-[var(--dur-base)]",
                       on
-                        ? "border-transparent bg-ink text-bg"
-                        : "border-line-2 text-ink-2 hover:text-ink",
+                        ? "border-violet-line bg-violet-soft text-ink"
+                        : "border-line-2 text-ink-2 hover:border-line-3 hover:text-ink",
                     )}
                   >
                     {c}
@@ -272,22 +311,15 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
             </Field>
             <fieldset>
               <legend className="mb-1.5 text-[13px] font-medium">Daily goal</legend>
-              <div className="inline-flex rounded-full border border-line bg-surface-2 p-[3px]">
-                {DAILY_GOALS.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    aria-pressed={dailyGoal === m}
-                    onClick={() => setDailyGoal(m)}
-                    className={cn(
-                      "h-[34px] rounded-full px-3.5 font-mono text-[13px] transition-colors duration-[var(--dur-base)]",
-                      dailyGoal === m ? "bg-surface text-ink shadow-card" : "text-ink-2",
-                    )}
-                  >
-                    {m < 60 ? `${m}m` : `${m / 60}h`}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                label="Daily goal"
+                value={String(dailyGoal)}
+                onChange={(v) => setDailyGoal(Number(v))}
+                items={DAILY_GOALS.map((m) => ({
+                  value: String(m),
+                  label: m < 60 ? `${m}m` : `${m / 60}h`,
+                }))}
+              />
             </fieldset>
           </div>
 
@@ -297,8 +329,8 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
             <Button variant="ghost" onClick={() => setStep(0)} disabled={pending}>
               Back
             </Button>
-            <Button variant="primary" onClick={submit} disabled={pending}>
-              {pending ? "Saving…" : editing ? "Save" : "Next"} {!pending && <ButtonArrow />}
+            <Button variant="signal" onClick={submit} loading={pending}>
+              {editing ? "Save" : "Next"} <ButtonArrow />
             </Button>
           </div>
         </section>
@@ -310,7 +342,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
 function Heading({ muted, main }: { muted: string; main: string }) {
   return (
     <h1 className="mb-8 font-display text-[clamp(36px,6vw,52px)] leading-none tracking-[-0.02em]">
-      <span className="text-ink-3">{muted}</span> <em>{main}</em>
+      {muted} <em className="text-violet">{main}</em>
     </h1>
   );
 }
@@ -369,20 +401,70 @@ function Select({
   options: [string, string][];
 }) {
   return (
-    <select
-      id={id}
+    <Combo
+      label={placeholder}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={cn(inputClass, "pr-2", !value && "text-ink-3")}
-    >
-      <option value="" disabled>
-        {placeholder}
-      </option>
-      {options.map(([v, label]) => (
-        <option key={v} value={v}>
-          {label}
-        </option>
-      ))}
-    </select>
+      onChange={onChange}
+      placeholder={placeholder}
+      options={options.map(([v, label]) => ({ value: v, label }))}
+      className={id}
+    />
+  );
+}
+
+/** Live preview of the public profile card while you type. */
+function ProfilePreview({
+  name,
+  handle,
+  college,
+  branch,
+  gradYear,
+}: {
+  name: string;
+  handle: string;
+  college: string | null;
+  branch: string;
+  gradYear: string;
+}) {
+  const initials =
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase())
+      .join("") || "?";
+  return (
+    <aside aria-label="Profile preview" className="sticky top-6 hidden lg:block">
+      <p className="mb-2 label-mono">Preview</p>
+      <div className="surface-hero relative overflow-hidden rounded-[22px] p-5">
+        <span aria-hidden="true" className="grain absolute inset-0" />
+        <span className="relative grid size-16 place-items-center rounded-full bg-[linear-gradient(135deg,var(--violet),var(--ember))] text-20 font-[600] text-white ring-4 ring-white/15">
+          {initials}
+        </span>
+        <p className="relative mt-4 truncate text-20 font-[600]">{name || "Your name"}</p>
+        <p className="relative truncate font-mono text-12 text-white/65">
+          upsolve.in/u/{handle || "you"}
+        </p>
+        <p className="relative mt-3 flex items-center gap-1.5 text-13 text-white/80">
+          <GraduationCap size={14} aria-hidden="true" />
+          <span className="truncate">{college ?? "Your college"}</span>
+        </p>
+        <p className="relative mt-1 text-12 text-white/60">
+          {[branch, gradYear && `Batch ${gradYear}`].filter(Boolean).join(" · ") ||
+            "Branch · batch"}
+        </p>
+        <div aria-hidden="true" className="relative mt-4 grid grid-flow-col grid-rows-4 gap-[3px]">
+          {Array.from({ length: 4 * 14 }, (_, i) => (
+            <i
+              key={i}
+              className="size-2.5 rounded-[2px]"
+              style={{
+                background: i % 7 === 3 || i % 11 === 0 ? "#a48bff" : "rgba(255,255,255,.1)",
+              }}
+            />
+          ))}
+        </div>
+      </div>
+    </aside>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Plus, X } from "lucide-react";
-import { cn } from "@upsolve/ui";
+import { cn, inputClasses } from "@upsolve/ui";
 import { searchColleges } from "@/app/actions/profile";
 
 export type CollegeChoice =
@@ -158,5 +158,5 @@ export function CollegePicker({
   );
 }
 
-export const inputClass =
-  "h-[42px] w-full rounded-sm border border-line-2 bg-surface-2 px-3.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]";
+/** Shared input look for onboarding (matches the design-system Field). */
+export const inputClass = inputClasses();

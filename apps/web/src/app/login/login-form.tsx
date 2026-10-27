@@ -2,7 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Button, ButtonArrow } from "@upsolve/ui";
+import { Mail } from "lucide-react";
+import { Button, ButtonArrow, inputClasses } from "@upsolve/ui";
 import { safeNextPath } from "@/lib/safe-next";
 import { createClient } from "@/lib/supabase/client";
 
@@ -50,8 +51,17 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
 
   if (status.kind === "sent") {
     return (
-      <div role="status" className="rounded-lg border border-line bg-surface p-5 shadow-card">
-        <p className="font-[550]">Check your inbox.</p>
+      <div role="status" className="flex flex-col items-center py-4 text-center">
+        <span
+          aria-hidden="true"
+          className="relative mb-4 grid size-16 animate-[pop-in_var(--dur-slower)_var(--ease-spring)] place-items-center rounded-[18px] bg-signal text-signal-ink shadow-glow-signal"
+        >
+          <Mail size={26} />
+          <span className="absolute -top-1 -right-1 size-4 animate-ping rounded-full bg-violet opacity-70" />
+        </span>
+        <p className="text-20 font-[600]">
+          Check your <em className="font-display font-normal">inbox.</em>
+        </p>
         <p className="mt-1 text-sm text-ink-2">
           We sent a sign-in link to <span className="text-ink">{status.email}</span>. Open it in
           this browser.
@@ -73,6 +83,7 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
     <div className="flex flex-col gap-4">
       <Button
         variant="primary"
+        size="lg"
         className="w-full"
         onClick={signInWithGoogle}
         disabled={disabled || busy}
@@ -81,7 +92,7 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
         Continue with Google
       </Button>
 
-      <div className="flex items-center gap-3 font-mono text-[11px] tracking-[.08em] text-ink-3 uppercase">
+      <div className="flex items-center gap-3 label-mono">
         <span className="h-px flex-1 bg-line-2" />
         or email
         <span className="h-px flex-1 bg-line-2" />
@@ -91,19 +102,30 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
         <label htmlFor="email" className="sr-only">
           Email address
         </label>
-        <input
-          id="email"
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="you@college.edu"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={disabled || busy}
-          aria-invalid={status.kind === "error" || undefined}
-          aria-describedby={status.kind === "error" ? "login-error" : undefined}
-          className="h-[44px] w-full rounded-[12px] border border-line-2 bg-surface-2 px-3.5 text-sm text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 hover:border-line-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)] disabled:opacity-50 aria-invalid:border-bad aria-invalid:focus:shadow-[0_0_0_4px_var(--color-bad-soft)]"
-        />
+        <span className="relative">
+          <Mail
+            size={16}
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-ink-3"
+          />
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="you@college.edu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={disabled || busy}
+            aria-invalid={status.kind === "error" || undefined}
+            aria-describedby={status.kind === "error" ? "login-error" : undefined}
+            className={inputClasses({
+              icon: true,
+              error: status.kind === "error",
+              className: "h-[46px]",
+            })}
+          />
+        </span>
         <Button
           type="submit"
           variant="secondary"

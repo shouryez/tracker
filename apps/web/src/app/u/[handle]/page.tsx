@@ -2,22 +2,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { BadgeCheck } from "lucide-react";
+import { Flame, Grid3x3, Plug, Shapes } from "lucide-react";
 import {
   ButtonArrow,
   Card,
   CardHeader,
   CardSub,
   CardTitle,
-  Eyebrow,
+  Grain,
   Logo,
   PixelHeatmap,
-  Stat,
+  SkeletonCard,
   ThemeToggle,
+  VerifiedChip,
   buttonClasses,
 } from "@upsolve/ui";
 import { SolvedSplit, TopicBar } from "@/components/charts";
+import { TopicRadar } from "@/components/charts/insights";
+import { StreakFlame } from "@/components/fx/decor";
+import { NumberTicker } from "@/components/fx/number-ticker";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL } from "@/components/platform-meta";
+import { ShareButton } from "@/components/share-button";
+import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { buildStats, getPublicProfile } from "@/lib/data";
 import type { SolvedCounts } from "@upsolve/adapters";
 
@@ -41,13 +47,20 @@ export default function PublicProfilePage({ params }: PageProps<"/u/[handle]">) 
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link href="/login" className={buttonClasses({ variant: "primary", size: "sm" })}>
+          <Link href="/login" className={buttonClasses({ variant: "signal", size: "sm" })}>
             Track yours
           </Link>
         </div>
       </header>
       <main className="mx-auto w-[min(1000px,100%-32px)] pt-10 pb-24">
-        <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
+        <Suspense
+          fallback={
+            <div className="flex flex-col gap-4">
+              <SkeletonCard lines={3} className="h-[220px]" />
+              <SkeletonCard lines={4} className="h-[260px]" />
+            </div>
+          }
+        >
           <ProfileContent params={params} />
         </Suspense>
       </main>
@@ -68,15 +81,12 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
   return (
     <div className="flex flex-col gap-5">
       {/* Banner: avatar inside a ring split by difficulty (easy → medium → hard). */}
-      <div className="relative mb-2 overflow-hidden rounded-[28px] border border-line bg-surface p-6 shadow-card sm:p-8">
-        <div
-          aria-hidden="true"
-          className="dots absolute inset-0 opacity-60 [mask-image:linear-gradient(90deg,transparent,#000)]"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -top-24 -right-16 size-72 rounded-full bg-[radial-gradient(circle,var(--glow-a),transparent_65%)] opacity-50 blur-2xl"
-        />
+      <div className="surface-hero border-beam relative mb-2 overflow-hidden rounded-[28px] p-6 sm:p-8">
+        <Grain />
+        <span aria-hidden="true" className="starfield absolute inset-0 opacity-40" />
+        <div className="absolute top-5 right-5 z-10">
+          <ShareButton title={`@${profile.handle} on Upsolve`} />
+        </div>
         <div className="relative flex flex-wrap items-center gap-6">
           <AvatarRing
             name={profile.name ?? profile.handle}
@@ -84,37 +94,42 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
             solved={stats.solved}
           />
           <div className="min-w-0">
-            <Eyebrow>@{profile.handle}</Eyebrow>
-            <h1 className="mt-3 font-display text-[clamp(40px,6.4vw,72px)] leading-[.98] tracking-[-0.02em]">
+            <p className="font-mono text-12 text-white/65">@{profile.handle}</p>
+            <h1 className="mt-2 font-display text-[clamp(40px,6.4vw,72px)] leading-[.98] tracking-[-0.02em]">
               {profile.name ?? profile.handle}
-              {subtitle && <span className="block text-[.5em] text-ink-3 italic">{subtitle}</span>}
             </h1>
+            {subtitle && <p className="mt-2 text-15 text-white/75 italic">{subtitle}</p>}
+            {stats.streak > 0 && (
+              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/12 py-1 pr-3 pl-1.5 text-13 font-[600]">
+                <StreakFlame streak={stats.streak} size={22} /> {stats.streak}-day streak
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4">
-        <Card>
-          <CardSub>SOLVED</CardSub>
-          <Stat value={stats.solved.total.toLocaleString("en-IN")} className="mt-2" />
-        </Card>
-        <Card>
-          <CardSub>ACTIVE DAYS</CardSub>
-          <Stat value={stats.activeDays} unit="/ yr" className="mt-2" />
-        </Card>
-        <Card>
-          <CardSub>STREAK</CardSub>
-          <Stat value={stats.streak} unit="days" className="mt-2" />
-        </Card>
-        <Card>
-          <CardSub>BEST RATING</CardSub>
-          <Stat value={stats.bestRating?.rating ?? "—"} className="mt-2" />
-        </Card>
+      <div className="stagger-in grid grid-cols-2 gap-3.5 md:grid-cols-4">
+        <ProfileStat label="Solved" value={stats.solved.total} tint="var(--violet)" />
+        <ProfileStat
+          label="Active days"
+          value={stats.activeDays}
+          unit="this year"
+          tint="var(--easy)"
+        />
+        <ProfileStat label="Streak" value={stats.streak} unit="days" tint="var(--ember)" />
+        <ProfileStat
+          label="Best rating"
+          value={stats.bestRating?.rating ?? 0}
+          unit={stats.bestRating ? undefined : "unrated"}
+          tint="var(--medium)"
+        />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Activity</CardTitle>
+          <CardTitle icon={<Grid3x3 size={14} />} tint="var(--primary)">
+            Activity
+          </CardTitle>
           <CardSub>last 52 weeks</CardSub>
         </CardHeader>
         <PixelHeatmap levels={stats.heatmap52} weeks={52} className="gap-[2px]" />
@@ -123,16 +138,18 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
       <div className="grid gap-3.5 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Platforms</CardTitle>
+            <CardTitle icon={<Plug size={14} />} tint="var(--info)">
+              Platforms
+            </CardTitle>
           </CardHeader>
           {profile.accounts.map((a) => (
-            <div
-              key={a.id}
-              className="border-t border-dashed border-line-2 py-3 first:border-t-0 first:pt-0"
-            >
-              <p className="mb-2 flex flex-wrap items-center gap-2 text-[14px] font-[550]">
+            <div key={a.id} className="surface-inset mb-2.5 rounded-[14px] p-3.5 last:mb-0">
+              <p className="mb-2.5 flex flex-wrap items-center gap-2 text-[14px] font-[600]">
+                {platformMarkId(a.platform) && (
+                  <PlatformMark site={platformMarkId(a.platform)!} size={15} brand />
+                )}
                 {PLATFORM_LABEL[a.platform]}
-                {a.verified && <BadgeCheck size={14} className="text-ok" aria-label="verified" />}
+                {a.verified && <VerifiedChip />}
                 <a
                   href={PLATFORM_PROFILE_URL[a.platform]?.(a.handle)}
                   target="_blank"
@@ -141,9 +158,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
                 >
                   {a.handle}
                 </a>
-                <span className="ml-auto font-mono text-[12px]">
-                  {a.snapshot?.rating ?? "unrated"}
-                </span>
+                <span className="num ml-auto text-17">{a.snapshot?.rating ?? "—"}</span>
               </p>
               {a.snapshot && <SolvedSplit solved={a.snapshot.solved} />}
             </div>
@@ -151,10 +166,27 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Top topics</CardTitle>
+            <CardTitle icon={<Shapes size={14} />} tint="var(--easy)">
+              Top topics
+            </CardTitle>
           </CardHeader>
-          {stats.topics.map((t) => (
-            <TopicBar key={t.slug} name={t.name} value={t.solved} max={stats.topics[0]!.solved} />
+          {stats.topics.length >= 3 && (
+            <TopicRadar
+              size={230}
+              topics={stats.topics.map((t) => ({
+                label: t.name,
+                score: Math.round((t.solved / Math.max(1, stats.topics[0]!.solved)) * 100),
+              }))}
+            />
+          )}
+          {stats.topics.map((t, i) => (
+            <TopicBar
+              key={t.slug}
+              name={t.name}
+              value={t.solved}
+              max={stats.topics[0]!.solved}
+              top={i === 0}
+            />
           ))}
         </Card>
       </div>
@@ -165,6 +197,34 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
         </Link>
       </div>
     </div>
+  );
+}
+
+function ProfileStat({
+  label,
+  value,
+  unit,
+  tint,
+}: {
+  label: string;
+  value: number;
+  unit?: string;
+  tint: string;
+}) {
+  return (
+    <Card spotlight glow={tint}>
+      <CardTitle icon={<Flame size={14} />} tint={tint}>
+        {label}
+      </CardTitle>
+      <p className="num mt-3 text-[38px]">
+        {value ? <NumberTicker value={value} /> : "—"}
+        {unit && (
+          <small className="ml-1.5 font-display text-[.42em] font-normal tracking-normal text-ink-3 italic">
+            {unit}
+          </small>
+        )}
+      </p>
+    </Card>
   );
 }
 
@@ -194,10 +254,10 @@ function AvatarRing({
     <span
       role="img"
       aria-label={`${solved.easy} easy, ${solved.medium} medium, ${solved.hard} hard`}
-      className="grid size-[104px] shrink-0 place-items-center rounded-full p-[5px] shadow-md"
+      className="grid size-[112px] shrink-0 place-items-center rounded-full p-[5px] shadow-[0_0_40px_-8px_var(--violet)]"
       style={{ background: ring }}
     >
-      <span className="grid size-full place-items-center overflow-hidden rounded-full border-4 border-surface bg-[linear-gradient(135deg,var(--primary),var(--ember))] text-[28px] font-semibold text-white">
+      <span className="grid size-full place-items-center overflow-hidden rounded-full border-4 border-[#191645] bg-[linear-gradient(135deg,var(--violet),var(--ember))] text-[28px] font-semibold text-white">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={src} alt="" referrerPolicy="no-referrer" className="size-full object-cover" />

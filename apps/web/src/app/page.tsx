@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Lock,
   Puzzle,
-  RotateCcw,
   Timer,
   Trophy,
   UsersRound,
