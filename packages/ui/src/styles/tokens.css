@@ -65,6 +65,8 @@
   --violet: #a48bff;
   --violet-2: #7c5cff;
   --signal-text: #d7ff3a;
+  /* Lime for chart marks (darker on paper so it reads). */
+  --signal-mark: #d7ff3a;
 
   --easy: #34d6d0;
   --medium: #ffb938;
@@ -173,6 +175,7 @@
   --violet: #6d4fe6;
   --violet-2: #5536d1;
   --signal-text: #4a6400;
+  --signal-mark: #8fb800;
 
   --easy: #0b8a85;
   --medium: #a86400;

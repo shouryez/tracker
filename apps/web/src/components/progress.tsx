@@ -1,6 +1,9 @@
 import { cn } from "@upsolve/ui";
 
-/** Segmented progress (DESIGN.md §5): solid = done, grey = partial, hatched = remaining. */
+/**
+ * Pixel progress: a row of small squares, done ones lit in violet (the last with a glow),
+ * the rest a quiet track. Echoes the logo's pixel grid.
+ */
 export function SegmentedProgress({
   done,
   total,
@@ -13,20 +16,28 @@ export function SegmentedProgress({
   className?: string;
 }) {
   const filled = total > 0 ? (done / total) * segments : 0;
+  const whole = Math.floor(filled);
   return (
     <div
       role="img"
       aria-label={`${done} of ${total} done`}
-      className={cn("grid h-3 gap-[3px]", className)}
+      className={cn("grid h-2.5 gap-[3px]", className)}
       style={{ gridTemplateColumns: `repeat(${segments}, minmax(0, 1fr))` }}
     >
       {Array.from({ length: segments }, (_, i) => (
         <span
           key={i}
           className={cn(
-            "rounded-[2px]",
-            i < Math.floor(filled) ? "bg-ink" : i < filled ? "bg-ink-3" : "hatch",
+            "animate-[fade-in-pop_400ms_var(--ease-out)_both] rounded-[2px]",
+            i < whole
+              ? i === whole - 1
+                ? "bg-violet shadow-[0_0_8px_-1px_var(--violet)]"
+                : "bg-violet/75"
+              : i < filled
+                ? "bg-violet/35"
+                : "bg-surface-3",
           )}
+          style={{ animationDelay: `${i * 15}ms` }}
         />
       ))}
     </div>

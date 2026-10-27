@@ -1,94 +1,124 @@
+import { useId } from "react";
 import type { SolvedCounts } from "@upsolve/adapters";
-import { cn } from "@upsolve/ui";
+import { SegmentedProgress, cn } from "@upsolve/ui";
 
-/** Easy / medium / hard share of solved problems as one split bar (DESIGN.md §8). */
+/** Easy / medium / hard share of solved problems: segmented bar + legend chips. */
 export function SolvedSplit({ solved, className }: { solved: SolvedCounts; className?: string }) {
-  const parts = [
-    { key: "easy", n: solved.easy, cls: "bg-easy" },
-    { key: "medium", n: solved.medium, cls: "bg-medium" },
-    { key: "hard", n: solved.hard, cls: "bg-hard" },
-    { key: "unrated", n: solved.unknown, cls: "hatch border border-line-2" },
-  ].filter((p) => p.n > 0);
-
+  const segments = [
+    { label: "Easy", value: solved.easy, color: "var(--easy)" },
+    { label: "Medium", value: solved.medium, color: "var(--medium)" },
+    { label: "Hard", value: solved.hard, color: "var(--hard)" },
+    { label: "Unrated", value: solved.unknown, color: "var(--ink-4)" },
+  ];
+  const total = solved.easy + solved.medium + solved.hard + solved.unknown;
   return (
     <div className={className}>
-      <div
-        className="flex h-2.5 gap-[3px] overflow-hidden rounded-full"
-        role="img"
-        aria-label={`${solved.easy} easy, ${solved.medium} medium, ${solved.hard} hard${solved.unknown ? `, ${solved.unknown} unrated` : ""}`}
-      >
-        {parts.length === 0 ? (
-          <span className="hatch flex-1 rounded-full" />
-        ) : (
-          parts.map((p) => (
-            <span key={p.key} className={cn("rounded-[3px]", p.cls)} style={{ flex: p.n }} />
-          ))
-        )}
-      </div>
-      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-ink-3">
-        <span>
-          <span className="text-easy">{solved.easy}</span> easy
-        </span>
-        <span>
-          <span className="text-medium">{solved.medium}</span> medium
-        </span>
-        <span>
-          <span className="text-hard">{solved.hard}</span> hard
-        </span>
-        {solved.unknown > 0 && <span>{solved.unknown} unrated</span>}
-      </div>
+      {total === 0 ? (
+        <div className="h-2 rounded-full bg-surface-3" />
+      ) : (
+        <SegmentedProgress segments={segments} />
+      )}
+      <ul className="mt-2.5 flex flex-wrap gap-x-3.5 gap-y-1 text-12 text-ink-3">
+        {segments
+          .filter((s) => s.label !== "Unrated" || s.value > 0)
+          .map((s) => (
+            <li key={s.label} className="flex items-center gap-1.5">
+              <i
+                aria-hidden="true"
+                className="size-2 rounded-[2px]"
+                style={{ background: s.color }}
+              />
+              <span className="tnum font-[600] text-ink">{s.value}</span> {s.label.toLowerCase()}
+            </li>
+          ))}
+      </ul>
     </div>
   );
 }
 
-/** Tiny rating line. Points are oldest first. */
+/** Tiny rating line with a gradient area and the latest point highlighted. Oldest first. */
 export function Sparkline({
   values,
   className,
   stroke = "var(--primary)",
+  width = 96,
+  height = 30,
 }: {
   values: number[];
   className?: string;
   stroke?: string;
+  width?: number;
+  height?: number;
 }) {
-  const w = 96;
-  const h = 28;
+  const id = useId();
+  const w = width;
+  const h = height;
   if (values.length < 2) {
     return <svg className={className} width={w} height={h} aria-hidden="true" />;
   }
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
-  const points = values
-    .map((v, i) => {
-      const x = (i / (values.length - 1)) * w;
-      const y = h - 2 - ((v - min) / span) * (h - 4);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+  const pts = values.map(
+    (v, i) =>
+      [(i / (values.length - 1)) * (w - 4) + 2, h - 3 - ((v - min) / span) * (h - 6)] as const,
+  );
+  const line = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`).join("");
+  const last = pts.at(-1)!;
   return (
     <svg className={className} width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
-      <polyline
+      <defs>
+        <linearGradient id={id} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor={stroke} stopOpacity=".3" />
+          <stop offset="1" stopColor={stroke} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`${line}L${last[0]},${h}L${pts[0]![0]},${h}Z`} fill={`url(#${id})`} />
+      <path
+        d={line}
         fill="none"
         stroke={stroke}
         strokeWidth="1.6"
         strokeLinejoin="round"
-        points={points}
+        strokeLinecap="round"
+        pathLength={100}
+        strokeDasharray="100"
+        className="animate-draw"
       />
+      <circle cx={last[0]} cy={last[1]} r="2.6" fill={stroke} />
+      <circle cx={last[0]} cy={last[1]} r="5" fill={stroke} opacity=".25" />
     </svg>
   );
 }
 
-/** Horizontal bar on a hatched track, for topic counts. */
-export function TopicBar({ name, value, max }: { name: string; value: number; max: number }) {
+/** Horizontal bar with a gradient fill and the value at the end. */
+export function TopicBar({
+  name,
+  value,
+  max,
+  top,
+  color = "var(--violet)",
+}: {
+  name: string;
+  value: number;
+  max: number;
+  top?: boolean;
+  color?: string;
+}) {
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-x-2.5 gap-y-1.5 border-t border-dashed border-line-2 py-2 first:border-t-0">
-      <span className="truncate text-[13px]">{name}</span>
-      <span className="font-mono text-xs">{value}</span>
-      <span className="hatch relative col-span-2 h-1.5 overflow-hidden rounded-full">
+    <div className="grid grid-cols-[1fr_auto] items-center gap-x-2.5 gap-y-1.5 py-1.5">
+      <span className={cn("truncate text-13", top ? "font-[600] text-ink" : "text-ink-2")}>
+        {name}
+      </span>
+      <span className="tnum font-mono text-12">{value}</span>
+      <span className="relative col-span-2 h-2 overflow-hidden rounded-full bg-surface-3">
         <span
-          className="absolute inset-y-0 left-0 rounded-full bg-ink"
-          style={{ width: `${Math.max(3, (value / Math.max(1, max)) * 100)}%` }}
+          className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full"
+          style={{
+            width: `${Math.max(3, (value / Math.max(1, max)) * 100)}%`,
+            background: `linear-gradient(90deg, color-mix(in srgb, ${color} 55%, transparent), ${color})`,
+            boxShadow: top ? `0 0 12px -2px ${color}` : undefined,
+          }}
         />
       </span>
     </div>

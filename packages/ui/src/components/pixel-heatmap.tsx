@@ -1,12 +1,7 @@
 import { cn } from "../cn";
 
-const levelClass = [
-  "bg-pixel-off",
-  "bg-primary/30",
-  "bg-primary/55",
-  "bg-primary/80",
-  "bg-primary",
-] as const;
+// 5-step violet → lime ramp (tokens.css heat-0..4).
+const levelClass = ["bg-heat-0", "bg-heat-1", "bg-heat-2", "bg-heat-3", "bg-heat-4"] as const;
 
 export type PixelHeatmapProps = {
   /** One activity level (0–4) per day, oldest first. Missing days render empty. */
@@ -41,10 +36,9 @@ export function PixelHeatmap({
           <span
             key={i}
             className={cn(
-              "aspect-square rounded-[2px]",
-              isToday
-                ? "bg-signal shadow-[0_0_0_2px_color-mix(in_srgb,var(--signal)_30%,transparent)]"
-                : levelClass[level],
+              "aspect-square rounded-[3px]",
+              levelClass[level],
+              isToday && "ring-2 ring-signal ring-offset-1 ring-offset-[var(--surface)]",
             )}
           />
         );

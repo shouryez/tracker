@@ -1,5 +1,5 @@
 import { INTERVAL_DAYS, type ReviewLogEntry, type TopicMastery } from "@upsolve/core";
-import { Tag, cn } from "@upsolve/ui";
+import { StrengthLadder, Tag, WeakestChip, cn } from "@upsolve/ui";
 import { formatDuration } from "@/lib/sessions-data";
 
 const DAY_MS = 86_400_000;
@@ -12,24 +12,23 @@ export function reviewUrl(url: string): string {
 }
 
 /** Where a problem sits on the 1 → 3 → 7 → 16 → 35 → 90 day ladder. */
-export function StepLadder({ step, className }: { step: number; className?: string }) {
+export function StepLadder({
+  step,
+  overdue,
+  className,
+}: {
+  step: number;
+  overdue?: boolean;
+  className?: string;
+}) {
   return (
-    <span
-      role="img"
-      aria-label={`Review interval ${INTERVAL_DAYS[step]} days (step ${step + 1} of ${INTERVAL_DAYS.length})`}
-      title={`Every ${INTERVAL_DAYS[step]} days`}
-      className={cn("inline-flex gap-[3px]", className)}
-    >
-      {INTERVAL_DAYS.map((d, i) => (
-        <span
-          key={d}
-          className={cn(
-            "size-[7px] rounded-[2px]",
-            i <= step ? "bg-ink" : "hatch border border-line-2",
-          )}
-        />
-      ))}
-    </span>
+    <StrengthLadder
+      stage={step + 1}
+      overdue={overdue}
+      compact
+      dueLabel={`every ${INTERVAL_DAYS[step]} days`}
+      className={className}
+    />
   );
 }
 
@@ -65,7 +64,12 @@ export function dueLabel(dueAt: number, now: number, endOfToday: number): string
   return overdue >= 1 ? `${overdue}d overdue` : "due today";
 }
 
-/** Topic mastery bars; the weakest topic is marked (DESIGN.md §8). */
+/** Mastery tier colour: rose < 25 ≤ amber < 60 ≤ teal. */
+export function masteryColor(score: number) {
+  return score < 25 ? "var(--hard)" : score < 60 ? "var(--medium)" : "var(--easy)";
+}
+
+/** Topic mastery bars, coloured by tier; the weakest topic is flagged. */
 export function MasteryBars({
   topics,
   showInputs = true,
@@ -78,9 +82,7 @@ export function MasteryBars({
 }) {
   if (topics.length === 0) {
     return (
-      <p className="text-[13px] text-ink-2">
-        Mastery shows up once you&apos;ve solved a few problems.
-      </p>
+      <p className="text-13 text-ink-2">Mastery shows up once you&apos;ve solved a few problems.</p>
     );
   }
   const weakest =
@@ -90,42 +92,38 @@ export function MasteryBars({
         ? topics.reduce((a, b) => (b.score < a.score ? b : a)).topic
         : null;
   return (
-    <ul>
-      {topics.map((t) => {
+    <ul className="flex flex-col gap-2.5">
+      {topics.map((t, i) => {
         const weak = t.topic === weakest;
+        const color = masteryColor(t.score);
         const inputs = [
           `${t.solved} solved`,
           t.soloRate !== null ? `${Math.round(t.soloRate * 100)}% solo` : null,
           t.medianMs ? `${formatDuration(t.medianMs)} median` : null,
         ].filter(Boolean);
         return (
-          <li
-            key={t.topic}
-            className="grid grid-cols-[1fr_auto] gap-x-2.5 gap-y-1.5 border-t border-dashed border-line-2 py-2 first:border-t-0 first:pt-0"
-            title={`${t.points} of ${t.target} points`}
-          >
-            <span className="flex min-w-0 items-center gap-2 text-[13px]">
-              <span className="truncate">{t.label}</span>
-              {weak && (
-                <span className="font-mono text-[10px] tracking-[.08em] text-ember uppercase">
-                  weakest
-                </span>
-              )}
-            </span>
-            <span className={cn("font-mono text-xs", weak && "text-ember")}>{t.score}</span>
-            <span className="hatch relative col-span-2 h-1.5 overflow-hidden rounded-full">
+          <li key={t.topic} title={`${t.points} of ${t.target} points`}>
+            <div className="mb-1.5 flex items-center justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-13">
+                <span className="truncate">{t.label}</span>
+                {weak && <WeakestChip />}
+              </span>
+              <span className="tnum font-mono text-12" style={{ color }}>
+                {t.score}
+              </span>
+            </div>
+            <span className="relative block h-2 rounded-full bg-surface-3">
               <span
-                className={cn(
-                  "absolute inset-y-0 left-0 rounded-full",
-                  weak ? "bg-ember" : "bg-ink",
-                )}
-                style={{ width: `${Math.max(2, t.score)}%` }}
+                className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full"
+                style={{
+                  width: `${Math.max(2, t.score)}%`,
+                  background: `linear-gradient(90deg, color-mix(in srgb, ${color} 45%, transparent), ${color})`,
+                  animationDelay: `${i * 60}ms`,
+                }}
               />
             </span>
             {showInputs && (
-              <span className="col-span-2 font-mono text-[10.5px] text-ink-3">
-                {inputs.join(" · ")}
-              </span>
+              <span className="mt-1 block text-11 text-ink-3">{inputs.join(" · ")}</span>
             )}
           </li>
         );
@@ -134,40 +132,62 @@ export function MasteryBars({
   );
 }
 
-/** Reviews coming due over the next 14 days. */
+/**
+ * Reviews coming due over the next 14 days: a day strip with stacked dots (one per review,
+ * capped at 6 with a +n), hover for the count. Planned days, so empty columns stay quiet.
+ */
 export function UpcomingStrip({ upcoming, now }: { upcoming: number[]; now: number }) {
-  const max = Math.max(1, ...upcoming);
+  const total = upcoming.reduce((a, b) => a + b, 0);
   return (
     <div>
       <div
-        className="grid h-[110px] grid-cols-14 items-end gap-1"
+        className="grid grid-cols-7 gap-1.5 sm:grid-cols-14"
         role="img"
-        aria-label={`Reviews due in the next 14 days: ${upcoming.join(", ")}`}
+        aria-label={`Reviews due in the next 14 days: ${total} in total`}
       >
         {upcoming.map((n, i) => {
-          const day = new Date(now + (i + 1) * DAY_MS).toLocaleDateString("en-IN", {
+          const d = new Date(now + (i + 1) * DAY_MS);
+          const label = d.toLocaleDateString("en-IN", {
             weekday: "short",
             day: "numeric",
             month: "short",
           });
+          const shown = Math.min(n, 6);
           return (
-            <div key={i} className="flex h-full flex-col justify-end" title={`${day}: ${n} due`}>
-              <div className="hatch relative h-full w-full overflow-hidden rounded-[4px]">
-                {n > 0 && (
-                  <div
-                    className="absolute inset-x-0 bottom-0 rounded-[4px] bg-ink"
-                    style={{ height: `${(n / max) * 100}%` }}
+            <div
+              key={i}
+              title={`${label}: ${n} due`}
+              className={cn(
+                "flex h-[112px] flex-col items-center justify-between rounded-[10px] border px-1 py-2 transition-colors",
+                i === 0
+                  ? "border-violet-line bg-violet-soft"
+                  : "border-line bg-surface-inset hover:border-line-2",
+              )}
+            >
+              <span className="flex flex-col-reverse items-center gap-[3px]">
+                {Array.from({ length: shown }, (_, k) => (
+                  <i
+                    key={k}
+                    className="size-[7px] animate-[fade-in-pop_400ms_var(--ease-out)_both] rounded-[2px] bg-violet shadow-[0_0_6px_-1px_var(--violet)]"
+                    style={{ animationDelay: `${i * 30 + k * 40}ms` }}
                   />
-                )}
-              </div>
+                ))}
+                {n > 6 && <span className="tnum font-mono text-[9.5px] text-violet">+{n - 6}</span>}
+              </span>
+              <span className="text-center leading-tight">
+                <span className="tnum block text-12 font-[600] text-ink">{n || "·"}</span>
+                <span className="block font-mono text-[9.5px] text-ink-3">
+                  {i === 0 ? "tmrw" : d.toLocaleDateString("en-IN", { weekday: "narrow" })}
+                  {i === 0 ? "" : d.getDate()}
+                </span>
+              </span>
             </div>
           );
         })}
       </div>
-      <div className="mt-2 flex justify-between font-mono text-[10.5px] text-ink-3">
-        <span>tomorrow</span>
-        <span>+14 days</span>
-      </div>
+      <p className="mt-2 text-12 text-ink-3">
+        <span className="tnum text-ink-2">{total}</span> reviews over the next two weeks
+      </p>
     </div>
   );
 }

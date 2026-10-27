@@ -41,6 +41,7 @@ import { Magnetic, TiltCard } from "@/components/fx/pointer";
 import { DecodeText, TextReveal } from "@/components/fx/text";
 import { PlatformMark } from "@/components/site-icons";
 import { Tabs } from "@/components/tabs";
+import { ChartsSection } from "./charts-section";
 import {
   ButtonStatesDemo,
   FieldsDemo,
@@ -642,6 +643,8 @@ export default function Styleguide() {
             </Card>
           </div>
         </Section>
+
+        <ChartsSection Section={Section} />
 
         <Section title="Feedback states">
           <div className="grid gap-3.5 md:grid-cols-3">
