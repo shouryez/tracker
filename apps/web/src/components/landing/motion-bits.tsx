@@ -60,35 +60,8 @@ export function Reveal({
   );
 }
 
-/** Moves its child slightly towards the cursor (main hero CTA only). */
-export function Magnetic({ children, strength = 10 }: { children: ReactNode; strength?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || reduced() || window.matchMedia("(pointer: coarse)").matches) return;
-    const move = (e: PointerEvent) => {
-      const r = el.getBoundingClientRect();
-      const x = ((e.clientX - (r.left + r.width / 2)) / r.width) * strength;
-      const y = ((e.clientY - (r.top + r.height / 2)) / r.height) * strength;
-      el.style.transform = `translate(${x}px, ${y}px)`;
-    };
-    const leave = () => (el.style.transform = "");
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerleave", leave);
-    return () => {
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerleave", leave);
-    };
-  }, [strength]);
-  return (
-    <span
-      ref={ref}
-      className="inline-flex transition-transform duration-[var(--dur-slow)] ease-[var(--ease-out)]"
-    >
-      {children}
-    </span>
-  );
-}
+/** Moved to the shared fx library; re-exported for the landing page. */
+export { Magnetic } from "@/components/fx/pointer";
 
 /** Shifts layers with [data-depth] a few px with the mouse; the hero scene feels 3D. */
 export function Parallax({ children, className }: { children: ReactNode; className?: string }) {

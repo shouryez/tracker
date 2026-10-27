@@ -137,3 +137,9 @@ App-route JS added: roughly 20 KB, well under the 60 KB budget. Magic UI/Acetern
 - `packages/ui/src/components/textures.tsx`: Grain, DotGrid, GlowOrb, Starfield, Aurora, `usePauseOffscreen`.
 - ThemeToggle: circular View Transitions reveal (fallback cross-fade; instant under reduced motion).
 - Added `@number-flow/react`, `@tanstack/react-virtual`, `lenis` (not used yet).
+
+## Phase 2 shipped (Effects + components)
+
+- `packages/ui`: Button (signal sheen, success variant, loading → spinner cross-fade, `done` check-draw, data-nudge icon motions, growing-underline link; `indigo` is now a violet secondary, never a CTA), Card tiers (`standard`/`hero`/`inset`, `beam`, `spotlight` with lit border, `glow` tint), CardTitle tinted 28px icon, CornerArrow two-arrow swap, chips (Difficulty, Status ✓/↻/!/◐/○ with pulse, Verdict, Level bars, Counter, Verified shine, Weakest), Tooltip (glass, arrow, 150 ms), progress (LinearProgress glowing tip + goal, SegmentedProgress, ProgressRing 270/360 multi-segment, StrengthLadder 1→90), SwitchField, SegmentedControl (radiogroup, sliding pill, link mode), Field + inputClasses, pixel skeletons, EmptyState pixel halo, ErrorState.
+- `apps/web/src/components/fx`: NumberTicker (@number-flow), DecodeText, TextReveal, TiltCard, Magnetic, CursorGlow, Marquee, Meteors, StreakFlame, AnimatedBeam, Modal (native dialog), HoldToConfirm, Select (combobox), DateRangePicker, AnimatedCheckbox, StarToggle; pixel confetti (`burst`, `burstFrom`) in `dashboard/celebrate.tsx`; PlatformMark in `site-icons.tsx`.
+- All shown with states on `/styleguide`.

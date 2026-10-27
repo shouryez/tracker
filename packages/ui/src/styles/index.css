@@ -250,6 +250,12 @@
       transform: scaleX(0);
     }
   }
+  /* Ring segments draw from zero length (set --ring-from to the dash length). */
+  @keyframes ring-in {
+    from {
+      stroke-dasharray: 0 var(--ring-from, 100);
+    }
+  }
   /* SVG strokes draw in; set --draw-from to the dash length. */
   @keyframes draw {
     from {
@@ -518,5 +524,193 @@
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---- Signature effects (CSS-only parts) ---- */
+
+/* BorderBeam: a short light travelling around the border (conic gradient masked to the edge). */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@utility border-beam {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--beam-angle),
+      transparent 0 72%,
+      color-mix(in srgb, var(--violet) 80%, transparent) 84%,
+      var(--signal) 90%,
+      transparent 96%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    animation: beam 6s linear infinite;
+  }
+}
+@keyframes beam {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+/* Soft pulse for "very overdue" and live presence dots. */
+@utility pulse-ring {
+  animation: pulse-ring 2s var(--ease-out) infinite;
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+/* One-off sheen sweep (badges such as "verified", shimmer buttons). */
+@utility sheen {
+  position: relative;
+  overflow: hidden;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.35) 50%,
+      transparent 65%
+    );
+    transform: translateX(-120%);
+    animation: sheen 3.2s var(--ease-in-out) infinite;
+  }
+}
+@keyframes sheen {
+  60%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes meteor {
+  0% {
+    transform: rotate(215deg) translateX(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(215deg) translateX(-600px);
+    opacity: 0;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes flame {
+  0%,
+  100% {
+    transform: scaleY(1) skewX(0deg);
+  }
+  33% {
+    transform: scaleY(1.06) skewX(-2deg);
+  }
+  66% {
+    transform: scaleY(0.96) skewX(2deg);
+  }
+}
+
+@keyframes radar {
+  from {
+    transform: scale(0.4);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .border-beam::after,
+  .sheen::before {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* Top-level copies: arbitrary animate-[…] classes reference these directly. */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes ring-in {
+  from {
+    stroke-dasharray: 0 var(--ring-from, 100);
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+}
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em) skewX(-6deg);
+    filter: blur(10px);
+  }
+}
+@keyframes beam-travel {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes marquee-x {
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+}
+@keyframes pop-open {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
   }
 }

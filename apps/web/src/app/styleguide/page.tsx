@@ -1,34 +1,56 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { CircleCheck, Flame, Inbox, RotateCcw, Timer } from "lucide-react";
+import { CircleCheck, Flame, Inbox, Plus, Puzzle, RefreshCw, RotateCcw, Timer } from "lucide-react";
 import {
   Aurora,
   Button,
   ButtonArrow,
   Card,
   CardHeader,
-  CardSub,
   CardTitle,
+  CornerArrow,
+  CounterChip,
   DifficultyTag,
   DotGrid,
   EmptyState,
+  ErrorState,
   GlowOrb,
   Grain,
   Kbd,
-  Skeleton,
+  LevelChip,
+  LinearProgress,
+  LogoMark,
+  ProgressRing,
+  SegmentedProgress,
   SkeletonCard,
   SpotlightTracker,
   Starfield,
   StatusBadge,
+  StrengthLadder,
   Tag,
   ThemeToggle,
   Tooltip,
+  VerdictChip,
+  VerifiedChip,
+  WeakestChip,
 } from "@upsolve/ui";
-import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
-import { HalfGauge, KpiCard, WeekCapsules } from "@/components/dashboard/widgets";
+import { KpiCard } from "@/components/dashboard/widgets";
+import { AnimatedBeam, Marquee, Meteors, StreakFlame } from "@/components/fx/decor";
+import { Magnetic, TiltCard } from "@/components/fx/pointer";
+import { DecodeText, TextReveal } from "@/components/fx/text";
+import { PlatformMark } from "@/components/site-icons";
 import { Tabs } from "@/components/tabs";
-import { SwitchDemo, ToastDemo } from "./demos";
+import {
+  ButtonStatesDemo,
+  FieldsDemo,
+  ModalDemo,
+  SegmentedDemo,
+  SwitchDemo,
+  TickerDemo,
+  ToastDemo,
+  TogglesDemo,
+} from "./demos";
 
 export const metadata: Metadata = { title: "Styleguide", robots: { index: false } };
 
@@ -192,18 +214,6 @@ const ELEVATION: [string, string][] = [
   ["e4 modal", "shadow-e4"],
 ];
 
-function sampleDays() {
-  let x = 7;
-  return Array.from({ length: 26 * 7 }, (_, i) => {
-    x = (x * 1103515245 + 12345) % 2147483648;
-    const r = x / 2147483648;
-    return {
-      date: `2026-${String(1 + Math.floor(i / 28)).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
-      count: r > 0.55 ? 0 : Math.floor(r * 14),
-    };
-  });
-}
-
 export default function Styleguide() {
   if (process.env.NODE_ENV === "production") notFound();
   return (
@@ -326,6 +336,7 @@ export default function Styleguide() {
                 "outline",
                 "ghost",
                 "danger",
+                "success",
                 "link",
               ] as const
             ).map((v) => (
@@ -340,80 +351,193 @@ export default function Styleguide() {
             <Button size="lg" variant="signal">
               Large
             </Button>
-            <Button size="icon" variant="secondary" aria-label="Icon">
-              <Flame size={16} />
+            <Button size="icon" variant="secondary" aria-label="Sync">
+              <RefreshCw size={16} data-nudge="spin" />
+            </Button>
+            <Button size="icon" variant="secondary" aria-label="Add">
+              <Plus size={16} data-nudge="plus" />
             </Button>
             <Button disabled>Disabled</Button>
             <Button loading>Saving</Button>
-            <Button variant="secondary" loading>
-              Loading secondary
-            </Button>
+            <ButtonStatesDemo />
+          </Row>
+          <Row>
+            <Magnetic>
+              <Button size="lg" variant="signal">
+                <span data-magnetic-label className="inline-flex items-center gap-2">
+                  Magnetic hero CTA <ButtonArrow />
+                </span>
+              </Button>
+            </Magnetic>
           </Row>
         </Section>
 
-        <Section title="Badges">
+        <Section title="Badges and chips">
           <Row>
             <DifficultyTag difficulty="easy" />
             <DifficultyTag difficulty="medium" />
             <DifficultyTag difficulty="hard" />
+          </Row>
+          <Row>
             <StatusBadge status="solved" />
+            <StatusBadge status="revise" />
+            <StatusBadge status="overdue" label="Overdue 9d" pulse />
             <StatusBadge status="attempted" />
             <StatusBadge status="todo" />
-            <StatusBadge status="revise" />
-            {(["neutral", "ac", "wa", "tle", "info", "primary", "signal"] as const).map((t) => (
-              <Tag key={t} tone={t} mono>
-                {t}
-              </Tag>
+          </Row>
+          <Row>
+            {(["AC", "WA", "TLE", "CE", "MLE", "RE"] as const).map((v) => (
+              <VerdictChip key={v} verdict={v} />
             ))}
+            <span className="text-ink-4">·</span>
+            <LevelChip level="Basic" />
+            <LevelChip level="Core" />
+            <LevelChip level="Pro" />
+            <CounterChip n={6} />
+            <VerifiedChip />
+            <WeakestChip />
+            <Tag className="cursor-pointer hover:border-line-3 hover:text-ink">Sliding window</Tag>
             <Kbd>Ctrl K</Kbd>
-            <Tooltip content="Tooltips wait 300 ms">
+            <Tooltip content="Stage 2 of 6 · next review in 3 days">
               <Button variant="outline" size="sm">
                 Hover me
               </Button>
             </Tooltip>
           </Row>
+          <Row>
+            <StrengthLadder stage={2} dueLabel="next review in 3 days" />
+            <StrengthLadder stage={4} overdue dueLabel="overdue 2 days" />
+            <StrengthLadder stage={6} />
+            <StrengthLadder stage={3} compact />
+          </Row>
+        </Section>
+
+        <Section title="Progress">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="flex flex-col gap-6">
+              <LinearProgress value={212} max={495} label="212 / 495" aria-label="A2Z progress" />
+              <LinearProgress
+                value={46}
+                max={120}
+                goal={0.5}
+                color="var(--signal)"
+                aria-label="Focus minutes"
+              />
+              <LinearProgress value={0} max={9} aria-label="Empty section" />
+              <SegmentedProgress
+                segments={[
+                  { label: "Easy", value: 120, color: "var(--easy)" },
+                  { label: "Medium", value: 210, color: "var(--medium)" },
+                  { label: "Hard", value: 64, color: "var(--hard)" },
+                ]}
+              />
+              <SegmentedProgress
+                total={60}
+                segments={[
+                  { label: "AC", value: 31, color: "var(--v-ac)" },
+                  { label: "WA", value: 14, color: "var(--v-wa)" },
+                  { label: "TLE", value: 6, color: "var(--v-tle)" },
+                ]}
+              />
+            </div>
+            <div className="flex flex-wrap items-center gap-6">
+              <ProgressRing
+                total={495}
+                segments={[
+                  { label: "Easy", value: 60, color: "var(--easy)" },
+                  { label: "Medium", value: 110, color: "var(--medium)" },
+                  { label: "Hard", value: 42, color: "var(--hard)" },
+                ]}
+              >
+                <span className="num text-30">43%</span>
+                <span className="text-11 text-ink-3">212 / 495</span>
+              </ProgressRing>
+              <ProgressRing
+                sweep={270}
+                total={120}
+                size={120}
+                segments={[{ label: "Minutes", value: 46, color: "var(--signal)" }]}
+              >
+                <span className="num text-24">46</span>
+                <span className="text-11 text-ink-3">of 120 min</span>
+              </ProgressRing>
+              <ProgressRing total={5} size={96} stroke={8} segments={[]}>
+                <span className="num text-20">0/5</span>
+              </ProgressRing>
+            </div>
+          </div>
         </Section>
 
         <Section title="Controls">
-          <Row>
+          <div className="flex flex-col gap-6">
+            <SegmentedDemo />
+            <Tabs
+              items={[
+                {
+                  id: "a",
+                  label: "Attempts",
+                  count: 5,
+                  content: <p className="text-ink-2">Attempts panel</p>,
+                },
+                { id: "b", label: "Notes", content: <p className="text-ink-2">Notes panel</p> },
+              ]}
+            />
             <SwitchDemo />
-            <ToastDemo />
-          </Row>
-          <Tabs
-            items={[
-              {
-                id: "a",
-                label: "Attempts",
-                count: 5,
-                content: <p className="text-ink-2">Attempts panel</p>,
-              },
-              { id: "b", label: "Notes", content: <p className="text-ink-2">Notes panel</p> },
-              {
-                id: "c",
-                label: "Similar",
-                count: 3,
-                content: <p className="text-ink-2">Similar panel</p>,
-              },
-            ]}
-          />
+            <TogglesDemo />
+            <FieldsDemo />
+            <Row>
+              <ToastDemo />
+              <ModalDemo />
+            </Row>
+          </div>
         </Section>
 
         <Section title="Cards">
           <div className="grid gap-3.5 md:grid-cols-3">
-            <Card>
+            <Card tier="hero" beam>
               <CardHeader>
-                <CardTitle icon={<Inbox size={14} />}>Static card</CardTitle>
-                <CardSub>meta</CardSub>
+                <CardTitle icon={<CircleCheck size={14} />} className="text-white">
+                  Hero · beam · grain
+                </CardTitle>
               </CardHeader>
-              <p className="text-[13.5px] text-ink-2">Border, inner highlight, soft shadow.</p>
+              <p className="num text-48">412</p>
+              <p className="mt-2 text-13 text-white/70">One per page.</p>
             </Card>
-            <Card interactive>
-              <CardTitle>Interactive</CardTitle>
-              <p className="mt-2 text-[13.5px] text-ink-2">Lifts and brightens on hover.</p>
+            <Card interactive spotlight glow="var(--easy)">
+              <CardHeader>
+                <CardTitle icon={<Inbox size={14} />} tint="var(--easy)">
+                  Standard · spotlight
+                </CardTitle>
+                <CornerArrow />
+              </CardHeader>
+              <p className="text-13 text-ink-2">
+                Lifts 4px, the light follows the cursor and lights the nearest border.
+              </p>
             </Card>
-            <Card interactive spotlight>
-              <CardTitle>Spotlight</CardTitle>
-              <p className="mt-2 text-[13.5px] text-ink-2">A soft light follows the cursor.</p>
+            <Card tier="inset">
+              <CardTitle>Inset</CardTitle>
+              <p className="mt-2 text-13 text-ink-2">Recessed, for nested content.</p>
+            </Card>
+          </div>
+          <div className="mt-3.5 grid gap-3.5 md:grid-cols-3">
+            <TiltCard className="rounded-lg">
+              <Card className="h-full">
+                <CardTitle tint="var(--violet)" icon={<Flame size={14} />}>
+                  Tilt card
+                </CardTitle>
+                <p data-tilt-layer className="mt-3 num text-36">
+                  3D
+                </p>
+              </Card>
+            </TiltCard>
+            <Card className="flex items-center gap-4">
+              <StreakFlame streak={0} />
+              <StreakFlame streak={4} />
+              <StreakFlame streak={12} />
+              <StreakFlame streak={47} />
+            </Card>
+            <Card>
+              <TickerDemo />
             </Card>
           </div>
           <div className="mt-3.5 grid grid-cols-12 gap-3.5">
@@ -456,30 +580,65 @@ export default function Styleguide() {
               href="/dashboard"
               foot="sample"
             />
-            <Card className="col-span-12 xl:col-span-5">
-              <CardTitle>Week capsules</CardTitle>
-              <div className="mt-4">
-                <WeekCapsules
-                  todayIndex={3}
-                  days={["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({
-                    label,
-                    count: [3, 0, 5, 7, 0, 0, 0][i]!,
-                    future: i > 3,
-                  }))}
-                />
-              </div>
+          </div>
+        </Section>
+
+        <Section title="Effects">
+          <div className="grid gap-3.5 md:grid-cols-2">
+            <Card className="overflow-hidden p-6">
+              <TextReveal
+                as="p"
+                text="Every problem you solve,"
+                accent="remembered."
+                className="text-36 font-[550] tracking-[-0.03em]"
+              />
+              <p className="mt-4 text-24">
+                <DecodeText text="Verdict: Accepted" className="font-mono" />
+              </p>
             </Card>
-            <Card className="col-span-12 xl:col-span-3">
-              <CardTitle>Gauge</CardTitle>
-              <div className="mt-4">
-                <HalfGauge done={212} total={495} label="of Striver A2Z (sample)" />
-              </div>
+            <Card className="p-4">
+              <AnimatedBeam
+                height={180}
+                nodes={[
+                  {
+                    id: "lc",
+                    label: "LeetCode",
+                    icon: <PlatformMark site="leetcode" size={20} brand />,
+                    x: 10,
+                    y: 30,
+                  },
+                  {
+                    id: "gfg",
+                    label: "GFG",
+                    icon: <PlatformMark site="gfg" size={20} brand />,
+                    x: 10,
+                    y: 75,
+                  },
+                  { id: "ext", label: "Extension", icon: <Puzzle size={18} />, x: 45, y: 52 },
+                  { id: "up", label: "Upsolve", icon: <LogoMark size={20} />, x: 85, y: 52 },
+                ]}
+                edges={[
+                  ["lc", "ext"],
+                  ["gfg", "ext"],
+                  ["ext", "up"],
+                ]}
+              />
             </Card>
-            <Card className="col-span-12 xl:col-span-4">
-              <CardTitle>Heatmap</CardTitle>
-              <div className="mt-4">
-                <ActivityHeatmap days={sampleDays()} />
-              </div>
+            <div className="relative h-48 overflow-hidden rounded-lg border border-line bg-[#08080b]">
+              <Starfield />
+              <Meteors count={5} />
+              <span className="absolute bottom-3 left-3 label-mono text-white/70">
+                Starfield + meteors
+              </span>
+            </div>
+            <Card className="flex items-center">
+              <Marquee speed={24}>
+                {["Striver A2Z", "Striver SDE", "NeetCode 150", "Blind 75", "Grind 75"].map((s) => (
+                  <span key={s} className="font-display text-30 whitespace-nowrap text-ink-2">
+                    {s}
+                  </span>
+                ))}
+              </Marquee>
             </Card>
           </div>
         </Section>
@@ -490,7 +649,11 @@ export default function Styleguide() {
             <Card>
               <EmptyState
                 icon={<Inbox size={18} />}
-                title="No problems solved yet"
+                title={
+                  <>
+                    No problems <em>yet.</em>
+                  </>
+                }
                 action={
                   <Button variant="signal" size="sm">
                     Start with Two Sum <ButtonArrow />
@@ -500,10 +663,16 @@ export default function Styleguide() {
                 Connect a platform or follow a sheet to get going.
               </EmptyState>
             </Card>
-            <Card className="flex flex-col gap-2">
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-10 w-full rounded-md" />
-              <Skeleton className="h-3 w-3/4" />
+            <Card>
+              <ErrorState
+                action={
+                  <Button variant="secondary" size="sm">
+                    <RefreshCw size={14} data-nudge="spin" /> Try again
+                  </Button>
+                }
+              >
+                Something broke loading this card.
+              </ErrorState>
             </Card>
           </div>
         </Section>

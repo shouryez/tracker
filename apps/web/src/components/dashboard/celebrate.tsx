@@ -4,19 +4,37 @@ import { useEffect } from "react";
 
 const MILESTONES = [7, 14, 30, 50, 75, 100, 150, 200, 365];
 
-/** A short confetti burst in brand colours. Skipped for reduced motion. */
-export async function burst(opts: { origin?: { x: number; y: number } } = {}) {
+/**
+ * Pixel confetti: square particles in brand colours (the logo's pixel motif).
+ * Lazy-loads canvas-confetti. Skipped for reduced motion. `small` is for row-level wins.
+ */
+export async function burst(opts: { origin?: { x: number; y: number }; small?: boolean } = {}) {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const confetti = (await import("canvas-confetti")).default;
   confetti({
-    particleCount: 90,
-    spread: 70,
-    startVelocity: 38,
-    ticks: 160,
-    scalar: 0.9,
+    particleCount: opts.small ? 28 : 90,
+    spread: opts.small ? 55 : 70,
+    startVelocity: opts.small ? 22 : 38,
+    ticks: opts.small ? 90 : 160,
+    scalar: opts.small ? 0.7 : 0.95,
+    shapes: ["square"],
+    flat: true,
     origin: opts.origin ?? { x: 0.5, y: 0.35 },
-    colors: ["#d7ff3a", "#6e7bff", "#ffffff", "#ff7a45"],
+    colors: ["#d7ff3a", "#a48bff", "#6e7bff", "#ffffff", "#34d6d0"],
     disableForReducedMotion: true,
+  });
+}
+
+/** Burst from an element (e.g. the checkbox that was just ticked). */
+export function burstFrom(el: Element | null, small = true) {
+  if (!el) return burst({ small });
+  const r = el.getBoundingClientRect();
+  return burst({
+    small,
+    origin: {
+      x: (r.left + r.width / 2) / window.innerWidth,
+      y: (r.top + r.height / 2) / window.innerHeight,
+    },
   });
 }
 
