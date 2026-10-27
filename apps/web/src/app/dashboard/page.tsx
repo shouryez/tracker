@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import {
-  BadgeCheck,
   Brain,
   CalendarDays,
   CircleCheck,
@@ -28,24 +27,31 @@ import {
   CardHeader,
   CardSub,
   CardTitle,
+  CounterChip,
   DifficultyTag,
   EmptyState,
+  ProgressRing,
   Skeleton,
   SkeletonCard,
   StatusBadge,
+  StrengthLadder,
   Tag,
+  VerifiedChip,
   buttonClasses,
-  cn,
 } from "@upsolve/ui";
 import { CardLink } from "@/components/card-link";
 import { SolvedSplit, Sparkline } from "@/components/charts";
+import { FocusWeek, TopicRadar } from "@/components/charts/insights";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
-import { CountUp } from "@/components/dashboard/count-up";
 import { HalfGauge, KpiCard, WeekCapsules } from "@/components/dashboard/widgets";
-import { dueLabel, MasteryBars, reviewUrl, StepLadder } from "@/components/learning";
+import { StreakFlame } from "@/components/fx/decor";
+import { NumberTicker } from "@/components/fx/number-ticker";
+import { dueLabel, MasteryBars, reviewUrl } from "@/components/learning";
+import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL, PLATFORM_STROKE } from "@/components/platform-meta";
 import { formatEta, SegmentedProgress } from "@/components/progress";
+import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import {
@@ -145,11 +151,11 @@ async function Overview() {
   const solvedBy: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
   for (const p of learning) if (p.difficulty) solvedBy[p.difficulty]++;
   const nextUp = suggestNext(candidates, mastery, solvedBy, 4);
-  // The six topics you've solved most in, strongest first.
-  const masteryShown = mastery
+  // The topics you've solved most in, strongest first (radar wants up to 8).
+  const masteryTop = mastery
     .filter((m) => m.solved > 0)
     .sort((a, b) => b.solved - a.solved)
-    .slice(0, 6)
+    .slice(0, 8)
     .sort((a, b) => b.score - a.score);
   const followed = sheets.filter((s) => s.following);
   const hasExtension = tokens.length > 0;
@@ -167,7 +173,7 @@ async function Overview() {
     (p) => p.state.firstSolvedAt > now - 14 * DAY_MS && p.state.firstSolvedAt <= now - 7 * DAY_MS,
   ).length;
   const days = stats.days182;
-  const spark14 = days.slice(-14).map((d) => d.count);
+  const spark30 = days.slice(-30).map((d) => d.count);
   // Mon–Sun of the current (UTC) week, matching the heatmap's UTC days.
   const todayUtc = new Date(now);
   const sinceMonday = (todayUtc.getUTCDay() + 6) % 7;
@@ -189,175 +195,327 @@ async function Overview() {
   const nextReview = queue.today[0];
   const mainSheet = followed[0];
   const focus = sessionStats.focusWeekMs;
-  const clock = `${String(Math.floor(focus / 3_600_000)).padStart(2, "0")}:${String(Math.floor((focus % 3_600_000) / 60_000)).padStart(2, "0")}`;
+  const fmtDay = (d: string) =>
+    new Date(`${d}T12:00:00Z`).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+  const overdueDays = nextReview ? Math.floor((now - nextReview.state.dueAt) / DAY_MS) : 0;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} />
-      {/* Greeting */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.05] font-[550] tracking-[-0.04em]">
-            {greeting(profile.timezone, now)}, {firstName}
-          </h1>
-          <p className="mt-1.5 text-[14px] text-ink-2">
-            {stats.streak > 0 ? (
+      <PageHeader
+        eyebrow={new Date(now).toLocaleDateString("en-IN", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          timeZone: profile.timezone,
+        })}
+        glow={PAGE_GLOW.overview}
+        title={
+          <>
+            {greeting(profile.timezone, now)}, <em>{firstName}.</em>
+          </>
+        }
+        subtitle={
+          <>
+            <span className="inline-flex items-center gap-1.5">
+              <Flame
+                size={14}
+                aria-hidden="true"
+                className={stats.streak > 0 ? "text-ember" : "text-ink-4"}
+              />
+              {stats.streak > 0 ? `${stats.streak}-day streak` : "Start a streak today"}
+            </span>
+            {queue.today.length > 0 && (
               <>
-                <Flame size={14} className="-mt-0.5 mr-1 inline text-ember" aria-hidden="true" />
-                {stats.streak}-day streak
+                <Dot />
+                <span>{queue.today.length} to revise</span>
               </>
-            ) : (
-              "Start a streak today"
             )}
-            {queue.today.length > 0 && ` · ${queue.today.length} to revise`}
-            {goal ? ` · ${goal.label}` : ""}
-            {profile.college ? ` · ${profile.college.shortName ?? profile.college.name}` : ""}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2.5">
-          <AutoSync stale={needsSync(accounts)} />
-          <a
-            href="/api/share-card?download=1"
-            title="Download a 1200×630 card with your heatmap and numbers, for LinkedIn or WhatsApp"
-            className={buttonClasses({ variant: "secondary", size: "sm" })}
-          >
-            <Share2 size={14} aria-hidden="true" /> Share card
-          </a>
-          {nextReview ? (
-            <Link
-              href="/dashboard/revision"
-              className={buttonClasses({ variant: "signal", size: "sm" })}
+            {goal && (
+              <>
+                <Dot />
+                <span>{goal.label}</span>
+              </>
+            )}
+            {profile.college && (
+              <>
+                <Dot />
+                <span>{profile.college.shortName ?? profile.college.name}</span>
+              </>
+            )}
+          </>
+        }
+        actions={
+          <>
+            <AutoSync stale={needsSync(accounts)} />
+            <a
+              href="/api/share-card?download=1"
+              title="Download a 1200×630 card with your heatmap and numbers, for LinkedIn or WhatsApp"
+              className={buttonClasses({ variant: "secondary", size: "sm" })}
             >
-              <RotateCcw size={14} aria-hidden="true" /> Revise now <ButtonArrow />
-            </Link>
-          ) : mainSheet ? (
-            <Link
-              href={`/dashboard/sheets/${mainSheet.slug}`}
-              className={buttonClasses({ variant: "signal", size: "sm" })}
-            >
-              Continue {mainSheet.name.replace(/'s.*$/, "")} <ButtonArrow />
-            </Link>
-          ) : null}
-        </div>
-      </div>
+              <Share2 size={14} aria-hidden="true" /> Share card
+            </a>
+            {nextReview ? (
+              <Link
+                href="/dashboard/revision"
+                className={buttonClasses({ variant: "signal", size: "sm" })}
+              >
+                <RotateCcw size={14} aria-hidden="true" /> Revise now <ButtonArrow />
+              </Link>
+            ) : mainSheet ? (
+              <Link
+                href={`/dashboard/sheets/${mainSheet.slug}`}
+                className={buttonClasses({ variant: "signal", size: "sm" })}
+              >
+                Continue {mainSheet.name.replace(/'s.*$/, "")} <ButtonArrow />
+              </Link>
+            ) : null}
+          </>
+        }
+      />
 
       {accounts.length === 0 && <ConnectPrompt />}
 
-      <div className="grid grid-cols-12 gap-3.5">
-        {/* KPI row */}
-        <KpiCard
-          feature
-          className="col-span-12 sm:col-span-6 xl:col-span-3"
-          title="Solved"
-          icon={icon(CircleCheck)}
-          value={stats.solved.total}
-          unit="problems"
-          href="/dashboard/analytics"
-          spark={spark14}
-          foot={
-            thisWeek > 0
-              ? `↑ ${thisWeek} new this week${lastWeek ? ` · ${lastWeek} the week before` : ""}`
-              : accounts
-                  .filter((a) => a.snapshot)
-                  .map((a) => `${PLATFORM_LABEL[a.platform]} ${a.snapshot!.solved.total}`)
-                  .join(" · ") || "Connect a platform to start"
-          }
-        />
-        <KpiCard
-          className="col-span-12 sm:col-span-6 xl:col-span-3"
-          title="Streak"
-          icon={icon(Flame, "text-ember")}
-          value={stats.streak}
-          unit={stats.streak === 1 ? "day" : "days"}
-          href="/dashboard/settings#streak"
-          foot={
-            activeFreeze
-              ? `Frozen until ${new Date(`${activeFreeze.end}T12:00:00Z`).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" })} · exam week`
-              : `${stats.activeDays} active days this year`
-          }
-        />
-        <KpiCard
-          className="col-span-12 sm:col-span-6 xl:col-span-3"
-          title="To revise"
-          icon={icon(RotateCcw)}
-          value={queue.today.length}
-          unit="today"
-          href="/dashboard/revision"
-          foot={
-            queue.backlog > 0
-              ? `${queue.backlog} more waiting · ${queue.reviewedWeek} reviewed this week`
-              : `${queue.reviewedWeek} reviewed this week`
-          }
-        />
-        <KpiCard
-          className="col-span-12 sm:col-span-6 xl:col-span-3"
-          title="Focus"
-          icon={icon(Timer)}
-          value={focus / 3_600_000}
-          decimals={1}
-          unit="h this week"
-          href="/dashboard/sessions"
-          foot={
-            hasExtension
-              ? `${focusPct}% of your ${formatDuration(goalWeekMs)} weekly goal`
-              : "Install the extension to track time"
-          }
+      <div className="stagger-in grid grid-cols-12 gap-3.5">
+        {/* Row 1 · hero Solved + three tiles */}
+        <Card
+          tier="hero"
+          beam
+          interactive
+          className="col-span-12 flex flex-col gap-4 xl:col-span-5"
         >
-          <span className="h-1.5 overflow-hidden rounded-full bg-surface-3">
-            <span
-              className="block h-full origin-left animate-[grow-x_var(--dur-slower)_var(--ease-out)_both] rounded-full bg-primary"
-              style={{ width: `${focusPct}%` }}
-            />
-          </span>
-        </KpiCard>
+          <Link
+            href="/dashboard/analytics"
+            aria-label="Open analytics"
+            className="absolute inset-0 z-[2] rounded-[inherit]"
+          />
+          <div className="flex items-center justify-between">
+            <span className="flex items-center gap-2.5 text-14 font-[600]">
+              <span className="grid size-7 place-items-center rounded-[9px] border border-white/15 bg-white/12">
+                {icon(CircleCheck)}
+              </span>
+              Solved
+            </span>
+            {thisWeek > 0 && (
+              <span className="tnum rounded-full bg-white/15 px-2 py-0.5 text-11 font-[600]">
+                ↑ {thisWeek} this week
+                {lastWeek ? ` · ${lastWeek} before` : ""}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="num text-[64px] leading-none">
+                <NumberTicker value={stats.solved.total} />
+              </p>
+              <p className="mt-1 font-display text-20 text-white/70 italic">problems solved</p>
+            </div>
+            <ProgressRing
+              total={Math.max(1, stats.solved.total)}
+              size={112}
+              stroke={10}
+              className="[&_circle:first-of-type]:stroke-white/15"
+              segments={[
+                { label: "Easy", value: stats.solved.easy, color: "var(--easy)" },
+                { label: "Medium", value: stats.solved.medium, color: "var(--medium)" },
+                { label: "Hard", value: stats.solved.hard, color: "var(--hard)" },
+              ]}
+            >
+              <span className="text-11 text-white/60">E · M · H</span>
+              <span className="tnum text-12 font-[600]">
+                {stats.solved.easy} · {stats.solved.medium} · {stats.solved.hard}
+              </span>
+            </ProgressRing>
+          </div>
+          <div className="mt-auto flex items-end justify-between gap-3">
+            <ul className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-12 text-white/75">
+              {accounts.filter((a) => a.snapshot).length === 0 ? (
+                <li>Connect a platform to start</li>
+              ) : (
+                accounts
+                  .filter((a) => a.snapshot)
+                  .map((a) => {
+                    const mark = platformMarkId(a.platform);
+                    return (
+                      <li key={a.id} className="flex items-center gap-1.5">
+                        {mark && <PlatformMark site={mark} size={13} brand />}
+                        {PLATFORM_LABEL[a.platform]}{" "}
+                        <span className="tnum font-[600] text-white">
+                          {a.snapshot!.solved.total}
+                        </span>
+                      </li>
+                    );
+                  })
+              )}
+            </ul>
+            {spark30.some((v) => v > 0) && (
+              <Sparkline
+                values={spark30}
+                stroke="var(--signal)"
+                width={120}
+                height={34}
+                className="hidden shrink-0 sm:block"
+              />
+            )}
+          </div>
+        </Card>
 
-        {/* This week · next review · sheets */}
-        <Card spotlight className="col-span-12 xl:col-span-5">
+        <div className="col-span-12 grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:col-span-7">
+          <KpiCard
+            title="Streak"
+            icon={icon(Flame)}
+            tint="var(--ember)"
+            value={stats.streak}
+            unit={stats.streak === 1 ? "day" : "days"}
+            href="/dashboard/settings#streak"
+            visual={<StreakFlame streak={stats.streak} size={46} />}
+            foot={
+              activeFreeze
+                ? `Frozen until ${fmtDay(activeFreeze.end)} · exam week`
+                : stats.streak === 0
+                  ? "Light it today →"
+                  : `${stats.activeDays} active days this year`
+            }
+          />
+          <KpiCard
+            title="To revise"
+            icon={icon(RotateCcw)}
+            tint="var(--violet)"
+            value={queue.today.length}
+            unit="today"
+            href="/dashboard/revision"
+            visual={
+              <ProgressRing
+                total={Math.max(1, queue.cap)}
+                size={46}
+                stroke={5}
+                segments={[
+                  {
+                    label: "Reviewed today",
+                    value: Math.min(queue.reviewedToday, queue.cap),
+                    color: "var(--violet)",
+                  },
+                ]}
+                aria-label={`${queue.reviewedToday} of ${queue.cap} reviewed today`}
+              >
+                <span className="tnum text-[10px] text-ink-3">
+                  {queue.reviewedToday}/{queue.cap}
+                </span>
+              </ProgressRing>
+            }
+            foot={
+              queue.backlog > 0
+                ? `${queue.backlog} more waiting · ${queue.reviewedWeek} this week`
+                : `${queue.reviewedWeek} reviewed this week`
+            }
+          />
+          <KpiCard
+            title="Focus"
+            icon={icon(Timer)}
+            tint="var(--signal-mark)"
+            value={focus / 3_600_000}
+            decimals={1}
+            unit="h week"
+            href="/dashboard/sessions"
+            visual={
+              hasExtension ? (
+                <ProgressRing
+                  total={100}
+                  size={46}
+                  stroke={5}
+                  segments={[{ label: "Goal", value: focusPct, color: "var(--signal-mark)" }]}
+                  aria-label={`${focusPct}% of weekly goal`}
+                >
+                  <span className="tnum text-[10px] text-ink-3">{focusPct}%</span>
+                </ProgressRing>
+              ) : undefined
+            }
+            foot={
+              hasExtension
+                ? `${focusPct}% of ${formatDuration(goalWeekMs)} weekly goal`
+                : "Install the extension to track time"
+            }
+          />
+        </div>
+
+        {/* Row 2 · this week + next revision flashcard */}
+        <Card spotlight className="col-span-12 xl:col-span-7">
           <CardHeader>
-            <CardTitle icon={icon(CalendarDays)}>This week</CardTitle>
-            <CardSub>
-              {weekTotal} submission{weekTotal === 1 ? "" : "s"} · UTC days
-            </CardSub>
+            <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
+              This week
+            </CardTitle>
+            <CardSub>{weekTotal} solved · UTC days</CardSub>
           </CardHeader>
           <WeekCapsules days={week} todayIndex={sinceMonday} />
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col sm:col-span-6 xl:col-span-3">
+        <Card
+          spotlight
+          glow={nextReview ? (overdueDays > 0 ? "var(--overdue)" : "var(--violet)") : undefined}
+          className="col-span-12 flex flex-col xl:col-span-5"
+        >
           <CardHeader>
-            <CardTitle icon={icon(RotateCcw)}>Next revision</CardTitle>
+            <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
+              Next revision
+            </CardTitle>
             <CardLink href="/dashboard/revision" label="Open revision" />
           </CardHeader>
           {nextReview ? (
             <div className="flex flex-1 flex-col">
-              <Link
-                href={`/dashboard/problems/${nextReview.problemId}`}
-                className="text-[20px] leading-tight font-[550] tracking-[-0.02em] text-primary hover:underline"
-              >
-                {nextReview.title}
-              </Link>
-              <span className="mt-2 flex items-center gap-2 font-mono text-[11.5px] text-ink-3">
-                <StepLadder step={nextReview.state.step} />
-                {dueLabel(nextReview.state.dueAt, now, endOfToday)}
-              </span>
-              {nextReview.difficulty && (
-                <span className="mt-3 mb-5">
-                  <DifficultyTag difficulty={nextReview.difficulty} />
-                </span>
-              )}
+              <div className="surface-inset flex flex-1 flex-col rounded-[16px] p-4">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  {nextReview.difficulty && <DifficultyTag difficulty={nextReview.difficulty} />}
+                  <StatusBadge
+                    status={overdueDays > 0 ? "overdue" : "revise"}
+                    label={dueLabel(nextReview.state.dueAt, now, endOfToday)}
+                    pulse={overdueDays > 7}
+                  />
+                </div>
+                <Link
+                  href={`/dashboard/problems/${nextReview.problemId}`}
+                  className="text-24 leading-tight font-[600] tracking-[-0.02em] hover:underline"
+                >
+                  {nextReview.title}
+                </Link>
+                <div className="mt-4 flex items-end justify-between gap-3">
+                  <StrengthLadder
+                    stage={nextReview.state.step + 1}
+                    overdue={overdueDays > 0}
+                    dueLabel={dueLabel(nextReview.state.dueAt, now, endOfToday)}
+                  />
+                  {queue.today.length > 1 && (
+                    <span className="text-12 text-ink-3">+{queue.today.length - 1} more today</span>
+                  )}
+                </div>
+              </div>
               <a
                 href={reviewUrl(nextReview.url)}
                 target="_blank"
                 rel="noreferrer"
-                className={buttonClasses({ variant: "indigo", className: "mt-auto w-full" })}
+                className={buttonClasses({ variant: "secondary", className: "mt-3.5 w-full" })}
               >
-                <Play size={14} aria-hidden="true" /> Re-solve now
+                <Play size={14} aria-hidden="true" /> Re-solve now <ButtonArrow />
               </a>
             </div>
           ) : (
             <EmptyState
               className="flex-1 py-4"
               icon={<RotateCcw size={18} />}
-              title={learning.length === 0 ? "Nothing to revise yet" : "All caught up"}
+              title={
+                learning.length === 0 ? (
+                  <>
+                    Nothing to revise <em>yet.</em>
+                  </>
+                ) : (
+                  <>
+                    All caught <em>up.</em>
+                  </>
+                )
+              }
             >
               {learning.length === 0
                 ? "Solved problems are scheduled here: 1 → 3 → 7 → 16 → 35 → 90 days."
@@ -366,112 +524,100 @@ async function Overview() {
           )}
         </Card>
 
-        <Card spotlight className="col-span-12 sm:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle icon={icon(ListChecks)}>Your sheets</CardTitle>
-            <Link
-              href="/dashboard/sheets"
-              className={buttonClasses({
-                variant: "outline",
-                size: "sm",
-                className: "h-[30px] px-3 text-[12.5px]",
-              })}
-            >
-              All sheets
-            </Link>
-          </CardHeader>
-          {followed.length === 0 ? (
-            <EmptyState
-              className="py-4"
-              icon={<ListChecks size={18} />}
-              title="Follow a sheet"
-              action={
-                <Link
-                  href="/dashboard/sheets"
-                  className={buttonClasses({ variant: "signal", size: "sm" })}
-                >
-                  Pick your sheets <ButtonArrow />
-                </Link>
-              }
-            >
-              Striver A2Z, NeetCode 150 and more, ticked automatically as you solve.
-            </EmptyState>
-          ) : (
-            <ul>
-              {followed.map((s) => (
-                <li key={s.id} className="border-t border-dashed border-line-2 first:border-t-0">
-                  <Link
-                    href={`/dashboard/sheets/${s.slug}`}
-                    className="group/sheet block py-3 first:pt-0"
-                  >
-                    <div className="mb-2 flex items-baseline justify-between gap-2 text-[13.5px]">
-                      <span className="truncate font-[550] group-hover/sheet:underline">
-                        {s.name}
-                      </span>
-                      <span className="shrink-0 font-mono text-[11.5px] text-ink-3">
-                        {s.done}/{s.total}
-                        {s.eta ? ` · ${formatEta(s.eta)}` : ""}
-                      </span>
-                    </div>
-                    <SegmentedProgress done={s.done} total={s.total} segments={24} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
-
-        {/* Activity · progress gauge */}
+        {/* Row 3 · heatmap + sheets */}
         <Card className="col-span-12 xl:col-span-8">
           <CardHeader>
-            <CardTitle icon={icon(Grid3x3)}>Activity</CardTitle>
-            <CardSub>{stats.activeDays} active days · last 26 weeks · all platforms</CardSub>
+            <CardTitle icon={icon(Grid3x3)} tint="var(--primary)">
+              Activity
+            </CardTitle>
+            <CardSub>last 26 weeks · all platforms</CardSub>
           </CardHeader>
           <ActivityHeatmap days={days} />
         </Card>
 
         <Card spotlight className="col-span-12 flex flex-col xl:col-span-4">
           <CardHeader>
-            <CardTitle icon={icon(Gauge)}>
-              {mainSheet ? "Sheet progress" : "By difficulty"}
+            <CardTitle icon={icon(mainSheet ? Gauge : ListChecks)} tint="var(--violet)">
+              {mainSheet ? "Your sheets" : "By difficulty"}
             </CardTitle>
-            {mainSheet && (
-              <CardLink
-                href={`/dashboard/sheets/${mainSheet.slug}`}
-                label={`Open ${mainSheet.name}`}
-              />
-            )}
+            <Link
+              href="/dashboard/sheets"
+              className={buttonClasses({ variant: "ghost", size: "sm", className: "h-8 px-3" })}
+            >
+              All sheets
+            </Link>
           </CardHeader>
-          {mainSheet && (
-            <HalfGauge
-              done={mainSheet.done}
-              total={mainSheet.total}
-              label={`of ${mainSheet.name}`}
-            />
-          )}
-          <div className={cn(mainSheet ? "mt-4" : "flex flex-1 flex-col justify-center")}>
-            {!mainSheet && (
+          {mainSheet ? (
+            <>
+              <Link href={`/dashboard/sheets/${mainSheet.slug}`} className="group/sheet">
+                <HalfGauge
+                  done={mainSheet.done}
+                  total={mainSheet.total}
+                  label={`of ${mainSheet.name}${mainSheet.eta ? ` · done by ${formatEta(mainSheet.eta)}` : ""}`}
+                />
+              </Link>
+              {followed.length > 1 && (
+                <ul className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
+                  {followed.slice(1).map((s) => (
+                    <li key={s.id}>
+                      <Link href={`/dashboard/sheets/${s.slug}`} className="group/s block">
+                        <div className="mb-1.5 flex items-baseline justify-between gap-2 text-13">
+                          <span className="truncate font-[550] group-hover/s:underline">
+                            {s.name}
+                          </span>
+                          <span className="tnum shrink-0 font-mono text-11 text-ink-3">
+                            {s.done}/{s.total}
+                          </span>
+                        </div>
+                        <SegmentedProgress done={s.done} total={s.total} segments={24} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-1 flex-col justify-center">
               <span className="num mb-4 block text-[40px]">
-                <CountUp value={stats.solved.total} />
-                <small className="ml-1 text-[.42em] font-normal text-ink-3">solved</small>
+                <NumberTicker value={stats.solved.total} />
+                <small className="ml-1.5 font-display text-[.5em] font-normal text-ink-3 italic">
+                  solved
+                </small>
               </span>
-            )}
-            <SolvedSplit solved={stats.solved} />
+              <SolvedSplit solved={stats.solved} />
+              <Link
+                href="/dashboard/sheets"
+                className={buttonClasses({
+                  variant: "secondary",
+                  size: "sm",
+                  className: "mt-5 self-start",
+                })}
+              >
+                Pick a sheet <ButtonArrow />
+              </Link>
+            </div>
+          )}
+        </Card>
+
+        {/* Row 4 · mastery radar + solve next rail */}
+        <Card spotlight className="col-span-12 lg:col-span-6">
+          <CardHeader>
+            <CardTitle icon={icon(Brain)} tint="var(--easy)">
+              Topic mastery
+            </CardTitle>
+            <CardLink href="/dashboard/analytics#mastery" label="All topics" />
+          </CardHeader>
+          <div className="grid items-center gap-5 sm:grid-cols-[1.1fr_1fr]">
+            <TopicRadar topics={masteryTop} size={240} />
+            <MasteryBars topics={masteryTop.slice(0, 5)} showInputs={false} />
           </div>
         </Card>
 
-        {/* Mastery · next up · focus timer */}
-        <Card spotlight className="col-span-12 md:col-span-6 xl:col-span-4">
+        <Card spotlight className="col-span-12 flex flex-col lg:col-span-6">
           <CardHeader>
-            <CardTitle icon={icon(Brain)}>Topic mastery</CardTitle>
-            <CardLink href="/dashboard/analytics#mastery" label="All topics" />
-          </CardHeader>
-          <MasteryBars topics={masteryShown} showInputs={false} />
-        </Card>
-
-        <Card spotlight className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle icon={icon(Sparkles)}>Solve next</CardTitle>
+            <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
+              Solve next
+            </CardTitle>
             <CardSub>
               {nextUp[0] ? `focus: ${topicLabel(nextUp[0].topic)}` : "from your sheets"}
             </CardSub>
@@ -480,30 +626,33 @@ async function Overview() {
             <EmptyState
               className="py-4"
               icon={<Sparkles size={18} />}
-              title="Suggestions come next"
+              title={
+                <>
+                  Suggestions come <em>next.</em>
+                </>
+              }
             >
               Follow a sheet and solve a few problems; picks target your weakest topic.
             </EmptyState>
           ) : (
-            <ul>
+            <ul className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2">
               {nextUp.map((p) => (
-                <li
-                  key={p.problemId}
-                  className="border-t border-dashed border-line-2 first:border-t-0"
-                >
+                <li key={p.problemId} className="w-[230px] shrink-0 snap-start">
                   <Link
                     href={`/dashboard/problems/${p.problemId}`}
-                    className="group/next flex items-center gap-3 py-2.5"
+                    className="surface-inset group/next flex h-full flex-col gap-3 rounded-[16px] p-4 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
                   >
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13.5px] font-medium group-hover/next:underline">
-                        {p.title}
-                      </span>
-                      <span className="block truncate font-mono text-[11px] text-ink-3">
-                        {p.reason}
-                      </span>
+                    <span className="flex items-center gap-2">
+                      {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
+                      <Tag className="truncate">{topicLabel(p.topic)}</Tag>
                     </span>
-                    {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
+                    <span className="line-clamp-2 text-15 leading-snug font-[600] group-hover/next:underline">
+                      {p.title}
+                    </span>
+                    <span className="line-clamp-2 text-12 text-ink-3">{p.reason}</span>
+                    <span className="mt-auto inline-flex items-center gap-1.5 text-13 font-[600] text-signal-text">
+                      Start <ButtonArrow />
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -511,42 +660,33 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Dark timer card (Donezo "Time Tracker") */}
-        <div className="relative col-span-12 flex flex-col overflow-hidden rounded-lg bg-[linear-gradient(160deg,#17173a,#0c0c16_55%,#101022)] p-[18px] text-white shadow-lg xl:col-span-4">
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 opacity-40 [background-image:repeating-radial-gradient(circle_at_110%_120%,transparent_0_14px,rgba(110,123,255,.12)_14px_15px)]"
-          />
-          <div className="relative flex items-center justify-between">
-            <span className="flex items-center gap-2 text-[14px] font-[550]">
-              <Timer size={15} aria-hidden="true" /> Focus this week
-            </span>
-            <CardLink href="/dashboard/sessions" label="All sessions" tone="inverse" />
-          </div>
+        {/* Row 5 · focus + recent */}
+        <Card className="col-span-12 flex flex-col xl:col-span-5">
+          <CardHeader>
+            <CardTitle icon={icon(Timer)} tint="var(--signal-mark)">
+              Focus this week
+            </CardTitle>
+            <CardLink href="/dashboard/sessions" label="All sessions" />
+          </CardHeader>
           {hasExtension ? (
             <>
-              <span className="relative mt-5 font-mono text-[46px] leading-none tracking-[-0.05em] tabular-nums">
-                {clock}
-                <small className="ml-2 font-sans text-[13px] tracking-normal text-white/55">
-                  h : m
-                </small>
-              </span>
-              <div className="relative mt-4 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11.5px] text-white/65">
-                <span>{sessionStats.totalSessions} sessions</span>
+              <FocusWeek days={sessionStats.focusByDay} goalMin={profile.dailyGoalMin} />
+              <div className="mt-4 flex flex-wrap gap-2 text-12">
+                <Tag>{sessionStats.totalSessions} sessions</Tag>
                 {answered > 0 && (
-                  <span>{Math.round((sessionStats.soloRate ?? 0) * 100)}% solo</span>
+                  <Tag tone="success">{Math.round((sessionStats.soloRate ?? 0) * 100)}% solo</Tag>
                 )}
-                <span>goal {profile.dailyGoalMin}m/day</span>
+                <Tag>goal {profile.dailyGoalMin}m/day</Tag>
               </div>
               {sessions.length > 0 && (
-                <ul className="relative mt-auto border-t border-white/10 pt-3">
+                <ul className="mt-4 border-t border-line pt-3">
                   {sessions.map((s) => (
                     <li
                       key={s.id}
-                      className="flex items-center justify-between gap-2 py-1 text-[12.5px]"
+                      className="flex items-center justify-between gap-2 py-1.5 text-13"
                     >
-                      <span className="truncate text-white/85">{s.title}</span>
-                      <span className="shrink-0 font-mono text-[11px] text-white/55">
+                      <span className="truncate text-ink-2">{s.title}</span>
+                      <span className="tnum shrink-0 font-mono text-11 text-ink-3">
                         {formatDuration(s.activeMs)} · <TimeAgo date={s.startedAt} />
                       </span>
                     </li>
@@ -555,113 +695,137 @@ async function Overview() {
               )}
             </>
           ) : (
-            <div className="relative mt-auto pt-6">
-              <p className="text-[15px] font-[550]">Time every problem automatically.</p>
-              <p className="mt-1 text-[12.5px] text-white/60">
-                The extension times LeetCode and GFG problems and catches every verdict.
-              </p>
-              <Link
-                href="/extension/connect"
-                className={buttonClasses({ variant: "signal", size: "sm", className: "mt-4" })}
-              >
-                <Puzzle size={14} aria-hidden="true" /> Set up the extension
-              </Link>
-            </div>
+            <EmptyState
+              className="flex-1"
+              icon={<Puzzle size={18} />}
+              title={
+                <>
+                  Time every problem, <em>automatically.</em>
+                </>
+              }
+              action={
+                <Link
+                  href="/extension/connect"
+                  className={buttonClasses({ variant: "secondary", size: "sm" })}
+                >
+                  <Puzzle size={14} aria-hidden="true" /> Set up the extension
+                </Link>
+              }
+            >
+              The extension times LeetCode and GFG problems and catches every verdict.
+            </EmptyState>
           )}
-        </div>
+        </Card>
 
-        {/* Recent solves · platforms */}
         <Card className="col-span-12 xl:col-span-7">
           <CardHeader>
-            <CardTitle icon={icon(History)}>Recent solves</CardTitle>
+            <CardTitle icon={icon(History)} tint="var(--success)">
+              Recent solves
+            </CardTitle>
             <CardSub>accepted</CardSub>
           </CardHeader>
           {recent.length === 0 ? (
-            <EmptyState icon={<History size={18} />} title="No solves yet">
+            <EmptyState
+              icon={<History size={18} />}
+              title={
+                <>
+                  No solves <em>yet.</em>
+                </>
+              }
+            >
               Your accepted problems show up here. Start with a sheet.
             </EmptyState>
           ) : (
-            <ol className="relative ml-1 border-l border-line-2">
-              {recent.map((r) => (
-                <RecentRow key={r.id} solve={r} />
+            <ol className="relative ml-2 border-l border-line-2">
+              {recent.map((r, i) => (
+                <RecentRow key={r.id} solve={r} index={i} />
               ))}
             </ol>
           )}
         </Card>
 
-        <Card className="col-span-12 xl:col-span-5">
+        {/* Row 6 · platforms */}
+        <Card className="col-span-12">
           <CardHeader>
-            <CardTitle icon={icon(Plug)}>Platforms</CardTitle>
+            <CardTitle icon={icon(Plug)} tint="var(--info)">
+              Platforms
+            </CardTitle>
             <CardLink href="/dashboard/settings" label="Manage platforms" />
           </CardHeader>
           {accounts.length === 0 ? (
             <EmptyState
               icon={<Plug size={18} />}
-              title="No platforms yet"
+              title={
+                <>
+                  No platforms <em>yet.</em>
+                </>
+              }
               action={
                 <Link
                   href="/onboarding/connect"
-                  className={buttonClasses({ variant: "signal", size: "sm" })}
+                  className={buttonClasses({ variant: "secondary", size: "sm" })}
                 >
                   Connect a platform <ButtonArrow />
                 </Link>
               }
             />
           ) : (
-            accounts.map((a) => {
-              const series = contestSeries.find((s) => s.platform === a.platform);
-              const url = PLATFORM_PROFILE_URL[a.platform]?.(a.handle);
-              return (
-                <div
-                  key={a.id}
-                  className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-2 border-t border-dashed border-line-2 py-3.5 first:border-t-0 first:pt-0 last:pb-0"
-                >
-                  <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-[14px] font-[550]">
-                      {PLATFORM_LABEL[a.platform]}
-                      {a.verified && (
-                        <BadgeCheck size={14} className="text-ok" aria-label="verified" />
-                      )}
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-mono text-[12px] font-normal text-ink-3 hover:text-ink hover:underline"
-                      >
-                        {a.handle}
-                      </a>
-                    </p>
-                    <p className="font-mono text-[11px] text-ink-3">
-                      {a.lastSyncedAt ? (
-                        <>
-                          synced <TimeAgo date={a.lastSyncedAt} />
-                        </>
-                      ) : a.lastError ? (
-                        <span className="text-bad">{a.lastError}</span>
-                      ) : (
-                        "waiting for first sync"
-                      )}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {accounts.map((a) => {
+                const series = contestSeries.find((s) => s.platform === a.platform);
+                const url = PLATFORM_PROFILE_URL[a.platform]?.(a.handle);
+                const mark = platformMarkId(a.platform);
+                return (
+                  <div
+                    key={a.id}
+                    className="surface-inset group flex flex-col gap-3 rounded-[16px] p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="flex flex-wrap items-center gap-2 text-14 font-[600]">
+                          {mark && <PlatformMark site={mark} size={16} />}
+                          {PLATFORM_LABEL[a.platform]}
+                          {a.verified && <VerifiedChip />}
+                        </p>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-12 text-ink-3 hover:text-ink hover:underline"
+                        >
+                          {a.handle}
+                        </a>
+                      </div>
+                      <div className="text-right">
+                        <p className="num text-24">{a.snapshot?.rating ?? "—"}</p>
+                        <p className="text-11 text-ink-3">{a.snapshot?.rankLabel ?? "unrated"}</p>
+                      </div>
+                    </div>
                     {series && series.points.length > 1 && (
                       <Sparkline
                         values={series.points.slice(-24).map((p) => p.rating)}
                         stroke={PLATFORM_STROKE[a.platform]}
-                        className="hidden sm:block"
+                        width={280}
+                        height={36}
+                        className="w-full"
                       />
                     )}
-                    <div className="text-right">
-                      <p className="num text-[22px]">{a.snapshot?.rating ?? "—"}</p>
-                      <p className="font-mono text-[10.5px] text-ink-3">
-                        {a.snapshot?.rankLabel ?? "unrated"}
-                      </p>
-                    </div>
+                    {a.snapshot && <SolvedSplit solved={a.snapshot.solved} />}
+                    <p className="text-11 text-ink-3">
+                      {a.lastSyncedAt ? (
+                        <>
+                          Synced <TimeAgo date={a.lastSyncedAt} />
+                        </>
+                      ) : a.lastError ? (
+                        <span className="text-bad">{a.lastError}</span>
+                      ) : (
+                        "Waiting for first sync"
+                      )}
+                    </p>
                   </div>
-                  {a.snapshot && <SolvedSplit solved={a.snapshot.solved} className="col-span-2" />}
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </Card>
       </div>
@@ -669,22 +833,33 @@ async function Overview() {
   );
 }
 
-function RecentRow({ solve }: { solve: RecentSolve }) {
+function RecentRow({ solve, index }: { solve: RecentSolve; index: number }) {
   const difficulty =
     solve.platform === "codeforces"
       ? ratingToDifficulty(solve.rating ?? undefined)
       : (solve.difficultyRaw?.toLowerCase() as "easy" | "medium" | "hard" | undefined);
+  const mark = platformMarkId(solve.platform);
   const title = (
-    <span className="block truncate text-[13.5px] font-medium group-hover/row:underline">
+    <span className="block truncate bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat text-[13.5px] font-medium transition-[background-size] duration-[var(--dur-base)] group-hover/row:bg-[length:100%_1px]">
       {solve.title}
     </span>
   );
   return (
-    <li className="group/row relative flex items-center gap-3 py-2.5 pl-4">
+    <li
+      className="group/row relative flex items-center gap-3 rounded-r-[12px] py-2.5 pr-2 pl-5 transition-colors duration-[var(--dur-fast)] hover:bg-surface-2/70"
+      style={{ animation: `rise-in 420ms var(--ease-out) ${index * 45}ms backwards` }}
+    >
       <span
         aria-hidden="true"
-        className="absolute top-1/2 -left-[4.5px] size-2 -translate-y-1/2 rounded-full border-2 border-surface bg-ok"
+        className="absolute top-1/2 -left-[5px] size-[9px] -translate-y-1/2 rounded-full border-2 border-surface bg-success shadow-[0_0_8px_var(--success)]"
       />
+      {mark && (
+        <PlatformMark
+          site={mark}
+          size={15}
+          className="text-ink-3 group-hover/row:text-[var(--brand)]"
+        />
+      )}
       <span className="min-w-0 flex-1">
         {solve.problemId ? (
           <Link href={`/dashboard/problems/${solve.problemId}`}>{title}</Link>
@@ -693,12 +868,12 @@ function RecentRow({ solve }: { solve: RecentSolve }) {
             {title}
           </a>
         )}
-        <span className="font-mono text-[11px] text-ink-3">
+        <span className="tnum text-11 text-ink-3">
           {PLATFORM_LABEL[solve.platform]}
           {solve.rating ? ` · ${solve.rating}` : ""} · <TimeAgo date={solve.submittedAt} />
-          {solve.accepted > 1 ? ` · solved ×${solve.accepted}` : ""}
         </span>
       </span>
+      {solve.accepted > 1 && <CounterChip n={solve.accepted} />}
       <StatusBadge status="solved" className="hidden sm:inline-flex" />
       {difficulty ? <DifficultyTag difficulty={difficulty} /> : <Tag mono>unrated</Tag>}
     </li>
@@ -707,13 +882,13 @@ function RecentRow({ solve }: { solve: RecentSolve }) {
 
 function ConnectPrompt() {
   return (
-    <Card spotlight className="flex flex-wrap items-center gap-4">
+    <Card tier="hero" className="flex flex-wrap items-center gap-4">
       <div className="min-w-0 flex-1">
-        <p className="text-[17px] font-[550] tracking-[-0.02em]">
-          <span className="text-ink-3">Your dashboard is empty.</span> Connect LeetCode, Codeforces
-          or GFG.
+        <p className="text-18 font-[600] tracking-[-0.02em]">
+          Your dashboard is <em className="font-display font-normal">empty.</em> Connect LeetCode,
+          Codeforces or GFG.
         </p>
-        <p className="text-[13px] text-ink-2">
+        <p className="text-13 text-white/70">
           It takes a few seconds, and only needs your username.
         </p>
       </div>
@@ -736,18 +911,21 @@ function DemoNotice() {
 
 function OverviewSkeleton() {
   return (
-    <div aria-hidden="true" className="flex flex-col gap-5">
+    <div aria-hidden="true" className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Skeleton className="h-9 w-72" />
+        <Skeleton className="h-3 w-40" />
+        <Skeleton className="h-10 w-80" />
         <Skeleton className="h-4 w-56" />
       </div>
       <div className="grid grid-cols-12 gap-3.5">
-        {Array.from({ length: 4 }, (_, i) => (
-          <SkeletonCard key={i} lines={1} className="col-span-12 sm:col-span-6 xl:col-span-3" />
-        ))}
-        <SkeletonCard lines={5} className="col-span-12 h-[280px] xl:col-span-5" />
-        <SkeletonCard lines={4} className="col-span-12 h-[280px] sm:col-span-6 xl:col-span-3" />
-        <SkeletonCard lines={4} className="col-span-12 h-[280px] sm:col-span-6 xl:col-span-4" />
+        <SkeletonCard lines={3} className="col-span-12 h-[230px] xl:col-span-5" />
+        <div className="col-span-12 grid gap-3.5 sm:grid-cols-3 xl:col-span-7">
+          {Array.from({ length: 3 }, (_, i) => (
+            <SkeletonCard key={i} lines={1} className="h-[230px]" />
+          ))}
+        </div>
+        <SkeletonCard lines={5} className="col-span-12 h-[300px] xl:col-span-7" />
+        <SkeletonCard lines={4} className="col-span-12 h-[300px] xl:col-span-5" />
       </div>
     </div>
   );

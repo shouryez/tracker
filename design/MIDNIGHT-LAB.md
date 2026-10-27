@@ -157,3 +157,14 @@ Custom SVG/CSS, no chart library. Existing components upgraded in place (same na
 - `PageHeader` (eyebrow → title with serif accent → live subtitle → actions, per-page glow via `PAGE_GLOW`).
 - Route transition: 8px rise + 12×6 pixel dissolve (≤350 ms, off under reduced motion).
 - Command palette: glass, spring-in, dim+blur backdrop, tinted icon tiles, lime selection bar, highlighted matches, Recent group (per browser).
+
+## Phase 5 shipped (Overview)
+
+- PageHeader: date eyebrow, greeting with the first name in serif italic, streak / to-revise / goal / college subline, actions Share card (secondary) + one lime primary.
+- Row 1: hero Solved card (beam, grain, rolling number, difficulty ring, per-platform counts with marks, 30-day sparkline) + Streak (StreakFlame; 0 → "Light it today") + To revise (reviewed-today/cap ring) + Focus (weekly goal ring).
+- Row 2: This week bars (7) + Next revision flashcard (inset card, difficulty + due/overdue chip with pulse past 7 days, strength ladder, Re-solve).
+- Row 3: heatmap (8) + Your sheets (ring for the main sheet, pixel bars for the rest; empty → difficulty split + pick a sheet).
+- Row 4: Topic mastery radar + top-5 bars, Solve next as a scroll-snap card rail.
+- Row 5: Focus this week (goal ring + 7-day strip, sessions), Recent solves timeline (glowing nodes, platform marks, growing underline, ×n counter chip, staggered rows).
+- Row 6: platform cards (mark, verified shine, rating, sparkline, difficulty split, synced time).
+- All `from`-only keyframes now use `backwards` fill so hover/press transforms keep working.

@@ -114,7 +114,7 @@ export function MasteryBars({
             </div>
             <span className="relative block h-2 rounded-full bg-surface-3">
               <span
-                className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full"
+                className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full"
                 style={{
                   width: `${Math.max(2, t.score)}%`,
                   background: `linear-gradient(90deg, color-mix(in srgb, ${color} 45%, transparent), ${color})`,
@@ -168,7 +168,7 @@ export function UpcomingStrip({ upcoming, now }: { upcoming: number[]; now: numb
                 {Array.from({ length: shown }, (_, k) => (
                   <i
                     key={k}
-                    className="size-[7px] animate-[fade-in-pop_400ms_var(--ease-out)_both] rounded-[2px] bg-violet shadow-[0_0_6px_-1px_var(--violet)]"
+                    className="size-[7px] animate-[fade-in-pop_400ms_var(--ease-out)_backwards] rounded-[2px] bg-violet shadow-[0_0_6px_-1px_var(--violet)]"
                     style={{ animationDelay: `${i * 30 + k * 40}ms` }}
                   />
                 ))}

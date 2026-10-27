@@ -464,7 +464,7 @@ function ItemRow({
       <li
         id={`item-${item.itemKey}`}
         className={cn(
-          "group/row flex animate-[page-in_var(--dur-base)_var(--ease-out)_both] flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] first:border-t-0 hover:bg-surface-2/60 sm:flex-nowrap",
+          "group/row flex animate-[page-in_var(--dur-base)_var(--ease-out)_backwards] flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] first:border-t-0 hover:bg-surface-2/60 sm:flex-nowrap",
           highlighted && "bg-signal/15",
         )}
       >

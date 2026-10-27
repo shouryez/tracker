@@ -113,7 +113,7 @@ export function TopicBar({
       <span className="tnum font-mono text-12">{value}</span>
       <span className="relative col-span-2 h-2 overflow-hidden rounded-full bg-surface-3">
         <span
-          className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full"
+          className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full"
           style={{
             width: `${Math.max(3, (value / Math.max(1, max)) * 100)}%`,
             background: `linear-gradient(90deg, color-mix(in srgb, ${color} 55%, transparent), ${color})`,

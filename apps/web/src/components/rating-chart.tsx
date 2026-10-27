@@ -113,7 +113,7 @@ export function RatingChart({
         <path
           d={area}
           fill={`url(#${gid})`}
-          className="animate-[fade-in-pop_900ms_var(--ease-out)_both] [transform-origin:bottom]"
+          className="animate-[fade-in-pop_900ms_var(--ease-out)_backwards] [transform-origin:bottom]"
         />
         <path
           d={line}
@@ -124,7 +124,7 @@ export function RatingChart({
           strokeLinecap="round"
           pathLength={100}
           strokeDasharray="100"
-          className="animate-[draw_1200ms_var(--ease-out)_both]"
+          className="animate-[draw_1200ms_var(--ease-out)_backwards]"
           style={{ filter: `drop-shadow(0 0 6px ${stroke})` }}
         />
         {hp && (

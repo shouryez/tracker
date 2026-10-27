@@ -99,7 +99,7 @@ export function ActivityHeatmap({ days }: { days: { date: string; count: number 
                     key={d.date}
                     onMouseEnter={() => setHover(i)}
                     className={cn(
-                      "size-3 animate-[fade-in-pop_500ms_var(--ease-out)_both] rounded-[3px] transition-transform duration-[var(--dur-fast)] hover:scale-[1.35] motion-reduce:animate-none",
+                      "size-3 animate-[fade-in-pop_500ms_var(--ease-out)_backwards] rounded-[3px] transition-transform duration-[var(--dur-fast)] hover:scale-[1.35] motion-reduce:animate-none",
                       LEVEL[level(d.count)],
                       today && "ring-2 ring-signal ring-offset-1 ring-offset-surface",
                       level(d.count) === 4 && "shadow-[0_0_8px_-1px_var(--heat-4)]",

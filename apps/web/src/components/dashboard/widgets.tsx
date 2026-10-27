@@ -129,7 +129,7 @@ function MiniBars({ values, inverse }: { values: number[]; inverse?: boolean }) 
           <span
             key={i}
             className={cn(
-              "w-[4px] origin-bottom animate-[grow-y_700ms_var(--ease-out)_both] rounded-[2px]",
+              "w-[4px] origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[2px]",
               v === 0
                 ? inverse
                   ? "bg-white/15"
@@ -203,7 +203,7 @@ export function WeekCapsules({
               ) : (
                 <span
                   className={cn(
-                    "relative w-full origin-bottom animate-[grow-y_800ms_var(--ease-out)_both] rounded-[10px] transition-[filter] duration-[var(--dur-fast)] group-hover/mark:brightness-125",
+                    "relative w-full origin-bottom animate-[grow-y_800ms_var(--ease-out)_backwards] rounded-[10px] transition-[filter] duration-[var(--dur-fast)] group-hover/mark:brightness-125",
                     ghost
                       ? "bg-ink-3"
                       : today

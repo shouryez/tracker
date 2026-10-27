@@ -84,7 +84,7 @@ export function TextReveal({
       <span
         key={`${w}-${i}`}
         className={cn(
-          "inline-block animate-[word-in_800ms_var(--ease-out)_both] motion-reduce:animate-none",
+          "inline-block animate-[word-in_800ms_var(--ease-out)_backwards] motion-reduce:animate-none",
           em &&
             "font-display font-normal italic [text-shadow:0_0_28px_color-mix(in_srgb,currentColor_35%,transparent)]",
           em && accentClassName,

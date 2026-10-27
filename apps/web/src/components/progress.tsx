@@ -28,7 +28,7 @@ export function SegmentedProgress({
         <span
           key={i}
           className={cn(
-            "animate-[fade-in-pop_400ms_var(--ease-out)_both] rounded-[2px]",
+            "animate-[fade-in-pop_400ms_var(--ease-out)_backwards] rounded-[2px]",
             i < whole
               ? i === whole - 1
                 ? "bg-violet shadow-[0_0_8px_-1px_var(--violet)]"

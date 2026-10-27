@@ -53,7 +53,7 @@ export function LinearProgress({
       <div className="relative overflow-visible rounded-full bg-surface-3" style={{ height }}>
         {p > 0 && (
           <div
-            className="relative h-full origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full bg-[linear-gradient(90deg,color-mix(in_srgb,var(--c)_70%,transparent),var(--c))]"
+            className="relative h-full origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full bg-[linear-gradient(90deg,color-mix(in_srgb,var(--c)_70%,transparent),var(--c))]"
             style={{ width: `${Math.max(p * 100, 2)}%` }}
           >
             <span className="absolute top-1/2 right-0 aspect-square h-[calc(100%+4px)] translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--c)] shadow-[0_0_10px_1px_var(--c)]" />
@@ -102,7 +102,7 @@ export function SegmentedProgress({
           <span
             key={s.label}
             title={`${s.label}: ${s.value}`}
-            className="h-full origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full transition-opacity duration-[var(--dur-fast)] group-hover/seg:opacity-40 hover:!opacity-100"
+            className="h-full origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full transition-opacity duration-[var(--dur-fast)] group-hover/seg:opacity-40 hover:!opacity-100"
             style={{ flexGrow: s.value, background: s.color }}
           />
         ))}
@@ -183,7 +183,7 @@ export function ProgressRing({
               strokeLinecap="round"
               strokeDasharray={`${len} ${c}`}
               strokeDashoffset={-offset}
-              className="animate-[ring-in_1100ms_var(--ease-out)_both]"
+              className="animate-[ring-in_1100ms_var(--ease-out)_backwards]"
               style={
                 {
                   "--ring-from": `${len}`,

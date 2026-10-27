@@ -55,7 +55,7 @@ export function TopicRadar({
         stroke={ghost ? "var(--ink-3)" : "var(--violet)"}
         strokeWidth="1.8"
         strokeLinejoin="round"
-        className="animate-[fade-in-pop_900ms_var(--ease-out)_both]"
+        className="animate-[fade-in-pop_900ms_var(--ease-out)_backwards]"
         style={{
           transformOrigin: `${c}px ${c}px`,
           filter: ghost
@@ -172,7 +172,7 @@ export function FocusWeek({
               <MarkTip title={label} value={formatDuration(d.activeMs)} />
               <span
                 className={cn(
-                  "w-full origin-bottom animate-[grow-y_700ms_var(--ease-out)_both] rounded-[5px]",
+                  "w-full origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[5px]",
                   d.activeMs === 0
                     ? inverse
                       ? "h-1 bg-white/15"

@@ -55,7 +55,7 @@ export function HourBars({ byHour }: { byHour: number[] }) {
             d={arcPath(c, inner, inner + len, h + 0.12, h + 0.88)}
             fill={ghost ? "var(--ink-3)" : h === peak ? "var(--signal-mark)" : "var(--violet)"}
             opacity={ghost ? 1 : h === peak ? 1 : 0.45 + v * 0.55}
-            className="origin-center animate-[fade-in-pop_700ms_var(--ease-out)_both]"
+            className="origin-center animate-[fade-in-pop_700ms_var(--ease-out)_backwards]"
             style={
               { animationDelay: `${h * 25}ms`, transformOrigin: `${c}px ${c}px` } as CSSProperties
             }
@@ -240,7 +240,7 @@ export function DifficultyTime({ rows }: { rows: Analytics["byDifficulty"] }) {
             </div>
             <span className="relative block h-2.5 rounded-full bg-surface-3">
               <span
-                className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_both] rounded-full"
+                className="absolute inset-y-0 left-0 origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full"
                 style={{
                   width: `${Math.max(2, (r.activeMs / max) * 100)}%`,
                   background: `linear-gradient(90deg, color-mix(in srgb, ${color} 50%, transparent), ${color})`,
