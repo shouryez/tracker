@@ -4,8 +4,10 @@ import { useEffect, useRef } from "react";
 import { cn } from "@upsolve/ui";
 
 /**
- * Sticky section nav with scroll-spy: the link for the section in view gets the active
- * pill. Sets data-active on the links directly (no re-render per scroll).
+ * Sticky section nav with scroll-spy. The active section is the last one whose top has
+ * passed the header line; at the bottom of the page the last section wins (short final
+ * sections can never reach the top). Clicking a link marks it right away. Sets
+ * data-active on the links directly (no re-render per scroll).
  */
 export function SectionNav({ sections }: { sections: { id: string; label: string }[] }) {
   const nav = useRef<HTMLElement>(null);
@@ -17,21 +19,43 @@ export function SectionNav({ sections }: { sections: { id: string; label: string
         if (l.dataset.section === id) l.dataset.active = "";
         else delete l.dataset.active;
       });
-    const io = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
-        if (visible) mark(visible.target.id);
-      },
-      { rootMargin: "-90px 0px -60% 0px" },
-    );
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
-      if (el) io.observe(el);
-    });
-    mark(sections[0]?.id ?? "");
-    return () => io.disconnect();
+    let frame = 0;
+    let lockUntil = 0;
+    const update = () => {
+      if (performance.now() < lockUntil) return;
+      const els = sections
+        .map((s) => document.getElementById(s.id))
+        .filter((e): e is HTMLElement => !!e);
+      if (els.length === 0) return;
+      const atBottom =
+        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+      if (atBottom) return mark(els.at(-1)!.id);
+      let current = els[0]!.id;
+      for (const el of els) if (el.getBoundingClientRect().top <= 140) current = el.id;
+      mark(current);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest<HTMLAnchorElement>("a[data-section]");
+      if (!a?.dataset.section) return;
+      mark(a.dataset.section);
+      // Keep the clicked item while the page scrolls there.
+      lockUntil = performance.now() + 900;
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    nav.current?.addEventListener("click", onClick);
+    const el = nav.current;
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      el?.removeEventListener("click", onClick);
+    };
   }, [sections]);
 
   return (

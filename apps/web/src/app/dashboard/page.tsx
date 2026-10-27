@@ -286,7 +286,7 @@ async function Overview() {
           tier="hero"
           beam
           interactive
-          className="col-span-12 flex flex-col gap-4 xl:col-span-5"
+          className="col-span-12 flex flex-col gap-5 xl:col-span-5"
         >
           <Link
             href="/dashboard/analytics"
@@ -294,73 +294,109 @@ async function Overview() {
             className="absolute inset-0 z-[2] rounded-[inherit]"
           />
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2.5 text-14 font-[600]">
-              <span className="grid size-7 place-items-center rounded-[9px] border border-white/15 bg-white/12">
+            <span className="flex items-center gap-2.5 text-14 font-[600] text-white/90">
+              <span className="grid size-7 place-items-center rounded-[9px] border border-white/10 bg-white/[.06]">
                 {icon(CircleCheck)}
               </span>
               Solved
             </span>
-            {thisWeek > 0 && (
-              <span className="tnum rounded-full bg-white/15 px-2 py-0.5 text-11 font-[600]">
-                ↑ {thisWeek} this week
-                {lastWeek ? ` · ${lastWeek} before` : ""}
+            {thisWeek > 0 ? (
+              <span
+                title={lastWeek ? `${lastWeek} the week before` : undefined}
+                className="tnum rounded-full border border-[rgba(215,255,58,.25)] bg-[rgba(215,255,58,.1)] px-2.5 py-0.5 text-11 font-[600] text-signal"
+              >
+                +{thisWeek} this week
               </span>
+            ) : (
+              <span className="text-11 text-white/45">all platforms</span>
             )}
           </div>
-          <div className="flex items-center justify-between gap-4">
+
+          <div className="grid items-end gap-6 sm:grid-cols-[auto_1fr]">
             <div>
-              <p className="num text-[64px] leading-none">
+              <p className="num text-[72px] leading-[.9] text-white">
                 <NumberTicker value={stats.solved.total} />
               </p>
-              <p className="mt-1 font-display text-20 text-white/70 italic">problems solved</p>
+              <p className="mt-2 font-display text-18 text-white/55 italic">problems solved</p>
             </div>
-            <ProgressRing
-              total={Math.max(1, stats.solved.total)}
-              size={112}
-              stroke={10}
-              className="[&_circle:first-of-type]:stroke-white/15"
-              segments={[
-                { label: "Easy", value: stats.solved.easy, color: "var(--easy)" },
-                { label: "Medium", value: stats.solved.medium, color: "var(--medium)" },
-                { label: "Hard", value: stats.solved.hard, color: "var(--hard)" },
-              ]}
-            >
-              <span className="text-11 text-white/60">E · M · H</span>
-              <span className="tnum text-12 font-[600]">
-                {stats.solved.easy} · {stats.solved.medium} · {stats.solved.hard}
-              </span>
-            </ProgressRing>
-          </div>
-          <div className="mt-auto flex items-end justify-between gap-3">
-            <ul className="flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-12 text-white/75">
-              {accounts.filter((a) => a.snapshot).length === 0 ? (
-                <li>Connect a platform to start</li>
-              ) : (
-                accounts
-                  .filter((a) => a.snapshot)
-                  .map((a) => {
-                    const mark = platformMarkId(a.platform);
-                    return (
-                      <li key={a.id} className="flex items-center gap-1.5">
-                        {mark && <PlatformMark site={mark} size={13} brand />}
-                        {PLATFORM_LABEL[a.platform]}{" "}
-                        <span className="tnum font-[600] text-white">
-                          {a.snapshot!.solved.total}
-                        </span>
-                      </li>
-                    );
-                  })
-              )}
+            {/* Difficulty breakdown: label, count, a thin bar scaled to the total. */}
+            <ul className="flex flex-col gap-2.5 sm:pl-4">
+              {(
+                [
+                  ["Easy", stats.solved.easy, "var(--easy)"],
+                  ["Medium", stats.solved.medium, "var(--medium)"],
+                  ["Hard", stats.solved.hard, "var(--hard)"],
+                ] as const
+              ).map(([label, n, color]) => (
+                <li key={label} className="grid grid-cols-[56px_1fr_28px] items-center gap-3">
+                  <span className="flex items-center gap-1.5 text-12 text-white/65">
+                    <i className="size-1.5 rounded-full" style={{ background: color }} />
+                    {label}
+                  </span>
+                  <span className="h-1.5 overflow-hidden rounded-full bg-white/[.08]">
+                    <span
+                      className="block h-full origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full"
+                      style={{
+                        width: `${stats.solved.total ? Math.max(n ? 4 : 0, (n / stats.solved.total) * 100) : 0}%`,
+                        background: color,
+                        opacity: 0.85,
+                      }}
+                    />
+                  </span>
+                  <span className="tnum text-right text-13 font-[600] text-white">{n}</span>
+                </li>
+              ))}
             </ul>
-            {spark30.some((v) => v > 0) && (
-              <Sparkline
-                values={spark30}
-                stroke="var(--signal)"
-                width={120}
-                height={34}
-                className="hidden shrink-0 sm:block"
-              />
-            )}
+          </div>
+
+          {/* Last 30 days, one bar per day; today in lime. */}
+          <div className="mt-auto">
+            <div aria-hidden="true" className="flex h-8 items-end gap-[3px]">
+              {spark30.map((v, i) => {
+                const max = Math.max(1, ...spark30);
+                const last = i === spark30.length - 1;
+                return (
+                  <span
+                    key={i}
+                    className="flex-1 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[2px]"
+                    style={{
+                      height: v ? `${Math.max(18, (v / max) * 100)}%` : "3px",
+                      background: last
+                        ? "var(--signal)"
+                        : v
+                          ? "rgba(196, 181, 253, 0.55)"
+                          : "rgba(255, 255, 255, 0.08)",
+                      animationDelay: `${i * 15}ms`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-12 text-white/55">
+              <span>Last 30 days</span>
+              <ul className="flex flex-wrap gap-1.5">
+                {accounts.filter((a) => a.snapshot).length === 0 ? (
+                  <li>Connect a platform to start</li>
+                ) : (
+                  accounts
+                    .filter((a) => a.snapshot)
+                    .map((a) => {
+                      const mark = platformMarkId(a.platform);
+                      return (
+                        <li
+                          key={a.id}
+                          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.05] px-2 py-0.5 text-white/75"
+                        >
+                          {mark && <PlatformMark site={mark} size={12} brand />}
+                          <span className="tnum font-[600] text-white">
+                            {a.snapshot!.solved.total}
+                          </span>
+                        </li>
+                      );
+                    })
+                )}
+              </ul>
+            </div>
           </div>
         </Card>
 

@@ -36,7 +36,8 @@ export function cardClasses({
   padded?: boolean;
 } = {}) {
   return cn(
-    "group/card relative isolate rounded-lg",
+    // A card holding an open dropdown/popover rises above its neighbours.
+    "group/card relative isolate rounded-lg has-[[aria-expanded=true]]:z-30",
     padded && "p-[18px]",
     tiers[tier],
     "transition-[transform,box-shadow,border-color] duration-[var(--dur-base)] ease-[var(--ease-out)]",
