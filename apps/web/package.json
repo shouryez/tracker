@@ -14,7 +14,6 @@
     "@number-flow/react": "^0.6.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.118.0",
-    "@tanstack/react-virtual": "^3.14.23",
     "@upsolve/adapters": "workspace:*",
     "@upsolve/contracts": "workspace:*",
     "@upsolve/core": "workspace:*",

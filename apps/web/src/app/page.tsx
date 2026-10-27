@@ -587,7 +587,7 @@ function Features() {
               <div className="mt-2 flex h-2.5 gap-[3px] overflow-hidden rounded-full">
                 <i className="rounded-[3px] bg-ink" style={{ flex: 281 }} />
                 <i className="rounded-[3px] bg-ink-3" style={{ flex: 86 }} />
-                <i className="hatch rounded-[3px]" style={{ flex: 45 }} />
+                <i className="rounded-[3px] bg-violet/60" style={{ flex: 45 }} />
               </div>
               <div className="mt-2 flex flex-wrap gap-x-3 font-mono text-[11px] text-ink-3">
                 <span>281 solo</span>

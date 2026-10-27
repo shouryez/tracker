@@ -2,7 +2,17 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Check } from "lucide-react";
-import { Card, CardHeader, CardSub, CardTitle, DifficultyTag, Tag } from "@upsolve/ui";
+import {
+  Card,
+  CardHeader,
+  CardSub,
+  CardTitle,
+  DifficultyTag,
+  EmptyState,
+  SkeletonCard,
+  Tag,
+} from "@upsolve/ui";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { search } from "@/lib/search-data";
 
@@ -11,7 +21,7 @@ export const metadata: Metadata = { title: "Search" };
 export default function SearchPage({ searchParams }: PageProps<"/dashboard/search">) {
   return (
     <div className="flex flex-col gap-5">
-      <Suspense fallback={<div className="h-96 skeleton rounded-lg" />}>
+      <Suspense fallback={<SkeletonCard lines={8} className="h-[420px]" />}>
         <Results searchParams={searchParams} />
       </Suspense>
     </div>
@@ -29,10 +39,22 @@ async function Results({
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to search.</p>;
 
   const title = (
-    <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
-      Search
-      <span className="block truncate text-ink-3">{q ? `“${q}”` : "Type in the box above"}</span>
-    </h1>
+    <PageHeader
+      eyebrow="Search"
+      glow={PAGE_GLOW.overview}
+      title={
+        q ? (
+          <>
+            Results for <em>“{q}”</em>
+          </>
+        ) : (
+          <>
+            Search, <em>anything.</em>
+          </>
+        )
+      }
+      subtitle={q ? undefined : "Press Ctrl K anywhere, or type in the box above."}
+    />
   );
   if (q.length < 2) return title;
 
@@ -44,10 +66,16 @@ async function Results({
       {title}
       {empty ? (
         <Card>
-          <p className="text-[14px] text-ink-2">
-            Nothing matches. Try part of a problem title, like &ldquo;subarray&rdquo; or
-            &ldquo;linked list&rdquo;.
-          </p>
+          <EmptyState
+            icon={<Check size={18} />}
+            title={
+              <>
+                Nothing <em>matches.</em>
+              </>
+            }
+          >
+            Try part of a problem title, like &ldquo;subarray&rdquo; or &ldquo;linked list&rdquo;.
+          </EmptyState>
         </Card>
       ) : (
         <div className="grid grid-cols-12 gap-3.5">
@@ -69,8 +97,8 @@ async function Results({
                       aria-label={p.solved ? "Solved" : undefined}
                       className={
                         p.solved
-                          ? "grid size-[18px] shrink-0 place-items-center rounded-[4px] bg-ink text-bg"
-                          : "hatch size-[18px] shrink-0 rounded-[4px] border border-line-2"
+                          ? "grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-success text-[#06210f]"
+                          : "size-[18px] shrink-0 rounded-[5px] border-[1.5px] border-line-3 bg-surface-2"
                       }
                     >
                       {p.solved && <Check size={12} strokeWidth={3} aria-hidden="true" />}

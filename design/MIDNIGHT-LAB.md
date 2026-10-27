@@ -196,3 +196,20 @@ Custom SVG/CSS, no chart library. Existing components upgraded in place (same na
 - Public profile: hero banner (beam, grain, stars, difficulty-ring avatar, streak flame chip, Share button), rolling stat tiles, platform cards with marks + verified, topic radar; not-found with a pixel ghost in orbit.
 - Share card: aurora background, violet → lime heat ramp, today outlined, tinted stat labels, URL pill.
 - 404: chrome numerals with sheen and decode, verdict chip, meteors; new global-error page; dashboard error uses ErrorState.
+
+## Phase 9 shipped (Polish) and final summary
+
+- Production build passes (34 routes); typecheck and lint clean.
+- Sweep: no hatch used as "empty" (only future days, the "Later" pricing card); the old indigo CTA is gone (the `indigo` variant is now a violet secondary used only for Follow); one lime primary per view on every page; Search and Join pages got headers and states; removed the unused `@tanstack/react-virtual`.
+- Responsive: checked at a true 390px (inside an iframe; headless Chrome's own window can't go below ~500px) and 1400px, dark and light.
+
+### Dependencies added
+
+`@number-flow/react` (~6 KB gz, app routes), `lenis` (~4 KB gz, landing only, lazy). Everything else (charts, beam, tilt, magnetic, confetti, date range, select, modal) is in-house; `motion`, `cmdk`, `sonner`, `canvas-confetti` were already installed.
+
+### Known gaps / follow-ups
+
+- Needs data the pages don't receive (design-only brief): heatmap tooltip minutes/verdicts, session verdict sequence, group card rank/leader, revision Undo, live handle check, device OS detail, per-sheet difficulty bars on the Sheets index, college branch/year filters.
+- Not verified visually: signed-in pages (build + types only). Check Overview, Revision, Sheets, Problem, Sessions, Analytics, Contests, Groups, College and Settings in both themes.
+- Lighthouse not run here (needs a deployed build); effects are transform/opacity only, decorative loops pause off-screen, Lenis/confetti are lazy.
+- Route pixel transition can't be switched off by users yet (it is off under reduced motion).

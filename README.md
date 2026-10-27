@@ -60,7 +60,7 @@ What the extension can access: `leetcode.com` and the Upsolve site only, plus `s
 
 ## Design system
 
-Tokens live in `packages/ui/src/styles` and every shared component in `packages/ui`. Run the dev server and open `/styleguide` to see every component in every state (dev only). The redesign notes and audit are in `design/REDESIGN.md`.
+"Midnight Lab": deep ink surfaces, one lime action colour, violet for data and focus, the pixel grid as the signature motif, and a serif-italic accent in every title. Tokens (colour roles, light theme, type 11→88, elevation e0–e4, motion) live in `packages/ui/src/styles`; shared components in `packages/ui`; effects (number ticker, text reveal, tilt, magnetic, beams, confetti, modal, select, date range) in `apps/web/src/components/fx`; charts in `apps/web/src/components/charts*` (custom SVG, no chart library). Run the dev server and open `/styleguide` to see every token, component, effect and chart in every state (dev only). The audit, decisions and per-phase notes are in `design/MIDNIGHT-LAB.md`.
 
 ## Scripts
 
@@ -82,4 +82,4 @@ Tokens live in `packages/ui/src/styles` and every shared component in `packages/
 
 - `apps/web` runs Next.js 16 with **Cache Components** on. Anything that reads cookies (the session) must render inside `<Suspense>`. See `apps/web/AGENTS.md` and the docs bundled in `node_modules/next/dist/docs/`.
 - Request interception lives in `src/proxy.ts` (Next 16 renamed `middleware` to `proxy`).
-- Use design tokens (`bg-surface`, `text-ink-2`, `hatch`, …), never raw hex. See DESIGN.md §4.
+- Use design tokens (`bg-surface`, `text-ink-2`, `surface-card`, `label-mono`, …), never raw hex. Lime (`signal`) is the one primary action per view; hatch means planned/future, never empty. See `design/MIDNIGHT-LAB.md`.
