@@ -4,7 +4,8 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ArrowLeft, Link2, Radio, Trophy, UsersRound } from "lucide-react";
-import { Card, CardHeader, CardSub, CardTitle, LiveDot, Tag } from "@upsolve/ui";
+import { Card, CardHeader, CardSub, CardTitle, SkeletonCard, Tag } from "@upsolve/ui";
+import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { Leaderboard, MetricTabs, ScoreExplainer } from "@/components/leaderboard";
 import {
   AutoRefresh,
@@ -34,14 +35,26 @@ const icon = (Icon: typeof Trophy) => <Icon size={13} strokeWidth={2} />;
 
 export default function GroupPage({ params, searchParams }: PageProps<"/dashboard/groups/[id]">) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <Link
         href="/dashboard/groups"
-        className="inline-flex items-center gap-1.5 self-start font-mono text-[11.5px] text-ink-3 hover:text-ink"
+        className="group/back inline-flex items-center gap-1.5 self-start text-13 text-ink-3 hover:text-ink"
       >
-        <ArrowLeft size={13} aria-hidden="true" /> Groups
+        <ArrowLeft
+          size={14}
+          aria-hidden="true"
+          className="transition-transform group-hover/back:-translate-x-0.5"
+        />{" "}
+        Groups
       </Link>
-      <Suspense fallback={<div className="h-[600px] skeleton rounded-lg" />}>
+      <Suspense
+        fallback={
+          <div className="grid grid-cols-12 gap-3.5">
+            <SkeletonCard lines={8} className="col-span-12 h-[480px] xl:col-span-7" />
+            <SkeletonCard lines={5} className="col-span-12 h-[480px] xl:col-span-5" />
+          </div>
+        }
+      >
         <GroupContent params={params} searchParams={searchParams} />
       </Suspense>
     </div>
@@ -79,21 +92,35 @@ async function GroupContent({
   return (
     <>
       <AutoRefresh seconds={20} />
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
-          {group.name}
-          <span className="block text-ink-3">
-            {group.members.length} member{group.members.length === 1 ? "" : "s"}
-            {liveCount > 0 ? ` · ${liveCount} solving now` : ""}
-          </span>
-        </h1>
-        <LeaveGroupButton groupId={group.id} owner={owner} />
-      </div>
+      <PageHeader
+        eyebrow="Group"
+        glow={PAGE_GLOW.groups}
+        title={<em>{group.name}</em>}
+        subtitle={
+          <>
+            <span>
+              {group.members.length} member{group.members.length === 1 ? "" : "s"}
+            </span>
+            {liveCount > 0 && (
+              <>
+                <Dot />
+                <span className="inline-flex items-center gap-1.5 text-signal-text">
+                  <span className="pulse-ring size-2 rounded-full bg-signal text-signal" />
+                  {liveCount} solving now
+                </span>
+              </>
+            )}
+          </>
+        }
+        actions={<LeaveGroupButton groupId={group.id} owner={owner} />}
+      />
 
-      <div className="grid grid-cols-12 gap-3.5">
+      <div className="stagger-in grid grid-cols-12 gap-3.5">
         <Card className="col-span-12 xl:col-span-7">
           <CardHeader className="flex-wrap">
-            <CardTitle icon={icon(Trophy)}>This week</CardTitle>
+            <CardTitle icon={icon(Trophy)} tint="var(--signal-mark)">
+              This week
+            </CardTitle>
             <MetricTabs
               metric={metric}
               href={(m) =>
@@ -113,15 +140,17 @@ async function GroupContent({
                 : "Nobody has practised this week yet."
             }
           />
-          <div className="mt-4 border-t border-dashed border-line-2 pt-3">
+          <div className="mt-5 border-t border-line pt-4">
             <ScoreExplainer />
           </div>
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
-          <Card>
+          <Card glow={liveCount > 0 ? "var(--signal-mark)" : undefined}>
             <CardHeader>
-              <CardTitle icon={icon(Radio)}>Study room</CardTitle>
+              <CardTitle icon={icon(Radio)} tint="var(--signal-mark)">
+                Study room
+              </CardTitle>
               <CardSub>live · updates every 20 s</CardSub>
             </CardHeader>
             <ul>
@@ -130,17 +159,25 @@ async function GroupContent({
                 return (
                   <li
                     key={m.userId}
-                    className="flex items-start gap-3 border-t border-dashed border-line-2 py-2.5 first:border-t-0 first:pt-0"
+                    className="flex items-start gap-3 rounded-[12px] px-2 py-2.5 transition-colors hover:bg-surface-2/60"
                   >
                     <span className="mt-1.5">
-                      {m.live && !m.live.solved ? (
-                        <LiveDot />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className={`block size-2 rounded-full ${m.live?.solved ? "bg-ok" : "bg-line-2"}`}
-                        />
-                      )}
+                      <span
+                        aria-label={
+                          m.live && !m.live.solved
+                            ? "Solving now"
+                            : m.live?.solved
+                              ? "Just solved"
+                              : "Idle"
+                        }
+                        className={`block size-2.5 rounded-full ${
+                          m.live && !m.live.solved
+                            ? "pulse-ring bg-signal text-signal"
+                            : m.live?.solved
+                              ? "bg-success"
+                              : "bg-line-3"
+                        }`}
+                      />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13.5px] font-medium">
@@ -188,7 +225,7 @@ async function GroupContent({
                 );
               })}
             </ul>
-            <p className="mt-3 border-t border-dashed border-line-2 pt-3 text-[12px] leading-relaxed text-ink-3">
+            <p className="mt-3 border-t border-line pt-3 text-12 leading-relaxed text-ink-3">
               Open a problem with the extension and your group sees it here. You can turn this off
               in Settings.
             </p>
@@ -196,7 +233,9 @@ async function GroupContent({
 
           <Card>
             <CardHeader>
-              <CardTitle icon={icon(Link2)}>Invite</CardTitle>
+              <CardTitle icon={icon(Link2)} tint="var(--violet)">
+                Invite
+              </CardTitle>
             </CardHeader>
             <InviteLink groupId={group.id} url={inviteUrl} canReset={owner} />
           </Card>
@@ -210,7 +249,7 @@ async function GroupContent({
               {group.members.map((m) => (
                 <li
                   key={m.userId}
-                  className="flex items-center gap-2 border-t border-dashed border-line-2 py-2 first:border-t-0 first:pt-0"
+                  className="flex items-center gap-2 rounded-[10px] px-2 py-2 hover:bg-surface-2/60"
                 >
                   <span className="min-w-0 flex-1 truncate text-[13.5px]">
                     {m.name ?? m.handle ?? "Someone"}
@@ -218,7 +257,7 @@ async function GroupContent({
                       <span className="ml-1.5 font-mono text-[11px] text-ink-3">@{m.handle}</span>
                     )}
                   </span>
-                  {m.role === "owner" && <Tag mono>owner</Tag>}
+                  {m.role === "owner" && <Tag tone="signal">owner</Tag>}
                   {owner && m.userId !== user.id && (
                     <RemoveMemberButton groupId={group.id} memberId={m.userId} />
                   )}

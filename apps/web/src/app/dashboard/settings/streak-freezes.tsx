@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Snowflake, X } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@upsolve/ui";
+import { Button, Tag } from "@upsolve/ui";
 import { addStreakFreeze, removeStreakFreeze } from "@/app/actions/social";
+import { DateRangePicker } from "@/components/fx/date-range";
 
 type Freeze = { id: string; start: string; end: string };
 
@@ -22,36 +24,48 @@ export function StreakFreezes({ freezes, today }: { freezes: Freeze[]; today: st
   const [pending, startTransition] = useTransition();
   const upcoming = freezes.filter((f) => f.end >= today);
   const past = freezes.filter((f) => f.end < today).slice(0, 3);
+  const planned = upcoming.filter((f) => f.start > today).length;
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap gap-1.5">
+        <Tag tone={planned >= 2 ? "overdue" : "neutral"}>{planned} of 2 planned</Tag>
+        <Tag>up to 14 days each</Tag>
+        <Tag>today or later</Tag>
+      </div>
+
       {upcoming.length > 0 && (
-        <ul>
+        <ul className="flex flex-col gap-2">
           {upcoming.map((f) => (
             <li
               key={f.id}
-              className="flex items-center justify-between gap-3 border-t border-dashed border-line-2 py-2 first:border-t-0 first:pt-0"
+              className="surface-inset flex items-center justify-between gap-3 rounded-[14px] px-3.5 py-2.5"
             >
-              <span className="text-[13.5px]">
-                {fmt(f.start)} – {fmt(f.end)}
-                <span className="ml-2 font-mono text-[11px] text-ink-3">
-                  {f.start <= today ? "active now" : "planned"}
+              <span className="flex items-center gap-2.5 text-13">
+                <Snowflake size={15} aria-hidden="true" className="text-info" />
+                <span className="tnum font-[550]">
+                  {fmt(f.start)} – {fmt(f.end)}
                 </span>
+                <Tag tone={f.start <= today ? "info" : "neutral"} className="h-5 px-1.5 text-11">
+                  {f.start <= today ? "active now" : "planned"}
+                </Tag>
               </span>
               {f.start > today && (
-                <button
-                  type="button"
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  aria-label={`Remove freeze ${fmt(f.start)} to ${fmt(f.end)}`}
                   disabled={pending}
+                  className="hover:text-bad"
                   onClick={() =>
                     startTransition(async () => {
                       const res = await removeStreakFreeze(f.id);
                       setError(res.ok ? null : res.error);
                     })
                   }
-                  className="font-mono text-[11px] text-ink-3 hover:text-ink"
                 >
-                  Remove
-                </button>
+                  <X size={14} aria-hidden="true" />
+                </Button>
               )}
             </li>
           ))}
@@ -70,35 +84,26 @@ export function StreakFreezes({ freezes, today }: { freezes: Freeze[]; today: st
             }
           });
         }}
-        className="flex flex-wrap items-end gap-2"
+        className="flex flex-wrap items-center gap-2"
       >
-        <label className="flex flex-col gap-1 text-[12px] text-ink-3">
-          From
-          <input
-            type="date"
-            value={start}
-            min={today}
-            onChange={(e) => setStart(e.target.value)}
-            className="h-[34px] rounded-full border border-line-2 bg-surface-2 px-3 text-[13px] text-ink"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-[12px] text-ink-3">
-          To
-          <input
-            type="date"
-            value={end}
-            min={start || today}
-            onChange={(e) => setEnd(e.target.value)}
-            className="h-[34px] rounded-full border border-line-2 bg-surface-2 px-3 text-[13px] text-ink"
-          />
-        </label>
-        <Button type="submit" size="sm" variant="secondary" disabled={pending || !start || !end}>
-          {pending ? "Saving…" : "Freeze these days"}
+        <DateRangePicker
+          start={start}
+          end={end}
+          min={today}
+          maxDays={14}
+          label="Choose exam-week dates"
+          onChange={(s, e) => {
+            setStart(s);
+            setEnd(e);
+          }}
+        />
+        <Button type="submit" variant="secondary" loading={pending} disabled={!start || !end}>
+          <Snowflake size={14} aria-hidden="true" /> Freeze these days
         </Button>
       </form>
-      {error && <p className="text-[12.5px] text-bad">{error}</p>}
-      <p className="text-[12px] leading-relaxed text-ink-3">
-        Up to 14 days each, two planned at a time, and only for today or later, so a missed day
+      {error && <p className="text-13 text-bad">{error}</p>}
+      <p className="text-12 leading-relaxed text-ink-3">
+        Frozen days neither break nor extend your streak. Only today or later, so a missed day
         can&apos;t be patched after the fact.
         {past.length > 0 &&
           ` Recent: ${past.map((f) => `${fmt(f.start)}–${fmt(f.end)}`).join(", ")}.`}

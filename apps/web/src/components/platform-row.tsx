@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import { BadgeCheck, ExternalLink, RefreshCw, ShieldQuestion, Trash2 } from "lucide-react";
+import { ExternalLink, RefreshCw, ShieldQuestion, Trash2 } from "lucide-react";
 import type { Platform } from "@upsolve/adapters";
-import { Button, ButtonArrow, Tag, cn } from "@upsolve/ui";
+import { Button, ButtonArrow, Tag, Tooltip, VerifiedChip, cn, inputClasses } from "@upsolve/ui";
+import { PlatformMark, platformMarkId } from "./site-icons";
 import {
   checkVerification,
   connectPlatform,
@@ -58,9 +59,16 @@ export function PlatformRow({
   }
 
   return (
-    <div className="border-t border-dashed border-line-2 py-4 first:border-t-0 first:pt-0 last:pb-0">
+    <div className="surface-inset group rounded-[16px] p-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="min-w-[110px] text-[14px] font-[550]">{label}</span>
+        <span className="flex min-w-[140px] items-center gap-2.5 text-14 font-[600]">
+          {platformMarkId(platform) && (
+            <span className="grid size-8 place-items-center rounded-[10px] border border-line bg-surface-2">
+              <PlatformMark site={platformMarkId(platform)!} size={16} brand={!!account} />
+            </span>
+          )}
+          {label}
+        </span>
 
         {account ? (
           <>
@@ -80,30 +88,34 @@ export function PlatformRow({
               )}
             </span>
             {account.verified ? (
-              <Tag tone="ac" mono>
-                <BadgeCheck size={12} aria-hidden="true" /> verified
-              </Tag>
+              <VerifiedChip />
             ) : (
-              <Tag mono>unverified</Tag>
+              <Tag className="h-5 px-1.5 text-11">unverified</Tag>
             )}
-            {account.solved !== null && <Tag mono>{account.solved} solved</Tag>}
+            {account.solved !== null && (
+              <Tag className="tnum h-5 px-1.5 text-11">{account.solved} solved</Tag>
+            )}
             <span className="ml-auto flex items-center gap-1.5">
               <Button
                 size="sm"
-                variant="ghost"
+                variant="secondary"
                 disabled={pending}
                 onClick={() => run(() => syncPlatform(account.id))}
                 aria-label={`Sync ${label} now`}
               >
-                <RefreshCw size={14} className={cn(pending && "animate-spin")} aria-hidden="true" />
+                <RefreshCw
+                  size={14}
+                  data-nudge="spin"
+                  className={cn((pending || account.syncing) && "animate-spin")}
+                  aria-hidden="true"
+                />
                 Sync
               </Button>
               {confirmRemove ? (
                 <>
                   <Button
                     size="sm"
-                    variant="secondary"
-                    className="text-bad"
+                    variant="danger"
                     disabled={pending}
                     onClick={() => run(() => disconnectPlatform(account.id))}
                   >
@@ -115,11 +127,13 @@ export function PlatformRow({
                 </>
               ) : (
                 <Button
-                  size="sm"
+                  size="icon-sm"
                   variant="ghost"
                   disabled={pending}
                   onClick={() => setConfirmRemove(true)}
                   aria-label={`Remove ${label}`}
+                  title={`Remove ${label}`}
+                  className="hover:text-bad"
                 >
                   <Trash2 size={14} aria-hidden="true" />
                 </Button>
@@ -139,17 +153,28 @@ export function PlatformRow({
               autoComplete="off"
               spellCheck={false}
               disabled={pending}
-              className="h-[34px] min-w-0 flex-1 rounded-sm border border-line-2 bg-surface-2 px-3 font-mono text-[13px] text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-3 focus:border-primary focus:shadow-[0_0_0_4px_var(--primary-soft)]"
+              className={inputClasses({ className: "h-[38px] min-w-0 flex-1 font-mono text-13" })}
             />
-            <Button type="submit" size="sm" variant="indigo" disabled={pending || !handle.trim()}>
-              {pending ? "Connecting…" : "Connect"} {!pending && <ButtonArrow />}
-            </Button>
+            <Tooltip content={handle.trim() ? `Connect ${label}` : "Type your username first"}>
+              <Button
+                type="submit"
+                variant="secondary"
+                loading={pending}
+                disabled={!handle.trim()}
+                className="h-[38px]"
+              >
+                {platformMarkId(platform) && (
+                  <PlatformMark site={platformMarkId(platform)!} size={14} brand />
+                )}
+                Connect <ButtonArrow />
+              </Button>
+            </Tooltip>
           </form>
         )}
       </div>
 
       {account && (
-        <p className="mt-1.5 font-mono text-[11px] text-ink-3">
+        <p className="mt-2 text-12 text-ink-3">
           {pending || account.syncing ? (
             "Syncing…"
           ) : account.status === "ok" && account.lastSyncedAt ? (
@@ -165,12 +190,12 @@ export function PlatformRow({
       )}
 
       {account && !account.verified && (
-        <div className="mt-3 rounded-md border border-line bg-surface-2 p-3">
+        <div className="mt-3 rounded-[12px] border border-line bg-surface-2 p-3">
           {account.verifying && verifyInstructions ? (
             <>
               <p className="text-[13px] text-ink-2">{verifyInstructions}</p>
               {account.verifyCode && platform !== "codeforces" && (
-                <code className="mt-2 inline-block rounded-xs bg-signal px-2 py-1 font-mono text-[13px] text-signal-ink select-all">
+                <code className="mt-2 inline-block rounded-[8px] bg-signal px-2.5 py-1 font-mono text-13 text-signal-ink shadow-glow-signal select-all">
                   {account.verifyCode}
                 </code>
               )}
@@ -178,10 +203,10 @@ export function PlatformRow({
                 <Button
                   size="sm"
                   variant="primary"
-                  disabled={pending}
+                  loading={pending}
                   onClick={() => run(() => checkVerification(account.id))}
                 >
-                  {pending ? "Checking…" : "Verify"}
+                  Verify
                 </Button>
                 {platform === "codeforces" && (
                   <Button
@@ -217,7 +242,7 @@ export function PlatformRow({
       {feedback && (
         <p
           role={feedback.ok ? "status" : "alert"}
-          className={cn("mt-2 text-[13px]", feedback.ok ? "text-ok" : "text-bad")}
+          className={cn("mt-2 text-13", feedback.ok ? "text-success" : "text-bad")}
         >
           {feedback.ok ? feedback.message : feedback.error}
         </p>

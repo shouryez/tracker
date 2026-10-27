@@ -1,9 +1,11 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
+import { Mail } from "lucide-react";
 import { toast } from "sonner";
-import { Switch } from "@upsolve/ui";
+import { Button, SegmentedControl, SwitchField } from "@upsolve/ui";
 import { saveLearningSettings } from "@/app/actions/learning";
+import { Modal } from "@/components/fx/overlay";
 import { REVIEW_CAPS } from "@/lib/profile-options";
 
 type Values = { reviewCap: number; weeklyEmail: boolean };
@@ -12,6 +14,7 @@ type Values = { reviewCap: number; weeklyEmail: boolean };
 export function LearningSettings({ initial }: { initial: Values }) {
   const [pending, startTransition] = useTransition();
   const [values, setValues] = useOptimistic(initial);
+  const [preview, setPreview] = useState(false);
   const save = (next: Values) =>
     startTransition(async () => {
       setValues(next);
@@ -21,53 +24,48 @@ export function LearningSettings({ initial }: { initial: Values }) {
     });
 
   return (
-    <div className="flex flex-col divide-y divide-dashed divide-line-2">
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5">
-        <div className="min-w-0">
-          <label htmlFor="review-cap" className="text-[13.5px] font-medium">
-            Reviews per day
-          </label>
-          <p className="text-[12.5px] text-ink-3">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3">
+        <div>
+          <p className="text-14 font-[550]">Reviews per day</p>
+          <p className="text-13 text-ink-3">
             The rest wait for the next day, oldest and weakest first.
           </p>
         </div>
-        <select
-          id="review-cap"
-          value={values.reviewCap}
-          disabled={pending}
-          onChange={(e) => save({ ...values, reviewCap: Number(e.target.value) })}
-          className="h-[34px] rounded-full border border-line-2 bg-surface-2 px-3 text-[13px]"
-        >
-          {REVIEW_CAPS.map((n) => (
-            <option key={n} value={n}>
-              {n} a day
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-3.5">
-        <div className="min-w-0">
-          <p id="weekly-email-label" className="text-[13.5px] font-medium">
-            Weekly email
-          </p>
-          <p className="text-[12.5px] text-ink-3">
-            Monday morning: last week&apos;s numbers, your weakest topic, what&apos;s due.{" "}
-            <a
-              href="/api/email/weekly/preview"
-              target="_blank"
-              className="underline hover:text-ink"
-            >
-              Preview
-            </a>
-          </p>
-        </div>
-        <Switch
-          checked={values.weeklyEmail}
-          labelledBy="weekly-email-label"
-          disabled={pending}
-          onCheckedChange={(weeklyEmail) => save({ ...values, weeklyEmail })}
+        <SegmentedControl
+          label="Reviews per day"
+          value={String(values.reviewCap)}
+          onChange={(v) => !pending && save({ ...values, reviewCap: Number(v) })}
+          items={REVIEW_CAPS.map((n) => ({ value: String(n), label: String(n) }))}
+          className="w-full max-w-md"
         />
       </div>
+      <div className="h-px bg-line" />
+      <SwitchField
+        title="Weekly email"
+        description="Monday morning: last week's numbers, your weakest topic, what's due."
+        checked={values.weeklyEmail}
+        disabled={pending}
+        onCheckedChange={(weeklyEmail) => save({ ...values, weeklyEmail })}
+      />
+      <Button variant="secondary" size="sm" className="self-start" onClick={() => setPreview(true)}>
+        <Mail size={14} aria-hidden="true" /> Preview this week&apos;s email
+      </Button>
+      <Modal
+        open={preview}
+        onClose={() => setPreview(false)}
+        title="Weekly email preview"
+        description="What lands in your inbox on Monday."
+        className="w-[min(720px,calc(100vw-32px))]"
+      >
+        {preview && (
+          <iframe
+            src="/api/email/weekly/preview"
+            title="Weekly email preview"
+            className="h-[60vh] w-full rounded-[14px] border border-line bg-white"
+          />
+        )}
+      </Modal>
     </div>
   );
 }

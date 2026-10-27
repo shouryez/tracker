@@ -1,100 +1,86 @@
+import { CircleCheck, CircleDashed, CircleSlash, Eye, Lightbulb, User } from "lucide-react";
 import { DifficultyTag, Tag, cn } from "@upsolve/ui";
-import { formatDuration, type SessionRow, type SessionStats } from "@/lib/sessions-data";
+import { HowSolved } from "@/components/charts/insights";
+import { formatDuration, type SessionRow } from "@/lib/sessions-data";
 import { TimeAgo } from "./time-ago";
 
-const INDEPENDENCE: Record<NonNullable<SessionRow["independence"]>, string> = {
-  solo: "solo",
-  hint: "hint",
-  solution: "saw solution",
-};
+const MODE = {
+  solo: { label: "Solo", Icon: User, cls: "text-success" },
+  hint: { label: "Hint", Icon: Lightbulb, cls: "text-medium" },
+  solution: { label: "Saw solution", Icon: Eye, cls: "text-violet" },
+} as const;
 
-/** One extension-tracked session as a list row. */
+/**
+ * One extension-tracked session: outcome glyph, title, submit count, an active vs idle
+ * two-tone bar, solve mode and duration.
+ */
 export function SessionItem({ s }: { s: SessionRow }) {
+  const total = Math.max(1, s.activeMs + s.idleMs);
+  const mode = s.independence ? MODE[s.independence] : null;
+  const Outcome =
+    s.outcome === "solved" ? CircleCheck : s.outcome === "abandoned" ? CircleSlash : CircleDashed;
   return (
-    <li className="flex items-center gap-3 border-t border-dashed border-line-2 py-2.5 first:border-t-0 first:pt-0">
+    <li className="group/row flex items-center gap-3 rounded-[12px] px-2.5 py-2.5 transition-colors hover:bg-surface-2/70">
+      <Outcome
+        size={17}
+        aria-label={s.outcome === "solved" ? "Solved" : s.outcome === "abandoned" ? "Left" : "Open"}
+        className={cn(
+          "shrink-0",
+          s.outcome === "solved"
+            ? "text-success"
+            : s.outcome === "abandoned"
+              ? "text-ink-4"
+              : "text-medium",
+        )}
+      />
       <span className="min-w-0 flex-1">
-        <a
-          href={s.url}
-          target="_blank"
-          rel="noreferrer"
-          className="block truncate text-[13.5px] font-medium hover:underline"
-        >
-          {s.title}
-        </a>
-        <span className="font-mono text-[11px] text-ink-3">
-          {formatDuration(s.activeMs)} active · {s.submits} submit{s.submits === 1 ? "" : "s"} ·{" "}
-          <TimeAgo date={s.startedAt} />
-          {s.note ? ` · “${s.note}”` : ""}
+        <span className="flex items-center gap-2">
+          <a
+            href={s.url}
+            target="_blank"
+            rel="noreferrer"
+            className="truncate text-[13.5px] font-medium hover:underline"
+          >
+            {s.title}
+          </a>
+          {s.difficulty && <DifficultyTag difficulty={s.difficulty} />}
+        </span>
+        <span className="mt-1.5 flex items-center gap-2.5 text-11 text-ink-3">
+          <span
+            className="flex h-1.5 w-24 overflow-hidden rounded-full bg-surface-3"
+            title={`${formatDuration(s.activeMs)} active · ${formatDuration(s.idleMs)} idle`}
+          >
+            <span
+              className="h-full bg-violet"
+              style={{ width: `${(s.activeMs / total) * 100}%` }}
+            />
+            <span
+              className="h-full bg-ink-4/50"
+              style={{ width: `${(s.idleMs / total) * 100}%` }}
+            />
+          </span>
+          <span className="tnum">
+            {s.submits} submit{s.submits === 1 ? "" : "s"}
+          </span>
+          {s.note && <span className="hidden truncate italic md:inline">“{s.note}”</span>}
         </span>
       </span>
-      {s.independence && <Tag mono>{INDEPENDENCE[s.independence]}</Tag>}
-      {s.outcome === "solved" ? (
-        <Tag tone="ac" mono>
-          solved
-        </Tag>
-      ) : s.outcome === "abandoned" ? (
-        <Tag mono>left</Tag>
-      ) : (
-        <Tag tone="tle" mono>
-          open
+      {mode && (
+        <Tag className={cn("hidden sm:inline-flex", mode.cls)}>
+          <mode.Icon size={12} aria-hidden="true" /> {mode.label}
         </Tag>
       )}
-      {s.difficulty && <DifficultyTag difficulty={s.difficulty} />}
+      <span className="w-20 shrink-0 text-right">
+        <span className="tnum block text-13 font-[600]">{formatDuration(s.activeMs)}</span>
+        <span className="block text-11 text-ink-3">
+          <TimeAgo date={s.startedAt} />
+        </span>
+      </span>
     </li>
   );
 }
 
-/** Capsule bars per day on hatched goal tracks; today in indigo (DESIGN.md §8). */
-export function FocusBars({ stats, goalMin }: { stats: SessionStats; goalMin: number }) {
-  const goalMs = goalMin * 60_000;
-  const cap = Math.max(goalMs * 1.33, ...stats.focusByDay.map((d) => d.activeMs));
-  const weekday = (day: string) =>
-    new Date(`${day}T12:00:00Z`).toLocaleDateString("en-IN", { weekday: "short", timeZone: "UTC" });
-
-  return (
-    <div
-      className="grid h-[170px] grid-cols-7 items-end gap-2.5"
-      role="img"
-      aria-label="Focus time per day this week"
-    >
-      {stats.focusByDay.map((d, i) => {
-        const today = i === stats.focusByDay.length - 1;
-        const met = d.activeMs >= goalMs;
-        return (
-          <div
-            key={d.day}
-            className="flex h-full flex-col items-center justify-end gap-2"
-            title={`${weekday(d.day)}: ${formatDuration(d.activeMs)}`}
-          >
-            <div
-              className={cn(
-                "hatch relative h-[140px] w-full max-w-10 overflow-hidden rounded-full",
-              )}
-            >
-              <div
-                className={cn(
-                  "absolute inset-x-0 bottom-0 rounded-full",
-                  today ? "bg-primary" : met ? "bg-ink" : "bg-surface-3",
-                )}
-                style={{ height: `${Math.min(100, (d.activeMs / cap) * 100)}%` }}
-              />
-              {today && d.activeMs > 0 && (
-                <span className="absolute top-1 left-1/2 -translate-x-1/2 rounded-full bg-signal px-1.5 py-0.5 font-mono text-[10px] whitespace-nowrap text-signal-ink">
-                  {formatDuration(d.activeMs)}
-                </span>
-              )}
-            </div>
-            <span className={cn("font-mono text-[10.5px]", today ? "text-ink" : "text-ink-3")}>
-              {weekday(d.day)[0]}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** Solo / hint / saw-solution split (DESIGN.md §8 "honest count"). Hatched = saw solution. */
+/** Solo / hint / saw-solution as a 3-segment ring (kept under its old name). */
 export function HonestSplit({
   solo,
   hint,
@@ -106,38 +92,9 @@ export function HonestSplit({
   solution: number;
   className?: string;
 }) {
-  const total = solo + hint + solution;
-  const parts = [
-    { key: "solo", n: solo, cls: "bg-ink" },
-    { key: "hint", n: hint, cls: "bg-ink-3" },
-    { key: "solution", n: solution, cls: "hatch border border-line-2" },
-  ].filter((p) => p.n > 0);
   return (
     <div className={className}>
-      <div
-        className="flex h-2.5 gap-[3px] overflow-hidden rounded-full"
-        role="img"
-        aria-label={`${solo} solo, ${hint} with a hint, ${solution} after seeing the solution`}
-      >
-        {total === 0 ? (
-          <span className="hatch flex-1 rounded-full" />
-        ) : (
-          parts.map((p) => (
-            <span key={p.key} className={cn("rounded-[3px]", p.cls)} style={{ flex: p.n }} />
-          ))
-        )}
-      </div>
-      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-ink-3">
-        <span>
-          <span className="text-ink">{solo}</span> solo
-        </span>
-        <span>
-          <span className="text-ink">{hint}</span> hint
-        </span>
-        <span>
-          <span className="text-ink">{solution}</span> saw solution
-        </span>
-      </div>
+      <HowSolved honest={{ solo, hint, solution }} />
     </div>
   );
 }

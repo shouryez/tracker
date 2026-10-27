@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Copy, RefreshCw } from "lucide-react";
+import { ClipboardPaste, Copy, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { Button, Switch, cn } from "@upsolve/ui";
+import { Button, CheckDraw, Switch, cn, inputClasses } from "@upsolve/ui";
 import {
   createGroup,
   joinGroup,
@@ -16,8 +16,8 @@ import {
 } from "@/app/actions/social";
 import { formatDuration } from "@/lib/format";
 
-const inputClass =
-  "h-[38px] min-w-0 flex-1 rounded-full border border-line-2 bg-surface-2 px-3.5 text-[13.5px] text-ink placeholder:text-ink-3 focus:border-ink-3 focus:outline-none";
+const inputClass = inputClasses({ className: "min-w-0 flex-1 rounded-full" });
+const SUGGESTED = ["CSE-B grinders", "Hostel night owls", "Coding club", "Placement prep"];
 
 function useAction() {
   const [pending, startTransition] = useTransition();
@@ -54,14 +54,21 @@ export function CreateGroupForm() {
           placeholder="e.g. CSE-B grinders"
           className={inputClass}
         />
-        <Button
-          type="submit"
-          size="sm"
-          variant="primary"
-          disabled={pending || name.trim().length < 2}
-        >
-          {pending ? "Creating…" : "Create"}
+        <Button type="submit" variant="signal" loading={pending} disabled={name.trim().length < 2}>
+          Create
         </Button>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {SUGGESTED.map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setName(n)}
+            className="h-7 rounded-full border border-line-2 px-2.5 text-12 text-ink-2 transition-colors hover:border-line-3 hover:bg-surface-2 hover:text-ink"
+          >
+            {n}
+          </button>
+        ))}
       </div>
       {error && <p className="text-[12.5px] text-bad">{error}</p>}
     </form>
@@ -92,12 +99,28 @@ export function JoinGroupForm() {
           className={inputClass}
         />
         <Button
-          type="submit"
-          size="sm"
-          variant="secondary"
-          disabled={pending || code.trim().length < 6}
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label="Paste from clipboard"
+          title="Paste from clipboard"
+          onClick={async () => {
+            try {
+              setCode((await navigator.clipboard.readText()).trim());
+            } catch {
+              // Clipboard blocked: paste by hand.
+            }
+          }}
         >
-          {pending ? "Joining…" : "Join"}
+          <ClipboardPaste size={15} aria-hidden="true" />
+        </Button>
+        <Button
+          type="submit"
+          variant="secondary"
+          loading={pending}
+          disabled={code.trim().length < 6}
+        >
+          Join
         </Button>
       </div>
       {error && <p className="text-[12.5px] text-bad">{error}</p>}
@@ -110,8 +133,13 @@ export function JoinButton({ code }: { code: string }) {
   const { pending, error, run } = useAction();
   return (
     <div className="flex flex-col items-start gap-2">
-      <Button variant="signal" disabled={pending} onClick={() => run(() => joinGroup(code))}>
-        {pending ? "Joining…" : "Join the group"}
+      <Button
+        variant="signal"
+        size="lg"
+        loading={pending}
+        onClick={() => run(() => joinGroup(code))}
+      >
+        Join the group
       </Button>
       {error && <p className="text-[12.5px] text-bad">{error}</p>}
     </div>
@@ -132,7 +160,7 @@ export function InviteLink({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <code className="min-w-0 flex-1 truncate rounded-full border border-line-2 bg-surface-2 px-3.5 py-2 font-mono text-[12px] text-ink-2">
+        <code className="min-w-0 flex-1 truncate rounded-full border border-line-2 bg-surface-inset px-3.5 py-2.5 font-mono text-12 text-ink-2 shadow-inset">
           {url}
         </code>
         <Button
@@ -149,7 +177,11 @@ export function InviteLink({
             }
           }}
         >
-          {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+          {copied ? (
+            <CheckDraw size={14} className="text-success" />
+          ) : (
+            <Copy size={14} aria-hidden="true" />
+          )}
           {copied ? "Copied" : "Copy"}
         </Button>
       </div>
@@ -192,8 +224,10 @@ function ConfirmButton({
       disabled={pending}
       onClick={() => (armed ? onConfirm() : setArmed(true))}
       className={cn(
-        "rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors duration-[var(--dur-base)]",
-        armed ? "bg-bad/12 text-bad" : "text-ink-3 hover:text-ink",
+        "rounded-full px-3 py-1.5 text-12 font-[550] transition-colors duration-[var(--dur-base)]",
+        armed
+          ? "bg-bad/15 text-bad ring-1 ring-bad/40"
+          : "text-ink-3 hover:bg-surface-2 hover:text-ink",
       )}
     >
       {armed ? confirm : label}
@@ -261,7 +295,10 @@ export function LiveClock({
   const s = Math.floor(ms / 1000);
   const clock = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
   return (
-    <span className="font-mono text-[12px] tabular-nums" title={formatDuration(ms)}>
+    <span
+      className="tnum rounded-full bg-signal-soft px-2 py-0.5 font-mono text-12 text-signal-text"
+      title={formatDuration(ms)}
+    >
       {clock}
     </span>
   );

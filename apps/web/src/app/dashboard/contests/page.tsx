@@ -10,13 +10,17 @@ import {
   CardSub,
   CardTitle,
   DifficultyTag,
-  Stat,
+  LinearProgress,
+  SkeletonCard,
   Tag,
   buttonClasses,
   cn,
 } from "@upsolve/ui";
+import { NumberTicker } from "@/components/fx/number-ticker";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { PLATFORM_LABEL, PLATFORM_STROKE } from "@/components/platform-meta";
-import { RatingChart } from "@/components/rating-chart";
+import { CF_BANDS, RatingChart } from "@/components/rating-chart";
+import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import {
   getContests,
@@ -34,11 +38,25 @@ const fmtDate = (d: Date) =>
 
 export default function ContestsPage() {
   return (
-    <div className="flex flex-col gap-5">
-      <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
-        Contests<span className="block text-ink-3">Ratings and what&apos;s left to upsolve</span>
-      </h1>
-      <Suspense fallback={<div className="h-[500px] skeleton rounded-lg" />}>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        eyebrow="Contests · Codeforces and LeetCode"
+        glow={PAGE_GLOW.contests}
+        title={
+          <>
+            Contests, <em>and what&apos;s left to upsolve.</em>
+          </>
+        }
+      />
+      <Suspense
+        fallback={
+          <div className="grid grid-cols-12 gap-3.5">
+            <SkeletonCard lines={5} className="col-span-12 h-[320px]" />
+            <SkeletonCard lines={6} className="col-span-12 h-[360px] xl:col-span-5" />
+            <SkeletonCard lines={6} className="col-span-12 h-[360px] xl:col-span-7" />
+          </div>
+        }
+      >
         <ContestsContent />
       </Suspense>
     </div>
@@ -52,22 +70,47 @@ async function ContestsContent() {
 
   if (contests.length === 0) {
     return (
-      <Card className="flex flex-wrap items-center gap-4">
-        <p className="min-w-0 flex-1 text-[15px] leading-relaxed">
-          <span className="text-ink-3">No rated contests yet.</span> Connect Codeforces or LeetCode
-          and take part in a contest: your rating, every result and an upsolve list of the problems
-          you didn&apos;t finish show up here.
-        </p>
-        <Link href="/dashboard/settings" className={buttonClasses({ variant: "signal" })}>
-          Connect platforms <ButtonArrow />
-        </Link>
+      <Card className="relative overflow-hidden p-0">
+        {/* Ghost of the populated page, blurred behind the message. */}
+        <div aria-hidden="true" className="pointer-events-none p-6 opacity-30 blur-[3px]">
+          <svg viewBox="0 0 600 160" className="h-auto w-full">
+            <path
+              d="M0 130 L60 118 L120 124 L180 96 L240 88 L300 92 L360 64 L420 70 L480 44 L540 50 L600 30"
+              fill="none"
+              stroke="var(--medium)"
+              strokeWidth="3"
+            />
+          </svg>
+          <div className="mt-4 flex gap-2">
+            {["A", "B", "C", "D"].map((q) => (
+              <span key={q} className="h-6 w-10 rounded-full bg-surface-3" />
+            ))}
+          </div>
+        </div>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[radial-gradient(60%_80%_at_50%_50%,var(--surface)_30%,transparent)] px-6 text-center">
+          <Podium />
+          <p className="mt-4 text-20 font-[600]">
+            No rated contests <em className="font-display font-normal">yet.</em>
+          </p>
+          <p className="mt-1.5 max-w-[48ch] text-13 text-ink-2">
+            Connect Codeforces or LeetCode and take part in a contest: your rating, every result and
+            an upsolve list of the problems you didn&apos;t finish show up here.
+          </p>
+          <Link
+            href="/dashboard/settings"
+            className={buttonClasses({ variant: "signal", className: "mt-5" })}
+          >
+            Connect platforms <ButtonArrow />
+          </Link>
+        </div>
+        <div className="h-[340px]" />
       </Card>
     );
   }
 
   const platforms = [...new Set(contests.map((c) => c.platform))];
   return (
-    <div className="grid grid-cols-12 gap-3.5">
+    <div className="stagger-in grid grid-cols-12 gap-3.5">
       {platforms.map((p) => (
         <RatingCard
           key={p}
@@ -97,33 +140,49 @@ function RatingCard({
   const peak = Math.max(...rated.map((c) => c.newRating!));
   const delta = last && last.oldRating !== null ? last.newRating! - last.oldRating : null;
   return (
-    <Card className={cn("col-span-12", !wide && "xl:col-span-6")}>
+    <Card glow={PLATFORM_STROKE[platform]} className={cn("col-span-12", !wide && "xl:col-span-6")}>
       <CardHeader>
-        <CardTitle icon={icon(TrendingUp)}>{PLATFORM_LABEL[platform]}</CardTitle>
+        <CardTitle
+          icon={
+            platformMarkId(platform) ? (
+              <PlatformMark site={platformMarkId(platform)!} size={14} brand />
+            ) : (
+              icon(TrendingUp)
+            )
+          }
+        >
+          {PLATFORM_LABEL[platform]}
+        </CardTitle>
         <CardSub>{contests.length} contests</CardSub>
       </CardHeader>
-      <div className="mb-3 flex flex-wrap items-end gap-x-8 gap-y-2">
-        <Stat value={last?.newRating ?? "—"} unit="rating" />
-        <div className="pb-2 font-mono text-[12px] text-ink-3">
-          peak <span className="text-ink">{Number.isFinite(peak) ? peak : "—"}</span>
+      <div className="mb-4 flex flex-wrap items-end gap-x-6 gap-y-2">
+        <p className="num text-[48px]">
+          {last?.newRating ? <NumberTicker value={last.newRating} /> : "—"}
+          <small className="ml-1.5 font-display text-[.42em] font-normal tracking-normal text-ink-3 italic">
+            rating
+          </small>
+        </p>
+        <div className="flex flex-wrap gap-1.5 pb-2">
+          <Tag>
+            peak{" "}
+            <span className="tnum font-[600] text-ink">{Number.isFinite(peak) ? peak : "—"}</span>
+          </Tag>
           {delta !== null && (
-            <>
-              {" · last "}
-              <span className={delta >= 0 ? "text-ok" : "text-bad"}>
-                {delta >= 0 ? "+" : ""}
-                {delta}
-              </span>
-            </>
+            <Tag tone={delta >= 0 ? "success" : "hard"} className="tnum">
+              last {delta >= 0 ? "+" : ""}
+              {delta}
+            </Tag>
           )}
         </div>
       </div>
       {rated.length > 1 ? (
         <RatingChart
           stroke={PLATFORM_STROKE[platform] ?? "var(--primary)"}
+          bands={platform === "codeforces" ? CF_BANDS : undefined}
           points={rated.map((c) => ({ at: c.at.getTime(), rating: c.newRating!, name: c.name }))}
         />
       ) : (
-        <p className="text-[13px] text-ink-2">The chart appears after your second contest.</p>
+        <p className="text-13 text-ink-2">The chart appears after your second contest.</p>
       )}
     </Card>
   );
@@ -143,11 +202,24 @@ async function Upsolve({ userId, contests }: { userId: string; contests: Contest
     <>
       <Card className="col-span-12 xl:col-span-5">
         <CardHeader>
-          <CardTitle icon={icon(ListTodo)}>Upsolve next</CardTitle>
+          <CardTitle icon={icon(ListTodo)} tint="var(--medium)">
+            Upsolve next
+          </CardTitle>
           <CardSub>
             {todo.length} left · {upsolved} upsolved
           </CardSub>
         </CardHeader>
+        {todo.length + upsolved > 0 && (
+          <LinearProgress
+            className="mb-4"
+            value={upsolved}
+            max={todo.length + upsolved}
+            height={7}
+            color="var(--signal-mark)"
+            label={`${upsolved} / ${todo.length + upsolved}`}
+            aria-label="Upsolved"
+          />
+        )}
         {todo.length === 0 ? (
           <p className="text-[13.5px] text-ink-2">
             Nothing left from your last {Math.min(UPSOLVE_CONTESTS, recent.length)} contests.
@@ -161,7 +233,7 @@ async function Upsolve({ userId, contests }: { userId: string; contests: Contest
               .map((p) => (
                 <li
                   key={`${p.contest.contestId}-${p.externalId}`}
-                  className="flex items-center gap-3 border-t border-dashed border-line-2 py-2.5 first:border-t-0 first:pt-0"
+                  className="flex items-center gap-3 rounded-[10px] px-2 py-2 transition-colors hover:bg-surface-2/70"
                 >
                   <span className="min-w-0 flex-1">
                     <a
@@ -172,17 +244,15 @@ async function Upsolve({ userId, contests }: { userId: string; contests: Contest
                     >
                       {p.title}
                     </a>
-                    <span className="block truncate font-mono text-[11px] text-ink-3">
-                      {p.contest.name}
-                      {p.attempted ? " · attempted" : ""}
-                    </span>
+                    <span className="block truncate text-11 text-ink-3">{p.contest.name}</span>
                   </span>
+                  {p.attempted && <Tag tone="tle">attempted</Tag>}
                   {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
                 </li>
               ))}
           </ul>
         )}
-        <p className="mt-3 border-t border-dashed border-line-2 pt-3 text-[12px] leading-relaxed text-ink-3">
+        <p className="mt-3 border-t border-line pt-3 text-12 leading-relaxed text-ink-3">
           Problems from your last {UPSOLVE_CONTESTS} contests you haven&apos;t solved yet. Solve one
           and it ticks here, and joins your revision queue.
         </p>
@@ -190,7 +260,9 @@ async function Upsolve({ userId, contests }: { userId: string; contests: Contest
 
       <Card className="col-span-12 xl:col-span-7">
         <CardHeader>
-          <CardTitle icon={icon(History)}>History</CardTitle>
+          <CardTitle icon={icon(History)} tint="var(--violet)">
+            History
+          </CardTitle>
           <CardSub>newest first</CardSub>
         </CardHeader>
         <ul>
@@ -212,21 +284,21 @@ function ContestItem({ c, detail }: { c: ContestRow; detail: ContestUpsolve | un
   const solved = c.solved ?? inContest ?? null;
   const total = c.total ?? (detail?.problems.length || null);
   return (
-    <li className="border-t border-dashed border-line-2 py-3 first:border-t-0 first:pt-0">
+    <li className="rounded-[12px] px-2 py-3 transition-colors hover:bg-surface-2/60">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13.5px] font-medium">{c.name}</span>
-          <span className="font-mono text-[11px] text-ink-3">
+          <span className="block truncate text-[13.5px] font-[550]">{c.name}</span>
+          <span className="tnum text-11 text-ink-3">
             {PLATFORM_LABEL[c.platform]} · {fmtDate(c.at)}
-            {c.rank ? ` · rank ${c.rank.toLocaleString("en-IN")}` : ""}
             {solved !== null && total ? ` · ${solved}/${total} in contest` : ""}
           </span>
         </span>
+        {c.rank ? <Tag className="tnum">#{c.rank.toLocaleString("en-IN")}</Tag> : null}
         {delta !== null && (
-          <span className={cn("num text-[15px]", delta >= 0 ? "text-ok" : "text-bad")}>
+          <Tag tone={delta >= 0 ? "success" : "hard"} className="tnum font-[700]">
             {delta >= 0 ? "+" : ""}
             {delta}
-          </span>
+          </Tag>
         )}
       </div>
       {detail && detail.problems.length > 0 && (
@@ -268,4 +340,34 @@ function ContestItem({ c, detail }: { c: ContestRow; detail: ContestUpsolve | un
 /** "1850C" → "C"; LeetCode problems are Q1–Q4. */
 function label(externalId: string, platform: Platform, index: number) {
   return platform === "codeforces" ? externalId.replace(/^\d+/, "") : `Q${index + 1}`;
+}
+
+/** Pixel podium for the empty state (the logo's pixel motif). */
+function Podium() {
+  const cols = [
+    { h: 3, lit: false },
+    { h: 5, lit: true },
+    { h: 2, lit: false },
+  ];
+  return (
+    <span aria-hidden="true" className="flex items-end gap-1.5">
+      {cols.map((c, i) => (
+        <span key={i} className="flex flex-col-reverse gap-[3px]">
+          {Array.from({ length: c.h }, (_, k) => (
+            <i
+              key={k}
+              className={cn(
+                "block size-3.5 rounded-[3px]",
+                c.lit
+                  ? k === c.h - 1
+                    ? "bg-signal shadow-[0_0_12px_var(--signal)]"
+                    : "bg-medium/80"
+                  : "bg-line-3",
+              )}
+            />
+          ))}
+        </span>
+      ))}
+    </span>
+  );
 }
