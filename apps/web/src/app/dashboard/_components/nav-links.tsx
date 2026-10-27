@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { motion } from "motion/react";
 import {
   ChartColumn,
@@ -10,6 +16,8 @@ import {
   GraduationCap,
   LayoutGrid,
   ListChecks,
+  MessageSquarePlus,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   RotateCcw,
@@ -19,7 +27,8 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { Logo, LogoMark, Tooltip, cn } from "@upsolve/ui";
+import { Logo, LogoMark, THEME_STORAGE_KEY, Tooltip, cn } from "@upsolve/ui";
+import { openFeedback } from "./feedback-button";
 
 export type NavItem = { label: string; icon: LucideIcon; href: string };
 
@@ -70,8 +79,25 @@ function subscribe(l: () => void) {
   return () => listeners.delete(l);
 }
 
+function toggleTheme() {
+  const root = document.documentElement;
+  const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
+  root.classList.add("theme-transition");
+  root.setAttribute("data-theme", next);
+  setTimeout(() => root.classList.remove("theme-transition"), 400);
+  try {
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+  } catch {
+    // Storage blocked: applies for this page view.
+  }
+}
+
 /** Sidebar with the current page highlighted. Reads the URL, so render it inside <Suspense>. */
-export function Sidebar(props: { badges?: Record<string, number>; footer?: ReactNode }) {
+export function Sidebar(props: {
+  badges?: Record<string, number>;
+  footer?: ReactNode;
+  user?: ReactNode;
+}) {
   return <SidebarView pathname={usePathname()} {...props} />;
 }
 
@@ -80,19 +106,22 @@ export function SidebarView({
   pathname,
   badges = {},
   footer,
+  user,
 }: {
   pathname: string | null;
   badges?: Record<string, number>;
   footer?: ReactNode;
+  /** User card pinned to the bottom; hide its text with group-data-[collapsed]/side. */
+  user?: ReactNode;
 }) {
   const collapsed = useSyncExternalStore(subscribe, readCollapsed, () => false);
   return (
     <aside
       data-collapsed={collapsed || undefined}
       className={cn(
-        "sticky top-0 hidden h-dvh flex-col gap-1 overflow-y-auto border-r border-line bg-bg-2/60 px-3 py-[18px] lg:flex",
+        "group/side sticky top-0 hidden h-dvh flex-col gap-1 overflow-y-auto border-r border-line bg-[linear-gradient(180deg,var(--surface),var(--bg-2))] px-3 py-[18px] lg:flex",
         "transition-[width] duration-[var(--dur-slow)] ease-[var(--ease-in-out)]",
-        collapsed ? "w-[76px]" : "w-[232px]",
+        collapsed ? "w-[76px]" : "w-[236px]",
       )}
     >
       <div
@@ -101,7 +130,11 @@ export function SidebarView({
           collapsed ? "justify-center" : "justify-between pl-2.5",
         )}
       >
-        <Link href="/" aria-label="Upsolve home" className="rounded-md">
+        <Link
+          href="/"
+          aria-label="Upsolve home"
+          className="rounded-md transition-transform duration-[var(--dur-slow)] ease-[var(--ease-spring)] hover:-rotate-2 hover:scale-105"
+        >
           {collapsed ? <LogoMark /> : <Logo />}
         </Link>
         {!collapsed && (
@@ -143,7 +176,10 @@ export function SidebarView({
         badges={badges}
         collapsed={collapsed}
       />
-      {footer && !collapsed && <div className="mt-auto pt-4">{footer}</div>}
+      <div className="mt-auto flex flex-col gap-3 pt-4">
+        {footer && !collapsed && footer}
+        {user}
+      </div>
     </aside>
   );
 }
@@ -163,14 +199,7 @@ function Group({
 }) {
   return (
     <>
-      <div
-        className={cn(
-          "px-2.5 pt-4 pb-1.5 font-mono text-[10.5px] font-medium tracking-[.1em] text-ink-3 uppercase",
-          collapsed && "sr-only",
-        )}
-      >
-        {label}
-      </div>
+      <div className={cn("px-2.5 pt-4 pb-1.5 label-mono", collapsed && "sr-only")}>{label}</div>
       <nav className="flex flex-col gap-1" aria-label={label}>
         {items.map(({ label, icon: Icon, href }) => {
           const active = isActive(href, pathname);
@@ -182,21 +211,21 @@ function Group({
               aria-current={active ? "page" : undefined}
               aria-label={collapsed ? label : undefined}
               className={cn(
-                "group/nav relative flex items-center gap-2.5 rounded-[10px] px-2.5 py-2 text-[13.5px] transition-colors duration-[var(--dur-base)]",
+                "group/nav relative flex items-center gap-2.5 rounded-[11px] px-2.5 py-2 text-[13.5px] transition-colors duration-[var(--dur-base)]",
                 collapsed && "justify-center px-0",
-                active ? "text-ink" : "text-ink-2 hover:bg-surface/70 hover:text-ink",
+                active ? "font-[550] text-ink" : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
               )}
             >
               {active && (
                 // One element with a shared layoutId: it slides from item to item.
                 <motion.span
                   layoutId="nav-active"
-                  transition={{ type: "spring", stiffness: 520, damping: 40 }}
-                  className="absolute inset-0 -z-10 rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--line),var(--shadow-xs)]"
+                  transition={{ type: "spring", stiffness: 500, damping: 34 }}
+                  className="absolute inset-0 -z-10 rounded-[11px] border border-line-2 bg-surface-3 shadow-e1"
                 >
                   <span
                     aria-hidden="true"
-                    className="absolute top-[9px] bottom-[9px] -left-3 w-[3px] rounded-r-[3px] bg-signal shadow-[0_0_10px_var(--signal)]"
+                    className="absolute top-[9px] bottom-[9px] -left-3 w-[3px] rounded-r-[3px] bg-signal shadow-[0_0_12px_var(--signal)]"
                   />
                 </motion.span>
               )}
@@ -204,13 +233,17 @@ function Group({
                 size={16}
                 strokeWidth={1.75}
                 aria-hidden="true"
-                className="shrink-0 transition-transform duration-[var(--dur-base)] ease-[var(--ease-spring)] group-hover/nav:scale-110"
+                className={cn(
+                  "shrink-0 transition-transform duration-[var(--dur-base)] ease-[var(--ease-spring)] group-hover/nav:translate-x-0.5 group-hover/nav:scale-110",
+                  active && "text-signal-text",
+                )}
               />
               {!collapsed && <span className="truncate">{label}</span>}
               {badge ? (
                 <span
+                  aria-label={`${badge} due`}
                   className={cn(
-                    "rounded-full bg-signal px-1.5 font-mono text-[10px] leading-[18px] font-semibold text-signal-ink",
+                    "pulse-ring tnum rounded-full bg-signal px-1.5 font-mono text-[10px] leading-[18px] font-semibold text-signal-ink",
                     collapsed ? "absolute top-0.5 right-1.5 h-[16px] leading-[16px]" : "ml-auto",
                   )}
                 >
@@ -232,25 +265,50 @@ function Group({
   );
 }
 
-/** Bottom tab bar for phones and tablets (the sidebar shows from 1024 px). */
+/**
+ * Floating glass dock for phones and tablets (the sidebar shows from 1024 px): a sliding
+ * active pill, press-scale feedback, and a More bottom sheet (drag handle, swipe down to close).
+ */
 export function MobileNav({ badges = {} }: { badges?: Record<string, number> }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const sheet = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ y: number; dy: number } | null>(null);
   const tabs = [MENU[0]!, MENU[1]!, MENU[2]!, SOCIAL[0]!];
   const more = [MENU[3]!, MENU[4]!, MENU[5]!, SOCIAL[1]!, ACCOUNT[0]!];
   const moreActive = more.some((m) => isActive(m.href, pathname));
   const tabClass = (active: boolean) =>
     cn(
-      "relative flex min-h-11 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-1 text-[10.5px] transition-colors duration-[var(--dur-base)]",
+      "relative flex min-h-12 min-w-12 flex-1 flex-col items-center justify-center gap-0.5 rounded-full px-1 text-[10.5px] font-[550] transition-[color,transform] duration-[var(--dur-base)] active:scale-90",
       active ? "text-ink" : "text-ink-3",
     );
   const pill = (id: string) => (
     <motion.span
       layoutId={id}
-      transition={{ type: "spring", stiffness: 520, damping: 40 }}
-      className="absolute inset-0 -z-10 rounded-full bg-surface-2"
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="absolute inset-0 -z-10 rounded-full border border-line-2 bg-surface-3 shadow-e1"
     />
   );
+
+  // Swipe the sheet down to close it.
+  const onPointerDown = (e: ReactPointerEvent) => {
+    drag.current = { y: e.clientY, dy: 0 };
+  };
+  const onPointerMove = (e: ReactPointerEvent) => {
+    if (!drag.current || !sheet.current) return;
+    drag.current.dy = Math.max(0, e.clientY - drag.current.y);
+    sheet.current.style.transform = `translateY(${drag.current.dy}px)`;
+  };
+  const onPointerUp = () => {
+    if (!drag.current || !sheet.current) return;
+    const close = drag.current.dy > 70;
+    sheet.current.style.transform = "";
+    drag.current = null;
+    if (close) setMoreOpen(false);
+  };
+
+  const sheetItem =
+    "flex min-h-[68px] flex-col items-center justify-center gap-1.5 rounded-[16px] text-12 transition-[background-color,transform] active:scale-95";
 
   return (
     <>
@@ -259,36 +317,68 @@ export function MobileNav({ badges = {} }: { badges?: Record<string, number> }) 
           type="button"
           aria-label="Close menu"
           onClick={() => setMoreOpen(false)}
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[3px] lg:hidden"
         />
       )}
       {moreOpen && (
         <div
           id="mobile-more"
-          className="glass fixed inset-x-3 bottom-[76px] z-50 grid animate-pop grid-cols-3 gap-1 rounded-[22px] border border-line-2 p-2 shadow-lg lg:hidden"
+          ref={sheet}
+          role="dialog"
+          aria-label="More pages"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          className="glass fixed inset-x-2 bottom-2 z-50 animate-[sheet-up_var(--dur-slow)_var(--ease-spring)] touch-none rounded-[28px] border border-line-2 px-3 pt-2 pb-[92px] shadow-e4 lg:hidden"
         >
-          {more.map(({ label, href, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setMoreOpen(false)}
-              aria-current={isActive(href, pathname) ? "page" : undefined}
-              className={cn(
-                "flex min-h-16 flex-col items-center justify-center gap-1.5 rounded-[14px] text-[12px] transition-colors",
-                isActive(href, pathname)
-                  ? "bg-surface-2 text-ink"
-                  : "text-ink-2 hover:bg-surface-2",
-              )}
+          <span
+            aria-hidden="true"
+            className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-line-3"
+          />
+          <div className="grid grid-cols-3 gap-1.5">
+            {more.map(({ label, href, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setMoreOpen(false)}
+                aria-current={isActive(href, pathname) ? "page" : undefined}
+                className={cn(
+                  sheetItem,
+                  isActive(href, pathname)
+                    ? "bg-surface-3 text-ink"
+                    : "text-ink-2 hover:bg-surface-2",
+                )}
+              >
+                <Icon size={19} strokeWidth={1.75} aria-hidden="true" />
+                {label}
+              </Link>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setMoreOpen(false);
+                openFeedback();
+              }}
+              className={cn(sheetItem, "text-ink-2 hover:bg-surface-2")}
             >
-              <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
-              {label}
-            </Link>
-          ))}
+              <MessageSquarePlus size={19} strokeWidth={1.75} aria-hidden="true" />
+              Feedback
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className={cn(sheetItem, "text-ink-2 hover:bg-surface-2")}
+            >
+              <Moon size={19} strokeWidth={1.75} aria-hidden="true" />
+              Theme
+            </button>
+          </div>
         </div>
       )}
       <nav
         aria-label="Main"
-        className="glass fixed inset-x-3 bottom-3 z-50 flex items-center justify-around rounded-full border border-line-2 px-1.5 py-1.5 shadow-lg lg:hidden"
+        className="glass fixed inset-x-3 bottom-3 z-50 flex items-center justify-around rounded-full border border-line-2 px-1.5 py-1.5 shadow-e3 lg:hidden"
       >
         {tabs.map(({ label, href, icon: Icon }) => {
           const active = isActive(href, pathname) && !moreOpen;
@@ -300,11 +390,16 @@ export function MobileNav({ badges = {} }: { badges?: Record<string, number> }) 
               className={tabClass(active)}
             >
               {active && pill("mobile-nav-active")}
-              <Icon size={18} strokeWidth={1.75} aria-hidden="true" />
+              <Icon
+                size={18}
+                strokeWidth={1.75}
+                aria-hidden="true"
+                className={cn(active && "text-signal-text")}
+              />
               <span className="truncate">{label}</span>
               {badges[href] ? (
                 <span
-                  className="absolute top-1 right-[22%] size-2 rounded-full bg-signal"
+                  className="pulse-ring absolute top-1 right-[22%] size-2 rounded-full bg-signal text-signal"
                   aria-label={`${badges[href]} due`}
                 />
               ) : null}

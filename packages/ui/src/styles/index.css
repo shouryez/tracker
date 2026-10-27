@@ -729,3 +729,15 @@
     stroke-dashoffset: 0;
   }
 }
+@keyframes pixel-out {
+  to {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

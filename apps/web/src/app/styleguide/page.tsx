@@ -42,6 +42,7 @@ import { DecodeText, TextReveal } from "@/components/fx/text";
 import { PlatformMark } from "@/components/site-icons";
 import { Tabs } from "@/components/tabs";
 import { ChartsSection } from "./charts-section";
+import { ShellSection } from "./shell-section";
 import {
   ButtonStatesDemo,
   FieldsDemo,
@@ -643,6 +644,8 @@ export default function Styleguide() {
             </Card>
           </div>
         </Section>
+
+        <ShellSection Section={Section} />
 
         <ChartsSection Section={Section} />
 

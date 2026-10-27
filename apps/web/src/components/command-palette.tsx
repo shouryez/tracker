@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition, type ReactNode } from "reac
 import { Command } from "cmdk";
 import {
   Check,
+  Clock3,
   CornerDownLeft,
   Download,
   LogOut,
@@ -24,12 +25,46 @@ export function openCommandPalette() {
   window.dispatchEvent(new Event(COMMAND_EVENT));
 }
 
+// Recently opened destinations, per browser (a convenience only).
+const RECENT_KEY = "upsolve:recent";
+type Recent = { href: string; label: string };
+function readRecent(): Recent[] {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]") as Recent[];
+  } catch {
+    return [];
+  }
+}
+function pushRecent(r: Recent) {
+  try {
+    const next = [r, ...readRecent().filter((x) => x.href !== r.href)].slice(0, 4);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+  } catch {
+    // Storage blocked: no recents.
+  }
+}
+
+/** Wraps the matched part of `text` in a highlight. */
+function Highlight({ text, query }: { text: string; query: string }) {
+  const q = query.trim();
+  const i = q.length >= 2 ? text.toLowerCase().indexOf(q.toLowerCase()) : -1;
+  if (i < 0) return <>{text}</>;
+  return (
+    <>
+      {text.slice(0, i)}
+      <mark className="rounded-[3px] bg-signal/25 text-ink">{text.slice(i, i + q.length)}</mark>
+      {text.slice(i + q.length)}
+    </>
+  );
+}
+
 /** Ctrl/⌘ K: jump to any page, search problems, run actions. */
 export function CommandPalette() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<QuickResult[]>([]);
+  const [recent, setRecent] = useState<Recent[]>([]);
   const [searching, startSearch] = useTransition();
   const signOut = useRef<HTMLFormElement>(null);
 
@@ -37,10 +72,14 @@ export function CommandPalette() {
     const onKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        setRecent(readRecent());
         setOpen((o) => !o);
       }
     };
-    const onOpen = () => setOpen(true);
+    const onOpen = () => {
+      setRecent(readRecent());
+      setOpen(true);
+    };
     window.addEventListener("keydown", onKey);
     window.addEventListener(COMMAND_EVENT, onOpen);
     return () => {
@@ -57,7 +96,8 @@ export function CommandPalette() {
     return () => clearTimeout(t);
   }, [query]);
 
-  const go = (href: string) => {
+  const go = (href: string, label?: string) => {
+    if (label) pushRecent({ href, label });
     setOpen(false);
     setQuery("");
     router.push(href);
@@ -77,8 +117,8 @@ export function CommandPalette() {
         onOpenChange={setOpen}
         label="Command menu"
         shouldFilter
-        overlayClassName="fixed inset-0 z-[90] bg-black/45 backdrop-blur-sm data-[state=open]:animate-[fade-up_var(--dur-base)_var(--ease-out)]"
-        contentClassName="fixed top-[14vh] left-1/2 z-[91] w-[min(640px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[20px] border border-line-2 bg-surface shadow-xl data-[state=open]:animate-pop"
+        overlayClassName="fixed inset-0 z-[90] bg-[rgba(4,4,8,.55)] backdrop-blur-[6px] data-[state=open]:animate-[fade-in-pop_var(--dur-base)_var(--ease-out)]"
+        contentClassName="glass fixed top-[14vh] left-1/2 z-[91] w-[min(640px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[22px] border border-line-2 shadow-e4 data-[state=open]:animate-[modal-in_var(--dur-slow)_var(--ease-spring)]"
       >
         <div className="flex items-center gap-3 border-b border-line px-4">
           <Search size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
@@ -97,23 +137,39 @@ export function CommandPalette() {
               : "Nothing matches. Try another word."}
           </Command.Empty>
 
+          {query.trim() === "" && recent.length > 0 && (
+            <Group heading="Recent">
+              {recent.map((r) => (
+                <Item
+                  key={r.href}
+                  value={`recent ${r.label}`}
+                  onSelect={() => go(r.href, r.label)}
+                  icon={<Clock3 size={14} />}
+                >
+                  {r.label}
+                </Item>
+              ))}
+            </Group>
+          )}
+
           {shown.length > 0 && (
             <Group heading="Problems">
               {shown.map((p) => (
                 <Item
                   key={p.id}
                   value={`problem ${p.title} ${query}`}
-                  onSelect={() => go(`/dashboard/problems/${p.id}`)}
+                  onSelect={() => go(`/dashboard/problems/${p.id}`, p.title)}
+                  tint={p.solved ? "var(--success)" : undefined}
                   icon={
                     p.solved ? (
-                      <Check size={14} className="text-ok" aria-label="Solved" />
+                      <Check size={14} aria-label="Solved" />
                     ) : (
-                      <span className="hatch block size-3.5 rounded-[3px] border border-line-2" />
+                      <span className="block size-3 rounded-full border-[1.5px] border-current" />
                     )
                   }
                   right={p.difficulty ? <DifficultyTag difficulty={p.difficulty} /> : null}
                 >
-                  {p.title}
+                  <Highlight text={p.title} query={query} />
                 </Item>
               ))}
               <Item
@@ -131,7 +187,7 @@ export function CommandPalette() {
               <Item
                 key={href}
                 value={`go ${label}`}
-                onSelect={() => go(href)}
+                onSelect={() => go(href, label)}
                 icon={<Icon size={14} />}
               >
                 {label}
@@ -231,12 +287,14 @@ function Item({
   value,
   onSelect,
   icon,
+  tint,
   right,
   children,
 }: {
   value: string;
   onSelect: () => void;
   icon: ReactNode;
+  tint?: string;
   right?: ReactNode;
   children: ReactNode;
 }) {
@@ -245,11 +303,17 @@ function Item({
       value={value}
       onSelect={onSelect}
       className={cn(
-        "flex h-11 cursor-pointer items-center gap-3 rounded-[12px] px-3 text-[14px] text-ink-2",
-        "data-[selected=true]:bg-surface-2 data-[selected=true]:text-ink",
+        "group/item relative flex h-11 cursor-pointer items-center gap-3 rounded-[12px] px-2.5 text-14 text-ink-2 transition-colors duration-[var(--dur-fast)]",
+        "data-[selected=true]:bg-surface-3 data-[selected=true]:text-ink",
+        "before:absolute before:top-2.5 before:bottom-2.5 before:left-0 before:w-[3px] before:scale-y-0 before:rounded-r-full before:bg-signal before:transition-transform data-[selected=true]:before:scale-y-100",
       )}
     >
-      <span className="grid size-6 shrink-0 place-items-center text-ink-3">{icon}</span>
+      <span
+        className="grid size-7 shrink-0 place-items-center rounded-[9px] border border-line bg-surface-2 text-ink-3 transition-colors group-data-[selected=true]/item:text-ink"
+        style={tint ? { color: tint } : undefined}
+      >
+        {icon}
+      </span>
       <span className="min-w-0 flex-1 truncate">{children}</span>
       {right}
     </Command.Item>

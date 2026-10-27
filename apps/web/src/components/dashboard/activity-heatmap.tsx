@@ -44,7 +44,9 @@ export function ActivityHeatmap({ days }: { days: { date: string; count: number 
     if (!d) continue;
     const m = utc(d.date).getUTCMonth();
     const prev = c > 0 && days[(c - 1) * 7] ? utc(days[(c - 1) * 7]!.date).getUTCMonth() : -1;
-    if (m !== prev) monthCols.push({ col: c, label: MONTHS[m]! });
+    // Skip a label that would collide with the previous one (needs ~3 columns).
+    const last = monthCols.at(-1);
+    if (m !== prev && (!last || c - last.col >= 3)) monthCols.push({ col: c, label: MONTHS[m]! });
   }
 
   const h = hover === null ? null : days[hover];

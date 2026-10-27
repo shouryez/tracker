@@ -11,7 +11,7 @@ export function SearchBox() {
       type="button"
       onClick={openCommandPalette}
       aria-label="Search problems, pages and commands (Ctrl K)"
-      className="group/search flex h-[40px] w-full max-w-[380px] flex-1 items-center gap-2.5 rounded-full border border-line bg-surface px-3.5 text-left text-[13px] text-ink-3 shadow-xs transition-[border-color,box-shadow] duration-[var(--dur-base)] hover:border-line-2 hover:shadow-sm"
+      className="group/search flex h-10 w-full max-w-[400px] flex-1 items-center gap-2.5 rounded-full border border-line-2 bg-surface-2/70 px-3.5 text-left text-13 text-ink-3 shadow-inset transition-[border-color,box-shadow,background-color] duration-[var(--dur-base)] hover:border-line-3 hover:bg-surface-2 hover:text-ink-2"
     >
       <Search
         size={15}

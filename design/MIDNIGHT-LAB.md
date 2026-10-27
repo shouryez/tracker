@@ -147,3 +147,13 @@ App-route JS added: roughly 20 KB, well under the 60 KB budget. Magic UI/Acetern
 ## Phase 3 shipped (Charts)
 
 Custom SVG/CSS, no chart library. Existing components upgraded in place (same names and props, so pages pick them up): WeekCapsules (bars + avg line + glass tips + ghost empty state; future days hatched), ActivityHeatmap (12px cells, heat-0..4 ramp, month/day labels, today ring, diagonal fade, best run), HalfGauge → ring, HourBars → 24h radial clock with night shading and peak, VerdictMix → donut with AC%, DifficultyTime / TopicBar → gradient bars, MasteryBars → tier colours + Weakest chip, UpcomingStrip → 14-day stacked-dot strip, RatingChart → area + draw-in + crosshair + CF rank bands + responsive width, Sparkline → area + last point, SegmentedProgress → pixel bar. New: TopicRadar, FocusWeek (goal ring + 7-day strip), HowSolved ring, chart kit (MarkTip, ChartEmpty, LegendItem). `--signal-mark` keeps lime marks readable on paper.
+
+## Phase 4 shipped (App shell)
+
+- Sidebar: gradient surface, label-mono groups, sliding pill + glowing lime bar, active icon in lime, hover nudge, pulsing due badge, logo wiggle, user card (avatar, name, @handle → settings), hero-tier extension promo. Collapse kept.
+- Top bar: glass on scroll, inset search pill (opens palette), Feedback icon, theme toggle, avatar menu (public profile, settings, theme, sign out). Logout moved into the menu.
+- Feedback: no floating pill anymore; glass modal opened from the top bar, the palette or the mobile More sheet.
+- Mobile: glass dock with sliding pill + press scale; More is a bottom sheet with drag handle, swipe-to-close, Feedback and Theme. Extra bottom padding so nothing is covered.
+- `PageHeader` (eyebrow → title with serif accent → live subtitle → actions, per-page glow via `PAGE_GLOW`).
+- Route transition: 8px rise + 12×6 pixel dissolve (≤350 ms, off under reduced motion).
+- Command palette: glass, spring-in, dim+blur backdrop, tinted icon tiles, lime selection bar, highlighted matches, Recent group (per browser).

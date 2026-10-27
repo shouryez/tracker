@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { LogoMark, SpotlightTracker, ThemeToggle } from "@upsolve/ui";
 import { NavHistory } from "@/components/back-link";
 import { CommandPalette } from "@/components/command-palette";
-import { FeedbackButton } from "./_components/feedback-button";
+import { FeedbackButton, FeedbackTrigger } from "./_components/feedback-button";
 import { SidebarView } from "./_components/nav-links";
 import { MobileNavWithData, SidebarWithData } from "./_components/sidebar-data";
 import { SearchBox } from "./_components/search-box";
@@ -17,20 +17,23 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
         <SidebarWithData />
       </Suspense>
 
-      <div className="min-w-0 flex-1 px-4 pb-28 sm:px-[22px] lg:pb-10">
+      <div className="min-w-0 flex-1 px-4 pb-32 sm:px-6 lg:pb-12">
         <StickyHeader>
           <Link href="/dashboard" className="lg:hidden" aria-label="Upsolve dashboard">
             <LogoMark size={26} />
           </Link>
           <SearchBox />
           <div className="flex items-center gap-2">
+            <span className="hidden sm:inline-flex">
+              <FeedbackTrigger />
+            </span>
             <ThemeToggle />
             <Suspense fallback={<UserMenuSkeleton />}>
               <UserMenu />
             </Suspense>
           </div>
         </StickyHeader>
-        <main id="main" className="mx-auto w-full max-w-[1440px]">
+        <main id="main" className="mx-auto w-full max-w-[1440px] scroll-mb-28">
           {children}
         </main>
       </div>

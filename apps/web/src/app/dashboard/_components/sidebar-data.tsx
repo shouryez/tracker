@@ -5,7 +5,9 @@ import { getProfile } from "@/lib/data";
 import { getLearning, getTopicTargets, masteryOf, revisionQueue } from "@/lib/learning";
 import { getExtensionTokens } from "@/lib/sessions-data";
 import { requestNow } from "@/lib/time";
+import { Avatar } from "./avatar-menu";
 import { MobileNav, Sidebar } from "./nav-links";
+import { getAvatarUser } from "./user-menu";
 
 /** Numbers the navigation shows: reviews due today. */
 async function navBadges(): Promise<{ badges: Record<string, number>; hasExtension: boolean }> {
@@ -30,8 +32,28 @@ async function navBadges(): Promise<{ badges: Record<string, number>; hasExtensi
 }
 
 export async function SidebarWithData() {
-  const { badges, hasExtension } = await navBadges();
-  return <Sidebar badges={badges} footer={<ExtensionPromo connected={hasExtension} />} />;
+  const [{ badges, hasExtension }, user] = await Promise.all([navBadges(), getAvatarUser()]);
+  return (
+    <Sidebar
+      badges={badges}
+      footer={<ExtensionPromo connected={hasExtension} />}
+      user={
+        <Link
+          href="/dashboard/settings"
+          aria-label={`${user.label}, settings`}
+          className="group/user flex items-center gap-2.5 rounded-[14px] border border-line bg-surface-2/70 p-2 transition-colors hover:border-line-2 hover:bg-surface-3 group-data-[collapsed]/side:justify-center group-data-[collapsed]/side:border-transparent group-data-[collapsed]/side:bg-transparent"
+        >
+          <Avatar user={user} size={34} />
+          <span className="min-w-0 leading-tight group-data-[collapsed]/side:hidden">
+            <span className="block truncate text-13 font-[600]">{user.label}</span>
+            <span className="block truncate text-11 text-ink-3">
+              {user.handle ? `@${user.handle}` : (user.email ?? "Settings")}
+            </span>
+          </span>
+        </Link>
+      }
+    />
+  );
 }
 
 export async function MobileNavWithData() {
@@ -39,29 +61,26 @@ export async function MobileNavWithData() {
   return <MobileNav badges={badges} />;
 }
 
-/** Bottom-of-sidebar promo card (Donezo's "Download our app"). */
+/** Bottom-of-sidebar promo card: hero-tier glass with grain and a lime CTA. */
 export function ExtensionPromo({ connected }: { connected: boolean }) {
   if (connected) return null;
   return (
-    <div className="relative overflow-hidden rounded-[18px] bg-[linear-gradient(160deg,#16163a,#0b0b14_60%)] p-4 text-white shadow-md">
-      <div
+    <div className="surface-hero relative overflow-hidden rounded-[18px] p-4">
+      <span aria-hidden="true" className="grain absolute inset-0" />
+      <span
         aria-hidden="true"
-        className="absolute -top-10 -right-10 size-36 rounded-full bg-[radial-gradient(circle,var(--glow-a),transparent_65%)] blur-md"
+        className="absolute -top-12 -right-10 size-36 rounded-full bg-[var(--signal)] opacity-20 blur-[50px]"
       />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 opacity-30 [background-image:repeating-radial-gradient(circle_at_120%_120%,transparent_0_10px,rgba(255,255,255,.08)_10px_11px)]"
-      />
-      <span className="relative mb-3 grid size-8 place-items-center rounded-full bg-white/10">
+      <span className="relative mb-3 grid size-8 place-items-center rounded-[10px] bg-white/12">
         <Puzzle size={15} aria-hidden="true" />
       </span>
-      <p className="relative text-[14.5px] leading-tight font-semibold">
-        Time every problem, automatically
+      <p className="relative text-14 leading-tight font-[600]">
+        Time every problem, <em className="font-display font-normal">automatically.</em>
       </p>
-      <p className="relative mt-1 text-[12px] text-white/60">LeetCode + GFG, no code uploaded</p>
+      <p className="relative mt-1 text-12 text-white/65">LeetCode + GFG, no code uploaded</p>
       <Link
         href="/extension/connect"
-        className="relative mt-3 flex h-9 items-center justify-center rounded-full bg-signal text-[13px] font-semibold text-signal-ink transition-[transform,box-shadow] duration-[var(--dur-base)] hover:-translate-y-px hover:shadow-glow-signal active:scale-[.97]"
+        className="relative mt-3 flex h-9 items-center justify-center rounded-full bg-signal text-13 font-[600] text-signal-ink transition-[transform,box-shadow] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:shadow-glow-signal active:scale-[.97]"
       >
         Get the extension
       </Link>
