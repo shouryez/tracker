@@ -16,3 +16,12 @@ export { SpotlightTracker } from "./components/spotlight";
 export { Switch } from "./components/switch";
 export type { SwitchProps } from "./components/switch";
 export { Tooltip } from "./components/tooltip";
+export {
+  Aurora,
+  DotGrid,
+  GlowOrb,
+  Grain,
+  Starfield,
+  usePauseOffscreen,
+} from "./components/textures";
+export { DURATION, EASE, SPRING, STAGGER } from "./motion";

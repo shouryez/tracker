@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-[1.05fr_1fr]">
       <aside className="relative m-3 hidden overflow-hidden rounded-[28px] bg-[#08080d] text-[#f4f4f6] ring-1 ring-white/10 lg:flex lg:flex-col">
-        <div aria-hidden="true" className="stars absolute inset-0 opacity-70" />
+        <div aria-hidden="true" className="starfield absolute inset-0 opacity-70" />
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_10%_0%,rgba(110,123,255,.3),transparent_70%)]"

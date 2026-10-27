@@ -36,6 +36,35 @@
   --color-overlay: var(--overlay);
   --color-line-3: var(--line-3);
   --color-info: var(--info);
+  --color-surface-4: var(--surface-4);
+  --color-surface-inset: var(--surface-inset);
+  --color-ink-4: var(--ink-4);
+  --color-signal-2: var(--signal-2);
+  --color-violet: var(--violet);
+  --color-violet-2: var(--violet-2);
+  --color-success: var(--success);
+  --color-revise: var(--revise);
+  --color-overdue: var(--overdue);
+  --color-attempted: var(--attempted);
+  --color-v-ac: var(--v-ac);
+  --color-v-wa: var(--v-wa);
+  --color-v-tle: var(--v-tle);
+  --color-v-ce: var(--v-ce);
+  --color-v-err: var(--v-err);
+  --color-heat-0: var(--heat-0);
+  --color-heat-1: var(--heat-1);
+  --color-heat-2: var(--heat-2);
+  --color-heat-3: var(--heat-3);
+  --color-heat-4: var(--heat-4);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
+  --color-chart-grid: var(--chart-grid);
 
   /* Tints and borders for badges and charts (difficulty + status). */
   --color-easy-soft: color-mix(in srgb, var(--easy) 13%, transparent);
@@ -45,39 +74,95 @@
   --color-warn-soft: color-mix(in srgb, var(--warn) 14%, transparent);
   --color-bad-soft: color-mix(in srgb, var(--bad) 13%, transparent);
   --color-info-soft: color-mix(in srgb, var(--info) 13%, transparent);
-  --color-easy-line: color-mix(in srgb, var(--easy) 35%, transparent);
-  --color-medium-line: color-mix(in srgb, var(--medium) 35%, transparent);
-  --color-hard-line: color-mix(in srgb, var(--hard) 35%, transparent);
+  --color-success-soft: color-mix(in srgb, var(--success) 12%, transparent);
+  --color-violet-soft: color-mix(in srgb, var(--violet) 13%, transparent);
+  --color-signal-soft: color-mix(in srgb, var(--signal) 12%, transparent);
+  --color-easy-line: color-mix(in srgb, var(--easy) 30%, transparent);
+  --color-medium-line: color-mix(in srgb, var(--medium) 30%, transparent);
+  --color-hard-line: color-mix(in srgb, var(--hard) 30%, transparent);
+  --color-success-line: color-mix(in srgb, var(--success) 30%, transparent);
+  --color-violet-line: color-mix(in srgb, var(--violet) 32%, transparent);
 
-  /* Brand scales derived from the two brand colours. */
+  /* Brand scales (50–950) derived from the brand colours, so both themes stay in tune. */
   --color-primary-50: color-mix(in srgb, var(--primary) 8%, var(--surface));
   --color-primary-100: color-mix(in srgb, var(--primary) 16%, var(--surface));
   --color-primary-200: color-mix(in srgb, var(--primary) 30%, var(--surface));
   --color-primary-300: color-mix(in srgb, var(--primary) 50%, var(--surface));
   --color-primary-400: color-mix(in srgb, var(--primary) 75%, var(--surface));
   --color-primary-500: var(--primary);
-  --color-primary-600: var(--primary-2);
-  --color-primary-700: color-mix(in srgb, var(--primary-2) 80%, #000);
-  --color-primary-800: color-mix(in srgb, var(--primary-2) 60%, #000);
-  --color-primary-900: color-mix(in srgb, var(--primary-2) 40%, #000);
-  --color-signal-50: color-mix(in srgb, var(--signal) 10%, var(--surface));
-  --color-signal-100: color-mix(in srgb, var(--signal) 20%, var(--surface));
-  --color-signal-300: color-mix(in srgb, var(--signal) 55%, var(--surface));
+  --color-primary-600: color-mix(in srgb, var(--primary) 85%, #000);
+  --color-primary-700: color-mix(in srgb, var(--primary) 68%, #000);
+  --color-primary-800: color-mix(in srgb, var(--primary) 50%, #000);
+  --color-primary-900: color-mix(in srgb, var(--primary) 34%, #000);
+  --color-primary-950: color-mix(in srgb, var(--primary) 20%, #000);
+  --color-violet-50: color-mix(in srgb, var(--violet) 8%, var(--surface));
+  --color-violet-100: color-mix(in srgb, var(--violet) 16%, var(--surface));
+  --color-violet-200: color-mix(in srgb, var(--violet) 30%, var(--surface));
+  --color-violet-300: color-mix(in srgb, var(--violet) 50%, var(--surface));
+  --color-violet-400: color-mix(in srgb, var(--violet) 75%, var(--surface));
+  --color-violet-500: var(--violet);
+  --color-violet-600: color-mix(in srgb, var(--violet) 85%, #000);
+  --color-violet-700: color-mix(in srgb, var(--violet) 68%, #000);
+  --color-violet-800: color-mix(in srgb, var(--violet) 50%, #000);
+  --color-violet-900: color-mix(in srgb, var(--violet) 34%, #000);
+  --color-violet-950: color-mix(in srgb, var(--violet) 20%, #000);
+  --color-signal-50: color-mix(in srgb, var(--signal) 8%, var(--surface));
+  --color-signal-100: color-mix(in srgb, var(--signal) 16%, var(--surface));
+  --color-signal-200: color-mix(in srgb, var(--signal) 30%, var(--surface));
+  --color-signal-300: color-mix(in srgb, var(--signal) 50%, var(--surface));
+  --color-signal-400: color-mix(in srgb, var(--signal) 75%, var(--surface));
   --color-signal-500: var(--signal);
-  --color-signal-700: color-mix(in srgb, var(--signal) 70%, #000);
-  --color-signal-900: color-mix(in srgb, var(--signal) 35%, #000);
+  --color-signal-600: color-mix(in srgb, var(--signal) 85%, #000);
+  --color-signal-700: color-mix(in srgb, var(--signal) 68%, #000);
+  --color-signal-800: color-mix(in srgb, var(--signal) 50%, #000);
+  --color-signal-900: color-mix(in srgb, var(--signal) 34%, #000);
+  --color-signal-950: color-mix(in srgb, var(--signal) 20%, #000);
 
-  /* Type scale (Tailwind's xs–6xl stay; these fill the UI sizes between). */
-  --text-2xs: 11px;
-  --text-2xs--line-height: 1.4;
-  --text-2xs--letter-spacing: 0.02em;
+  /* Type scale: 11 12 13 14 16 18 20 24 30 36 48 64 88 (+15/17 for body; Tailwind xs–9xl stay). */
+  --text-11: 11px;
+  --text-11--line-height: 1.4;
+  --text-11--letter-spacing: 0.02em;
+  --text-12: 12px;
+  --text-12--line-height: 1.45;
+  --text-12--letter-spacing: 0.01em;
   --text-13: 13px;
   --text-13--line-height: 1.5;
+  --text-14: 14px;
+  --text-14--line-height: 1.5;
   --text-15: 15px;
   --text-15--line-height: 1.55;
+  --text-16: 16px;
+  --text-16--line-height: 1.55;
   --text-17: 17px;
   --text-17--line-height: 1.4;
   --text-17--letter-spacing: -0.01em;
+  --text-18: 18px;
+  --text-18--line-height: 1.4;
+  --text-18--letter-spacing: -0.01em;
+  --text-20: 20px;
+  --text-20--line-height: 1.3;
+  --text-20--letter-spacing: -0.015em;
+  --text-24: 24px;
+  --text-24--line-height: 1.2;
+  --text-24--letter-spacing: -0.02em;
+  --text-30: 30px;
+  --text-30--line-height: 1.12;
+  --text-30--letter-spacing: -0.03em;
+  --text-36: 36px;
+  --text-36--line-height: 1.05;
+  --text-36--letter-spacing: -0.035em;
+  --text-48: 48px;
+  --text-48--line-height: 1;
+  --text-48--letter-spacing: -0.04em;
+  --text-64: 64px;
+  --text-64--line-height: 0.98;
+  --text-64--letter-spacing: -0.045em;
+  --text-88: 88px;
+  --text-88--line-height: 0.95;
+  --text-88--letter-spacing: -0.05em;
+  --text-2xs: 11px;
+  --text-2xs--line-height: 1.4;
+  --text-2xs--letter-spacing: 0.02em;
   --color-pixel-off: var(--pixel-off);
 
   --font-sans:
@@ -101,8 +186,17 @@
   --shadow-frame: var(--shadow-lg);
   --shadow-glow: var(--glow-primary);
   --shadow-glow-signal: var(--glow-signal);
+  --shadow-glow-violet: var(--glow-violet);
+  --shadow-glow-danger: var(--glow-danger);
+  --shadow-e0: var(--e0);
+  --shadow-e1: var(--e1);
+  --shadow-e2: var(--e2);
+  --shadow-e3: var(--e3);
+  --shadow-e4: var(--e4);
+  --shadow-inset: var(--e-inset);
 
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
@@ -117,6 +211,9 @@
   --animate-draw: draw 900ms var(--ease-out) both;
   --animate-pop: pop var(--dur-slow) var(--ease-spring) both;
   --animate-float: float 7s var(--ease-in-out) infinite alternate;
+  --animate-aurora: aurora 18s var(--ease-in-out) infinite alternate;
+  --animate-twinkle: twinkle 6s ease-in-out infinite alternate;
+  --animate-pixel-shimmer: pixel-shimmer 1.6s linear infinite;
 
   @keyframes drift-a {
     to {
@@ -185,6 +282,27 @@
       transform: translateX(-50%);
     }
   }
+  @keyframes aurora {
+    50% {
+      transform: translate3d(6%, -4%, 0) rotate(8deg) scale(1.08);
+    }
+    to {
+      transform: translate3d(-5%, 5%, 0) rotate(-6deg) scale(0.96);
+    }
+  }
+  @keyframes twinkle {
+    to {
+      opacity: 0.35;
+    }
+  }
+  @keyframes pixel-shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
   @keyframes word {
     from {
       opacity: 0;
@@ -233,12 +351,104 @@
   background-size: 18px 18px;
 }
 
-/* Big numbers: tight, tabular */
+/* Big numbers: tight, tabular, slashed zero. */
 @utility num {
-  font-weight: 500;
+  font-weight: 550;
   letter-spacing: -0.04em;
   line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+/* Every small number: tabular + slashed zero. */
+@utility tnum {
+  font-variant-numeric: tabular-nums slashed-zero;
+}
+
+/* Mono micro-label: 11px, uppercase, +0.06em, AA colour. */
+@utility label-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Standard card surface: vertical gradient + hairline + top highlight + e1. */
+@utility surface-card {
+  background: var(--card-fill);
+  border: 1px solid var(--line);
+  box-shadow: var(--e1);
+}
+
+/* Hero card surface (one per page). Text on it is always light. */
+@utility surface-hero {
+  background: var(--hero-fill);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    var(--e2);
+  color: #f4f4f6;
+}
+
+/* Recessed surface for nested content. */
+@utility surface-inset {
+  background: var(--surface-inset);
+  border: 1px solid var(--line);
+  box-shadow: var(--e-inset);
+}
+
+/* Film grain: a static SVG noise tile. Put on an absolutely positioned layer. */
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: var(--grain-opacity);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Faint dot grid that fades toward the edges. */
+@utility dot-grid {
+  background-image: radial-gradient(var(--line-2) 1px, transparent 1px);
+  background-size: 20px 20px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
+}
+
+/* Starfield: tiled dots, slowly twinkling. Light-on-dark in both themes (use on dark stages). */
+@utility starfield {
+  background-image:
+    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 140px 80px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 90px 160px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 230px 210px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 300px 40px, rgba(255, 255, 255, 0.6), transparent);
+  background-size: 340px 260px;
+  animation: var(--animate-twinkle);
+}
+
+/* Pixel skeleton: a sheen sweeping across a field of small squares. */
+@utility skeleton-pixel {
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-2);
+  background-image:
+    linear-gradient(
+      100deg,
+      transparent 30%,
+      color-mix(in srgb, var(--ink) 7%, transparent) 50%,
+      transparent 70%
+    ),
+    radial-gradient(color-mix(in srgb, var(--ink) 6%, transparent) 1.5px, transparent 1.6px);
+  background-size:
+    200% 100%,
+    6px 6px;
+  animation: var(--animate-pixel-shimmer);
+}
+
+/* Pause decorative loops when off-screen or the tab is hidden (set by usePauseOffscreen). */
+@utility paused {
+  &,
+  & * {
+    animation-play-state: paused !important;
+  }
 }
 
 @layer base {
@@ -257,9 +467,11 @@
     background: var(--signal);
     color: var(--signal-ink);
   }
+  /* Signal ring + soft glow, everywhere. */
   :focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--signal-2);
     outline-offset: 2px;
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--signal) 18%, transparent);
   }
   /* Thin themed scrollbars. */
   * {
@@ -290,6 +502,13 @@
       color var(--dur-slow) var(--ease-out),
       fill var(--dur-slow) var(--ease-out) !important;
   }
+}
+
+/* Theme switch: circular reveal (ThemeToggle drives the clip-path). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {

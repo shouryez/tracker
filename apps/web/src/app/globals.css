@@ -50,23 +50,6 @@
   filter: blur(1px);
 }
 
-/* Faint starfield: two tiled layers of tiny dots, the second slowly twinkling. */
-.stars {
-  background-image:
-    radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(1px 1px at 140px 80px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(1.5px 1.5px at 90px 160px, rgba(255, 255, 255, 0.7), transparent),
-    radial-gradient(1px 1px at 230px 210px, rgba(255, 255, 255, 0.45), transparent),
-    radial-gradient(1px 1px at 300px 40px, rgba(255, 255, 255, 0.6), transparent);
-  background-size: 340px 260px;
-  animation: twinkle 6s ease-in-out infinite alternate;
-}
-
-@keyframes twinkle {
-  to {
-    opacity: 0.35;
-  }
-}
 @keyframes blob {
   50% {
     border-radius: 52% 48% 44% 56% / 46% 56% 44% 54%;

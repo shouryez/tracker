@@ -1,16 +1,45 @@
 "use client";
 
+import type { MouseEvent } from "react";
 import { cn } from "../cn";
 import { THEME_STORAGE_KEY } from "./theme-script";
 
+type ViewTransitionDoc = Document & {
+  startViewTransition?: (cb: () => void) => { ready: Promise<void> };
+};
+
 export function ThemeToggle({ className }: { className?: string }) {
-  function toggle() {
+  function toggle(e: MouseEvent<HTMLButtonElement>) {
     const root = document.documentElement;
     const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
-    // Cross-fade colours for one switch (see .theme-transition in index.css).
-    root.classList.add("theme-transition");
-    root.setAttribute("data-theme", next);
-    window.setTimeout(() => root.classList.remove("theme-transition"), 400);
+    const doc = document as ViewTransitionDoc;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (doc.startViewTransition && !reduced) {
+      // Circular reveal from the toggle: the new theme grows out of the button.
+      const r = e.currentTarget.getBoundingClientRect();
+      const x = r.left + r.width / 2;
+      const y = r.top + r.height / 2;
+      const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+      doc
+        .startViewTransition(() => root.setAttribute("data-theme", next))
+        .ready.then(() => {
+          root.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+            {
+              duration: 520,
+              easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+              pseudoElement: "::view-transition-new(root)",
+            },
+          );
+        })
+        .catch(() => {});
+    } else {
+      // Fallback: cross-fade colours for one switch (see .theme-transition in index.css).
+      root.classList.add("theme-transition");
+      root.setAttribute("data-theme", next);
+      window.setTimeout(() => root.classList.remove("theme-transition"), 400);
+    }
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {

@@ -1,9 +1,16 @@
 /*
- * Upsolve design tokens. Source of truth: DESIGN.md §4 + design/REDESIGN.md.
+ * Upsolve design tokens: "Midnight Lab". Source of truth: design/MIDNIGHT-LAB.md.
  * Components use these through Tailwind (see index.css), never raw hex.
+ *
+ * Colour roles
+ *   signal (lime)  = the only primary action colour, one per view
+ *   primary/violet = data, focus, selection, hero gradients; never a CTA
+ *   easy/medium/hard = difficulty; success/revise/overdue/attempted = status
+ *   v-ac/v-wa/v-tle/v-ce/v-err = verdicts; heat-0..4 = heatmap; chart-1..8 = categorical
  */
 
 :root {
+  /* Radius. Nested rule: inner = outer − padding. */
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -11,110 +18,218 @@
   --radius-xl: 24px;
   --radius-2xl: 28px;
 
-  /* Motion. Animate transform / opacity / filter / clip-path only. */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Motion. Animate transform / opacity / filter / clip-path only. Springs live in motion.ts. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: var(--ease-out-expo);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --dur-instant: 100ms;
-  --dur-fast: 150ms;
-  --dur-base: 220ms;
-  --dur-slow: 350ms;
-  --dur-slower: 500ms;
+  --dur-instant: 90ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-slower: 700ms;
 
   /* same in both themes */
   --signal: #d7ff3a;
+  --signal-2: #c2f000;
   --signal-ink: #0b0b0f;
 }
 
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #09090c;
-  --bg-2: #0e0e13;
-  --surface: #131319;
-  --surface-2: #1a1a22;
-  --surface-3: #22222c;
+
+  /* Four surface levels: bg → surface → surface-2 (raised) → surface-3 (inset tracks, chips). */
+  --bg: #08080b;
+  --bg-2: #0c0c11;
+  --surface: #121218;
+  --surface-2: #19191f;
+  --surface-3: #212129;
+  --surface-4: #2a2a33;
+  --surface-inset: #0d0d12;
   --overlay: rgba(14, 14, 19, 0.72);
   --line: rgba(255, 255, 255, 0.07);
-  --line-2: rgba(255, 255, 255, 0.13);
+  --line-2: rgba(255, 255, 255, 0.12);
   --line-3: rgba(255, 255, 255, 0.22);
   --ink: #f4f4f6;
-  --ink-2: #a3a3b0;
-  --ink-3: #747482;
+  --ink-2: #b0b0bd;
+  /* AA (≥4.5:1) on surface and surface-2. */
+  --ink-3: #8c8c9b;
+  /* Decorative only (axis ticks, disabled). */
+  --ink-4: #5c5c69;
+
   --primary: #6e7bff;
   --primary-2: #4f5bf0;
   --primary-ink: #ffffff;
   --primary-soft: rgba(110, 123, 255, 0.14);
-  --ember: #ff7a45;
-  --easy: #2bd4b4;
+  --violet: #a48bff;
+  --violet-2: #7c5cff;
+  --signal-text: #d7ff3a;
+
+  --easy: #34d6d0;
   --medium: #ffb938;
-  --hard: #ff5470;
-  --ok: #3ddc97;
+  --hard: #ff5a78;
+  --success: #4ade80;
+  --revise: var(--violet);
+  --overdue: var(--hard);
+  --attempted: var(--medium);
+  --ok: var(--success);
   --warn: #ffb938;
-  --bad: #ff5470;
+  --bad: #ff5a78;
   --info: #5eb8ff;
+  --ember: #ff7a45;
+
+  --v-ac: var(--success);
+  --v-wa: #ff5a78;
+  --v-tle: #ffb938;
+  --v-ce: #8c8c9b;
+  --v-err: #ff8a4c;
+
+  /* Heatmap: empty → violet → lime, each step clearly distinct. */
+  --heat-0: #1c1c24;
+  --heat-1: #2c2f6b;
+  --heat-2: #4d57d9;
+  --heat-3: #9aa2ff;
+  --heat-4: #d7ff3a;
+
+  /* Categorical chart palette (order matters: adjacent series stay distinguishable for CVD). */
+  --chart-1: #7c8cff;
+  --chart-2: #d7ff3a;
+  --chart-3: #34d6d0;
+  --chart-4: #ffb938;
+  --chart-5: #ff6b8a;
+  --chart-6: #5eb8ff;
+  --chart-7: #c08cff;
+  --chart-8: #ff8a4c;
+  --chart-grid: rgba(255, 255, 255, 0.06);
+  --chart-axis: var(--ink-3);
+
   --hatch: rgba(255, 255, 255, 0.09);
   --pixel-off: rgba(255, 255, 255, 0.05);
   --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --card-fill: linear-gradient(180deg, #16161d 0%, #121218 60%);
+  --hero-fill:
+    radial-gradient(120% 90% at 0% 0%, rgba(164, 139, 255, 0.35), transparent 60%),
+    linear-gradient(160deg, #2a2470 0%, #191645 45%, #111023 100%);
+  --grain-opacity: 0.05;
 
-  /* Elevation: dark mode shows depth with a top highlight and soft, deep shadows. */
+  /* Elevation e0–e4: highlight + layered shadow. */
+  --e0: none;
+  --e1: var(--highlight), 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 30px -16px rgba(0, 0, 0, 0.7);
+  --e2:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 2px 4px rgba(0, 0, 0, 0.35),
+    0 24px 50px -22px rgba(0, 0, 0, 0.85);
+  --e3:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.5),
+    0 40px 80px -30px rgba(0, 0, 0, 0.9);
+  --e4:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 12px 24px -10px rgba(0, 0, 0, 0.55),
+    0 70px 140px -40px rgba(0, 0, 0, 0.95);
+  --e-inset: inset 0 2px 6px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  /* Legacy names, mapped onto the elevation scale. */
   --shadow-xs: var(--highlight), 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: var(--highlight), 0 8px 24px -14px rgba(0, 0, 0, 0.7);
-  --shadow: var(--highlight), 0 24px 60px -24px rgba(0, 0, 0, 0.7);
-  --shadow-md: var(--highlight), 0 30px 70px -26px rgba(0, 0, 0, 0.8);
-  --shadow-lg: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 60px 120px -40px rgba(0, 0, 0, 0.85);
-  --shadow-xl: 0 1px 0 rgba(255, 255, 255, 0.07) inset, 0 80px 160px -50px rgba(0, 0, 0, 0.9);
+  --shadow-sm: var(--e1);
+  --shadow: var(--e1);
+  --shadow-md: var(--e2);
+  --shadow-lg: var(--e3);
+  --shadow-xl: var(--e4);
+
   --glow-primary: 0 0 0 1px rgba(110, 123, 255, 0.35), 0 12px 40px -10px rgba(110, 123, 255, 0.55);
-  --glow-signal: 0 0 0 4px rgba(215, 255, 58, 0.22), 0 12px 40px -8px rgba(215, 255, 58, 0.5);
-  --spotlight: rgba(110, 123, 255, 0.12);
+  --glow-violet: 0 0 0 1px rgba(164, 139, 255, 0.35), 0 12px 40px -10px rgba(164, 139, 255, 0.55);
+  --glow-signal: 0 0 0 4px rgba(215, 255, 58, 0.2), 0 12px 40px -8px rgba(215, 255, 58, 0.5);
+  --glow-danger: 0 0 0 1px rgba(255, 90, 120, 0.35), 0 12px 36px -10px rgba(255, 90, 120, 0.5);
+  --spotlight: rgba(124, 140, 255, 0.13);
   --glow-a: rgba(110, 123, 255, 0.55);
   --glow-b: rgba(255, 122, 69, 0.38);
-  --signal-text: #d7ff3a;
+  --aurora-1: rgba(110, 123, 255, 0.5);
+  --aurora-2: rgba(164, 139, 255, 0.42);
+  --aurora-3: rgba(215, 255, 58, 0.16);
   --scrollbar: rgba(255, 255, 255, 0.14);
 }
 
+/* Light: warm paper, ink text, accents darkened to keep AA. Designed, not inverted. */
 [data-theme="light"] {
   color-scheme: light;
-  /* Soft grey canvas, white cards (Donezo). */
-  --bg: #f1f1ee;
-  --bg-2: #eaeae6;
-  --surface: #ffffff;
-  --surface-2: #f6f6f3;
-  --surface-3: #ecece8;
-  --overlay: rgba(255, 255, 255, 0.75);
-  --line: rgba(14, 14, 22, 0.08);
-  --line-2: rgba(14, 14, 22, 0.14);
-  --line-3: rgba(14, 14, 22, 0.24);
-  --ink: #0e0e12;
-  --ink-2: #4f4f60;
-  --ink-3: #7b7b88;
+  --bg: #f4f2ec;
+  --bg-2: #ece9e1;
+  --surface: #fffdf9;
+  --surface-2: #f8f6f0;
+  --surface-3: #eeebe3;
+  --surface-4: #ffffff;
+  --surface-inset: #f0ede5;
+  --overlay: rgba(255, 253, 249, 0.78);
+  --line: rgba(32, 28, 18, 0.08);
+  --line-2: rgba(32, 28, 18, 0.14);
+  --line-3: rgba(32, 28, 18, 0.24);
+  --ink: #15140f;
+  --ink-2: #4c4940;
+  --ink-3: #6b675c;
+  --ink-4: #a29d90;
+
   --primary: #4b57f5;
   --primary-2: #3843d9;
   --primary-ink: #ffffff;
   --primary-soft: rgba(75, 87, 245, 0.1);
-  --ember: #e5541f;
-  --easy: #0a9a82;
-  --medium: #c28200;
-  --hard: #e0294f;
-  --ok: #138a5d;
-  --warn: #b77a00;
-  --bad: #d92d50;
-  --info: #1f7fd1;
-  --hatch: rgba(14, 14, 22, 0.1);
-  --pixel-off: rgba(14, 14, 22, 0.06);
-  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --violet: #6d4fe6;
+  --violet-2: #5536d1;
+  --signal-text: #4a6400;
 
-  --shadow-xs: 0 1px 2px rgba(14, 14, 22, 0.05);
-  --shadow-sm: 0 1px 2px rgba(14, 14, 22, 0.04), 0 6px 16px -8px rgba(14, 14, 22, 0.12);
-  --shadow: 0 1px 2px rgba(14, 14, 22, 0.04), 0 18px 40px -22px rgba(14, 14, 22, 0.18);
-  --shadow-md: 0 2px 4px rgba(14, 14, 22, 0.04), 0 26px 50px -24px rgba(14, 14, 22, 0.24);
-  --shadow-lg: 0 2px 4px rgba(14, 14, 22, 0.04), 0 50px 100px -40px rgba(14, 14, 22, 0.3);
-  --shadow-xl: 0 4px 8px rgba(14, 14, 22, 0.05), 0 70px 130px -50px rgba(14, 14, 22, 0.35);
+  --easy: #0b8a85;
+  --medium: #a86400;
+  --hard: #cf2448;
+  --success: #17803d;
+  --warn: #a86400;
+  --bad: #cf2448;
+  --info: #1f72c4;
+  --ember: #d9481a;
+
+  --v-wa: #cf2448;
+  --v-tle: #a86400;
+  --v-ce: #6b675c;
+  --v-err: #c2510f;
+
+  --heat-0: #e8e4da;
+  --heat-1: #c9ccf6;
+  --heat-2: #8b93f0;
+  --heat-3: #4b57f5;
+  --heat-4: #87ad00;
+
+  --chart-1: #4b57f5;
+  --chart-2: #87ad00;
+  --chart-3: #0b8a85;
+  --chart-4: #b87400;
+  --chart-5: #cf2448;
+  --chart-6: #1f72c4;
+  --chart-7: #8a4fe0;
+  --chart-8: #d0601b;
+  --chart-grid: rgba(32, 28, 18, 0.07);
+
+  --hatch: rgba(32, 28, 18, 0.1);
+  --pixel-off: rgba(32, 28, 18, 0.06);
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --card-fill: linear-gradient(180deg, #fffefb 0%, #fbf9f4 100%);
+  --hero-fill:
+    radial-gradient(120% 90% at 0% 0%, rgba(164, 139, 255, 0.45), transparent 60%),
+    linear-gradient(160deg, #4b47d9 0%, #3a35b8 50%, #2a2689 100%);
+  --grain-opacity: 0.035;
+
+  --e1: var(--highlight), 0 1px 2px rgba(32, 28, 18, 0.05), 0 8px 22px -14px rgba(32, 28, 18, 0.16);
+  --e2:
+    var(--highlight), 0 2px 4px rgba(32, 28, 18, 0.05), 0 22px 44px -22px rgba(32, 28, 18, 0.24);
+  --e3: 0 4px 10px -4px rgba(32, 28, 18, 0.1), 0 36px 70px -30px rgba(32, 28, 18, 0.3);
+  --e4: 0 8px 16px -6px rgba(32, 28, 18, 0.12), 0 60px 120px -40px rgba(32, 28, 18, 0.36);
+  --e-inset: inset 0 1px 3px rgba(32, 28, 18, 0.08), inset 0 0 0 1px rgba(32, 28, 18, 0.04);
+  --shadow-xs: 0 1px 2px rgba(32, 28, 18, 0.05);
+
   --glow-primary: 0 0 0 1px rgba(75, 87, 245, 0.3), 0 12px 32px -12px rgba(75, 87, 245, 0.45);
+  --glow-violet: 0 0 0 1px rgba(109, 79, 230, 0.28), 0 12px 32px -12px rgba(109, 79, 230, 0.4);
   --glow-signal: 0 0 0 4px rgba(170, 214, 0, 0.25), 0 12px 32px -10px rgba(140, 180, 0, 0.45);
+  --glow-danger: 0 0 0 1px rgba(207, 36, 72, 0.25), 0 12px 32px -12px rgba(207, 36, 72, 0.35);
   --spotlight: rgba(75, 87, 245, 0.07);
-  --glow-a: rgba(75, 87, 245, 0.35);
-  --glow-b: rgba(242, 98, 46, 0.22);
-  --signal-text: #4e6a00;
-  --scrollbar: rgba(14, 14, 22, 0.18);
+  --glow-a: rgba(75, 87, 245, 0.32);
+  --glow-b: rgba(242, 98, 46, 0.2);
+  --aurora-1: rgba(75, 87, 245, 0.28);
+  --aurora-2: rgba(164, 139, 255, 0.3);
+  --aurora-3: rgba(170, 214, 0, 0.18);
+  --scrollbar: rgba(32, 28, 18, 0.18);
 }

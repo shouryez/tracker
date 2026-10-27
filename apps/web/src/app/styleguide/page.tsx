@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { CircleCheck, Flame, Inbox, RotateCcw, Timer } from "lucide-react";
 import {
+  Aurora,
   Button,
   ButtonArrow,
   Card,
@@ -10,11 +11,15 @@ import {
   CardSub,
   CardTitle,
   DifficultyTag,
+  DotGrid,
   EmptyState,
+  GlowOrb,
+  Grain,
   Kbd,
   Skeleton,
   SkeletonCard,
   SpotlightTracker,
+  Starfield,
   StatusBadge,
   Tag,
   ThemeToggle,
@@ -29,40 +34,163 @@ export const metadata: Metadata = { title: "Styleguide", robots: { index: false 
 
 // Dev-only review page: every token and component in every state. Sample data only.
 
-const SWATCHES = [
-  ["bg", "bg-bg"],
-  ["bg-2", "bg-bg-2"],
-  ["surface", "bg-surface"],
-  ["surface-2", "bg-surface-2"],
-  ["surface-3", "bg-surface-3"],
-  ["ink", "bg-ink"],
-  ["ink-2", "bg-ink-2"],
-  ["ink-3", "bg-ink-3"],
-  ["primary", "bg-primary"],
-  ["primary-2", "bg-primary-2"],
-  ["signal", "bg-signal"],
-  ["ember", "bg-ember"],
-  ["easy", "bg-easy"],
-  ["medium", "bg-medium"],
-  ["hard", "bg-hard"],
-  ["ok", "bg-ok"],
-  ["warn", "bg-warn"],
-  ["bad", "bg-bad"],
-  ["info", "bg-info"],
-] as const;
-const SCALE = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900"] as const;
-const PRIMARY_SCALE: Record<(typeof SCALE)[number], string> = {
-  "50": "bg-primary-50",
-  "100": "bg-primary-100",
-  "200": "bg-primary-200",
-  "300": "bg-primary-300",
-  "400": "bg-primary-400",
-  "500": "bg-primary-500",
-  "600": "bg-primary-600",
-  "700": "bg-primary-700",
-  "800": "bg-primary-800",
-  "900": "bg-primary-900",
-};
+// Literal class names so Tailwind generates them.
+const SWATCH_GROUPS: [string, [string, string][]][] = [
+  [
+    "Surfaces",
+    [
+      ["bg", "bg-bg"],
+      ["bg-2", "bg-bg-2"],
+      ["surface", "bg-surface"],
+      ["surface-2", "bg-surface-2"],
+      ["surface-3", "bg-surface-3"],
+      ["surface-4", "bg-surface-4"],
+      ["inset", "bg-surface-inset"],
+    ],
+  ],
+  [
+    "Ink",
+    [
+      ["ink", "bg-ink"],
+      ["ink-2", "bg-ink-2"],
+      ["ink-3", "bg-ink-3"],
+      ["ink-4", "bg-ink-4"],
+    ],
+  ],
+  [
+    "Brand roles",
+    [
+      ["signal · CTA", "bg-signal"],
+      ["primary · data", "bg-primary"],
+      ["violet · focus", "bg-violet"],
+      ["ember · streak", "bg-ember"],
+    ],
+  ],
+  [
+    "Difficulty",
+    [
+      ["easy", "bg-easy"],
+      ["medium", "bg-medium"],
+      ["hard", "bg-hard"],
+    ],
+  ],
+  [
+    "Status",
+    [
+      ["solved", "bg-success"],
+      ["revise", "bg-revise"],
+      ["overdue", "bg-overdue"],
+      ["attempted", "bg-attempted"],
+      ["info", "bg-info"],
+    ],
+  ],
+  [
+    "Verdicts",
+    [
+      ["AC", "bg-v-ac"],
+      ["WA", "bg-v-wa"],
+      ["TLE", "bg-v-tle"],
+      ["CE", "bg-v-ce"],
+      ["MLE / RE", "bg-v-err"],
+    ],
+  ],
+  [
+    "Heatmap ramp",
+    [
+      ["0", "bg-heat-0"],
+      ["1", "bg-heat-1"],
+      ["2", "bg-heat-2"],
+      ["3", "bg-heat-3"],
+      ["4", "bg-heat-4"],
+    ],
+  ],
+  [
+    "Chart palette",
+    [
+      ["1", "bg-chart-1"],
+      ["2", "bg-chart-2"],
+      ["3", "bg-chart-3"],
+      ["4", "bg-chart-4"],
+      ["5", "bg-chart-5"],
+      ["6", "bg-chart-6"],
+      ["7", "bg-chart-7"],
+      ["8", "bg-chart-8"],
+    ],
+  ],
+];
+const STEPS = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"];
+const SCALES: [string, string[]][] = [
+  [
+    "primary",
+    [
+      "bg-primary-50",
+      "bg-primary-100",
+      "bg-primary-200",
+      "bg-primary-300",
+      "bg-primary-400",
+      "bg-primary-500",
+      "bg-primary-600",
+      "bg-primary-700",
+      "bg-primary-800",
+      "bg-primary-900",
+      "bg-primary-950",
+    ],
+  ],
+  [
+    "violet",
+    [
+      "bg-violet-50",
+      "bg-violet-100",
+      "bg-violet-200",
+      "bg-violet-300",
+      "bg-violet-400",
+      "bg-violet-500",
+      "bg-violet-600",
+      "bg-violet-700",
+      "bg-violet-800",
+      "bg-violet-900",
+      "bg-violet-950",
+    ],
+  ],
+  [
+    "signal",
+    [
+      "bg-signal-50",
+      "bg-signal-100",
+      "bg-signal-200",
+      "bg-signal-300",
+      "bg-signal-400",
+      "bg-signal-500",
+      "bg-signal-600",
+      "bg-signal-700",
+      "bg-signal-800",
+      "bg-signal-900",
+      "bg-signal-950",
+    ],
+  ],
+];
+const TYPE_SCALE: [string, string][] = [
+  ["88", "text-88"],
+  ["64", "text-64"],
+  ["48", "text-48"],
+  ["36", "text-36"],
+  ["30", "text-30"],
+  ["24", "text-24"],
+  ["20", "text-20"],
+  ["18", "text-18"],
+  ["16", "text-16"],
+  ["14", "text-14"],
+  ["13", "text-13"],
+  ["12", "text-12"],
+  ["11", "text-11"],
+];
+const ELEVATION: [string, string][] = [
+  ["e0", "shadow-e0"],
+  ["e1 card", "shadow-e1"],
+  ["e2 hover", "shadow-e2"],
+  ["e3 popover", "shadow-e3"],
+  ["e4 modal", "shadow-e4"],
+];
 
 function sampleDays() {
   let x = 7;
@@ -88,35 +216,102 @@ export default function Styleguide() {
         <ThemeToggle />
       </header>
       <main id="main" className="mx-auto flex max-w-[1200px] flex-col gap-10 px-4 py-10 sm:px-6">
-        <Section title="Colour">
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6 lg:grid-cols-10">
-            {SWATCHES.map(([name, cls]) => (
-              <div key={name} className="text-[12px]">
-                <div className={`h-12 rounded-[10px] border border-line ${cls}`} />
-                <span className="mt-1 block font-mono text-ink-3">{name}</span>
+        <Section title="Colour roles">
+          <div className="grid gap-6 md:grid-cols-2">
+            {SWATCH_GROUPS.map(([group, items]) => (
+              <div key={group}>
+                <p className="mb-2 label-mono">{group}</p>
+                <div className="flex flex-wrap gap-2">
+                  {items.map(([name, cls]) => (
+                    <div key={name} className="w-[76px] text-12">
+                      <div className={`h-11 rounded-[10px] border border-line ${cls}`} />
+                      <span className="mt-1 block truncate font-mono text-ink-3">{name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
-          <div className="mt-5 flex overflow-hidden rounded-[12px] border border-line">
-            {SCALE.map((s) => (
-              <div key={s} className={`h-10 flex-1 ${PRIMARY_SCALE[s]}`} title={`primary-${s}`} />
+          <div className="mt-6 flex flex-col gap-2">
+            {SCALES.map(([name, classes]) => (
+              <div key={name} className="flex items-center gap-3">
+                <span className="w-14 label-mono">{name}</span>
+                <div className="flex flex-1 overflow-hidden rounded-[10px] border border-line">
+                  {classes.map((cls, i) => (
+                    <div key={cls} className={`h-9 flex-1 ${cls}`} title={`${name}-${STEPS[i]}`} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </Section>
 
+        <Section title="Surfaces and elevation">
+          <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {ELEVATION.map(([name, cls]) => (
+              <div
+                key={name}
+                className={`grid h-24 place-items-center rounded-[20px] border border-line bg-surface font-mono text-12 text-ink-2 ${cls}`}
+              >
+                {name}
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div className="surface-hero relative overflow-hidden rounded-[20px] p-5">
+              <Grain />
+              <p className="relative label-mono text-white/70">Hero tier</p>
+              <p className="relative mt-3 num text-48">412</p>
+            </div>
+            <div className="surface-card rounded-[20px] p-5">
+              <p className="label-mono">Standard tier</p>
+              <p className="mt-3 num text-48">47</p>
+            </div>
+            <div className="surface-inset rounded-[20px] p-5">
+              <p className="label-mono">Inset tier</p>
+              <p className="mt-3 num text-48">5</p>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Textures">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <TextureTile label="Grain">
+              <Grain />
+            </TextureTile>
+            <TextureTile label="Dot grid">
+              <DotGrid />
+            </TextureTile>
+            <TextureTile label="Aurora" dark>
+              <Aurora />
+            </TextureTile>
+            <TextureTile label="Starfield + glow orb" dark>
+              <Starfield />
+              <GlowOrb size={160} className="-right-10 -bottom-16" />
+            </TextureTile>
+          </div>
+        </Section>
+
         <Section title="Type">
-          <div className="flex flex-col gap-2">
-            <p className="font-display text-[60px] leading-none tracking-[-0.02em]">
-              <span className="text-ink-3">Display serif,</span> <em>italic.</em>
+          <div className="flex flex-col gap-1">
+            {TYPE_SCALE.map(([size, cls]) => (
+              <div key={size} className="flex items-baseline gap-4">
+                <span className="w-8 shrink-0 label-mono">{size}</span>
+                <span className={`${cls} truncate font-[550]`}>
+                  Revision, <em className="font-display font-normal">five today.</em>
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 flex flex-wrap items-end gap-8">
+            <p className="num text-64">
+              1,034
+              <span className="ml-1 font-display text-30 font-normal text-ink-3 italic">
+                solved
+              </span>
             </p>
-            <p className="text-[38px] font-[550] tracking-[-0.04em]">Page title 38</p>
-            <p className="text-[20px] font-[550] tracking-[-0.02em]">Section 20</p>
-            <p className="text-[14px] font-[550]">Card title 14</p>
-            <p className="text-15 text-ink-2">Body 15: the quick brown fox solves Two Sum.</p>
-            <p className="font-mono text-2xs tracking-[.08em] text-ink-3 uppercase">
-              Label · mono 11
-            </p>
-            <p className="num text-[48px]">1,234.5</p>
+            <p className="label-mono">Label · mono 11 · +0.06em</p>
+            <p className="tnum text-14 text-ink-2">tabular 0 1 2 3 4 5 6 7 8 9 · slashed 0</p>
           </div>
         </Section>
 
@@ -317,10 +512,31 @@ export default function Styleguide() {
   );
 }
 
+function TextureTile({
+  label,
+  dark,
+  children,
+}: {
+  label: string;
+  dark?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`relative h-36 overflow-hidden rounded-[20px] border border-line ${dark ? "bg-[#08080b]" : "bg-surface"}`}
+    >
+      {children}
+      <span className={`absolute bottom-3 left-3 label-mono ${dark ? "text-white/70" : ""}`}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="mb-4 font-mono text-[11px] tracking-[.1em] text-ink-3 uppercase">{title}</h2>
+      <h2 className="mb-4 label-mono">{title}</h2>
       {children}
     </section>
   );

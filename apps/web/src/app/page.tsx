@@ -140,7 +140,7 @@ function Hero() {
     <header className="relative -mt-[68px] px-3 pt-[80px] sm:px-4">
       <Parallax className="relative mx-auto w-[min(1280px,100%)] overflow-hidden rounded-[28px] bg-[#08080d] text-[#f4f4f6] shadow-xl ring-1 ring-white/10 sm:rounded-[36px]">
         {/* Starfield + soft colour wash. */}
-        <div aria-hidden="true" className="stars pointer-events-none absolute inset-0 opacity-70" />
+        <div aria-hidden="true" className="starfield pointer-events-none absolute inset-0 opacity-70" />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_20%_0%,rgba(110,123,255,.28),transparent_70%),radial-gradient(ellipse_50%_40%_at_90%_10%,rgba(255,122,69,.16),transparent_70%)]"
