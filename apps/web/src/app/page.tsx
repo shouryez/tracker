@@ -2,24 +2,23 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   Check,
-  FileText,
   Flame,
-  ListChecks,
+  LayoutDashboard,
   Lock,
-  NotebookPen,
   Puzzle,
   RotateCcw,
-  Star,
   Timer,
   Trophy,
   UsersRound,
 } from "lucide-react";
 import {
+  Aurora,
   ButtonArrow,
   DifficultyTag,
   Eyebrow,
   LiveDot,
   Logo,
+  LogoMark,
   PixelHeatmap,
   SpotlightTracker,
   Tag,
@@ -28,6 +27,10 @@ import {
   cardClasses,
   cn,
 } from "@upsolve/ui";
+import { AnimatedBeam, Marquee as Ticker, Meteors } from "@/components/fx/decor";
+import { CursorGlow, TiltCard } from "@/components/fx/pointer";
+import { TextReveal } from "@/components/fx/text";
+import { LandingNavLinks, SheetDemo, SmoothScroll } from "@/components/landing/landing-fx";
 import { LiveTimer } from "@/components/landing/live-timer";
 import {
   BackToTop,
@@ -36,7 +39,7 @@ import {
   Reveal,
   ScrollProgress,
 } from "@/components/landing/motion-bits";
-import { LeetCodeMark, LetterMark, YouTubeMark } from "@/components/site-icons";
+import { PlatformMark } from "@/components/site-icons";
 
 // Marketing site (DESIGN.md §9.1). Static: every number here is illustrative and
 // labelled as such in the frame; claims match what the product does today.
@@ -84,6 +87,7 @@ export default function Home() {
       <Footer />
       <BackToTop />
       <SpotlightTracker />
+      <SmoothScroll />
     </div>
   );
 }
@@ -95,25 +99,19 @@ function Nav() {
     <div className="sticky top-3 z-50 px-4">
       <nav
         aria-label="Main"
-        className="mx-auto flex h-[56px] w-[min(1100px,100%)] items-center justify-between gap-3 rounded-full border border-line bg-surface/70 pr-2 pl-5 shadow-card backdrop-blur-xl"
+        className="glass mx-auto flex h-[56px] w-[min(1100px,100%)] items-center justify-between gap-3 rounded-full border border-line-2 pr-2 pl-5 shadow-e3"
       >
         <Link href="/" aria-label="Upsolve home">
           <Logo />
         </Link>
-        <div className="hidden items-center gap-6 text-[13.5px] text-ink-2 md:flex">
-          <a href="#features" className="hover:text-ink">
-            Features
-          </a>
-          <a href="#how" className="hover:text-ink">
-            How it works
-          </a>
-          <a href="#colleges" className="hover:text-ink">
-            Colleges
-          </a>
-          <a href="#faq" className="hover:text-ink">
-            FAQ
-          </a>
-        </div>
+        <LandingNavLinks
+          links={[
+            { href: "#features", label: "Features" },
+            { href: "#how", label: "How it works" },
+            { href: "#colleges", label: "Colleges" },
+            { href: "#faq", label: "FAQ" },
+          ]}
+        />
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
           <Link href="/login" className={buttonClasses({ variant: "ghost", size: "sm" })}>
@@ -121,7 +119,7 @@ function Nav() {
           </Link>
           {/* cn() doesn't merge classes, so hide a wrapper rather than the button. */}
           <span className="hidden sm:contents">
-            <Link href="/login" className={buttonClasses({ variant: "primary", size: "sm" })}>
+            <Link href="/login" className={buttonClasses({ variant: "signal", size: "sm" })}>
               Get started
             </Link>
           </span>
@@ -134,7 +132,6 @@ function Nav() {
 // ---------------------------------------------------------------- hero
 
 function Hero() {
-  const words = ["Every", "problem", "you", "solve,"];
   return (
     // The stage stays dark in both themes, like a lit product shot.
     <header className="relative -mt-[68px] px-3 pt-[80px] sm:px-4">
@@ -144,39 +141,30 @@ function Hero() {
           aria-hidden="true"
           className="starfield pointer-events-none absolute inset-0 opacity-70"
         />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_20%_0%,rgba(110,123,255,.28),transparent_70%),radial-gradient(ellipse_50%_40%_at_90%_10%,rgba(255,122,69,.16),transparent_70%)]"
-        />
+        <Aurora className="opacity-70" />
+        <Meteors count={5} />
+        <CursorGlow />
 
         <div className="relative z-10 flex flex-col items-center px-5 pt-16 text-center sm:pt-24">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1.5 font-mono text-[11px] tracking-[.08em] text-white/75 uppercase backdrop-blur">
             <LiveDot /> LeetCode · Codeforces · GFG · free for students
           </span>
-          <h1 className="mt-6 mb-5 max-w-[14ch] font-display text-[clamp(44px,8vw,100px)] leading-[.98] tracking-[-0.02em] text-balance">
-            <span className="text-white/45">
-              {words.map((w, i) => (
-                <span
-                  key={w}
-                  className="inline-block animate-word"
-                  style={{ animationDelay: `${i * 70}ms` }}
-                >
-                  {w}&nbsp;
-                </span>
-              ))}
-            </span>
-            <em className="inline-block animate-word bg-[linear-gradient(100deg,#fff_30%,#d7ff3a_120%)] bg-clip-text text-transparent [animation-delay:320ms]">
-              remembered.
-            </em>
-          </h1>
-          <p className="mb-8 max-w-[560px] text-[clamp(15px,1.6vw,17px)] leading-relaxed text-white/65">
+          <TextReveal
+            text="Every problem you solve,"
+            accent="remembered."
+            className="mt-6 mb-5 max-w-[14ch] font-display text-[clamp(44px,8vw,100px)] leading-[.98] tracking-[-0.02em] text-balance text-white"
+            accentClassName="bg-[linear-gradient(100deg,#fff_20%,#d7ff3a_110%)] bg-clip-text text-transparent"
+          />
+          <p className="mb-8 max-w-[560px] text-[clamp(15px,1.6vw,17px)] leading-relaxed text-white/75">
             Upsolve times every problem you open, catches every verdict, ticks your Striver and
             NeetCode sheets for you, and tells you exactly what to revise before you forget it.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Magnetic>
               <Link href="/login" className={buttonClasses({ variant: "signal", size: "lg" })}>
-                Start free with Google <ButtonArrow />
+                <span data-magnetic-label className="inline-flex items-center gap-2">
+                  Start free with Google <ButtonArrow />
+                </span>
               </Link>
             </Magnetic>
             <a
@@ -186,58 +174,78 @@ function Hero() {
               See how it works
             </a>
           </div>
-          <p className="mt-5 font-mono text-[12px] tracking-[.02em] text-white/40">
-            Striver A2Z · Striver SDE · NeetCode 150 · Blind 75 · Grind 75
-          </p>
+          <Ticker speed={30} className="mt-6 w-[min(520px,90vw)]">
+            {["Striver A2Z", "Striver SDE", "NeetCode 150", "Blind 75", "Grind 75"].map((t) => (
+              <span key={t} className="font-mono text-12 whitespace-nowrap text-white/55">
+                {t}
+              </span>
+            ))}
+          </Ticker>
         </div>
 
         {/* The scene: a glossy orb rising from the bottom, glass cards floating around it. */}
         <div className="relative mt-10 h-[340px] sm:mt-14 sm:h-[420px]" aria-hidden="true">
           <div data-depth="14" className="absolute bottom-[-46%] left-1/2 -translate-x-1/2">
-            <div className="orb size-[min(560px,92vw)] animate-[blob_14s_var(--ease-in-out)_infinite_alternate]" />
+            <div className="orb size-[min(560px,92vw)] animate-[blob_14s_var(--ease-in-out)_infinite_alternate] motion-reduce:animate-none" />
           </div>
           <div
             data-depth="34"
             className="absolute top-[8%] left-[4%] hidden md:block lg:left-[10%]"
           >
-            <GlassCard className="animate-float">
-              <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
-                Striver A2Z <ArrowCircle />
-              </span>
-              <span className="mt-2 block text-[15px] leading-snug font-medium">
-                495 problems,
-                <br /> ticked for you
-              </span>
-              <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/10">
-                <span className="block h-full w-[43%] rounded-full bg-signal" />
-              </span>
-            </GlassCard>
+            <TiltCard className="rounded-[18px]">
+              <GlassCard className="animate-float">
+                <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
+                  Striver A2Z <ArrowCircle />
+                </span>
+                <span className="mt-2 block text-[15px] leading-snug font-medium">
+                  495 problems,
+                  <br /> ticked for you
+                </span>
+                <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/10">
+                  <span className="block h-full w-[43%] origin-left animate-[fill-loop_6s_var(--ease-out)_infinite] rounded-full bg-signal shadow-[0_0_8px_var(--signal)]" />
+                </span>
+              </GlassCard>
+            </TiltCard>
           </div>
           <div
             data-depth="26"
             className="absolute top-[34%] right-[4%] hidden sm:block lg:right-[12%]"
           >
-            <GlassCard className="animate-float [animation-delay:-3s]">
-              <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
-                Revision ladder <ArrowCircle />
-              </span>
-              <span className="num mt-2 block text-[30px]">90 days</span>
-              <span className="mt-1 block font-mono text-[11px] text-white/45">
-                1 → 3 → 7 → 16 → 35 → 90
-              </span>
-            </GlassCard>
+            <TiltCard className="rounded-[18px]">
+              <GlassCard className="animate-float [animation-delay:-3s]">
+                <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
+                  Revision ladder <ArrowCircle />
+                </span>
+                <span className="num mt-2 block text-[30px]">90 days</span>
+                <span className="mt-2 flex items-end gap-1">
+                  {[1, 3, 7, 16, 35, 90].map((d, i) => (
+                    <span key={d} className="flex flex-col items-center gap-1">
+                      <i
+                        className="block w-3 animate-[ladder-step_6s_ease-in-out_infinite] rounded-[3px] bg-white/15"
+                        style={{ height: 8 + i * 3, animationDelay: `${i * 0.5}s` }}
+                      />
+                      <span className="font-mono text-[9px] text-white/45">{d}</span>
+                    </span>
+                  ))}
+                </span>
+              </GlassCard>
+            </TiltCard>
           </div>
           <div data-depth="40" className="absolute bottom-[12%] left-[14%] hidden lg:block">
-            <GlassCard className="animate-float [animation-delay:-5s]">
-              <span className="flex items-center gap-2 text-[12px] text-white/55">
-                <LiveDot /> Now solving
-              </span>
-              <span className="mt-1.5 block text-[14px] font-medium">875. Koko Eating Bananas</span>
-              <LiveTimer
-                startSeconds={18 * 60 + 42}
-                className="num mt-1 block font-mono text-[26px]"
-              />
-            </GlassCard>
+            <TiltCard className="rounded-[18px]">
+              <GlassCard className="animate-float [animation-delay:-5s]">
+                <span className="flex items-center gap-2 text-[12px] text-white/55">
+                  <LiveDot /> Now solving
+                </span>
+                <span className="mt-1.5 block text-[14px] font-medium">
+                  875. Koko Eating Bananas
+                </span>
+                <LiveTimer
+                  startSeconds={18 * 60 + 42}
+                  className="num mt-1 block font-mono text-[26px]"
+                />
+              </GlassCard>
+            </TiltCard>
           </div>
         </div>
       </Parallax>
@@ -407,33 +415,30 @@ function MiniKpi({
 // ---------------------------------------------------------------- marquee
 
 function Marquee() {
-  const items = [
-    "LeetCode",
-    "Codeforces",
-    "GeeksforGeeks",
-    "Striver A2Z",
-    "NeetCode 150",
-    "Blind 75",
-    "Grind 75",
-    "Striver SDE",
-  ];
+  const items: { label: string; site?: "leetcode" | "codeforces" | "gfg" | "tuf" | "neetcode" }[] =
+    [
+      { label: "LeetCode", site: "leetcode" },
+      { label: "Codeforces", site: "codeforces" },
+      { label: "GeeksforGeeks", site: "gfg" },
+      { label: "Striver A2Z", site: "tuf" },
+      { label: "NeetCode 150", site: "neetcode" },
+      { label: "Blind 75" },
+      { label: "Grind 75" },
+      { label: "Striver SDE", site: "tuf" },
+    ];
   return (
-    <div
-      aria-label="Supported platforms and sheets"
-      className="mt-20 overflow-hidden border-y border-line py-5 [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]"
-    >
-      <div className="flex w-max animate-marquee gap-14">
-        {[...items, ...items].map((t, i) => (
+    <div aria-label="Supported platforms and sheets" className="mt-20 border-y border-line py-5">
+      <Ticker speed={40}>
+        {items.map((t) => (
           <span
-            key={i}
-            aria-hidden={i >= items.length}
-            className="inline-flex items-center gap-14 text-[20px] font-semibold tracking-[-0.03em] whitespace-nowrap text-ink-3"
+            key={t.label}
+            className="group inline-flex items-center gap-2.5 text-[20px] font-semibold tracking-[-0.03em] whitespace-nowrap text-ink-3 transition-colors hover:text-ink"
           >
-            {t}
-            <span className="size-1.5 bg-line-2" />
+            {t.site && <PlatformMark site={t.site} size={20} />}
+            {t.label}
           </span>
         ))}
-      </div>
+      </Ticker>
     </div>
   );
 }
@@ -455,7 +460,10 @@ function SectionHead({
     <div className="mb-10 flex flex-col items-start gap-4 sm:mb-12">
       <Eyebrow>{eyebrow}</Eyebrow>
       <h2 className="max-w-[18ch] font-display text-[clamp(36px,5.4vw,64px)] leading-[1] tracking-[-0.02em]">
-        <span className="text-ink-3">{soft}</span> <em>{em}</em>
+        <span className="text-ink">{soft}</span>{" "}
+        <em className="bg-[linear-gradient(100deg,var(--ink)_10%,var(--violet)_120%)] bg-clip-text text-transparent">
+          {em}
+        </em>
       </h2>
       <p className="max-w-[56ch] text-[15.5px] leading-relaxed text-ink-2">{children}</p>
     </div>
@@ -769,17 +777,64 @@ function HowItWorks() {
       <SectionHead eyebrow="How it works" soft="Three minutes to set up." em="Then it's automatic.">
         No spreadsheets, no ticking boxes by hand, no remembering what you solved last month.
       </SectionHead>
+      <div className="surface-card mb-3.5 rounded-[22px] px-4 py-6 sm:px-10">
+        <AnimatedBeam
+          height={200}
+          nodes={[
+            {
+              id: "lc",
+              label: "LeetCode",
+              icon: <PlatformMark site="leetcode" size={20} brand />,
+              x: 8,
+              y: 22,
+            },
+            {
+              id: "gfg",
+              label: "GFG",
+              icon: <PlatformMark site="gfg" size={20} brand />,
+              x: 8,
+              y: 78,
+            },
+            {
+              id: "cf",
+              label: "Codeforces",
+              icon: <PlatformMark site="codeforces" size={20} brand />,
+              x: 30,
+              y: 82,
+            },
+            { id: "ext", label: "Extension", icon: <Puzzle size={20} />, x: 38, y: 34 },
+            { id: "up", label: "Upsolve", icon: <LogoMark size={22} />, x: 66, y: 50 },
+            {
+              id: "dash",
+              label: "Your dashboard",
+              icon: <LayoutDashboard size={20} />,
+              x: 92,
+              y: 50,
+            },
+          ]}
+          edges={[
+            ["lc", "ext"],
+            ["gfg", "ext"],
+            ["ext", "up"],
+            ["cf", "up"],
+            ["up", "dash"],
+          ]}
+        />
+      </div>
       <ol className="grid gap-3.5 md:grid-cols-3">
         {steps.map((s, i) => (
           <li
             key={s.title}
-            className="rounded-[20px] border border-line bg-surface p-[22px] shadow-card"
+            data-spotlight
+            className={cn(cardClasses({ interactive: true, spotlight: true }), "p-[22px]")}
           >
             <div className="mb-8 flex items-center justify-between">
               <span className="grid size-10 place-items-center rounded-[12px] border border-line bg-surface-2 text-ink-2">
                 {s.icon}
               </span>
-              <span className="font-display text-[44px] leading-none text-ink-3">{i + 1}</span>
+              <span className="tnum font-mono text-[40px] leading-none font-[600] text-ink-4">
+                {String(i + 1).padStart(2, "0")}
+              </span>
             </div>
             <h3 className="text-[17px] font-semibold tracking-[-0.02em]">{s.title}</h3>
             <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">{s.body}</p>
@@ -793,12 +848,6 @@ function HowItWorks() {
 // ---------------------------------------------------------------- sheet showcase
 
 function SheetShowcase() {
-  const rows = [
-    { t: "Largest Element", tier: "Basic", done: true },
-    { t: "Second Largest Element", tier: "Basic", done: true },
-    { t: "Maximum Consecutive Ones", tier: "Basic", done: false, star: true },
-    { t: "Left Rotate Array by K Places", tier: "Core", done: false, revise: true },
-  ];
   return (
     <section className={cn(WRAP, "pt-28")}>
       <SectionHead eyebrow="Sheets" soft="Striver's sheet," em="with superpowers.">
@@ -806,64 +855,7 @@ function SheetShowcase() {
         article, and a button for LeetCode, GFG or takeUforward. Notes, stars and revision badges on
         every row. We only link: the videos and articles stay with their creators.
       </SectionHead>
-      <div className="overflow-hidden rounded-[20px] border border-line bg-surface shadow-card">
-        <div className="flex items-center gap-3 border-b border-line px-5 py-3.5">
-          <span className="text-[14.5px] font-[550]">Arrays</span>
-          <span className="ml-auto font-mono text-[11px] text-ink-3">~3h left</span>
-          <span className="h-1.5 w-28 overflow-hidden rounded-full bg-surface-3">
-            <span className="block h-full w-[40%] rounded-full bg-ink" />
-          </span>
-          <span className="font-mono text-[11.5px] text-ink-3">14/32</span>
-        </div>
-        <ul className="m-3 overflow-hidden rounded-[14px] border border-line">
-          {rows.map((r) => (
-            <li
-              key={r.t}
-              className="flex items-center gap-3 border-t border-line px-3 py-2.5 first:border-t-0"
-            >
-              <span
-                className={cn(
-                  "grid size-[18px] place-items-center rounded-[4px]",
-                  r.done ? "bg-ink text-bg" : "hatch border border-line-2",
-                )}
-              >
-                {r.done && <Check size={12} strokeWidth={3} />}
-              </span>
-              <span className={cn("min-w-0 flex-1 truncate text-[13.5px]", r.done && "text-ink-3")}>
-                {r.t}
-              </span>
-              <Tag tone={r.tier === "Basic" ? "easy" : "medium"} className="hidden sm:inline-flex">
-                {r.tier}
-              </Tag>
-              {r.revise && (
-                <span className="hidden items-center gap-1 rounded-full bg-warn/15 px-1.5 py-0.5 font-mono text-[10.5px] text-warn sm:inline-flex">
-                  <RotateCcw size={10} /> revise
-                </span>
-              )}
-              <span className="flex items-center gap-1 text-ink-2">
-                <span className="grid size-[28px] place-items-center">
-                  <LetterMark text="TUF" color="#2563eb" />
-                </span>
-                <span className="hidden size-[28px] place-items-center sm:grid">
-                  <FileText size={14} />
-                </span>
-                <span className="grid size-[28px] place-items-center">
-                  <YouTubeMark />
-                </span>
-                <span className="grid size-[28px] place-items-center">
-                  <LeetCodeMark className="text-ink" />
-                </span>
-                <span className="hidden size-[28px] place-items-center sm:grid">
-                  <NotebookPen size={14} />
-                </span>
-                <span className="grid size-[28px] place-items-center">
-                  <Star size={14} className={r.star ? "fill-warn text-warn" : undefined} />
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <SheetDemo />
     </section>
   );
 }
@@ -879,11 +871,16 @@ function ForColleges() {
   ] as const;
   return (
     <section id="colleges" className={cn(WRAP, "scroll-mt-24 pt-28")}>
-      <div className="grid items-center gap-8 rounded-[28px] border border-line bg-surface p-6 shadow-card sm:p-10 lg:grid-cols-2">
+      <div className="surface-card grid items-center gap-8 rounded-[28px] p-6 sm:p-10 lg:grid-cols-2">
         <div className="flex flex-col items-start gap-4">
-          <Eyebrow>For placement cells · coming soon</Eyebrow>
+          <span className="flex items-center gap-2">
+            <Eyebrow>For placement cells</Eyebrow>
+            <span className="sheen rounded-full border border-violet-line bg-violet-soft px-2.5 py-0.5 text-11 font-[600] text-violet">
+              Coming soon
+            </span>
+          </span>
           <h2 className="font-display text-[clamp(32px,4.6vw,54px)] leading-[1] tracking-[-0.02em]">
-            <span className="text-ink-3">See where your batch</span> <em>actually stands.</em>
+            <span className="text-ink">See where your batch</span> <em>actually stands.</em>
           </h2>
           <p className="text-[15px] leading-relaxed text-ink-2">
             Topic gaps across a batch, who&apos;s gone quiet before placement season, and readiness
@@ -897,23 +894,28 @@ function ForColleges() {
             Pilot it at your college <ButtonArrow />
           </a>
         </div>
-        <div className="rounded-[20px] border border-line bg-bg-2 p-5">
-          <span className="mb-4 block font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-            Batch 2027 · topic mastery (example)
-          </span>
+        <div className="surface-inset rounded-[20px] p-5">
+          <span className="mb-4 block label-mono">Batch 2027 · topic mastery (example)</span>
           {batches.map(([t, v]) => (
             <div key={t} className="mb-3 last:mb-0">
               <div className="mb-1.5 flex justify-between text-[13px]">
                 <span>{t.replace("Topic: ", "")}</span>
-                <span className={cn("font-mono", v < 40 && "text-ember")}>{v}</span>
-              </div>
-              <div className="hatch relative h-1.5 overflow-hidden rounded-full">
                 <span
-                  className={cn(
-                    "absolute inset-y-0 left-0 rounded-full",
-                    v < 40 ? "bg-ember" : "bg-ink",
-                  )}
-                  style={{ width: `${v}%` }}
+                  className="tnum font-mono"
+                  style={{
+                    color: v < 25 ? "var(--hard)" : v < 60 ? "var(--medium)" : "var(--easy)",
+                  }}
+                >
+                  {v}
+                </span>
+              </div>
+              <div className="relative h-2 overflow-hidden rounded-full bg-surface-3">
+                <span
+                  className="absolute inset-y-0 left-0 origin-left animate-[grow-x_1100ms_var(--ease-out)_backwards] rounded-full"
+                  style={{
+                    width: `${v}%`,
+                    background: `linear-gradient(90deg, transparent, ${v < 25 ? "var(--hard)" : v < 60 ? "var(--medium)" : "var(--easy)"})`,
+                  }}
                 />
               </div>
             </div>
@@ -970,19 +972,30 @@ function Pricing() {
           <div
             key={p.name}
             className={cn(
-              "flex flex-col rounded-[20px] border p-[22px] shadow-card",
-              p.featured ? "border-ink-3 bg-surface" : "border-line bg-surface",
+              "relative isolate flex flex-col overflow-hidden rounded-[22px] p-[22px]",
+              p.featured
+                ? "surface-card border-beam shadow-[var(--e2),0_0_60px_-20px_var(--signal)]"
+                : "surface-card",
             )}
           >
-            <span className="font-mono text-[11px] tracking-[.08em] text-ink-3 uppercase">
-              {p.name}
-            </span>
+            {p.price === "Later" && (
+              <span
+                aria-hidden="true"
+                className="hatch pointer-events-none absolute inset-0 -z-10 opacity-60"
+              />
+            )}
+            {p.featured && (
+              <span className="absolute top-4 right-4 rounded-full bg-signal px-2.5 py-1 text-11 font-[700] text-signal-ink">
+                Free forever for students
+              </span>
+            )}
+            <span className="label-mono">{p.name}</span>
             <span className="num mt-3 text-[40px]">{p.price}</span>
             <span className="text-[13px] text-ink-3">{p.note}</span>
             <ul className="mt-5 mb-6 flex flex-col gap-2 text-[14px]">
               {p.items.map((i) => (
                 <li key={i} className="flex gap-2">
-                  <Check size={15} className="mt-0.5 shrink-0 text-ok" aria-hidden="true" />
+                  <Check size={15} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
                   {i}
                 </li>
               ))}
@@ -1044,7 +1057,7 @@ function Faq() {
           <details
             key={q}
             open={i === 0}
-            className="group rounded-[16px] border border-line bg-surface px-5 shadow-card open:bg-surface"
+            className="group surface-card relative overflow-hidden rounded-[16px] px-5 transition-shadow open:shadow-e2 before:absolute before:top-4 before:bottom-4 before:left-0 before:w-[3px] before:scale-y-0 before:rounded-r-full before:bg-signal before:transition-transform open:before:scale-y-100"
           >
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[15px] font-medium [&::-webkit-details-marker]:hidden">
               <span className="flex items-center gap-2.5">
@@ -1053,7 +1066,7 @@ function Faq() {
               </span>
               <span
                 aria-hidden="true"
-                className="grid size-7 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3 transition-transform duration-[var(--dur-base)] group-open:rotate-45"
+                className="grid size-7 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3 transition-[transform,background-color,color] duration-[var(--dur-base)] group-open:rotate-45 group-open:bg-signal group-open:text-signal-ink"
               >
                 +
               </span>
@@ -1070,17 +1083,34 @@ function Faq() {
 
 function Footer() {
   return (
-    <footer className="relative mt-32 overflow-hidden border-t border-line">
-      <div className={cn(WRAP, "flex flex-col items-start gap-6 pt-20 pb-10")}>
-        <h2 className="max-w-[16ch] font-display text-[clamp(40px,6vw,76px)] leading-[1] tracking-[-0.02em]">
-          <span className="text-ink-3">Stop counting.</span> <em>Start upsolving.</em>
-        </h2>
-        <Link href="/login" className={buttonClasses({ variant: "signal" })}>
-          Start free with Google <ButtonArrow />
-        </Link>
-        <div className="mt-10 flex w-full flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-[13px] text-ink-3">
+    <footer className="relative mt-32 overflow-hidden">
+      <div className={cn(WRAP, "flex flex-col gap-6 pb-10")}>
+        <div className="relative isolate overflow-hidden rounded-[32px] bg-[#08080d] px-6 py-16 text-center text-white ring-1 ring-white/10 sm:py-24">
+          <Aurora />
+          <span aria-hidden="true" className="starfield absolute inset-0 opacity-60" />
+          <CursorGlow />
+          <h2 className="relative mx-auto max-w-[16ch] font-display text-[clamp(40px,6vw,80px)] leading-[1] tracking-[-0.02em]">
+            Stop counting.{" "}
+            <em className="bg-[linear-gradient(100deg,#fff_20%,#d7ff3a_110%)] bg-clip-text text-transparent">
+              Start upsolving.
+            </em>
+          </h2>
+          <p className="relative mx-auto mt-4 max-w-[46ch] text-15 text-white/70">
+            Free for students. Sign in with Google and your history is here in seconds.
+          </p>
+          <div className="relative mt-8 flex justify-center">
+            <Magnetic>
+              <Link href="/login" className={buttonClasses({ variant: "signal", size: "lg" })}>
+                <span data-magnetic-label className="inline-flex items-center gap-2">
+                  Start free with Google <ButtonArrow />
+                </span>
+              </Link>
+            </Magnetic>
+          </div>
+        </div>
+        <div className="mt-6 flex w-full flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-[13px] text-ink-3">
           <span className="flex items-center gap-2">
-            <ListChecks size={14} aria-hidden="true" /> Built by a student, for students.
+            <PixelHeart /> Built by a student, for students.
           </span>
           <nav aria-label="Footer" className="flex flex-wrap gap-5">
             <a href="#features" className="hover:text-ink">
@@ -1105,5 +1135,19 @@ function Footer() {
         upsolve
       </div>
     </footer>
+  );
+}
+
+/** A tiny heart drawn in pixels, like the logo. */
+function PixelHeart() {
+  const rows = ["0110110", "1111111", "1111111", "0111110", "0011100", "0001000"];
+  return (
+    <span aria-hidden="true" className="grid grid-cols-7 gap-px">
+      {rows.flatMap((r, y) =>
+        [...r].map((c, x) => (
+          <i key={`${x}-${y}`} className={c === "1" ? "size-[2px] bg-hard" : "size-[2px]"} />
+        )),
+      )}
+    </span>
   );
 }
