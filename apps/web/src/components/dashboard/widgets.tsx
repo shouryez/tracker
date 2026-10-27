@@ -138,7 +138,7 @@ export function WeekCapsules({
         const h = d.count === 0 ? 100 : Math.max(28, (d.count / max) * 100);
         return (
           <div
-            key={d.label}
+            key={i}
             className="flex h-full flex-col items-center justify-end gap-2"
             title={`${d.label}: ${d.count} submission${d.count === 1 ? "" : "s"}`}
           >
