@@ -44,7 +44,7 @@ Seven Dribbble references were reviewed. One design language was made by taking 
 
 ### Logo
 
-A tick drawn through graph nodes: a thick ink stroke with two hollow nodes at its joints, ending in a **signal lime** node. It reads as "solved" (Accepted), as a path through a graph, and as "karo": do it, done. The holes are masked, so the mark sits on any surface; app icons put it on a dark tile at 70% width, without holes at 16px. Wordmark: `Dsa` in Geist 650, tracking −3%, then `Karo` in Instrument Serif italic, the same sans + serif pairing as the page headlines. Source: `packages/ui/src/components/logo.tsx`; icons: `node scripts/gen-icons.mjs`.
+Wordmark **DSA करो**, set in Poppins ExtraBold (its Latin and Devanagari were drawn as one family). The Devanagari headline bar (shirorekha) runs across the whole name, "DSA" hangs from it the way Devanagari letters do, and the bar fills with **signal lime** from the left like progress. The name is the instruction: do DSA. The mark (app icon, favicon, collapsed sidebar) is **क** with a lime headline reaching past it on both sides. Letters are stored as outlines in `packages/ui/src/brand.ts` (no web font needed), which the app's `<Logo>`/`<LogoMark>`, the share card, the extension popup and `node scripts/gen-icons.mjs` all draw from. Plain-text name stays **DsaKaro** in titles and emails.
 
 - Minimum size: 16 px (favicon uses just the three pixels).
 - Lime pixel is always lime, even in light mode.

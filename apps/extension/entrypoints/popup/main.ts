@@ -1,4 +1,5 @@
 import { browser } from "wxt/browser";
+import { wordmarkSvg } from "@upsolve/ui/brand";
 import type { Message, Status } from "../../lib/messages.ts";
 import { WEB_URL } from "../../lib/storage.ts";
 import { formatClock } from "../../lib/timer.ts";
@@ -21,42 +22,13 @@ function h<K extends keyof HTMLElementTagNameMap>(
 const send = (msg: Message) => browser.runtime.sendMessage(msg);
 const open = (path: string) => browser.tabs.create({ url: `${WEB_URL}${path}` });
 
-/** The DsaKaro mark: a tick through two hollow nodes, ending in a lime node. */
+/** The DSA करो wordmark, drawn from the same data as the web app's logo. */
 function logo() {
-  const ns = "http://www.w3.org/2000/svg";
-  const node = (tag: string, attrs: Record<string, string>) => {
-    const el = document.createElementNS(ns, tag);
-    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-    return el;
-  };
-  const svg = node("svg", { width: "20", height: "20", viewBox: "2.5 0.5 28 28" });
-  const mask = node("mask", {
-    id: "dk-holes",
-    maskUnits: "userSpaceOnUse",
-    x: "0",
-    y: "0",
-    width: "32",
-    height: "32",
-  });
-  mask.append(
-    node("rect", { width: "32", height: "32", fill: "#fff" }),
-    node("circle", { cx: "5.5", cy: "16", r: "1.3", fill: "#000" }),
-    node("circle", { cx: "12.5", cy: "23", r: "1.3", fill: "#000" }),
-  );
-  svg.append(
-    mask,
-    node("path", {
-      d: "M5.5 16 12.5 23 24.5 9.5",
-      fill: "none",
-      stroke: "#f4f4f6",
-      "stroke-width": "5.4",
-      "stroke-linecap": "round",
-      "stroke-linejoin": "round",
-      mask: "url(#dk-holes)",
-    }),
-    node("circle", { cx: "26", cy: "7.5", r: "4.2", fill: "#d7ff3a" }),
-  );
-  return svg;
+  const span = document.createElement("span");
+  span.className = "brand";
+  // A constant SVG string from our own package, not user input.
+  span.innerHTML = wordmarkSvg({ height: 18 });
+  return span;
 }
 
 function stat(value: string, unit: string, label: string) {
@@ -65,7 +37,7 @@ function stat(value: string, unit: string, label: string) {
 }
 
 function render(s: Status) {
-  const header = h("header", {}, logo(), h("span", {}, "Dsa", h("em", { text: "Karo" })));
+  const header = h("header", {}, logo());
 
   if (!s.connected) {
     app.replaceChildren(

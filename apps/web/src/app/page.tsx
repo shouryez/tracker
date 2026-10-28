@@ -1129,9 +1129,9 @@ function Footer() {
       </div>
       <div
         aria-hidden="true"
-        className="pointer-events-none -mb-[0.22em] text-center font-[650] leading-none tracking-[-0.06em] text-ink select-none [font-size:clamp(90px,22vw,320px)] [mask-image:linear-gradient(180deg,rgba(0,0,0,.14),transparent_85%)]"
+        className="pointer-events-none mt-10 -mb-[4vw] flex justify-center text-ink select-none [mask-image:linear-gradient(180deg,rgba(0,0,0,.16),transparent_88%)]"
       >
-        dsa<em className="font-display font-normal tracking-[-0.03em] italic">karo</em>
+        <Logo height={320} className="h-auto w-[min(1180px,92vw)]" />
       </div>
     </footer>
   );

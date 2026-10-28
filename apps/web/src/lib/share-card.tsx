@@ -1,8 +1,9 @@
 import "server-only";
 import { ImageResponse } from "next/og";
+import { WORDMARK } from "@upsolve/ui/brand";
 
 // Share card (DESIGN.md §9.5): dark, serif name, heatmap, three big numbers,
-// lime-node logo. 1200×630, rendered by next/og (flexbox only, no grid).
+// the DSA करो wordmark. 1200×630, rendered by next/og (flexbox only, no grid).
 
 export type ShareCardData = {
   name: string;
@@ -111,38 +112,17 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* The logo: a tick through two hollow nodes, ending in a lime node. */}
-          <svg width="40" height="40" viewBox="2.5 0.5 28 28">
-            <mask id="holes" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
-              <rect x="0" y="0" width="32" height="32" fill="#fff" />
-              <circle cx="5.5" cy="16" r="1.3" fill="#000" />
-              <circle cx="12.5" cy="23" r="1.3" fill="#000" />
-            </mask>
-            <path
-              d="M5.5 16 12.5 23 24.5 9.5"
-              fill="none"
-              stroke={INK}
-              strokeWidth="5.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              mask="url(#holes)"
-            />
-            <circle cx="26" cy="7.5" r="4.2" fill={LIME} />
-          </svg>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              fontSize: 30,
-              fontWeight: 600,
-              letterSpacing: -1,
-            }}
+          {/* The DSA करो wordmark: one headline bar across the name, filling lime. */}
+          <svg
+            height="40"
+            width={Math.round((40 * WORDMARK.width) / WORDMARK.height)}
+            viewBox={WORDMARK.viewBox}
           >
-            Dsa
-            <span style={{ fontFamily: "Serif", fontWeight: 400, fontSize: 35, letterSpacing: 0 }}>
-              Karo
-            </span>
-          </div>
+            <path d={WORDMARK.dsa} fill={INK} />
+            <path d={WORDMARK.karo} fill={INK} />
+            <rect {...WORDMARK.bar} fill={INK} />
+            <rect {...WORDMARK.bar} width={WORDMARK.bar.width * WORDMARK.fill} fill={LIME} />
+          </svg>
         </div>
         <div
           style={{
