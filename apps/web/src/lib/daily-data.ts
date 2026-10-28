@@ -66,7 +66,7 @@ export async function getFocusSummary(
     select id, started_at as "startedAt", focus_ms as "focusMs", away_ms as "awayMs", switches,
            tracked, label
     from focus_sessions
-    where user_id = ${userId} and ended_at is not null and started_at >= ${new Date(week)}
+    where user_id = ${userId} and ended_at is not null and started_at >= ${new Date(week).toISOString()}::timestamptz
     order by started_at desc`)) as unknown as {
     id: string;
     startedAt: unknown;
@@ -97,7 +97,7 @@ export async function getLabBoard(
       (select f.started_at from focus_sessions f where f.user_id = m.user_id and f.ended_at is null
          and f.started_at > now() - interval '16 hours' order by f.started_at desc limit 1) as "liveSince",
       coalesce((select sum(f.focus_ms) from focus_sessions f where f.user_id = m.user_id
-         and f.ended_at is not null and f.started_at >= ${new Date(dayStart)}), 0)::int as "todayMs"
+         and f.ended_at is not null and f.started_at >= ${new Date(dayStart).toISOString()}::timestamptz), 0)::int as "todayMs"
     from group_members m left join profiles p on p.user_id = m.user_id
     where m.group_id = ${groupId} and coalesce(p.share_live, true)`)) as unknown as {
     userId: string;
@@ -205,10 +205,10 @@ export async function getWeekReview(userId: string, tz: string, now: number): Pr
       from weekly_goals where user_id = ${userId} and week_start = ${weekStart}`),
     db().execute(sql`
       select coalesce(sum(focus_ms), 0)::int as ms from focus_sessions
-      where user_id = ${userId} and ended_at is not null and started_at >= ${new Date(weekStartMs)}`),
+      where user_id = ${userId} and ended_at is not null and started_at >= ${new Date(weekStartMs).toISOString()}::timestamptz`),
     db().execute(sql`
       select coalesce(sum(active_ms), 0)::int as ms from practice_sessions
-      where user_id = ${userId} and started_at >= ${new Date(weekStartMs)}`),
+      where user_id = ${userId} and started_at >= ${new Date(weekStartMs).toISOString()}::timestamptz`),
   ]);
   const goal = (goalRows as unknown as WeekReview["goals"][])[0];
   const firstThisWeek = learning.filter((p) => p.state.firstSolvedAt >= weekStartMs);

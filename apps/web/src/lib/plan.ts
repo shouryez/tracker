@@ -146,7 +146,8 @@ export async function getTodayPlan(
   const day = localDate(tz, now);
   await ensureGenerated(userId, tz, cap, now, day);
   const { start } = localDay(tz, now);
-  const since = new Date(start);
+  // Raw sql params must be strings: postgres-js rejects Date objects here.
+  const since = new Date(start).toISOString();
 
   const rows = (await db().execute(sql`
     select pi.id, pi.kind, pi.title, pi.url, pi.detail, pi.problem_id as "problemId",
@@ -154,9 +155,9 @@ export async function getTodayPlan(
            (pi.problem_id is not null and (
               exists (select 1 from submissions s join platform_problems pp on pp.id = s.platform_problem_id
                       where s.user_id = ${userId} and s.verdict = 'AC' and pp.problem_id = pi.problem_id
-                        and s.submitted_at >= ${since})
+                        and s.submitted_at >= ${since}::timestamptz)
               or exists (select 1 from review_logs r where r.user_id = ${userId}
-                      and r.problem_id = pi.problem_id and r.at >= ${since}
+                      and r.problem_id = pi.problem_id and r.at >= ${since}::timestamptz
                       and r.action in ('remembered', 'shaky', 'forgot'))
            )) as solved
     from plan_items pi left join problems p on p.id = pi.problem_id
