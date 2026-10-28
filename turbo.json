@@ -3,7 +3,16 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "env": ["NEXT_PUBLIC_*", "UPSOLVE_WEB_URL"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "UPSOLVE_WEB_URL",
+        "DATABASE_URL",
+        "DATABASE_POOL_MAX",
+        "CRON_SECRET",
+        "ADMIN_EMAILS",
+        "RESEND_API_KEY",
+        "EMAIL_FROM"
+      ],
       "outputs": [".next/**", "!.next/cache/**", ".output/**"]
     },
     "lint": {},

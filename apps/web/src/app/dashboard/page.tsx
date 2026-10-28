@@ -115,6 +115,7 @@ function greeting(tz: string, now: number) {
 }
 
 // TEMP diagnostics: name any dashboard data call that is slow or never settles on Vercel.
+// Only used after getCurrentUser() has read the request, where reading the clock is allowed.
 function traced<T>(name: string, p: Promise<T>): Promise<T> {
   const started = Date.now();
   const timer = setTimeout(
@@ -129,7 +130,7 @@ function traced<T>(name: string, p: Promise<T>): Promise<T> {
 }
 
 async function Overview() {
-  const user = await traced("getCurrentUser", getCurrentUser());
+  const user = await getCurrentUser();
   if (isDemoUser(user)) return <DemoNotice />;
 
   const profile = await traced("getProfile", getProfile(user.id));
