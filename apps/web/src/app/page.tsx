@@ -311,7 +311,7 @@ function ProductFrame() {
           <i className="size-2.5 rounded-full bg-line-2" />
           <i className="size-2.5 rounded-full bg-line-2" />
           <span className="mx-auto rounded-full bg-surface-2 px-4 py-1 font-mono text-[11px] text-ink-3">
-            dsakaro.in/dashboard
+            dsakaro.site/dashboard
           </span>
           <span className="font-mono text-[10px] tracking-[.08em] text-ink-3 uppercase">
             example

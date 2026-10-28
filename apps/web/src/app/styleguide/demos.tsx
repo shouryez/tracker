@@ -116,7 +116,7 @@ export function FieldsDemo() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Field label="Name" placeholder="Your name" helper="Shown on your public profile." />
-      <Field label="Handle" defaultValue="shourya" success helper="dsakaro.in/u/shourya" />
+      <Field label="Handle" defaultValue="shourya" success helper="dsakaro.site/u/shourya" />
       <Field label="LeetCode username" defaultValue="" error="That username doesn't exist." />
       <Field label="Disabled" disabled defaultValue="locked" />
       <div className="flex flex-col gap-1.5">

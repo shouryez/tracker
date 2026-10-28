@@ -297,7 +297,7 @@ async function SettingsContent() {
         {profile?.handle && (
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <code className="surface-inset rounded-full px-3.5 py-2 font-mono text-12 text-ink-2">
-              dsakaro.in/u/{profile.handle}
+              dsakaro.site/u/{profile.handle}
             </code>
             {profile.isPublic && (
               <Link

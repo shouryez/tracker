@@ -1,6 +1,6 @@
 # DsaKaro — Design Language & Design Doc
 
-> **DsaKaro** ("DSA karo", Hindi for "do DSA"). Formerly the working name Upsolve. Domain: dsakaro.in.
+> **DsaKaro** ("DSA karo", Hindi for "do DSA"). Formerly the working name Upsolve. Domain: dsakaro.site.
 > **Living reference:** [`design/preview.html`](design/preview.html) implements everything in this doc — tokens, components, charts, motion — in one file. When this doc and the preview disagree, fix one of them the same day.
 >
 > View it: `python -m http.server 4173 --directory design` → http://localhost:4173/preview.html

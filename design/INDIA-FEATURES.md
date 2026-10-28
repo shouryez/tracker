@@ -51,7 +51,7 @@ _Why it wins:_ product-company DSA trackers ignore the largest group of Indian s
 
 ### 6. Proof-of-Skill card for the AI-proctoring era (score 12)
 
-Recruiters now distrust OA scores and LeetCode counts. DsaKaro already knows **how** you solve: time, verdict path, hint/solution answers. Add a **"Verified by DsaKaro"** profile section: solo rate, median Medium time, retention rate, interview-mode results, plus optional 60-second **"explain it" voice notes** on chosen problems (opt-in, the student picks what to publish). A one-click **LinkedIn post / resume line** generator ("412 problems, 78% solved solo, median Medium 24 min; verified at dsakaro.in/u/…").
+Recruiters now distrust OA scores and LeetCode counts. DsaKaro already knows **how** you solve: time, verdict path, hint/solution answers. Add a **"Verified by DsaKaro"** profile section: solo rate, median Medium time, retention rate, interview-mode results, plus optional 60-second **"explain it" voice notes** on chosen problems (opt-in, the student picks what to publish). A one-click **LinkedIn post / resume line** generator ("412 problems, 78% solved solo, median Medium 24 min; verified at dsakaro.site/u/…").
 _Why it wins:_ Indian students already flex badges; give them a flex that recruiters can trust. Never uploads code.
 
 ### 7. College League: college vs college (score 11)

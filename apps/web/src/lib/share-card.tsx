@@ -155,7 +155,7 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
             color: MUTED,
           }}
         >
-          {d.handle ? `dsakaro.in/u/${d.handle}` : "DSA practice, remembered"}
+          {d.handle ? `dsakaro.site/u/${d.handle}` : "DSA practice, remembered"}
         </div>
       </div>
 
