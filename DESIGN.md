@@ -50,6 +50,23 @@ Wordmark **DSA करो**, set in Poppins ExtraBold (its Latin and Devanagari w
 - Lime pixel is always lime, even in light mode.
 - Clear space = one pixel width on all sides.
 
+### Mascot
+
+**Stacky**: a stack of three clay plates (the stack data structure) with a face on the top block. Its hollow ring eyes are graph nodes, and the lime bulb on its head is the stack's **top pointer**, the same lime as the logo's headline bar. Clay is the neutral greys, outlines and arms are sky, cheeks are rose. It is shaded with SVG gradients to look 3D, with no WebGL, and moves with transform/opacity only; under reduced motion it holds still. Source: `packages/ui/src/components/stacky.tsx`; every mood is on `/styleguide`.
+
+| Mood        | Use                                             |
+| ----------- | ----------------------------------------------- |
+| `idle`      | Nothing yet (first-run empty states)            |
+| `accepted`  | All caught up, a solve landed                   |
+| `due`       | A revision is waiting (bulb pulses)             |
+| `streak`    | Streak moments (holds the amber flame)          |
+| `thinking`  | No search match, errors, 404                    |
+| `sleepy`    | Nothing due today                               |
+| `celebrate` | Sheet complete (`push()`: a plate lands on top) |
+
+- Use it through `EmptyState`/`ErrorState`'s `mascot` prop, at most one Stacky per view.
+- Its colours are fixed in both themes, like the logo's lime. Lime stays on the bulb; the flame appears only with `streak`.
+
 ### Voice
 
 - Short, direct, a bit dry. Talk like a senior who has already been through placements.
@@ -149,22 +166,22 @@ Fonts load through `next/font` in the app (Geist from the `geist` package, Instr
 
 **Rule of thumb:** _one entrance per element, at most one ambient loop per viewport, and nothing that runs while the user is reading or typing._
 
-| Name               | Spec                                                                                                  | Where                                                             |
-| ------------------ | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **Reveal**         | opacity 0→1, y 18→0, blur 8→0 px · 800 ms `--ease-out` · 70 ms stagger · fires once at 12% visible    | Every section and card on marketing; app cards on first load only |
-| **Headline words** | Each word: y .35em→0, blur 10→0 · 80 ms per word                                                      | Hero H1                                                           |
-| **Frame flatten**  | Product frame `rotateX(22°) scale(.93)` → flat, linked to scroll over the first 55% of the viewport   | Hero product shot (FocusFlow iso → Kora flat)                     |
-| **Glow drift**     | Blobs translate/scale over 18–26 s, alternate                                                         | Hero                                                              |
-| **Count-up**       | 0 → value, 1.2 s, ease-out-quart, thousands separators                                                | Every big number when first visible, and after data changes       |
-| **Pixel wave**     | Pixels scale .4→1 with spring, delay = column × 18–22 ms (+ row × 30 ms in stack chart)               | Heatmaps, stack chart                                             |
-| **Bar fill**       | height/width 0 → value, 1–1.1 s, stagger 70–80 ms                                                     | Weekly bars, topic mastery, split bar                             |
-| **Gauge draw**     | stroke-dashoffset 100 → value, 1.4 s                                                                  | Readiness gauge                                                   |
-| **Spotlight**      | radial indigo glow follows cursor inside card, fades in 480 ms                                        | Bento cards, KPI cards                                            |
-| **Chip pop**       | y 6→0, scale .9→1, spring                                                                             | Verdict chips arriving, toasts                                    |
-| **Live**           | Ping ring on live dot (1.8 s), recording dot blink, marching hatch on today's bar, ticking mono timer | Anything that is live _right now_                                 |
-| **Press**          | scale .97, 240 ms                                                                                     | All buttons                                                       |
-| **Theme switch**   | All colour transitions to 480 ms for one switch                                                       | Theme toggle                                                      |
-| **Marquee**        | Platform names scroll 38 s linear, edge-masked                                                        | Landing only                                                      |
+| Name               | Spec                                                                                                                                                                                      | Where                                                                    |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Reveal**         | opacity 0→1, y 18→0, blur 8→0 px · 800 ms `--ease-out` · 70 ms stagger · fires once at 12% visible                                                                                        | Every section and card on marketing; app cards on first load only        |
+| **Headline words** | Each word: y .35em→0, blur 10→0 · 80 ms per word                                                                                                                                          | Hero H1                                                                  |
+| **Frame flatten**  | Product frame `rotateX(22°) scale(.93)` → flat, linked to scroll over the first 55% of the viewport                                                                                       | Hero product shot (FocusFlow iso → Kora flat)                            |
+| **Glow drift**     | Blobs translate/scale over 18–26 s, alternate                                                                                                                                             | Hero                                                                     |
+| **Count-up**       | 0 → value, 1.2 s, ease-out-quart, thousands separators                                                                                                                                    | Every big number when first visible, and after data changes              |
+| **Pixel wave**     | Pixels scale .4→1 with spring, delay = column × 18–22 ms (+ row × 30 ms in stack chart)                                                                                                   | Heatmaps, stack chart                                                    |
+| **Bar fill**       | height/width 0 → value, 1–1.1 s, stagger 70–80 ms                                                                                                                                         | Weekly bars, topic mastery, split bar                                    |
+| **Gauge draw**     | stroke-dashoffset 100 → value, 1.4 s                                                                                                                                                      | Readiness gauge                                                          |
+| **Spotlight**      | radial indigo glow follows cursor inside card, fades in 480 ms                                                                                                                            | Bento cards, KPI cards                                                   |
+| **Chip pop**       | y 6→0, scale .9→1, spring                                                                                                                                                                 | Verdict chips arriving, toasts                                           |
+| **Live**           | Ping ring on live dot (1.8 s), recording dot blink, marching hatch on today's bar, ticking mono timer                                                                                     | Anything that is live _right now_                                        |
+| **Press**          | scale .97, 240 ms                                                                                                                                                                         | All buttons                                                              |
+| **Theme switch**   | All colour transitions to 480 ms for one switch                                                                                                                                           | Theme toggle                                                             |
+| **Marquee**        | Platform names scroll 38 s linear, edge-masked                                                                                                                                            | Landing only                                                             |
 | **Scroll story**   | Pinned section (500vh / 320vh phones), sticky `100svh` stage; scroll progress drives transforms only. Fully reversible, no scroll-jacking. Timeline in `components/landing/hero/scene.ts` | Landing hero only ([LANDING-V3](design/LANDING-V3.md)). Never in the app |
 
 **Reduced motion:** with `prefers-reduced-motion: reduce`, every animation duration becomes ~0. Reveals and words are shown immediately, the frame is flat, and timers still tick (they are information, not decoration).

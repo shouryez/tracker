@@ -556,7 +556,7 @@ async function Overview() {
           ) : (
             <EmptyState
               className="flex-1 py-4"
-              icon={<RotateCcw size={18} />}
+              mascot={learning.length === 0 ? "sleepy" : "accepted"}
               title={
                 learning.length === 0 ? (
                   <>
