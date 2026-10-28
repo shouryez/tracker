@@ -21,3 +21,5 @@ Thumbs.db
 # deploy / secrets
 .vercel
 *.pem
+# Supabase CLI cache
+**/supabase/.temp/
