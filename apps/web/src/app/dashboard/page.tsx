@@ -114,11 +114,25 @@ function greeting(tz: string, now: number) {
         : "Good evening";
 }
 
+// TEMP diagnostics: name any dashboard data call that is slow or never settles on Vercel.
+function traced<T>(name: string, p: Promise<T>): Promise<T> {
+  const started = Date.now();
+  const timer = setTimeout(
+    () => console.warn(`[dashboard] still waiting on ${name} after 5s`),
+    5000,
+  );
+  return p.finally(() => {
+    clearTimeout(timer);
+    const ms = Date.now() - started;
+    if (ms > 1000) console.warn(`[dashboard] ${name} took ${ms} ms`);
+  });
+}
+
 async function Overview() {
-  const user = await getCurrentUser();
+  const user = await traced("getCurrentUser", getCurrentUser());
   if (isDemoUser(user)) return <DemoNotice />;
 
-  const profile = await getProfile(user.id);
+  const profile = await traced("getProfile", getProfile(user.id));
   if (!profile?.onboardedAt) redirect("/onboarding");
 
   const [
@@ -134,22 +148,22 @@ async function Overview() {
     sheets,
     freezes,
   ] = await Promise.all([
-    getAccounts(user.id),
-    getContestSeries(user.id),
-    getRecentSolves(user.id),
-    getSessionStats(user.id),
-    getSessions(user.id, 3),
-    getExtensionTokens(user.id),
-    getLearning(user.id),
-    getTopicTargets(),
-    getNextCandidates(user.id),
-    getSheetSummaries(user.id),
-    getStreakFreezes(user.id),
+    traced("getAccounts", getAccounts(user.id)),
+    traced("getContestSeries", getContestSeries(user.id)),
+    traced("getRecentSolves", getRecentSolves(user.id)),
+    traced("getSessionStats", getSessionStats(user.id)),
+    traced("getSessions", getSessions(user.id, 3)),
+    traced("getExtensionTokens", getExtensionTokens(user.id)),
+    traced("getLearning", getLearning(user.id)),
+    traced("getTopicTargets", getTopicTargets()),
+    traced("getNextCandidates", getNextCandidates(user.id)),
+    traced("getSheetSummaries", getSheetSummaries(user.id)),
+    traced("getStreakFreezes", getStreakFreezes(user.id)),
   ]);
   const now = requestNow();
   const [plan, nudges] = await Promise.all([
-    getTodayPlan(user.id, profile.timezone, profile.reviewCap, now),
-    getUnseenNudges(user.id),
+    traced("getTodayPlan", getTodayPlan(user.id, profile.timezone, profile.reviewCap, now)),
+    traced("getUnseenNudges", getUnseenNudges(user.id)),
   ]);
   const mastery = masteryOf(learning, targets, now);
   const queue = revisionQueue(learning, mastery, {
