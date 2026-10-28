@@ -665,7 +665,7 @@ function ItemRow({
             title={item.title}
           />
         )}
-        <span className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="flex min-w-0 flex-1 basis-[calc(100%-2rem)] flex-wrap items-center gap-x-2 gap-y-1 sm:basis-auto sm:flex-nowrap">
           {item.problemId ? (
             <Link
               href={`/dashboard/problems/${item.problemId}`}
@@ -818,7 +818,7 @@ function PickBox({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "grid size-5 shrink-0 place-items-center rounded-[6px] border transition-[background-color,border-color,transform] duration-[var(--dur-fast)] active:scale-90 disabled:opacity-35",
+        "grid size-5 shrink-0 place-items-center rounded-[6px] border relative before:absolute before:-inset-2.5 before:content-[''] transition-[background-color,border-color,transform] duration-[var(--dur-fast)] active:scale-90 disabled:opacity-35",
         checked
           ? "border-transparent bg-signal text-signal-ink"
           : "border-line-3 bg-surface-2 hover:border-signal-2",

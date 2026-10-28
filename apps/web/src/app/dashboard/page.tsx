@@ -948,7 +948,7 @@ function RecentRow({ solve, index }: { solve: RecentSolve; index: number }) {
 function ConnectPrompt() {
   return (
     <Card tier="hero" className="flex flex-wrap items-center gap-4">
-      <div className="min-w-0 flex-1">
+      <div className="min-w-[min(100%,260px)] flex-1">
         <p className="text-18 font-[600] tracking-[-0.02em]">
           Your dashboard is <em className="font-display font-normal">empty.</em> Connect LeetCode,
           Codeforces or GFG.

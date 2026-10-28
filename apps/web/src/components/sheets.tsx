@@ -99,7 +99,7 @@ export function ItemTick({
         });
       }}
       className={cn(
-        "grid size-5 shrink-0 place-items-center rounded-[6px] transition-[background-color,border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-spring)] active:scale-90",
+        "grid size-5 shrink-0 place-items-center rounded-[6px] relative before:absolute before:-inset-2.5 before:content-[''] transition-[background-color,border-color,transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-spring)] active:scale-90",
         done
           ? "animate-[pop-in_var(--dur-slow)_var(--ease-spring)] bg-success text-[#06210f] shadow-[0_0_10px_-4px_var(--success)]"
           : "border-[1.5px] border-line-3 bg-surface-2 hover:scale-110 hover:border-ink-3",

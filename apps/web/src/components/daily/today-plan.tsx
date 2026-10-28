@@ -164,9 +164,11 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
                 <span className="block truncate text-11 text-ink-3">{item.detail}</span>
               )}
             </span>
-            <Tag tone={KIND[item.kind].tone} className="hidden h-5 px-1.5 text-11 sm:inline-flex">
-              {KIND[item.kind].label}
-            </Tag>
+            <span className="hidden sm:inline-flex">
+              <Tag tone={KIND[item.kind].tone} className="h-5 px-1.5 text-11">
+                {KIND[item.kind].label}
+              </Tag>
+            </span>
             {item.url && (
               <a
                 href={item.url}

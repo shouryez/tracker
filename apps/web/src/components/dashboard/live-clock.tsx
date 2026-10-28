@@ -39,6 +39,12 @@ export function LiveClock({
     year: "numeric",
     timeZone,
   });
+  const shortDate = d.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone,
+  });
 
   return (
     <div className={cn("surface-card flex items-center gap-4 rounded-lg px-4 py-3.5", className)}>
@@ -47,7 +53,8 @@ export function LiveClock({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-13 font-[600]" suppressHydrationWarning>
-          {date}
+          <span className="sm:hidden">{shortDate}</span>
+          <span className="hidden sm:inline">{date}</span>
         </span>
         <span className="block truncate font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
           {timeZone.replace("_", " ")}

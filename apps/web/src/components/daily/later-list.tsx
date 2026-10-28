@@ -91,20 +91,21 @@ export function LaterList({
         </Button>
       </form>
 
-      <SegmentedControl
-        label="Show"
-        size="sm"
-        value={filter}
-        onChange={setFilter}
-        className="self-start"
-        items={[
-          { value: "todo", label: "To watch/read", count: count("todo") },
-          { value: "video", label: "Videos", count: count("video") },
-          { value: "article", label: "Articles", count: count("article") },
-          { value: "problem", label: "Problems", count: count("problem") },
-          { value: "done", label: "Done", count: count("done") },
-        ]}
-      />
+      <div className="-mx-1 max-w-[calc(100%+0.5rem)] self-start overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+        <SegmentedControl
+          label="Show"
+          size="sm"
+          value={filter}
+          onChange={setFilter}
+          items={[
+            { value: "todo", label: "To watch/read", count: count("todo") },
+            { value: "video", label: "Videos", count: count("video") },
+            { value: "article", label: "Articles", count: count("article") },
+            { value: "problem", label: "Problems", count: count("problem") },
+            { value: "done", label: "Done", count: count("done") },
+          ]}
+        />
+      </div>
 
       {shown.length === 0 ? (
         <EmptyState

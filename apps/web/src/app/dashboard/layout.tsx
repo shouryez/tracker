@@ -18,13 +18,14 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
         <SidebarWithData />
       </Suspense>
 
-      <div className="min-w-0 flex-1 px-4 pb-32 sm:px-6 lg:pb-12">
+      {/* overflow-x-clip: decorative glows can't widen the page on phones; unlike hidden it keeps the header sticky. */}
+      <div className="min-w-0 flex-1 overflow-x-clip px-4 pb-32 sm:px-6 lg:pb-12">
         <StickyHeader>
           <Link href="/dashboard" className="lg:hidden" aria-label="DsaKaro dashboard">
             <LogoMark size={26} />
           </Link>
           <SearchBox />
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <span className="hidden sm:inline-flex">
               <FeedbackTrigger />
             </span>
