@@ -22,6 +22,7 @@ import { db, userTag } from "@/lib/db";
 import { getProfile } from "@/lib/data";
 import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/lib/learning";
 import { ON_TODAY_LIST, getTodaySuggestions } from "@/lib/plan";
+import { getStudyContents, type StudyContents } from "@/lib/study-data";
 import { localDate, requestNow } from "@/lib/time";
 
 // Writes for the daily-loop features. Every action resolves the user from the
@@ -310,6 +311,18 @@ const Report = z
  * Ends a focus session. With the extension's report, focus/away come from tab tracking;
  * without it, the whole wall-clock time counts as focus. `discard` deletes it instead.
  */
+/** What happened in a running study session so far, for the summary shown when you stop. */
+export async function getStudySummary(id: string): Promise<StudyContents | null> {
+  const user = await me();
+  if (!user || !Id.safeParse(id).success) return null;
+  const [row] = await db()
+    .select({ startedAt: focusSessions.startedAt })
+    .from(focusSessions)
+    .where(and(eq(focusSessions.id, id), eq(focusSessions.userId, user.id)));
+  if (!row) return null;
+  return getStudyContents(user.id, row.startedAt.getTime(), Date.now());
+}
+
 export async function stopFocus(
   id: string,
   report: { focusMs: number; awayMs: number; switches: number } | null,

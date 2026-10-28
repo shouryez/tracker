@@ -4,11 +4,13 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Coffee, Pause, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, ProgressRing, SegmentedControl, Tag, cn, inputClasses } from "@upsolve/ui";
-import { startFocus, stopFocus } from "@/app/actions/daily";
+import { getStudySummary, startFocus, stopFocus } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
 import { Modal } from "@/components/fx/overlay";
 import { labStart, labStatus, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
+import type { StudyContents } from "@/lib/study-data";
+import { StudyContentsList, studyCounts } from "./study-session";
 
 type Mode = "stopwatch" | "pomodoro-25" | "pomodoro-50";
 const CYCLE: Record<Exclude<Mode, "stopwatch">, { work: number; rest: number }> = {
@@ -50,7 +52,11 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
   const [label, setLabel] = useState("");
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [totals, setTotals] = useState<LabTotals | null>(null);
-  const [summary, setSummary] = useState<{ wall: number; totals: LabTotals | null } | null>(null);
+  const [summary, setSummary] = useState<{
+    wall: number;
+    totals: LabTotals | null;
+    contents: StudyContents | null;
+  } | null>(null);
   const [pending, start] = useTransition();
   const lastPhase = useRef<boolean | null>(null);
 
@@ -103,8 +109,8 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
 
   async function end() {
     if (!running) return;
-    const t = await labStop(running.id);
-    setSummary({ wall: Date.now() - running.startedAt, totals: t?.tracking ? t : null });
+    const [t, contents] = await Promise.all([labStop(running.id), getStudySummary(running.id)]);
+    setSummary({ wall: Date.now() - running.startedAt, totals: t?.tracking ? t : null, contents });
   }
 
   function save(discard: boolean) {
@@ -252,6 +258,20 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
                 </div>
               ))}
             </div>
+            {summary.contents && (
+              <div className="flex flex-col gap-2">
+                <p className="label-mono">
+                  In this session
+                  {studyCounts(summary.contents).length
+                    ? ` · ${studyCounts(summary.contents).join(" · ")}`
+                    : ""}
+                </p>
+                <StudyContentsList
+                  contents={summary.contents}
+                  className="max-h-[40vh] overflow-y-auto"
+                />
+              </div>
+            )}
             {summary.totals && summary.totals.awayMs > 10 * 60_000 && (
               <p className="text-13 text-ink-2">
                 You were away for {mins(summary.totals.awayMs)}. Away time never counts as focus.

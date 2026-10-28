@@ -609,6 +609,26 @@ export const focusSessions = pgTable(
   ],
 ).enableRLS();
 
+/**
+ * Videos watched in the app's player (a sheet's YouTube explanations), so a study session can
+ * list what you watched. Only views of 20 seconds or more are kept.
+ */
+export const videoWatches = pgTable(
+  "video_watches",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    sheetId: uuid("sheet_id").references(() => sheets.id, { onDelete: "set null" }),
+    itemKey: text("item_key"),
+    title: text("title").notNull(),
+    url: text("url").notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    watchedMs: integer("watched_ms").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("video_watches_user_idx").on(t.userId, t.startedAt.desc()), ownerCanRead(t.userId)],
+).enableRLS();
+
 /** Save-for-later: videos, articles and problems saved from anywhere. */
 export const savedItems = pgTable(
   "saved_items",

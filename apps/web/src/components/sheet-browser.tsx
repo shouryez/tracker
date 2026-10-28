@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import {
   CalendarPlus,
   Check,
@@ -75,7 +76,7 @@ export function SheetBrowser({
     () => new Set(items.filter((i) => i.starred).map((i) => i.itemKey)),
   );
   const [noteFor, setNoteFor] = useState<string | null>(null);
-  const [video, setVideo] = useState<{ url: string; title: string } | null>(null);
+  const [video, setVideo] = useState<{ url: string; title: string; itemKey: string } | null>(null);
   const [highlight, setHighlight] = useState<string | null>(null);
   const continueItem =
     items.find((i) => !i.status && i.kind === "practice") ?? items.find((i) => !i.status);
@@ -461,7 +462,9 @@ export function SheetBrowser({
                           onNote={() =>
                             setNoteFor((k) => (k === item.itemKey ? null : item.itemKey))
                           }
-                          onVideo={(url) => setVideo({ url, title: item.title })}
+                          onVideo={(url) =>
+                            setVideo({ url, title: item.title, itemKey: item.itemKey })
+                          }
                         />
                       ))}
                     </ul>
@@ -584,7 +587,15 @@ export function SheetBrowser({
         </div>
       )}
 
-      {video && <VideoModal url={video.url} title={video.title} onClose={() => setVideo(null)} />}
+      {video && (
+        <VideoModal
+          url={video.url}
+          title={video.title}
+          sheetId={sheetId}
+          itemKey={video.itemKey}
+          onClose={() => setVideo(null)}
+        />
+      )}
     </div>
   );
 }
@@ -846,6 +857,55 @@ function Slot({ children, className }: { children?: ReactNode; className?: strin
   );
 }
 
+/**
+ * Logs how long a video was watched in the player (visible time only) for the study-session
+ * summary. Sent once, when the player closes or the page is left; short peeks aren't kept.
+ */
+function useWatchLog(view: { url: string; title: string; sheetId: string; itemKey: string }) {
+  const viewRef = useRef(view);
+  useEffect(() => {
+    const startedAt = Date.now();
+    let watched = 0;
+    let since: number | null = document.visibilityState === "visible" ? startedAt : null;
+    let sent = false;
+    const pause = () => {
+      if (since !== null) watched += Date.now() - since;
+      since = null;
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") since ??= Date.now();
+      else pause();
+    };
+    const send = () => {
+      if (sent) return;
+      sent = true;
+      pause();
+      if (watched < 20_000) return;
+      const v = viewRef.current;
+      void fetch("/api/study/video", {
+        method: "POST",
+        keepalive: true,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sheetId: v.sheetId,
+          itemKey: v.itemKey,
+          title: v.title,
+          url: v.url,
+          startedAt,
+          watchedMs: Math.round(watched),
+        }),
+      }).catch(() => {});
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", send);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", send);
+      send();
+    };
+  }, []);
+}
+
 /** Resource dock icon: monochrome mark, brand colour + slight magnify on hover, tooltip. */
 function Resource({
   href,
@@ -927,9 +987,22 @@ function formatMinutes(min: number): string {
 }
 
 /** Plays the creator's explanation without leaving the sheet (privacy-enhanced embed). */
-function VideoModal({ url, title, onClose }: { url: string; title: string; onClose: () => void }) {
+function VideoModal({
+  url,
+  title,
+  sheetId,
+  itemKey,
+  onClose,
+}: {
+  url: string;
+  title: string;
+  sheetId: string;
+  itemKey: string;
+  onClose: () => void;
+}) {
   const yt = parseYouTube(url);
   const closeRef = useRef<HTMLButtonElement>(null);
+  useWatchLog({ url, title, sheetId, itemKey });
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -942,7 +1015,9 @@ function VideoModal({ url, title, onClose }: { url: string; title: string; onClo
     };
   }, [onClose]);
   if (!yt) return null;
-  return (
+  // Portalled to <body>: inside the sheet, an animated (transformed) ancestor would make
+  // `fixed` relative to it, so the player landed at the top, bottom or half off screen.
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -951,7 +1026,9 @@ function VideoModal({ url, title, onClose }: { url: string; title: string; onClo
       onClick={onClose}
     >
       <div
-        className="glass w-full max-w-[960px] animate-[modal-in_var(--dur-slow)_var(--ease-spring)] overflow-hidden rounded-[22px] border border-line-2 shadow-e4"
+        className="glass w-full animate-[modal-in_var(--dur-slow)_var(--ease-spring)] overflow-hidden rounded-[22px] border border-line-2 shadow-e4"
+        // Never taller than the screen: a 16:9 player plus its title bar.
+        style={{ maxWidth: "min(960px, calc((100dvh - 7rem) * 16 / 9))" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 px-4 py-3">
@@ -985,7 +1062,8 @@ function VideoModal({ url, title, onClose }: { url: string; title: string; onClo
           />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

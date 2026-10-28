@@ -18,9 +18,11 @@ import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { HonestSplit, SessionItem } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { LabTimer } from "@/components/daily/lab-timer";
+import { StudyHistory } from "@/components/daily/study-session";
 import { NowSolving } from "@/components/daily/now-solving";
 import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
+import { getStudyHistory } from "@/lib/study-data";
 import { requestNow } from "@/lib/time";
 import { formatDuration, getSessionStats, getSessions } from "@/lib/sessions-data";
 
@@ -48,11 +50,12 @@ async function SessionsContent() {
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your sessions.</p>;
 
-  const [stats, sessions, profile, active] = await Promise.all([
+  const [stats, sessions, profile, active, studies] = await Promise.all([
     getSessionStats(user.id),
     getSessions(user.id, 100),
     getProfile(user.id),
     getActiveFocus(user.id),
+    getStudyHistory(user.id, 8),
   ]);
   const focus = await getFocusSummary(user.id, profile?.timezone ?? "Asia/Kolkata", requestNow());
   const { solo, hint, solution } = stats.honest;
@@ -62,7 +65,7 @@ async function SessionsContent() {
     <Card id="lab" glow="var(--signal-mark)" className="scroll-mt-24">
       <CardHeader>
         <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
-          Lab mode · focus timer
+          Study session
         </CardTitle>
         <CardSub>
           {formatDuration(focus.todayMs)} today · {formatDuration(focus.weekMs)} this week
@@ -98,6 +101,18 @@ async function SessionsContent() {
     </Card>
   );
 
+  const history = (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle icon={<History size={14} />} tint="var(--violet)">
+          Study history
+        </CardTitle>
+        <CardSub>what you did in each session</CardSub>
+      </CardHeader>
+      <StudyHistory sessions={studies} timeZone={profile?.timezone ?? "Asia/Kolkata"} />
+    </Card>
+  );
+
   const header = (
     <PageHeader
       eyebrow="Sessions · timed by the extension"
@@ -127,6 +142,7 @@ async function SessionsContent() {
         {header}
         <NowSolving />
         {lab}
+        {history}
         <Card tier="hero" className="overflow-hidden">
           <EmptyState
             className="[&_p]:text-white/75 [&>p:first-of-type]:text-white"
@@ -172,6 +188,10 @@ async function SessionsContent() {
     <>
       {header}
       <NowSolving />
+      <div className="grid grid-cols-12 gap-3.5">
+        <div className="col-span-12 xl:col-span-6">{lab}</div>
+        <div className="col-span-12 xl:col-span-6">{history}</div>
+      </div>
       <div className="stagger-in grid grid-cols-12 gap-3.5">
         <Card tier="hero" beam className="col-span-12 lg:col-span-7">
           <CardHeader>

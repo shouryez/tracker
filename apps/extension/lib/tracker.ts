@@ -20,7 +20,8 @@ import { onInput, resume, setManualPause, solve, tick } from "./timer.ts";
 import { TimerUi } from "./ui.ts";
 
 const PERSIST_EVERY_TICKS = 15;
-const UPLOAD_EVERY_TICKS = 60;
+/** While you solve, report every 30 s so the dashboard's "Now solving" clock stays live. */
+const UPLOAD_EVERY_TICKS = 30;
 /** Active time before the panel offers hints instead of the editorial. */
 const STUCK_MS = 25 * 60_000;
 
@@ -51,6 +52,8 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   let session: LocalSession | null = null;
   let lastInputAt = Date.now();
   let ticks = 0;
+  /** The first report of a session goes out as soon as it's worth uploading. */
+  let reported = false;
   let connected = Boolean(await store.token());
   let hintsOffered = false;
   let checklistShown = false;
@@ -98,6 +101,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   async function enter(next: string) {
     await leave();
     slug = next;
+    reported = false;
     const now = Date.now();
     const existing = await store.session(site.platform, next);
     session =
@@ -263,7 +267,11 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     render();
     ticks++;
     if (ticks % PERSIST_EVERY_TICKS === 0) void persist();
-    if (ticks % UPLOAD_EVERY_TICKS === 0 && session.timer.status === "active") send(session, false);
+    if (session.timer.status === "active" && (!reported || ticks % UPLOAD_EVERY_TICKS === 0)) {
+      // Sent straight away rather than on the next one-minute flush.
+      if (worthUploading(session)) reported = true;
+      send(session, true);
+    }
   }, 1000);
 
   ctx.onInvalidated(() => ui.unmount());
