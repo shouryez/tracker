@@ -412,12 +412,13 @@ async function Overview() {
           </div>
         </Card>
 
-        <div className="col-span-12 grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:col-span-7">
+        <div className="col-span-12 grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:col-span-7 xl:grid-cols-1 xl:grid-rows-3">
           <KpiCard
             title="Streak"
             icon={icon(Flame)}
             tint="var(--ember)"
             value={stats.streak}
+            strip
             unit={stats.streak === 1 ? "day" : "days"}
             href="/dashboard/settings#streak"
             visual={<StreakFlame streak={stats.streak} size={46} />}
@@ -434,6 +435,7 @@ async function Overview() {
             icon={icon(RotateCcw)}
             tint="var(--violet)"
             value={queue.today.length}
+            strip
             unit="today"
             href="/dashboard/revision"
             visual={
@@ -467,6 +469,7 @@ async function Overview() {
             tint="var(--signal-mark)"
             value={focus / 3_600_000}
             decimals={1}
+            strip
             unit="h week"
             href="/dashboard/sessions"
             visual={
@@ -490,7 +493,7 @@ async function Overview() {
           />
         </div>
 
-        {/* Row 2 · today plan + this week */}
+        {/* Row 2 · today plan + next revision (both are "what to do now") */}
         <Card spotlight glow="var(--signal-mark)" className="col-span-12 xl:col-span-7">
           <CardHeader>
             <CardTitle icon={icon(ListTodo)} tint="var(--signal-mark)">
@@ -499,16 +502,6 @@ async function Overview() {
             <CardLink href="/dashboard/today" label="Open today's plan" />
           </CardHeader>
           <TodayPlanList plan={plan} compact />
-        </Card>
-
-        <Card spotlight className="col-span-12 xl:col-span-5">
-          <CardHeader>
-            <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
-              This week
-            </CardTitle>
-            <CardSub>{weekTotal} solved · UTC days</CardSub>
-          </CardHeader>
-          <WeekCapsules days={week} todayIndex={sinceMonday} />
         </Card>
 
         <Card
@@ -582,7 +575,7 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 3 (cont.) · heatmap; Row 4 · sheets */}
+        {/* Row 3 · the two activity charts, similar heights */}
         <Card className="col-span-12 xl:col-span-7">
           <CardHeader>
             <CardTitle icon={icon(Grid3x3)} tint="var(--primary)">
@@ -593,7 +586,35 @@ async function Overview() {
           <ActivityHeatmap days={days} />
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col md:col-span-6 xl:col-span-4">
+        <Card spotlight className="col-span-12 xl:col-span-5">
+          <CardHeader>
+            <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
+              This week
+            </CardTitle>
+            <CardSub>{weekTotal} solved · UTC days</CardSub>
+          </CardHeader>
+          <WeekCapsules days={week} todayIndex={sinceMonday} />
+        </Card>
+
+        {/* Row 4 · mastery (radar beside its bars) + sheets */}
+        <Card spotlight className="col-span-12 flex flex-col xl:col-span-7">
+          <CardHeader>
+            <CardTitle icon={icon(Brain)} tint="var(--easy)">
+              Topic mastery
+            </CardTitle>
+            <CardLink href="/dashboard/analytics#mastery" label="All topics" />
+          </CardHeader>
+          <div className="@container flex flex-1 items-center">
+            <div className="grid w-full items-center gap-5 @lg:grid-cols-[220px_minmax(0,1fr)] @lg:gap-7">
+              <div className="mx-auto">
+                <TopicRadar topics={masteryTop} size={220} />
+              </div>
+              <MasteryBars topics={masteryTop.slice(0, 5)} showInputs={false} />
+            </div>
+          </div>
+        </Card>
+
+        <Card spotlight className="col-span-12 flex flex-col xl:col-span-5">
           <CardHeader>
             <CardTitle icon={icon(mainSheet ? Gauge : ListChecks)} tint="var(--violet)">
               {mainSheet ? "Your sheets" : "By difficulty"}
@@ -657,21 +678,8 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 4 · mastery radar + solve next rail (with sheets) */}
-        <Card spotlight className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle icon={icon(Brain)} tint="var(--easy)">
-              Topic mastery
-            </CardTitle>
-            <CardLink href="/dashboard/analytics#mastery" label="All topics" />
-          </CardHeader>
-          <div className="grid items-center gap-5">
-            <TopicRadar topics={masteryTop} size={240} />
-            <MasteryBars topics={masteryTop.slice(0, 5)} showInputs={false} />
-          </div>
-        </Card>
-
-        <Card spotlight className="col-span-12 flex flex-col xl:col-span-4">
+        {/* Row 5 · solve next, full width so all picks show side by side */}
+        <Card spotlight className="col-span-12">
           <CardHeader>
             <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
               Solve next
@@ -693,9 +701,9 @@ async function Overview() {
               Follow a sheet and solve a few problems; picks target your weakest topic.
             </EmptyState>
           ) : (
-            <ul className="-mx-1 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2">
+            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {nextUp.map((p) => (
-                <li key={p.problemId} className="w-[230px] shrink-0 snap-start">
+                <li key={p.problemId}>
                   <Link
                     href={`/dashboard/problems/${p.problemId}`}
                     className="surface-inset group/next flex h-full flex-col gap-3 rounded-[16px] p-4 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
@@ -718,7 +726,7 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 5 · focus + recent */}
+        {/* Row 6 · focus + recent */}
         <Card className="col-span-12 flex flex-col xl:col-span-5">
           <CardHeader>
             <CardTitle icon={icon(Timer)} tint="var(--signal-mark)">
@@ -802,7 +810,7 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 6 · platforms */}
+        {/* Row 7 · platforms */}
         <Card className="col-span-12">
           <CardHeader>
             <CardTitle icon={icon(Plug)} tint="var(--info)">
@@ -977,9 +985,9 @@ function OverviewSkeleton() {
       </div>
       <div className="grid grid-cols-12 gap-3.5">
         <SkeletonCard lines={3} className="col-span-12 h-[230px] xl:col-span-5" />
-        <div className="col-span-12 grid gap-3.5 sm:grid-cols-3 xl:col-span-7">
+        <div className="col-span-12 grid gap-3.5 sm:grid-cols-3 xl:col-span-7 xl:grid-cols-1">
           {Array.from({ length: 3 }, (_, i) => (
-            <SkeletonCard key={i} lines={1} className="h-[230px]" />
+            <SkeletonCard key={i} lines={1} className="h-[150px] xl:h-[69px]" />
           ))}
         </div>
         <SkeletonCard lines={5} className="col-span-12 h-[300px] xl:col-span-7" />

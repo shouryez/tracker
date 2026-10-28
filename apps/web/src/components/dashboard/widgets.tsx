@@ -22,6 +22,7 @@ export function KpiCard({
   spark,
   delta,
   visual,
+  strip,
   className,
   children,
 }: {
@@ -40,6 +41,8 @@ export function KpiCard({
   delta?: { value: number; label: string };
   /** Replaces the sparkline (ring, flame, …). */
   visual?: ReactNode;
+  /** On wide screens, lay out as a short horizontal row (title and foot left, value right). */
+  strip?: boolean;
   className?: string;
   children?: ReactNode;
 }) {
@@ -50,14 +53,24 @@ export function KpiCard({
       interactive
       spotlight={!feature}
       glow={!feature ? tint : undefined}
-      className={cn("flex flex-col gap-3", className)}
+      className={cn(
+        "flex flex-col gap-3",
+        strip &&
+          "xl:grid xl:grid-cols-[minmax(0,1fr)_auto] xl:content-center xl:items-center xl:gap-x-6 xl:gap-y-1.5",
+        className,
+      )}
     >
       <Link
         href={href}
         aria-label={`Open ${title}`}
         className="absolute inset-0 z-[2] rounded-[inherit]"
       />
-      <div className="flex items-center justify-between gap-2">
+      <div
+        className={cn(
+          "flex items-center justify-between gap-2",
+          strip && "xl:col-start-1 xl:row-start-1",
+        )}
+      >
         <span className="flex items-center gap-2.5 text-14 font-[600]">
           <span
             aria-hidden="true"
@@ -75,9 +88,16 @@ export function KpiCard({
           </span>
           {title}
         </span>
-        <CornerArrow className={feature ? "border-white/25 text-white" : undefined} />
+        <CornerArrow
+          className={cn(feature && "border-white/25 text-white", strip && "xl:hidden")}
+        />
       </div>
-      <div className="flex min-w-0 items-end justify-between gap-3">
+      <div
+        className={cn(
+          "flex min-w-0 items-end justify-between gap-3",
+          strip && "xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:items-center xl:gap-5",
+        )}
+      >
         <span className={cn("num text-[44px]", feature && "text-white")}>
           <NumberTicker value={value} decimals={decimals} />
           {unit && (
@@ -97,7 +117,12 @@ export function KpiCard({
           ) : null)}
       </div>
       {children}
-      <div className="flex min-w-0 items-center gap-2">
+      <div
+        className={cn(
+          "flex min-w-0 items-center gap-2",
+          strip && "xl:col-start-1 xl:row-start-2 xl:pl-[38px]",
+        )}
+      >
         {delta && delta.value !== 0 && (
           <span
             className={cn(
