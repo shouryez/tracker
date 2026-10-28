@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { Command } from "cmdk";
 import {
+  Bookmark,
   Check,
+  ListPlus,
+  Sparkles,
+  Timer,
   Clock3,
   CornerDownLeft,
   Download,
@@ -16,7 +20,8 @@ import {
 } from "lucide-react";
 import { DifficultyTag, Kbd, Spinner, THEME_STORAGE_KEY, cn } from "@upsolve/ui";
 import { quickSearch, type QuickResult } from "@/app/actions/search";
-import { ACCOUNT, MENU, SOCIAL } from "@/app/dashboard/_components/nav-links";
+import { ACCOUNT, MENU, SOCIAL, TOOLKIT } from "@/app/dashboard/_components/nav-links";
+import { openNextPicker } from "@/components/daily/next-problem";
 import { openFeedback } from "@/app/dashboard/_components/feedback-button";
 
 /** Other components open the palette with this event (e.g. the header search). */
@@ -183,7 +188,7 @@ export function CommandPalette() {
           )}
 
           <Group heading="Go to">
-            {[...MENU, ...SOCIAL, ...ACCOUNT].map(({ label, href, icon: Icon }) => (
+            {[...MENU, ...TOOLKIT, ...SOCIAL, ...ACCOUNT].map(({ label, href, icon: Icon }) => (
               <Item
                 key={href}
                 value={`go ${label}`}
@@ -196,6 +201,34 @@ export function CommandPalette() {
           </Group>
 
           <Group heading="Actions">
+            <Item
+              value="what should i solve next pick problem"
+              icon={<Sparkles size={14} />}
+              onSelect={() => run(openNextPicker)}
+            >
+              What should I solve next?
+            </Item>
+            <Item
+              value="start focus lab timer pomodoro"
+              icon={<Timer size={14} />}
+              onSelect={() => go("/dashboard/sessions#lab", "Lab timer")}
+            >
+              Start a focus session
+            </Item>
+            <Item
+              value="add task today plan todo"
+              icon={<ListPlus size={14} />}
+              onSelect={() => go("/dashboard/today", "Today")}
+            >
+              Add a task to today
+            </Item>
+            <Item
+              value="save link for later bookmark youtube"
+              icon={<Bookmark size={14} />}
+              onSelect={() => go("/dashboard/later", "Saved for later")}
+            >
+              Save a link for later
+            </Item>
             <Item
               value="toggle theme dark light"
               icon={<Moon size={14} />}

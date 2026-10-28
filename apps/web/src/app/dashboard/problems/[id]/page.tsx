@@ -19,6 +19,7 @@ import {
   buttonClasses,
 } from "@upsolve/ui";
 import { BackLink } from "@/components/back-link";
+import { ProblemActions } from "@/components/daily/problem-actions";
 import { dueLabel, ResultTag, reviewUrl } from "@/components/learning";
 import {
   PLATFORM_LABEL as MARK_LABEL,
@@ -35,6 +36,7 @@ import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { getLearning } from "@/lib/learning";
+import { getMyGroups } from "@/lib/social-data";
 import type { SheetItemLink } from "@upsolve/db";
 import { getProblemDetail, type ProblemDetail } from "@/lib/problem-data";
 import { formatDuration } from "@/lib/sessions-data";
@@ -94,10 +96,11 @@ async function ProblemContent({
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your problems.</p>;
 
-  const [problem, learning, profile] = await Promise.all([
+  const [problem, learning, profile, myGroups] = await Promise.all([
     getProblemDetail(user.id, id),
     getLearning(user.id),
     getProfile(user.id),
+    getMyGroups(user.id),
   ]);
   if (!problem) notFound();
   const review = learning.find((p) => p.problemId === id) ?? null;
@@ -156,6 +159,11 @@ async function ProblemContent({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
+          <ProblemActions
+            problemId={problem.id}
+            title={problem.title}
+            groups={myGroups.map((g) => ({ id: g.id, name: g.name }))}
+          />
           {firstVersion && (
             <a
               href={firstVersion.url}
@@ -240,6 +248,12 @@ async function ProblemContent({
                                     }}
                                   />
                                 </span>
+                                {t.s.takeaway && (
+                                  <p className="mt-2 text-13">
+                                    <span className="mr-1.5 text-signal-text">→</span>
+                                    {t.s.takeaway}
+                                  </p>
+                                )}
                                 {t.s.note && (
                                   <p className="mt-2 border-l-2 border-line-3 pl-2.5 text-13 text-ink-2 italic">
                                     {t.s.note}

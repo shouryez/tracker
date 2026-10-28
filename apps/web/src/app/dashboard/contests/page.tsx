@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Check, History, ListTodo, TrendingUp } from "lucide-react";
+import { CalendarDays, Check, History, ListTodo, TrendingUp } from "lucide-react";
 import type { Platform } from "@upsolve/adapters";
 import {
   ButtonArrow,
@@ -16,12 +16,15 @@ import {
   buttonClasses,
   cn,
 } from "@upsolve/ui";
+import { UpcomingContests } from "@/components/daily/upcoming-contests";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { PLATFORM_LABEL, PLATFORM_STROKE } from "@/components/platform-meta";
 import { CF_BANDS, RatingChart } from "@/components/rating-chart";
 import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { getUpcomingContests, googleCalendarUrl } from "@/lib/contest-calendar";
+import { getProfile } from "@/lib/data";
 import {
   getContests,
   getUpsolve,
@@ -48,6 +51,9 @@ export default function ContestsPage() {
           </>
         }
       />
+      <Suspense fallback={<SkeletonCard lines={4} className="h-[220px]" />}>
+        <UpcomingSection />
+      </Suspense>
       <Suspense
         fallback={
           <div className="grid grid-cols-12 gap-3.5">
@@ -60,6 +66,29 @@ export default function ContestsPage() {
         <ContestsContent />
       </Suspense>
     </div>
+  );
+}
+
+/** Upcoming contests across platforms (loads on its own, independent of your results). */
+async function UpcomingSection() {
+  const user = await getCurrentUser();
+  const tz = isDemoUser(user)
+    ? "Asia/Kolkata"
+    : ((await getProfile(user.id))?.timezone ?? "Asia/Kolkata");
+  const upcoming = await getUpcomingContests();
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle icon={<CalendarDays size={14} />} tint="var(--medium)">
+          Upcoming contests
+        </CardTitle>
+        <CardSub>next 14 days · 4 platforms</CardSub>
+      </CardHeader>
+      <UpcomingContests
+        tz={tz}
+        contests={upcoming.map((c) => ({ ...c, calendarUrl: googleCalendarUrl(c) }))}
+      />
+    </Card>
   );
 }
 

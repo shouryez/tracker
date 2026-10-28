@@ -17,7 +17,10 @@ import { NumberTicker } from "@/components/fx/number-ticker";
 import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { HonestSplit, SessionItem } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { LabTimer } from "@/components/daily/lab-timer";
+import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
+import { requestNow } from "@/lib/time";
 import { formatDuration, getSessionStats, getSessions } from "@/lib/sessions-data";
 
 export const metadata: Metadata = { title: "Sessions" };
@@ -44,13 +47,55 @@ async function SessionsContent() {
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your sessions.</p>;
 
-  const [stats, sessions, profile] = await Promise.all([
+  const [stats, sessions, profile, active] = await Promise.all([
     getSessionStats(user.id),
     getSessions(user.id, 100),
     getProfile(user.id),
+    getActiveFocus(user.id),
   ]);
+  const focus = await getFocusSummary(user.id, profile?.timezone ?? "Asia/Kolkata", requestNow());
   const { solo, hint, solution } = stats.honest;
   const goalMin = profile?.dailyGoalMin ?? 60;
+
+  const lab = (
+    <Card id="lab" glow="var(--signal-mark)" className="scroll-mt-24">
+      <CardHeader>
+        <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
+          Lab mode · focus timer
+        </CardTitle>
+        <CardSub>
+          {formatDuration(focus.todayMs)} today · {formatDuration(focus.weekMs)} this week
+        </CardSub>
+      </CardHeader>
+      <LabTimer active={active} />
+      {focus.recent.length > 0 && (
+        <ul className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
+          {focus.recent.slice(0, 6).map((f) => (
+            <li
+              key={f.id}
+              className="surface-inset rounded-[12px] px-3 py-2 text-12"
+              title={
+                f.tracked
+                  ? `${formatDuration(f.awayMs)} away · ${f.switches} switches`
+                  : "Wall-clock time"
+              }
+            >
+              <span className="tnum font-[600] text-ink">{formatDuration(f.focusMs)}</span>
+              <span className="text-ink-3">
+                {" "}
+                · {f.label ?? (f.tracked ? "tracked" : "timer")} ·{" "}
+                {new Date(f.startedAt).toLocaleTimeString("en-IN", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  timeZone: profile?.timezone ?? "Asia/Kolkata",
+                })}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
 
   const header = (
     <PageHeader
@@ -79,6 +124,8 @@ async function SessionsContent() {
     return (
       <>
         {header}
+        {lab}
+        {lab}
         <Card tier="hero" className="overflow-hidden">
           <EmptyState
             className="[&_p]:text-white/75 [&>p:first-of-type]:text-white"

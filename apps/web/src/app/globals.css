@@ -60,3 +60,28 @@
     transform: rotate(-4deg);
   }
 }
+
+/* Printing (the pattern notebook): just the page content, on white. */
+@media print {
+  aside,
+  header,
+  nav,
+  [role="tablist"],
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  html,
+  body,
+  main {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .surface-card,
+  .surface-hero,
+  .surface-inset {
+    background: #fff !important;
+    box-shadow: none !important;
+    border-color: #ddd !important;
+    break-inside: avoid;
+  }
+}

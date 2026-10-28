@@ -35,6 +35,8 @@ export type ProblemDetail = {
     independence: "solo" | "hint" | "solution" | null;
     note: string | null;
     mistakeTags: string[];
+    pattern: string | null;
+    takeaway: string | null;
   }[];
   note: { body: string; updatedAt: Date } | null;
   similar: { id: string; title: string; difficulty: Difficulty | null; url: string | null }[];
@@ -75,7 +77,8 @@ export async function getProblemDetail(
       order by s.submitted_at desc limit 200`),
     db().execute(sql`
       select ps.id, ps.mode, ps.started_at as at, ps.active_ms as "activeMs", ps.submits,
-             ps.outcome, ps.independence, ps.note, ps.mistake_tags as "mistakeTags"
+             ps.outcome, ps.independence, ps.note, ps.mistake_tags as "mistakeTags",
+             ps.pattern, ps.takeaway
       from practice_sessions ps join platform_problems pp on pp.id = ps.platform_problem_id
       where ps.user_id = ${userId} and pp.problem_id = ${problemId}
       order by ps.started_at desc limit 100`),

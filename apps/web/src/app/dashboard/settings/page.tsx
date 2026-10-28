@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import {
   AtSign,
+  BellRing,
   BookOpen,
   CalendarClock,
   Code2,
@@ -28,10 +29,12 @@ import { getProfile } from "@/lib/data";
 import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
 import { getExtensionTokens } from "@/lib/sessions-data";
 import { getStreakFreezes } from "@/lib/social-data";
+import { bestHour } from "@/lib/daily-data";
 import { localDate, requestNow } from "@/lib/time";
 import { ExtensionTokens } from "./extension-tokens";
 import { LearningSettings } from "./learning-settings";
 import { PublicToggle } from "./public-toggle";
+import { ReminderSettings } from "./reminder-settings";
 import { SectionNav } from "./section-nav";
 import { StreakFreezes } from "./streak-freezes";
 
@@ -42,6 +45,7 @@ const SECTIONS = [
   { id: "platforms", label: "Platforms" },
   { id: "extension", label: "Extension" },
   { id: "learning", label: "Revision & email" },
+  { id: "reminders", label: "Reminders" },
   { id: "social", label: "Social & privacy" },
   { id: "streak", label: "Streak freeze" },
   { id: "public", label: "Public profile" },
@@ -89,6 +93,7 @@ async function SettingsContent() {
     getExtensionTokens(user.id),
     getStreakFreezes(user.id),
   ]);
+  const best = await bestHour(user.id, profile?.timezone ?? "Asia/Kolkata");
   const now = requestNow();
   const today = localDate(profile?.timezone ?? "Asia/Kolkata", now);
   const icon = (I: typeof Plug) => <I size={14} strokeWidth={2} />;
@@ -202,6 +207,24 @@ async function SettingsContent() {
           </CardHeader>
           <LearningSettings
             initial={{ reviewCap: profile.reviewCap, weeklyEmail: profile.weeklyEmail }}
+          />
+        </Card>
+      )}
+
+      {profile && (
+        <Card id="reminders" className="scroll-mt-24">
+          <CardHeader>
+            <CardTitle icon={icon(BellRing)} tint="var(--medium)">
+              Reminders
+            </CardTitle>
+          </CardHeader>
+          <ReminderSettings
+            best={best}
+            initial={{
+              remindersOn: profile.remindersOn,
+              reminderHour: profile.reminderHour,
+              contestReminders: profile.contestReminders,
+            }}
           />
         </Card>
       )}

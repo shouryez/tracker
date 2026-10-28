@@ -3,8 +3,17 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, Link2, Radio, Trophy, UsersRound } from "lucide-react";
-import { Card, CardHeader, CardSub, CardTitle, SkeletonCard, Tag } from "@upsolve/ui";
+import { ArrowLeft, Link2, Radio, Send, Timer, Trophy, UsersRound } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardSub,
+  CardTitle,
+  DifficultyTag,
+  SkeletonCard,
+  Tag,
+} from "@upsolve/ui";
+import { NudgeButton } from "@/components/daily/nudge-button";
 import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { Leaderboard, MetricTabs, ScoreExplainer } from "@/components/leaderboard";
 import {
@@ -16,6 +25,7 @@ import {
 } from "@/components/social";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { getGroupShares, getLabBoard, getNudgedToday } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
 import {
@@ -26,7 +36,7 @@ import {
   getRoom,
   type BoardMetric,
 } from "@/lib/social-data";
-import { localDay, localWeekStart, requestNow } from "@/lib/time";
+import { localDate, localDay, localWeekStart, requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Group" };
 
@@ -78,10 +88,14 @@ async function GroupContent({
   if (!group) notFound();
   const now = requestNow();
   const profile = await getProfile(user.id);
-  const [board, room, h] = await Promise.all([
+  const dayStart = localDay(profile?.timezone ?? BOARD_TZ, now).start;
+  const [board, room, h, lab, shares, nudged] = await Promise.all([
     getGroupBoard(group.id, localWeekStart(BOARD_TZ, now)),
-    getRoom(group.id, localDay(profile?.timezone ?? BOARD_TZ, now).start),
+    getRoom(group.id, dayStart),
     headers(),
+    getLabBoard(group.id, dayStart),
+    getGroupShares(group.id),
+    getNudgedToday(user.id, group.id, localDate(profile?.timezone ?? BOARD_TZ, now)),
   ]);
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3005";
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
@@ -146,6 +160,88 @@ async function GroupContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
+          <Card glow={lab.some((l) => l.liveSince) ? "var(--signal-mark)" : undefined}>
+            <CardHeader>
+              <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
+                Lab · focus today
+              </CardTitle>
+              <CardSub>{lab.filter((l) => l.liveSince).length} focusing now</CardSub>
+            </CardHeader>
+            {lab.every((l) => !l.liveSince && l.todayMs === 0) ? (
+              <p className="text-13 text-ink-3">
+                Nobody has started a focus timer today. Start one from Sessions and the group sees
+                it here.
+              </p>
+            ) : (
+              <ol className="flex flex-col gap-1">
+                {lab.map((l, i) => (
+                  <li key={l.userId} className="flex items-center gap-3 rounded-[10px] px-2 py-1.5">
+                    <span className="tnum w-5 text-12 text-ink-3">{i + 1}</span>
+                    <span
+                      className={`size-2 rounded-full ${l.liveSince ? "pulse-ring bg-success text-success" : "bg-line-3"}`}
+                    />
+                    <span className="min-w-0 flex-1 truncate text-13 font-[550]">
+                      {l.name}
+                      {l.userId === user.id && (
+                        <span className="ml-1.5 text-11 text-ink-3">you</span>
+                      )}
+                    </span>
+                    {l.liveSince && <span className="text-11 text-success">in Lab</span>}
+                    <span className="tnum font-mono text-12">{formatDuration(l.todayMs)}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </Card>
+
+          {shares.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle icon={<Send size={14} />} tint="var(--info)">
+                  Solve this together
+                </CardTitle>
+                <CardSub>shared problems</CardSub>
+              </CardHeader>
+              <ul className="flex flex-col gap-3">
+                {shares.map((sh) => (
+                  <li key={sh.id} className="surface-inset rounded-[14px] p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Link
+                        href={`/dashboard/problems/${sh.problemId}`}
+                        className="text-[13.5px] font-[600] hover:underline"
+                      >
+                        {sh.title}
+                      </Link>
+                      {sh.difficulty && <DifficultyTag difficulty={sh.difficulty} />}
+                    </div>
+                    <p className="mt-0.5 text-11 text-ink-3">
+                      from {sh.from}
+                      {sh.note ? ` · “${sh.note}”` : ""}
+                    </p>
+                    {sh.members.length > 0 ? (
+                      <ul className="mt-2 flex flex-wrap gap-1.5">
+                        {sh.members.map((mm) => (
+                          <li key={mm.userId}>
+                            <Tag tone={mm.solved ? "success" : "neutral"} className="h-6 text-11">
+                              {mm.name}
+                              {mm.solved
+                                ? mm.bestMs
+                                  ? ` · ${formatDuration(mm.bestMs)}`
+                                  : " · solved"
+                                : ` · ${mm.attempts} tries`}
+                            </Tag>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-2 text-12 text-ink-3">Nobody has tried it yet.</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
           <Card glow={liveCount > 0 ? "var(--signal-mark)" : undefined}>
             <CardHeader>
               <CardTitle icon={icon(Radio)} tint="var(--signal-mark)">
@@ -217,9 +313,18 @@ async function GroupContent({
                         </span>
                       )}
                     </span>
-                    <span className="text-right font-mono text-[11px] text-ink-3">
-                      {m.solvedToday} today
-                      <span className="block">{formatDuration(m.focusTodayMs)}</span>
+                    <span className="flex flex-col items-end gap-1 text-right font-mono text-[11px] text-ink-3">
+                      <span>
+                        {m.solvedToday} today · {formatDuration(m.focusTodayMs)}
+                      </span>
+                      {!me && m.solvedToday === 0 && !(m.live && !m.live.solved) && (
+                        <NudgeButton
+                          groupId={group.id}
+                          toUser={m.userId}
+                          name={m.name ?? m.handle ?? "them"}
+                          already={nudged.includes(m.userId)}
+                        />
+                      )}
                     </span>
                   </li>
                 );

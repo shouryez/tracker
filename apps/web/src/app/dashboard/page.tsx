@@ -11,6 +11,7 @@ import {
   Grid3x3,
   History,
   ListChecks,
+  ListTodo,
   Play,
   Plug,
   Puzzle,
@@ -40,6 +41,9 @@ import {
   buttonClasses,
 } from "@upsolve/ui";
 import { CardLink } from "@/components/card-link";
+import { NextProblemButton } from "@/components/daily/next-problem";
+import { NudgeBanner } from "@/components/daily/nudge-banner";
+import { TodayPlanList } from "@/components/daily/today-plan";
 import { SolvedSplit, Sparkline } from "@/components/charts";
 import { FocusWeek, TopicRadar } from "@/components/charts/insights";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
@@ -75,6 +79,8 @@ import { GOALS } from "@/lib/profile-options";
 import { getSheetSummaries } from "@/lib/sheets-data";
 import { getExtensionTokens, getSessionStats, getSessions } from "@/lib/sessions-data";
 import { getStreakFreezes } from "@/lib/social-data";
+import { getUnseenNudges } from "@/lib/daily-data";
+import { getTodayPlan } from "@/lib/plan";
 import { localDate, localDay, requestNow } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
 
@@ -141,6 +147,10 @@ async function Overview() {
     getStreakFreezes(user.id),
   ]);
   const now = requestNow();
+  const [plan, nudges] = await Promise.all([
+    getTodayPlan(user.id, profile.timezone, profile.reviewCap, now),
+    getUnseenNudges(user.id),
+  ]);
   const mastery = masteryOf(learning, targets, now);
   const queue = revisionQueue(learning, mastery, {
     tz: profile.timezone,
@@ -252,6 +262,7 @@ async function Overview() {
         actions={
           <>
             <AutoSync stale={needsSync(accounts)} />
+            <NextProblemButton />
             <a
               href="/api/share-card?download=1"
               title="Download a 1200×630 card with your heatmap and numbers, for LinkedIn or WhatsApp"
@@ -278,6 +289,7 @@ async function Overview() {
         }
       />
 
+      <NudgeBanner nudges={nudges} />
       {accounts.length === 0 && <ConnectPrompt />}
 
       <div className="stagger-in grid grid-cols-12 gap-3.5">
@@ -478,8 +490,18 @@ async function Overview() {
           />
         </div>
 
-        {/* Row 2 · this week + next revision flashcard */}
-        <Card spotlight className="col-span-12 xl:col-span-7">
+        {/* Row 2 · today plan + this week */}
+        <Card spotlight glow="var(--signal-mark)" className="col-span-12 xl:col-span-7">
+          <CardHeader>
+            <CardTitle icon={icon(ListTodo)} tint="var(--signal-mark)">
+              Today
+            </CardTitle>
+            <CardLink href="/dashboard/today" label="Open today's plan" />
+          </CardHeader>
+          <TodayPlanList plan={plan} compact />
+        </Card>
+
+        <Card spotlight className="col-span-12 xl:col-span-5">
           <CardHeader>
             <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
               This week
@@ -560,8 +582,8 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 3 · heatmap + sheets */}
-        <Card className="col-span-12 xl:col-span-8">
+        {/* Row 3 (cont.) · heatmap; Row 4 · sheets */}
+        <Card className="col-span-12 xl:col-span-7">
           <CardHeader>
             <CardTitle icon={icon(Grid3x3)} tint="var(--primary)">
               Activity
@@ -571,7 +593,7 @@ async function Overview() {
           <ActivityHeatmap days={days} />
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col xl:col-span-4">
+        <Card spotlight className="col-span-12 flex flex-col md:col-span-6 xl:col-span-4">
           <CardHeader>
             <CardTitle icon={icon(mainSheet ? Gauge : ListChecks)} tint="var(--violet)">
               {mainSheet ? "Your sheets" : "By difficulty"}
@@ -635,21 +657,21 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 4 · mastery radar + solve next rail */}
-        <Card spotlight className="col-span-12 lg:col-span-6">
+        {/* Row 4 · mastery radar + solve next rail (with sheets) */}
+        <Card spotlight className="col-span-12 md:col-span-6 xl:col-span-4">
           <CardHeader>
             <CardTitle icon={icon(Brain)} tint="var(--easy)">
               Topic mastery
             </CardTitle>
             <CardLink href="/dashboard/analytics#mastery" label="All topics" />
           </CardHeader>
-          <div className="grid items-center gap-5 sm:grid-cols-[1.1fr_1fr]">
+          <div className="grid items-center gap-5">
             <TopicRadar topics={masteryTop} size={240} />
             <MasteryBars topics={masteryTop.slice(0, 5)} showInputs={false} />
           </div>
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col lg:col-span-6">
+        <Card spotlight className="col-span-12 flex flex-col xl:col-span-4">
           <CardHeader>
             <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
               Solve next

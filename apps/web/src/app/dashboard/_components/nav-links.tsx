@@ -11,6 +11,11 @@ import {
 } from "react";
 import { motion } from "motion/react";
 import {
+  BookMarked,
+  Bookmark,
+  Brain,
+  CalendarCheck,
+  CalendarRange,
   ChartColumn,
   Ellipsis,
   GraduationCap,
@@ -34,11 +39,18 @@ export type NavItem = { label: string; icon: LucideIcon; href: string };
 
 export const MENU: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutGrid },
+  { label: "Today", href: "/dashboard/today", icon: CalendarCheck },
   { label: "Revision", href: "/dashboard/revision", icon: RotateCcw },
   { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
   { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
   { label: "Analytics", href: "/dashboard/analytics", icon: ChartColumn },
   { label: "Contests", href: "/dashboard/contests", icon: Trophy },
+];
+export const TOOLKIT: NavItem[] = [
+  { label: "Notebook", href: "/dashboard/notebook", icon: BookMarked },
+  { label: "Recall", href: "/dashboard/recall", icon: Brain },
+  { label: "Saved for later", href: "/dashboard/later", icon: Bookmark },
+  { label: "Weekly review", href: "/dashboard/review", icon: CalendarRange },
 ];
 export const SOCIAL: NavItem[] = [
   { label: "Groups", href: "/dashboard/groups", icon: UsersRound },
@@ -163,6 +175,13 @@ export function SidebarView({
       )}
       <Group label="Menu" items={MENU} pathname={pathname} badges={badges} collapsed={collapsed} />
       <Group
+        label="Toolkit"
+        items={TOOLKIT}
+        pathname={pathname}
+        badges={badges}
+        collapsed={collapsed}
+      />
+      <Group
         label="Social"
         items={SOCIAL}
         pathname={pathname}
@@ -274,8 +293,8 @@ export function MobileNav({ badges = {} }: { badges?: Record<string, number> }) 
   const [moreOpen, setMoreOpen] = useState(false);
   const sheet = useRef<HTMLDivElement>(null);
   const drag = useRef<{ y: number; dy: number } | null>(null);
-  const tabs = [MENU[0]!, MENU[1]!, MENU[2]!, SOCIAL[0]!];
-  const more = [MENU[3]!, MENU[4]!, MENU[5]!, SOCIAL[1]!, ACCOUNT[0]!];
+  const tabs = MENU.slice(0, 4);
+  const more = [...MENU.slice(4), ...TOOLKIT, ...SOCIAL, ...ACCOUNT];
   const moreActive = more.some((m) => isActive(m.href, pathname));
   const tabClass = (active: boolean) =>
     cn(
