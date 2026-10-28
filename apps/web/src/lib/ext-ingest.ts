@@ -31,6 +31,8 @@ export async function saveExtSessions(userId: string, sessions: ExtSession[]): P
       independence: s.independence,
       note: s.note,
       mistakeTags: s.mistakeTags,
+      pattern: s.pattern ?? null,
+      takeaway: s.takeaway ?? null,
     };
     await db()
       .insert(practiceSessions)
@@ -49,6 +51,8 @@ export async function saveExtSessions(userId: string, sessions: ExtSession[]): P
           independence: sql`coalesce(${values.independence}::independence, ${practiceSessions.independence})`,
           note: sql`coalesce(${values.note}, ${practiceSessions.note})`,
           mistakeTags: values.mistakeTags,
+          pattern: sql`coalesce(${values.pattern}, ${practiceSessions.pattern})`,
+          takeaway: sql`coalesce(${values.takeaway}, ${practiceSessions.takeaway})`,
           updatedAt: new Date(),
         },
       });

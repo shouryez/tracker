@@ -66,3 +66,5 @@ export function topicsOf(tags: readonly string[]): TopicId[] {
   const found = new Set(tags.map((t) => BY_TAG.get(t)).filter((t) => t !== undefined));
   return TOPICS.map((t) => t.id).filter((id) => found.has(id));
 }
+
+export const isTopicId = (v: string): v is TopicId => TOPICS.some((t) => t.id === v);

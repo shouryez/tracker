@@ -137,6 +137,12 @@ export const profiles = pgTable(
     shareLive: boolean("share_live").notNull().default(true),
     timezone: text("timezone").notNull().default("Asia/Kolkata"),
     isPublic: boolean("is_public").notNull().default(false),
+    /** Browser reminders from the extension (revisions due, today's plan). */
+    remindersOn: boolean("reminders_on").notNull().default(true),
+    /** Local hour (0-23) for the daily reminder; null = your usual best hour. */
+    reminderHour: integer("reminder_hour"),
+    /** Remind 30 minutes before upcoming contests. */
+    contestReminders: boolean("contest_reminders").notNull().default(true),
     onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -297,6 +303,9 @@ export const practiceSessions = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+    /** Wrap-up after Accepted: the pattern (a topic id) and a one-line takeaway. */
+    pattern: text("pattern"),
+    takeaway: text("takeaway"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -535,6 +544,162 @@ export const streakFreezes = pgTable(
     createdAt: createdAt(),
   },
   (t) => [index("streak_freezes_user_idx").on(t.userId), ownerCanRead(t.userId)],
+).enableRLS();
+
+// ---------------------------------------------------------------- daily loop
+
+/**
+ * Today plan. Suggested items (revision, next, stretch, shared, contest) are generated once
+ * per local day; custom items are the user's own. Problem items tick themselves when the
+ * problem is solved that day (computed on read), custom items via `doneAt`.
+ */
+export const planItems = pgTable(
+  "plan_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    day: date("day").notNull(),
+    kind: text("kind").notNull(),
+    problemId: uuid("problem_id").references(() => problems.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    url: text("url"),
+    detail: text("detail"),
+    position: integer("position").notNull().default(0),
+    doneAt: timestamp("done_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("plan_items_user_day_idx").on(t.userId, t.day), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** Days whose suggestions were already generated, so deleting them doesn't bring them back. */
+export const planDays = pgTable(
+  "plan_days",
+  {
+    userId: userRef(),
+    day: date("day").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.day] }), ownerCanRead(t.userId)],
+).enableRLS();
+
+/**
+ * Focus (Lab) sessions: a study timer. With the extension, time on coding sites counts as
+ * focus and other tabs as away; only the totals are stored, never which sites.
+ */
+export const focusSessions = pgTable(
+  "focus_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    mode: text("mode").notNull().default("stopwatch"),
+    label: text("label"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    endedAt: timestamp("ended_at", { withTimezone: true }),
+    focusMs: integer("focus_ms").notNull().default(0),
+    awayMs: integer("away_ms").notNull().default(0),
+    switches: integer("switches").notNull().default(0),
+    /** True when the extension measured focus/away; false = wall-clock only. */
+    tracked: boolean("tracked").notNull().default(false),
+  },
+  (t) => [
+    index("focus_sessions_user_idx").on(t.userId, t.startedAt.desc()),
+    ownerCanRead(t.userId),
+  ],
+).enableRLS();
+
+/** Save-for-later: videos, articles and problems saved from anywhere. */
+export const savedItems = pgTable(
+  "saved_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    url: text("url").notNull(),
+    title: text("title").notNull(),
+    kind: text("kind").notNull().default("other"),
+    topic: text("topic"),
+    /** Seconds into a video where it was saved. */
+    atSeconds: integer("at_seconds"),
+    note: text("note"),
+    doneAt: timestamp("done_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("saved_items_user_url_uq").on(t.userId, t.url),
+    index("saved_items_user_idx").on(t.userId, t.createdAt.desc()),
+    ownerCanRead(t.userId),
+  ],
+).enableRLS();
+
+/** Weekly targets and the Sunday reflection. `weekStart` is the local Monday. */
+export const weeklyGoals = pgTable(
+  "weekly_goals",
+  {
+    userId: userRef(),
+    weekStart: date("week_start").notNull(),
+    mediums: integer("mediums").notNull().default(10),
+    focusHours: integer("focus_hours").notNull().default(6),
+    revisions: integer("revisions").notNull().default(15),
+    reflection: text("reflection"),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.weekStart] }), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** Answers in the 2-minute recall quiz. */
+export const recallAnswers = pgTable(
+  "recall_answers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => problems.id, { onDelete: "cascade" }),
+    correct: boolean("correct").notNull(),
+    at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("recall_answers_user_idx").on(t.userId, t.at.desc()), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** "Solve this": a problem shared into a friend group. */
+export const problemShares = pgTable(
+  "problem_shares",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => problems.id, { onDelete: "cascade" }),
+    fromUser: userRef(),
+    note: text("note"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("problem_shares_group_problem_uq").on(t.groupId, t.problemId),
+    index("problem_shares_group_idx").on(t.groupId, t.createdAt.desc()),
+  ],
+).enableRLS();
+
+/** Gentle nudges between group members: at most one per pair per day. */
+export const nudges = pgTable(
+  "nudges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    fromUser: userRef(),
+    toUser: uuid("to_user")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    day: date("day").notNull(),
+    seenAt: timestamp("seen_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    unique("nudges_pair_day_uq").on(t.fromUser, t.toUser, t.day),
+    index("nudges_to_idx").on(t.toUser, t.createdAt.desc()),
+  ],
 ).enableRLS();
 
 // ---------------------------------------------------------------- beta feedback

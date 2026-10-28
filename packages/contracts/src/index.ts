@@ -47,6 +47,13 @@ export const ExtSession = z.object({
   independence: z.enum(["solo", "hint", "solution"]).nullable(),
   note: z.string().max(500).nullable(),
   mistakeTags: z.array(z.enum(MISTAKE_TAGS)).max(MISTAKE_TAGS.length),
+  /** Wrap-up after Accepted: the pattern used (a topic id) and a one-line takeaway. */
+  pattern: z
+    .string()
+    .regex(/^[a-z-]{2,30}$/)
+    .nullable()
+    .default(null),
+  takeaway: z.string().max(200).nullable().default(null),
   submissions: z.array(ExtSubmission).max(200),
 });
 
@@ -69,6 +76,74 @@ export type ExtSession = z.infer<typeof ExtSession>;
 export type ExtSessionsRequest = z.infer<typeof ExtSessionsRequest>;
 export type ExtHistoryItem = z.infer<typeof ExtHistoryItem>;
 export type ExtHistoryRequest = z.infer<typeof ExtHistoryRequest>;
+
+/** Save-for-later from the extension (popup, context menu). */
+export const ExtSaveRequest = z.object({
+  url: z.url().max(2000),
+  title: z.string().max(300),
+  atSeconds: z.number().int().min(0).max(86_400).nullable().default(null),
+});
+export type ExtSaveRequest = z.infer<typeof ExtSaveRequest>;
+
+/** Everything the in-page panel shows for the problem you're on. */
+export type ExtProblemContext = {
+  known: boolean;
+  problemId: string | null;
+  title: string | null;
+  difficulty: "easy" | "medium" | "hard" | null;
+  /** Our topic ids and labels for this problem. */
+  topics: { id: string; label: string }[];
+  memory: {
+    solvedCount: number;
+    lastSolvedAt: number | null;
+    bestActiveMs: number | null;
+    independence: "solo" | "hint" | "solution" | null;
+    attempts: number;
+    lastTakeaway: string | null;
+  };
+  note: string | null;
+  review: { step: number; intervalDays: number; dueAt: number; retired: boolean } | null;
+  similar: { title: string; url: string | null; difficulty: string | null }[];
+  /** Hints, least to most revealing. */
+  hints: { level: 1 | 2 | 3; title: string; body: string }[];
+  /** Pre-submit checks, the user's own repeated mistakes first. */
+  checklist: { text: string; mine: number }[];
+  dashboardUrl: string | null;
+};
+
+/** What the background worker polls for reminders and the focus timer. */
+export type ExtTodayResponse = {
+  timezone: string;
+  remindersOn: boolean;
+  /** Local hour to remind at (explicit setting, or the user's usual best hour). */
+  reminderHour: number;
+  due: number;
+  planLeft: number;
+  planTotal: number;
+  contestReminders: boolean;
+  contests: { id: string; name: string; platform: string; startsAt: number; url: string }[];
+  nudges: { id: string; from: string; group: string }[];
+  /** The running focus session, if any (started on the web). */
+  focus: { id: string; startedAt: number; label: string | null } | null;
+  dashboardUrl: string;
+};
+
+/** Focus totals reported by the extension when a Lab session ends. */
+export const ExtFocusReport = z.object({
+  focusId: z.uuid(),
+  focusMs: z
+    .number()
+    .int()
+    .min(0)
+    .max(24 * 3_600_000),
+  awayMs: z
+    .number()
+    .int()
+    .min(0)
+    .max(24 * 3_600_000),
+  switches: z.number().int().min(0).max(100_000),
+});
+export type ExtFocusReport = z.infer<typeof ExtFocusReport>;
 
 export type ExtMeResponse = {
   user: { name: string | null; handle: string | null };
