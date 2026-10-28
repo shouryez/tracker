@@ -39,7 +39,7 @@ export default function ProfileNotFound() {
         </h1>
         <p className="mb-8 text-white/70">This profile doesn&apos;t exist or isn&apos;t public.</p>
         <div className="flex flex-wrap justify-center gap-2.5">
-          <Link href="/login" className={buttonClasses({ variant: "signal" })}>
+          <Link href="/signup" className={buttonClasses({ variant: "signal" })}>
             Create yours <ButtonArrow />
           </Link>
           <Link

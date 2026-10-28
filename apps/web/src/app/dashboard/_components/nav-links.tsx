@@ -143,7 +143,7 @@ export function SidebarView({
         )}
       >
         <Link
-          href="/"
+          href="/dashboard"
           aria-label="DsaKaro home"
           className="rounded-md transition-transform duration-[var(--dur-slow)] ease-[var(--ease-spring)] hover:-rotate-2 hover:scale-105"
         >

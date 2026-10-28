@@ -1,7 +1,13 @@
 import { defineConfig } from "wxt";
 
-/** The DsaKaro web app this build talks to. Set UPSOLVE_WEB_URL for production builds. */
-const WEB_URL = (process.env.UPSOLVE_WEB_URL ?? "http://localhost:3005").replace(/\/+$/, "");
+/**
+ * The DsaKaro web app this build talks to: the live site for `wxt build` and `wxt zip`,
+ * your local dev server for `wxt` (dev). UPSOLVE_WEB_URL overrides either.
+ */
+const releaseBuild = process.argv.some((arg) => arg === "build" || arg === "zip");
+const WEB_URL = (
+  process.env.UPSOLVE_WEB_URL ?? (releaseBuild ? "https://dsakaro.site" : "http://localhost:3005")
+).replace(/\/+$/, "");
 const webOrigin = new URL(WEB_URL);
 // Match patterns can't contain a port; Chrome matches any port on the host.
 const WEB_MATCH = `${webOrigin.protocol}//${webOrigin.hostname}/*`;

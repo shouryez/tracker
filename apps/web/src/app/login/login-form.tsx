@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Mail } from "lucide-react";
@@ -11,12 +12,13 @@ type Status =
   | { kind: "idle" }
   | { kind: "sending" }
   | { kind: "sent"; email: string }
-  | { kind: "error"; message: string };
+  | { kind: "error"; message: string }
+  | { kind: "no-account"; email: string };
 
-export function LoginForm({ disabled }: { disabled: boolean }) {
+export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabled: boolean }) {
   const params = useSearchParams();
   const next = safeNextPath(params.get("next"));
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => params.get("email") ?? "");
   const [status, setStatus] = useState<Status>(
     params.get("error")
       ? { kind: "error", message: "That sign-in link didn't work. Try again." }
@@ -44,8 +46,13 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
     setStatus({ kind: "sending" });
     const { error } = await createClient().auth.signInWithOtp({
       email: address,
-      options: { emailRedirectTo: callbackUrl() },
+      // Signing in never creates an account; that's what sign-up is for.
+      options: { emailRedirectTo: callbackUrl(), shouldCreateUser: mode === "signup" },
     });
+    if (error && mode === "login" && /signups? not allowed|user not found/i.test(error.message)) {
+      setStatus({ kind: "no-account", email: address });
+      return;
+    }
     setStatus(error ? { kind: "error", message: error.message } : { kind: "sent", email: address });
   }
 
@@ -63,8 +70,8 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
           Check your <em className="font-display font-normal">inbox.</em>
         </p>
         <p className="mt-1 text-sm text-ink-2">
-          We sent a sign-in link to <span className="text-ink">{status.email}</span>. Open it in
-          this browser.
+          We sent a {mode === "login" ? "sign-in" : "sign-up"} link to{" "}
+          <span className="text-ink">{status.email}</span>. Open it in this browser.
         </p>
         <button
           type="button"
@@ -89,7 +96,7 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
         disabled={disabled || busy}
       >
         <GoogleIcon />
-        Continue with Google
+        {mode === "login" ? "Sign in with Google" : "Sign up with Google"}
       </Button>
 
       <div className="flex items-center gap-3 label-mono">
@@ -133,10 +140,22 @@ export function LoginForm({ disabled }: { disabled: boolean }) {
           disabled={disabled}
           loading={busy}
         >
-          Email me a sign-in link <ButtonArrow />
+          {mode === "login" ? "Email me a sign-in link" : "Create account with email"}{" "}
+          <ButtonArrow />
         </Button>
       </form>
 
+      {status.kind === "no-account" && (
+        <p role="alert" className="text-sm text-ink-2">
+          No account for <span className="text-ink">{status.email}</span> yet.{" "}
+          <Link
+            href={`/signup?email=${encodeURIComponent(status.email)}`}
+            className="font-[600] text-ink underline-offset-4 hover:underline"
+          >
+            Create one
+          </Link>
+        </p>
+      )}
       {status.kind === "error" && (
         <p id="login-error" role="alert" className="text-sm text-bad">
           {status.message}

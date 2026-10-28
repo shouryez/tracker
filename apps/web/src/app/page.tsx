@@ -118,7 +118,7 @@ function Nav() {
           </Link>
           {/* cn() doesn't merge classes, so hide a wrapper rather than the button. */}
           <span className="hidden sm:contents">
-            <Link href="/login" className={buttonClasses({ variant: "signal", size: "sm" })}>
+            <Link href="/signup" className={buttonClasses({ variant: "signal", size: "sm" })}>
               Get started
             </Link>
           </span>
@@ -160,7 +160,7 @@ function Hero() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Magnetic>
-              <Link href="/login" className={buttonClasses({ variant: "signal", size: "lg" })}>
+              <Link href="/signup" className={buttonClasses({ variant: "signal", size: "lg" })}>
                 <span data-magnetic-label className="inline-flex items-center gap-2">
                   Start free with Google <ButtonArrow />
                 </span>
@@ -933,7 +933,7 @@ function Pricing() {
       name: "Students",
       price: "Free",
       note: "during the beta, and the core stays free",
-      cta: { label: "Start free", href: "/login" },
+      cta: { label: "Start free", href: "/signup" },
       items: [
         "LeetCode, Codeforces and GFG sync",
         "Extension timer and verdicts",
@@ -1099,7 +1099,7 @@ function Footer() {
           </p>
           <div className="relative mt-8 flex justify-center">
             <Magnetic>
-              <Link href="/login" className={buttonClasses({ variant: "signal", size: "lg" })}>
+              <Link href="/signup" className={buttonClasses({ variant: "signal", size: "lg" })}>
                 <span data-magnetic-label className="inline-flex items-center gap-2">
                   Start free with Google <ButtonArrow />
                 </span>

@@ -48,7 +48,7 @@ export default function PublicProfilePage({ params }: PageProps<"/u/[handle]">) 
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link href="/login" className={buttonClasses({ variant: "signal", size: "sm" })}>
+          <Link href="/signup" className={buttonClasses({ variant: "signal", size: "sm" })}>
             Track yours
           </Link>
         </div>
@@ -202,7 +202,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
       </div>
 
       <div className="mt-6 flex justify-center">
-        <Link href="/login" className={buttonClasses({ variant: "signal" })}>
+        <Link href="/signup" className={buttonClasses({ variant: "signal" })}>
           Build your own profile <ButtonArrow />
         </Link>
       </div>

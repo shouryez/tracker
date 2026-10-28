@@ -45,7 +45,8 @@ export async function updateSession(request: NextRequest) {
     return redirectKeepingCookies(url, response);
   }
 
-  if (signedIn && pathname === "/login") {
+  // Signed in: the landing, sign-in and sign-up pages all lead to the dashboard.
+  if (signedIn && (pathname === "/" || pathname === "/login" || pathname === "/signup")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";

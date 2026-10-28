@@ -46,7 +46,7 @@ Set `CRON_SECRET` (any long random string; it also signs unsubscribe links), `RE
 
 ## Load the extension (development)
 
-1. Build it. It talks to `http://localhost:3005` by default; set `UPSOLVE_WEB_URL` to point elsewhere.
+1. Build it. `pnpm --filter @upsolve/extension build` talks to the live site, https://dsakaro.site; `pnpm --filter @upsolve/extension dev` talks to `http://localhost:3005`. Set `UPSOLVE_WEB_URL` to point either elsewhere.
    ```bash
    pnpm --filter @upsolve/extension build
    ```
