@@ -1,8 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
-import { Check, ChevronRight, NotebookPen, PanelRight, Play, Search, X } from "lucide-react";
+import {
+  CalendarPlus,
+  Check,
+  ChevronRight,
+  NotebookPen,
+  PanelRight,
+  Play,
+  Search,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
 import { motion } from "motion/react";
 import {
   DifficultyTag,
@@ -14,6 +25,7 @@ import {
   Tooltip,
   cn,
 } from "@upsolve/ui";
+import { addSheetItemsToPlan } from "@/app/actions/daily";
 import { setSheetItemStarred } from "@/app/actions/sheets";
 import type { SheetItemView } from "@/lib/sheets-data";
 import { StarToggle } from "./fx/toggles";
@@ -41,12 +53,22 @@ export function SheetBrowser({
   sheetId,
   items,
   reviews,
+  onToday: initialOnToday,
 }: {
   sheetId: string;
   items: SheetItemView[];
   reviews: Record<string, ItemReview>;
+  /** Item keys already on today's to-do list. */
+  onToday: string[];
 }) {
   const [query, setQuery] = useState("");
+  // "Add to today" mode: pick one or more rows, then add them in one go (?pick=1 opens it).
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [picking, setPicking] = useState(() => searchParams.get("pick") === "1");
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [onToday, setOnToday] = useState(() => new Set(initialOnToday));
+  const [adding, startAdding] = useTransition();
   const [status, setStatus] = useState<Status>("all");
   const [tiers, setTiers] = useState<string[]>([]);
   const [stars, setStars] = useState(
@@ -268,12 +290,29 @@ export function SheetBrowser({
 
         <button
           type="button"
+          aria-pressed={picking}
+          onClick={() => {
+            setPicking((on) => !on);
+            setPicked(new Set());
+          }}
+          className={cn(
+            "ml-auto inline-flex h-[28px] items-center gap-1.5 rounded-full border px-3 text-12 font-[600] transition-colors duration-[var(--dur-base)]",
+            picking
+              ? "border-transparent bg-signal text-signal-ink"
+              : "border-line-2 text-ink-2 hover:border-line-3 hover:text-ink",
+          )}
+        >
+          <CalendarPlus size={13} aria-hidden="true" />
+          {picking ? "Picking for today" : "Add to today"}
+        </button>
+        <button
+          type="button"
           onClick={() =>
             setOpen((prev) =>
               prev.size === steps.length ? new Set() : new Set(steps.map((s) => s.name)),
             )
           }
-          className="ml-auto rounded-full px-2.5 py-1 text-12 font-[550] text-ink-3 transition-colors hover:bg-surface-3 hover:text-ink"
+          className="rounded-full px-2.5 py-1 text-12 font-[550] text-ink-3 transition-colors hover:bg-surface-3 hover:text-ink"
         >
           {open.size === steps.length ? "Collapse all" : "Expand all"}
         </button>
@@ -399,6 +438,17 @@ export function SheetBrowser({
                           starred={stars.has(item.itemKey)}
                           highlighted={highlight === item.itemKey}
                           noteOpen={noteFor === item.itemKey}
+                          picking={picking}
+                          picked={picked.has(item.itemKey)}
+                          onToday={onToday.has(item.itemKey)}
+                          onPick={() =>
+                            setPicked((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(item.itemKey)) next.delete(item.itemKey);
+                              else next.add(item.itemKey);
+                              return next;
+                            })
+                          }
                           onStar={(on) => {
                             setStars((prev) => {
                               const next = new Set(prev);
@@ -484,6 +534,56 @@ export function SheetBrowser({
         );
       })}
 
+      {picking && (
+        <div className="sticky bottom-4 z-40 mx-auto flex w-full max-w-[560px] animate-[rise-in_var(--dur-base)_var(--ease-out)_backwards] items-center gap-3 rounded-full border border-line-2 bg-surface-3/95 py-2 pr-2 pl-5 shadow-e2 backdrop-blur-xl">
+          <span className="min-w-0 flex-1 truncate text-13">
+            {picked.size === 0 ? (
+              <span className="text-ink-3">Tick problems to add to today</span>
+            ) : (
+              <>
+                <span className="tnum font-[650]">{picked.size}</span> selected
+              </>
+            )}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setPicking(false);
+              setPicked(new Set());
+            }}
+            className="rounded-full px-3 py-1.5 text-13 text-ink-3 transition-colors hover:text-ink"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={picked.size === 0 || adding}
+            onClick={() => {
+              const keys = items.filter((i) => picked.has(i.itemKey)).map((i) => i.itemKey);
+              startAdding(async () => {
+                const res = await addSheetItemsToPlan(sheetId, keys);
+                if (!res.ok) {
+                  toast.error(res.error);
+                  return;
+                }
+                setOnToday((prev) => new Set([...prev, ...keys]));
+                setPicked(new Set());
+                setPicking(false);
+                toast.success(res.added === 1 ? "Added to today" : `Added ${res.added} to today`, {
+                  action: {
+                    label: "Open Today",
+                    onClick: () => router.push("/dashboard/today"),
+                  },
+                });
+              });
+            }}
+            className="inline-flex h-[36px] items-center gap-1.5 rounded-full bg-signal px-4 text-13 font-[650] text-signal-ink transition-[opacity,transform] active:scale-95 disabled:opacity-40"
+          >
+            <CalendarPlus size={14} aria-hidden="true" /> Add to today
+          </button>
+        </div>
+      )}
+
       {video && <VideoModal url={video.url} title={video.title} onClose={() => setVideo(null)} />}
     </div>
   );
@@ -496,6 +596,10 @@ function ItemRow({
   starred,
   highlighted,
   noteOpen,
+  picking,
+  picked,
+  onToday,
+  onPick,
   onStar,
   onNote,
   onVideo,
@@ -506,6 +610,10 @@ function ItemRow({
   starred: boolean;
   highlighted: boolean;
   noteOpen: boolean;
+  picking: boolean;
+  picked: boolean;
+  onToday: boolean;
+  onPick: () => void;
   onStar: (on: boolean) => void;
   onNote: () => void;
   onVideo: (url: string) => void;
@@ -541,12 +649,22 @@ function ItemRow({
           className="absolute top-2 bottom-2 left-0 w-[3px] scale-y-0 rounded-r-full transition-transform duration-[var(--dur-base)] group-hover/row:scale-y-100"
           style={{ background: accentOf(item.tier) }}
         />
-        <ItemTick
-          sheetId={sheetId}
-          itemKey={item.itemKey}
-          status={item.status}
-          title={item.title}
-        />
+        {picking ? (
+          <PickBox
+            checked={picked}
+            disabled={onToday || !!item.status}
+            title={item.status ? "Already done" : onToday ? "Already on today's list" : undefined}
+            label={`Select ${item.title} for today`}
+            onClick={onPick}
+          />
+        ) : (
+          <ItemTick
+            sheetId={sheetId}
+            itemKey={item.itemKey}
+            status={item.status}
+            title={item.title}
+          />
+        )}
         <span className="flex min-w-0 flex-1 items-center gap-2">
           {item.problemId ? (
             <Link
@@ -561,6 +679,11 @@ function ItemRow({
           <TierTag tier={item.tier} />
           {item.kind === "learning" && <Tag mono>read</Tag>}
           {review?.due && <StatusBadge status="revise" className="h-5 px-1.5 text-11" />}
+          {onToday && (
+            <Tag tone="signal" className="h-5 px-1.5 text-11">
+              Today
+            </Tag>
+          )}
           {!item.tracked && item.kind === "practice" && (
             <span
               className="hidden font-mono text-[10.5px] text-ink-3 lg:inline"
@@ -668,6 +791,41 @@ function ItemRow({
         </li>
       )}
     </>
+  );
+}
+
+/** Selection box for "Add to today" mode: lime, so it never reads as "done". */
+function PickBox({
+  checked,
+  disabled,
+  title,
+  label,
+  onClick,
+}: {
+  checked: boolean;
+  disabled: boolean;
+  title?: string;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      aria-label={label}
+      title={title}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "grid size-5 shrink-0 place-items-center rounded-[6px] border transition-[background-color,border-color,transform] duration-[var(--dur-fast)] active:scale-90 disabled:opacity-35",
+        checked
+          ? "border-transparent bg-signal text-signal-ink"
+          : "border-line-3 bg-surface-2 hover:border-signal-2",
+      )}
+    >
+      {checked && <Check size={13} strokeWidth={3} aria-hidden="true" />}
+    </button>
   );
 }
 

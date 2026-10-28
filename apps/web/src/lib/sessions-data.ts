@@ -148,3 +148,52 @@ export async function getExtensionTokens(userId: string): Promise<ExtensionToken
 }
 
 export { formatDuration } from "@/lib/format";
+
+/** The session being solved right now, as last reported by the extension. */
+export type LiveSession = {
+  title: string;
+  url: string;
+  platform: string;
+  difficulty: "easy" | "medium" | "hard" | null;
+  startedAt: number;
+  activeMs: number;
+  submits: number;
+  /** When the extension last reported (it reports about once a minute while you solve). */
+  reportedAt: number;
+};
+
+/** Uncached on purpose: it has to be fresh. Open sessions untouched for 30 minutes don't count. */
+export async function getLiveSession(userId: string): Promise<LiveSession | null> {
+  const [row] = await db()
+    .select({
+      title: platformProblems.title,
+      url: platformProblems.url,
+      platform: platformProblems.platform,
+      difficultyRaw: platformProblems.difficultyRaw,
+      startedAt: practiceSessions.startedAt,
+      activeMs: practiceSessions.activeMs,
+      submits: practiceSessions.submits,
+      updatedAt: practiceSessions.updatedAt,
+    })
+    .from(practiceSessions)
+    .innerJoin(platformProblems, eq(platformProblems.id, practiceSessions.platformProblemId))
+    .where(
+      and(
+        eq(practiceSessions.userId, userId),
+        eq(practiceSessions.outcome, "open"),
+        isNull(practiceSessions.endedAt),
+        gte(practiceSessions.updatedAt, sql`now() - interval '30 minutes'`),
+      ),
+    )
+    .orderBy(desc(practiceSessions.updatedAt))
+    .limit(1);
+  if (!row) return null;
+  const { difficultyRaw, updatedAt, startedAt, ...rest } = row;
+  return {
+    ...rest,
+    difficulty:
+      (["easy", "medium", "hard"] as const).find((d) => d === difficultyRaw?.toLowerCase()) ?? null,
+    startedAt: startedAt.getTime(),
+    reportedAt: updatedAt.getTime(),
+  };
+}

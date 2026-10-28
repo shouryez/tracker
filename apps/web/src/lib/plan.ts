@@ -1,7 +1,6 @@
 import "server-only";
-import { and, eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
-import { planDays, planItems } from "@upsolve/db";
 import { reviewUrl } from "@/components/learning";
 import { getUpcomingContests } from "@/lib/contest-calendar";
 import { db } from "@/lib/db";
@@ -14,11 +13,13 @@ import {
 } from "@/lib/learning";
 import { localDate, localDay } from "@/lib/time";
 
-// The Today plan: suggestions generated once per local day, plus the user's own
-// tasks. A problem item counts as done when that problem is solved (or reviewed)
-// today, so the list ticks itself as the extension and syncs report Accepted.
+// The Today to-do list holds only what the user adds: suggestions sit beside it, and
+// items can come from any sheet. A problem item counts as done when that problem is
+// solved (or reviewed) today, so the list ticks itself as the extension and syncs
+// report Accepted.
 
-export type PlanKind = "revision" | "next" | "stretch" | "shared" | "contest" | "drill" | "custom";
+export type PlanKind =
+  "revision" | "next" | "stretch" | "shared" | "contest" | "drill" | "sheet" | "custom";
 
 export type PlanItem = {
   id: string;
@@ -35,116 +36,40 @@ export type PlanItem = {
 
 export type TodayPlan = { day: string; items: PlanItem[]; done: number; total: number };
 
+/** Something worth doing today, not on the list until the user adds it. */
+export type PlanSuggestion = {
+  /** Stable id for adding it: "<kind>:<problem id>" or "contest:<url>". */
+  key: string;
+  kind: PlanKind;
+  title: string;
+  url: string | null;
+  detail: string;
+  problemId: string | null;
+  difficulty: Difficulty | null;
+};
+
+/** The next unfinished items of a sheet the user follows. */
+export type SheetPick = {
+  sheetId: string;
+  slug: string;
+  sheet: string;
+  itemKey: string;
+  title: string;
+  step: string;
+  tier: string | null;
+  url: string | null;
+};
+
 const MAX_REVISIONS = 4;
-
-/** Creates today's suggestions once. Safe to call on every render; only the first call writes. */
-async function ensureGenerated(userId: string, tz: string, cap: number, now: number, day: string) {
-  const claimed = await db()
-    .insert(planDays)
-    .values({ userId, day })
-    .onConflictDoNothing()
-    .returning({ day: planDays.day });
-  if (claimed.length === 0) return;
-
-  try {
-    const [learning, targets, candidates, contests, shared] = await Promise.all([
-      getLearning(userId),
-      getTopicTargets(),
-      getNextCandidates(userId),
-      getUpcomingContests(),
-      db().execute(sql`
-        select ps.problem_id as "problemId", p.title, p.difficulty, coalesce(pr.name, pr.handle, 'A friend') as "from",
-               g.name as "group",
-               (select pp.url from platform_problems pp where pp.problem_id = p.id
-                 order by (pp.platform = 'leetcode') desc limit 1) as url
-        from problem_shares ps
-        join group_members gm on gm.group_id = ps.group_id and gm.user_id = ${userId}
-        join groups g on g.id = ps.group_id
-        join problems p on p.id = ps.problem_id
-        left join profiles pr on pr.user_id = ps.user_id
-        where ps.user_id <> ${userId} and ps.created_at > now() - interval '3 days'
-          and not exists (
-            select 1 from submissions s join platform_problems pp on pp.id = s.platform_problem_id
-            where s.user_id = ${userId} and s.verdict = 'AC' and pp.problem_id = ps.problem_id)
-        order by ps.created_at desc limit 2`),
-    ]);
-    const mastery = masteryOf(learning, targets, now);
-    const queue = revisionQueue(learning, mastery, { tz, cap, now });
-    const solvedBy: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
-    for (const p of learning) if (p.difficulty) solvedBy[p.difficulty]++;
-    const picks = suggestNext(candidates, mastery, solvedBy, 6);
-    const next = picks[0];
-    const stretch = picks.find((p) => p !== next && p.topic !== next?.topic);
-    const { start, end } = localDay(tz, now);
-
-    const rows: (typeof planItems.$inferInsert)[] = [];
-    const push = (r: Omit<typeof planItems.$inferInsert, "userId" | "day" | "position">) =>
-      rows.push({ ...r, userId, day, position: rows.length });
-
-    for (const p of queue.today.slice(0, MAX_REVISIONS)) {
-      push({
-        kind: "revision",
-        problemId: p.problemId,
-        title: p.title,
-        url: reviewUrl(p.url),
-        detail: "Revision · re-solve it from memory",
-      });
-    }
-    if (next) {
-      push({
-        kind: "next",
-        problemId: next.problemId,
-        title: next.title,
-        url: next.url,
-        detail: `Next from ${next.sheet} · ${next.reason}`,
-      });
-    }
-    if (stretch) {
-      push({
-        kind: "stretch",
-        problemId: stretch.problemId,
-        title: stretch.title,
-        url: stretch.url,
-        detail: `Stretch · ${topicLabel(stretch.topic)} is your weak spot`,
-      });
-    }
-    for (const s of shared as unknown as {
-      problemId: string;
-      title: string;
-      from: string;
-      group: string;
-      url: string | null;
-    }[]) {
-      if (rows.some((r) => r.problemId === s.problemId)) continue;
-      push({
-        kind: "shared",
-        problemId: s.problemId,
-        title: s.title,
-        url: s.url,
-        detail: `From ${s.from} in ${s.group}`,
-      });
-    }
-    for (const c of contests.filter((c) => c.startsAt >= start && c.startsAt < end).slice(0, 2)) {
-      push({ kind: "contest", title: c.name, url: c.url, detail: "Contest today" });
-    }
-    if (rows.length) await db().insert(planItems).values(rows);
-  } catch (err) {
-    // Let the next visit try again rather than leaving today empty.
-    await db()
-      .delete(planDays)
-      .where(and(eq(planDays.userId, userId), eq(planDays.day, day)));
-    throw err;
-  }
-}
+const MAX_NEXT = 3;
 
 export async function getTodayPlan(
   userId: string,
   tz: string,
-  cap: number,
+  _cap: number,
   now: number,
 ): Promise<TodayPlan> {
   const day = localDate(tz, now);
-  await ensureGenerated(userId, tz, cap, now, day);
   const { start } = localDay(tz, now);
   // Raw sql params must be strings: postgres-js rejects Date objects here.
   const since = new Date(start).toISOString();
@@ -186,4 +111,179 @@ export async function getTodayPlan(
     auto: r.solved,
   }));
   return { day, items, done: items.filter((i) => i.done).length, total: items.length };
+}
+
+/**
+ * Today's suggestions: due revisions, the next problems for your weakest topics, a stretch,
+ * what friends shared and today's contests. Anything already on the list is left out.
+ */
+export async function getTodaySuggestions(
+  userId: string,
+  tz: string,
+  cap: number,
+  now: number,
+): Promise<PlanSuggestion[]> {
+  const day = localDate(tz, now);
+  const [learning, targets, candidates, contests, shared, planned] = await Promise.all([
+    getLearning(userId),
+    getTopicTargets(),
+    getNextCandidates(userId),
+    getUpcomingContests(),
+    db().execute(sql`
+      select ps.problem_id as "problemId", p.title, p.difficulty, coalesce(pr.name, pr.handle, 'A friend') as "from",
+             g.name as "group",
+             (select pp.url from platform_problems pp where pp.problem_id = p.id
+               order by (pp.platform = 'leetcode') desc limit 1) as url
+      from problem_shares ps
+      join group_members gm on gm.group_id = ps.group_id and gm.user_id = ${userId}
+      join groups g on g.id = ps.group_id
+      join problems p on p.id = ps.problem_id
+      left join profiles pr on pr.user_id = ps.user_id
+      where ps.user_id <> ${userId} and ps.created_at > now() - interval '3 days'
+        and not exists (
+          select 1 from submissions s join platform_problems pp on pp.id = s.platform_problem_id
+          where s.user_id = ${userId} and s.verdict = 'AC' and pp.problem_id = ps.problem_id)
+      order by ps.created_at desc limit 2`),
+    db().execute(sql`
+      select problem_id as "problemId", url from plan_items
+      where user_id = ${userId} and day = ${day}`),
+  ]);
+  const onList = planned as unknown as { problemId: string | null; url: string | null }[];
+  const plannedProblems = new Set(onList.map((p) => p.problemId).filter(Boolean));
+  const plannedUrls = new Set(onList.map((p) => p.url).filter(Boolean));
+
+  const mastery = masteryOf(learning, targets, now);
+  const queue = revisionQueue(learning, mastery, { tz, cap, now });
+  const solvedBy: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
+  for (const p of learning) if (p.difficulty) solvedBy[p.difficulty]++;
+  const picks = suggestNext(candidates, mastery, solvedBy, 8);
+  const next = picks.slice(0, MAX_NEXT);
+  const stretch = picks.find((p) => !next.includes(p) && !next.some((n) => n.topic === p.topic));
+  const { start, end } = localDay(tz, now);
+
+  const out: PlanSuggestion[] = [];
+  const push = (s: PlanSuggestion) => {
+    if (s.problemId && plannedProblems.has(s.problemId)) return;
+    if (!s.problemId && s.url && plannedUrls.has(s.url)) return;
+    if (s.problemId && out.some((o) => o.problemId === s.problemId)) return;
+    out.push(s);
+  };
+
+  for (const p of queue.today.slice(0, MAX_REVISIONS)) {
+    push({
+      key: `revision:${p.problemId}`,
+      kind: "revision",
+      problemId: p.problemId,
+      title: p.title,
+      url: reviewUrl(p.url),
+      detail: "Revision · re-solve it from memory",
+      difficulty: p.difficulty,
+    });
+  }
+  for (const n of next) {
+    push({
+      key: `next:${n.problemId}`,
+      kind: "next",
+      problemId: n.problemId,
+      title: n.title,
+      url: n.url,
+      detail: `Next from ${n.sheet} · ${n.reason}`,
+      difficulty: n.difficulty,
+    });
+  }
+  if (stretch) {
+    push({
+      key: `stretch:${stretch.problemId}`,
+      kind: "stretch",
+      problemId: stretch.problemId,
+      title: stretch.title,
+      url: stretch.url,
+      detail: `Stretch · ${topicLabel(stretch.topic)} is your weak spot`,
+      difficulty: stretch.difficulty,
+    });
+  }
+  for (const s of shared as unknown as {
+    problemId: string;
+    title: string;
+    difficulty: Difficulty | null;
+    from: string;
+    group: string;
+    url: string | null;
+  }[]) {
+    push({
+      key: `shared:${s.problemId}`,
+      kind: "shared",
+      problemId: s.problemId,
+      title: s.title,
+      url: s.url,
+      detail: `From ${s.from} in ${s.group}`,
+      difficulty: s.difficulty,
+    });
+  }
+  for (const c of contests.filter((c) => c.startsAt >= start && c.startsAt < end).slice(0, 2)) {
+    push({
+      key: `contest:${c.url}`,
+      kind: "contest",
+      problemId: null,
+      title: c.name,
+      url: c.url,
+      detail: "Contest today",
+      difficulty: null,
+    });
+  }
+  return out;
+}
+
+const SOLVED_OR_MARKED = (userId: string) => sql`
+  exists (select 1 from submissions s join platform_problems pp on pp.id = s.platform_problem_id
+          where s.user_id = ${userId} and s.verdict = 'AC' and pp.problem_id = si.problem_id)
+  or exists (select 1 from sheet_marks sm where sm.user_id = ${userId}
+          and sm.sheet_id = si.sheet_id and sm.item_key = si.item_key)`;
+
+/** Matches a sheet item to a plan item for the same thing (the problem, or else title + link). */
+export const ON_TODAY_LIST = (userId: string, day: string) => sql`
+  exists (select 1 from plan_items pi where pi.user_id = ${userId} and pi.day = ${day}
+          and ((si.problem_id is not null and pi.problem_id = si.problem_id)
+               or (si.problem_id is null and pi.title = si.title
+                   and pi.url is not distinct from si.url)))`;
+
+/** For each sheet the user follows, its next few unfinished items not already on today's list. */
+export async function getSheetPicks(
+  userId: string,
+  tz: string,
+  now: number,
+  perSheet = 3,
+): Promise<SheetPick[]> {
+  const day = localDate(tz, now);
+  return (await db().execute(sql`
+    select sh.id as "sheetId", sh.slug, sh.name as sheet,
+           si.item_key as "itemKey", si.title, si.step, si.tier, si.url
+    from user_sheets us
+    join sheets sh on sh.id = us.sheet_id
+    cross join lateral (
+      select si.* from sheet_items si
+      where si.sheet_id = sh.id and si.kind = 'practice'
+        and not (${SOLVED_OR_MARKED(userId)})
+        and not ${ON_TODAY_LIST(userId, day)}
+      order by si.position
+      limit ${perSheet}
+    ) si
+    where us.user_id = ${userId}
+    order by sh.position, si.position`)) as unknown as SheetPick[];
+}
+
+/** Item keys of a sheet that are already on today's list (to mark them on the sheet page). */
+export async function getSheetKeysOnToday(
+  userId: string,
+  sheetId: string,
+  tz: string,
+  now: number,
+): Promise<string[]> {
+  const day = localDate(tz, now);
+  const rows = (await db().execute(sql`
+    select si.item_key as "itemKey" from sheet_items si
+    where si.sheet_id = ${sheetId} and ${ON_TODAY_LIST(userId, day)}`)) as unknown as {
+    itemKey: string;
+  }[];
+  return rows.map((r) => r.itemKey);
 }

@@ -10,7 +10,7 @@ import { CelebrateOnce, burstFrom } from "@/components/dashboard/celebrate";
 import { AnimatedCheckbox } from "@/components/fx/toggles";
 import type { PlanItem, PlanKind, TodayPlan } from "@/lib/plan";
 
-const KIND: Record<
+export const KIND: Record<
   PlanKind,
   { label: string; tone: "revise" | "primary" | "medium" | "info" | "signal" | "hard" | "neutral" }
 > = {
@@ -20,14 +20,16 @@ const KIND: Record<
   shared: { label: "From a friend", tone: "info" },
   contest: { label: "Contest", tone: "signal" },
   drill: { label: "Drill", tone: "hard" },
+  sheet: { label: "From sheet", tone: "primary" },
   custom: { label: "Task", tone: "neutral" },
 };
 
 type Op = { id: string; done?: boolean; removed?: boolean } | { add: PlanItem };
 
 /**
- * Today plan: suggested quests plus your own tasks. Problem items tick themselves when
- * you solve them (the extension or a sync reports Accepted); anything can be ticked by hand.
+ * Today's to-do list: only what you added (suggestions, sheet items, your own tasks).
+ * Problem items tick themselves when you solve them (the extension or a sync reports
+ * Accepted); anything can be ticked by hand.
  */
 export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; compact?: boolean }) {
   const [pending, start] = useTransition();
@@ -108,7 +110,13 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
                 ? "All done. Great day."
                 : `${items.length - done} left today`}
           </p>
-          <p className="text-12 text-ink-3">Problems tick themselves when you solve them.</p>
+          <p className="text-12 text-ink-3">
+            {items.length === 0
+              ? compact
+                ? "Pick from suggestions and your sheets on Today."
+                : "Add suggestions or sheet problems, or write your own task below."
+              : "Problems tick themselves when you solve them."}
+          </p>
         </div>
       </div>
 
@@ -182,6 +190,16 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
             )}
           </li>
         ))}
+        {compact && items.length === 0 && (
+          <li>
+            <Link
+              href="/dashboard/today"
+              className="inline-flex items-center gap-1 px-2.5 text-12 font-[550] text-ink-2 underline-offset-4 hover:text-ink hover:underline"
+            >
+              Plan today <ArrowUpRight size={12} aria-hidden="true" />
+            </Link>
+          </li>
+        )}
         {compact && items.length > shown.length && (
           <li className="px-2.5 text-12 text-ink-3">
             +{items.length - shown.length} more ·{" "}

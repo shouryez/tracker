@@ -43,7 +43,9 @@ import {
 import { CardLink } from "@/components/card-link";
 import { NextProblemButton } from "@/components/daily/next-problem";
 import { NudgeBanner } from "@/components/daily/nudge-banner";
+import { NowSolving } from "@/components/daily/now-solving";
 import { TodayPlanList } from "@/components/daily/today-plan";
+import { LiveClock } from "@/components/dashboard/live-clock";
 import { SolvedSplit, Sparkline } from "@/components/charts";
 import { FocusWeek, TopicRadar } from "@/components/charts/insights";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
@@ -75,7 +77,6 @@ import {
   masteryOf,
   revisionQueue,
 } from "@/lib/learning";
-import { GOALS } from "@/lib/profile-options";
 import { getSheetSummaries } from "@/lib/sheets-data";
 import { getExtensionTokens, getSessionStats, getSessions } from "@/lib/sessions-data";
 import { getStreakFreezes } from "@/lib/social-data";
@@ -114,26 +115,11 @@ function greeting(tz: string, now: number) {
         : "Good evening";
 }
 
-// TEMP diagnostics: name any dashboard data call that is slow or never settles on Vercel.
-// Only used after getCurrentUser() has read the request, where reading the clock is allowed.
-function traced<T>(name: string, p: Promise<T>): Promise<T> {
-  const started = Date.now();
-  const timer = setTimeout(
-    () => console.warn(`[dashboard] still waiting on ${name} after 5s`),
-    5000,
-  );
-  return p.finally(() => {
-    clearTimeout(timer);
-    const ms = Date.now() - started;
-    if (ms > 1000) console.warn(`[dashboard] ${name} took ${ms} ms`);
-  });
-}
-
 async function Overview() {
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <DemoNotice />;
 
-  const profile = await traced("getProfile", getProfile(user.id));
+  const profile = await getProfile(user.id);
   if (!profile?.onboardedAt) redirect("/onboarding");
 
   const [
@@ -149,22 +135,22 @@ async function Overview() {
     sheets,
     freezes,
   ] = await Promise.all([
-    traced("getAccounts", getAccounts(user.id)),
-    traced("getContestSeries", getContestSeries(user.id)),
-    traced("getRecentSolves", getRecentSolves(user.id)),
-    traced("getSessionStats", getSessionStats(user.id)),
-    traced("getSessions", getSessions(user.id, 3)),
-    traced("getExtensionTokens", getExtensionTokens(user.id)),
-    traced("getLearning", getLearning(user.id)),
-    traced("getTopicTargets", getTopicTargets()),
-    traced("getNextCandidates", getNextCandidates(user.id)),
-    traced("getSheetSummaries", getSheetSummaries(user.id)),
-    traced("getStreakFreezes", getStreakFreezes(user.id)),
+    getAccounts(user.id),
+    getContestSeries(user.id),
+    getRecentSolves(user.id),
+    getSessionStats(user.id),
+    getSessions(user.id, 3),
+    getExtensionTokens(user.id),
+    getLearning(user.id),
+    getTopicTargets(),
+    getNextCandidates(user.id),
+    getSheetSummaries(user.id),
+    getStreakFreezes(user.id),
   ]);
   const now = requestNow();
   const [plan, nudges] = await Promise.all([
-    traced("getTodayPlan", getTodayPlan(user.id, profile.timezone, profile.reviewCap, now)),
-    traced("getUnseenNudges", getUnseenNudges(user.id)),
+    getTodayPlan(user.id, profile.timezone, profile.reviewCap, now),
+    getUnseenNudges(user.id),
   ]);
   const mastery = masteryOf(learning, targets, now);
   const queue = revisionQueue(learning, mastery, {
@@ -190,7 +176,6 @@ async function Overview() {
   const todayLocal = localDate(profile.timezone, now);
   const activeFreeze = freezes.find((f) => f.start <= todayLocal && f.end >= todayLocal);
   const firstName = profile.name?.split(" ")[0] ?? "there";
-  const goal = GOALS.find((g) => g.value === profile.goal);
 
   // New problems solved this week vs the week before (first solve dates).
   const thisWeek = learning.filter((p) => p.state.firstSolvedAt > now - 7 * DAY_MS).length;
@@ -232,12 +217,7 @@ async function Overview() {
     <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} />
       <PageHeader
-        eyebrow={new Date(now).toLocaleDateString("en-IN", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          timeZone: profile.timezone,
-        })}
+        eyebrow="Overview"
         glow={PAGE_GLOW.overview}
         title={
           <>
@@ -258,12 +238,6 @@ async function Overview() {
               <>
                 <Dot />
                 <span>{queue.today.length} to revise</span>
-              </>
-            )}
-            {goal && (
-              <>
-                <Dot />
-                <span>{goal.label}</span>
               </>
             )}
             {profile.college && (
@@ -308,12 +282,20 @@ async function Overview() {
       {accounts.length === 0 && <ConnectPrompt />}
 
       <div className="stagger-in grid grid-cols-12 gap-3.5">
-        {/* Row 1 · hero Solved + three tiles */}
+        {/* Row 0 · date and clock, and what you're solving right now */}
+        <LiveClock
+          now={now}
+          timeZone={profile.timezone}
+          className="col-span-12 md:col-span-6 xl:col-span-5"
+        />
+        <NowSolving className="col-span-12 md:col-span-6 xl:col-span-7" />
+
+        {/* Row 1 · Solved (half) + three compact tiles */}
         <Card
           tier="hero"
           beam
           interactive
-          className="col-span-12 flex flex-col gap-5 xl:col-span-5"
+          className="col-span-12 flex flex-col gap-5 xl:col-span-6"
         >
           <Link
             href="/dashboard/analytics"
@@ -427,13 +409,13 @@ async function Overview() {
           </div>
         </Card>
 
-        <div className="col-span-12 grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:col-span-7 xl:grid-cols-1 xl:grid-rows-3">
+        <div className="col-span-12 grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:col-span-6">
           <KpiCard
             title="Streak"
             icon={icon(Flame)}
             tint="var(--ember)"
             value={stats.streak}
-            strip
+            className="justify-between"
             unit={stats.streak === 1 ? "day" : "days"}
             href="/dashboard/settings#streak"
             visual={<StreakFlame streak={stats.streak} size={46} />}
@@ -450,7 +432,7 @@ async function Overview() {
             icon={icon(RotateCcw)}
             tint="var(--violet)"
             value={queue.today.length}
-            strip
+            className="justify-between"
             unit="today"
             href="/dashboard/revision"
             visual={
@@ -484,7 +466,7 @@ async function Overview() {
             tint="var(--signal-mark)"
             value={focus / 3_600_000}
             decimals={1}
-            strip
+            className="justify-between"
             unit="h week"
             href="/dashboard/sessions"
             visual={
@@ -508,8 +490,12 @@ async function Overview() {
           />
         </div>
 
-        {/* Row 2 · today plan + next revision (both are "what to do now") */}
-        <Card spotlight glow="var(--signal-mark)" className="col-span-12 xl:col-span-7">
+        {/* Row 2 · what to do now: Today, next revision, solve next */}
+        <Card
+          spotlight
+          glow="var(--signal-mark)"
+          className="col-span-12 md:col-span-6 xl:col-span-4"
+        >
           <CardHeader>
             <CardTitle icon={icon(ListTodo)} tint="var(--signal-mark)">
               Today
@@ -522,7 +508,7 @@ async function Overview() {
         <Card
           spotlight
           glow={nextReview ? (overdueDays > 0 ? "var(--overdue)" : "var(--violet)") : undefined}
-          className="col-span-12 flex flex-col xl:col-span-5"
+          className="col-span-12 flex flex-col md:col-span-6 xl:col-span-4"
         >
           <CardHeader>
             <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
@@ -543,7 +529,7 @@ async function Overview() {
                 </div>
                 <Link
                   href={`/dashboard/problems/${nextReview.problemId}`}
-                  className="text-24 leading-tight font-[600] tracking-[-0.02em] hover:underline"
+                  className="text-20 leading-tight font-[600] tracking-[-0.02em] hover:underline"
                 >
                   {nextReview.title}
                 </Link>
@@ -587,6 +573,52 @@ async function Overview() {
                 ? "Solved problems are scheduled here: 1 → 3 → 7 → 16 → 35 → 90 days."
                 : `${queue.upcoming[0] ?? 0} due tomorrow.`}
             </EmptyState>
+          )}
+        </Card>
+
+        <Card spotlight className="col-span-12 flex flex-col xl:col-span-4">
+          <CardHeader>
+            <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
+              Solve next
+            </CardTitle>
+            <CardSub>
+              {nextUp[0] ? `focus: ${topicLabel(nextUp[0].topic)}` : "from your sheets"}
+            </CardSub>
+          </CardHeader>
+          {nextUp.length === 0 ? (
+            <EmptyState
+              className="py-4"
+              icon={<Sparkles size={18} />}
+              title={
+                <>
+                  Suggestions come <em>next.</em>
+                </>
+              }
+            >
+              Follow a sheet and solve a few problems; picks target your weakest topic.
+            </EmptyState>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {nextUp.map((p) => (
+                <li key={p.problemId}>
+                  <Link
+                    href={`/dashboard/problems/${p.problemId}`}
+                    className="surface-inset group/next flex items-center gap-3 rounded-[14px] px-3.5 py-2.5 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13.5px] font-[600] group-hover/next:underline">
+                        {p.title}
+                      </span>
+                      <span className="block truncate text-11 text-ink-3">
+                        {topicLabel(p.topic)} · {p.reason}
+                      </span>
+                    </span>
+                    {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
+                    <ButtonArrow />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </Card>
 
@@ -693,55 +725,34 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 5 · solve next, full width so all picks show side by side */}
-        <Card spotlight className="col-span-12">
+        {/* Row 5 · recent solves + focus this week */}
+        <Card className="col-span-12 xl:col-span-7">
           <CardHeader>
-            <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
-              Solve next
+            <CardTitle icon={icon(History)} tint="var(--success)">
+              Recent solves
             </CardTitle>
-            <CardSub>
-              {nextUp[0] ? `focus: ${topicLabel(nextUp[0].topic)}` : "from your sheets"}
-            </CardSub>
+            <CardSub>accepted</CardSub>
           </CardHeader>
-          {nextUp.length === 0 ? (
+          {recent.length === 0 ? (
             <EmptyState
-              className="py-4"
-              icon={<Sparkles size={18} />}
+              icon={<History size={18} />}
               title={
                 <>
-                  Suggestions come <em>next.</em>
+                  No solves <em>yet.</em>
                 </>
               }
             >
-              Follow a sheet and solve a few problems; picks target your weakest topic.
+              Your accepted problems show up here. Start with a sheet.
             </EmptyState>
           ) : (
-            <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {nextUp.map((p) => (
-                <li key={p.problemId}>
-                  <Link
-                    href={`/dashboard/problems/${p.problemId}`}
-                    className="surface-inset group/next flex h-full flex-col gap-3 rounded-[16px] p-4 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
-                  >
-                    <span className="flex items-center gap-2">
-                      {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
-                      <Tag className="truncate">{topicLabel(p.topic)}</Tag>
-                    </span>
-                    <span className="line-clamp-2 text-15 leading-snug font-[600] group-hover/next:underline">
-                      {p.title}
-                    </span>
-                    <span className="line-clamp-2 text-12 text-ink-3">{p.reason}</span>
-                    <span className="mt-auto inline-flex items-center gap-1.5 text-13 font-[600] text-signal-text">
-                      Start <ButtonArrow />
-                    </span>
-                  </Link>
-                </li>
+            <ol className="relative ml-2 border-l border-line-2">
+              {recent.slice(0, 6).map((r, i) => (
+                <RecentRow key={r.id} solve={r} index={i} />
               ))}
-            </ul>
+            </ol>
           )}
         </Card>
 
-        {/* Row 6 · focus + recent */}
         <Card className="col-span-12 flex flex-col xl:col-span-5">
           <CardHeader>
             <CardTitle icon={icon(Timer)} tint="var(--signal-mark)">
@@ -798,34 +809,7 @@ async function Overview() {
           )}
         </Card>
 
-        <Card className="col-span-12 xl:col-span-7">
-          <CardHeader>
-            <CardTitle icon={icon(History)} tint="var(--success)">
-              Recent solves
-            </CardTitle>
-            <CardSub>accepted</CardSub>
-          </CardHeader>
-          {recent.length === 0 ? (
-            <EmptyState
-              icon={<History size={18} />}
-              title={
-                <>
-                  No solves <em>yet.</em>
-                </>
-              }
-            >
-              Your accepted problems show up here. Start with a sheet.
-            </EmptyState>
-          ) : (
-            <ol className="relative ml-2 border-l border-line-2">
-              {recent.map((r, i) => (
-                <RecentRow key={r.id} solve={r} index={i} />
-              ))}
-            </ol>
-          )}
-        </Card>
-
-        {/* Row 7 · platforms */}
+        {/* Row 6 · platforms */}
         <Card className="col-span-12">
           <CardHeader>
             <CardTitle icon={icon(Plug)} tint="var(--info)">
@@ -851,7 +835,7 @@ async function Overview() {
               }
             />
           ) : (
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {accounts.map((a) => {
                 const series = contestSeries.find((s) => s.platform === a.platform);
                 const url = PLATFORM_PROFILE_URL[a.platform]?.(a.handle);
@@ -999,14 +983,21 @@ function OverviewSkeleton() {
         <Skeleton className="h-4 w-56" />
       </div>
       <div className="grid grid-cols-12 gap-3.5">
-        <SkeletonCard lines={3} className="col-span-12 h-[230px] xl:col-span-5" />
-        <div className="col-span-12 grid gap-3.5 sm:grid-cols-3 xl:col-span-7 xl:grid-cols-1">
+        <SkeletonCard lines={1} className="col-span-12 h-[68px] md:col-span-6 xl:col-span-5" />
+        <SkeletonCard lines={1} className="col-span-12 h-[68px] md:col-span-6 xl:col-span-7" />
+        <SkeletonCard lines={3} className="col-span-12 h-[230px] xl:col-span-6" />
+        <div className="col-span-12 grid gap-3.5 sm:grid-cols-3 xl:col-span-6">
           {Array.from({ length: 3 }, (_, i) => (
-            <SkeletonCard key={i} lines={1} className="h-[150px] xl:h-[69px]" />
+            <SkeletonCard key={i} lines={1} className="h-[150px] xl:h-[230px]" />
           ))}
         </div>
-        <SkeletonCard lines={5} className="col-span-12 h-[300px] xl:col-span-7" />
-        <SkeletonCard lines={4} className="col-span-12 h-[300px] xl:col-span-5" />
+        {Array.from({ length: 3 }, (_, i) => (
+          <SkeletonCard
+            key={i}
+            lines={5}
+            className="col-span-12 h-[320px] md:col-span-6 xl:col-span-4"
+          />
+        ))}
       </div>
     </div>
   );

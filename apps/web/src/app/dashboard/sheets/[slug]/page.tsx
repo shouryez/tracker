@@ -13,6 +13,7 @@ import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { getLearning } from "@/lib/learning";
+import { getSheetKeysOnToday } from "@/lib/plan";
 import { getSheetDetail } from "@/lib/sheets-data";
 import { localDay, requestNow } from "@/lib/time";
 
@@ -70,9 +71,11 @@ async function SheetContent({
     getProfile(user.id),
   ]);
   if (!sheet) notFound();
+  const tz = profile?.timezone ?? "Asia/Kolkata";
+  const onToday = await getSheetKeysOnToday(user.id, sheet.id, tz, requestNow());
 
   // Revision state of every solved problem, so rows can say "revise".
-  const { end: endOfToday } = localDay(profile?.timezone ?? "Asia/Kolkata", requestNow());
+  const { end: endOfToday } = localDay(tz, requestNow());
   const reviews: Record<string, ItemReview> = {};
   for (const p of learning) {
     reviews[p.problemId] = {
@@ -199,7 +202,7 @@ async function SheetContent({
         />
       </Card>
 
-      <SheetBrowser sheetId={sheet.id} items={sheet.items} reviews={reviews} />
+      <SheetBrowser sheetId={sheet.id} items={sheet.items} reviews={reviews} onToday={onToday} />
     </>
   );
 }

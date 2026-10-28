@@ -21,6 +21,7 @@ import { classifySaved } from "@/lib/daily-data";
 import { db, userTag } from "@/lib/db";
 import { getProfile } from "@/lib/data";
 import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/lib/learning";
+import { ON_TODAY_LIST, getTodaySuggestions } from "@/lib/plan";
 import { localDate, requestNow } from "@/lib/time";
 
 // Writes for the daily-loop features. Every action resolves the user from the
@@ -58,14 +59,15 @@ export async function addPlanTask(title: string): Promise<DailyResult> {
   if (!user) return fail("Sign in first.");
   const parsed = TaskTitle.safeParse(title);
   if (!parsed.success) return fail(parsed.error.issues[0]!.message);
+  const day = await today(user.id);
   await db()
     .insert(planItems)
     .values({
       userId: user.id,
-      day: await today(user.id),
+      day,
       kind: "custom",
       title: parsed.data,
-      position: 1000 + (Math.floor(requestNow() / 1000) % 100000),
+      position: await nextPosition(user.id, day),
     });
   updateTag(userTag(user.id));
   return { ok: true };
@@ -113,6 +115,7 @@ export async function addProblemsToPlan(
     url: string | null;
   }[];
   if (rows.length === 0) return fail("Already on today's plan.");
+  const start = await nextPosition(user.id, day);
   await db()
     .insert(planItems)
     .values(
@@ -124,11 +127,103 @@ export async function addProblemsToPlan(
         title: r.title,
         url: r.url,
         detail: kind === "drill" ? "Drill · fix a repeated mistake" : "Added by you",
-        position: 500 + i,
+        position: start + i,
       })),
     );
   updateTag(userTag(user.id));
   return { ok: true };
+}
+
+/** Position after everything already on the day's list, so new items land at the bottom. */
+async function nextPosition(userId: string, day: string) {
+  const [row] = (await db().execute(sql`
+    select coalesce(max(position), -1) + 1 as next from plan_items
+    where user_id = ${userId} and day = ${day}`)) as unknown as { next: number }[];
+  return Number(row?.next ?? 0);
+}
+
+export type AddResult = { ok: true; added: number } | { ok: false; error: string };
+
+const SuggestionKeys = z.array(z.string().min(1).max(600)).min(1).max(20);
+
+/**
+ * Adds suggestions to today's list. The suggestions are recomputed here and only keys that
+ * match one are added, so titles and links never come from the client.
+ */
+export async function addSuggestionsToPlan(keys: string[]): Promise<AddResult> {
+  const user = await me();
+  if (!user) return { ok: false, error: "Sign in first." };
+  const parsed = SuggestionKeys.safeParse(keys);
+  if (!parsed.success) return { ok: false, error: "Nothing to add." };
+  const profile = await getProfile(user.id);
+  const tz = profile?.timezone ?? "Asia/Kolkata";
+  const now = requestNow();
+  const day = localDate(tz, now);
+  const wanted = new Set(parsed.data);
+  const picked = (await getTodaySuggestions(user.id, tz, profile?.reviewCap ?? 5, now)).filter(
+    (s) => wanted.has(s.key),
+  );
+  if (picked.length === 0) return { ok: false, error: "Already on today's list." };
+  const start = await nextPosition(user.id, day);
+  await db()
+    .insert(planItems)
+    .values(
+      picked.map((s, i) => ({
+        userId: user.id,
+        day,
+        kind: s.kind,
+        problemId: s.problemId,
+        title: s.title,
+        url: s.url,
+        detail: s.detail,
+        position: start + i,
+      })),
+    );
+  updateTag(userTag(user.id));
+  return { ok: true, added: picked.length };
+}
+
+const SheetItemKeys = z.array(z.string().min(1).max(300)).min(1).max(30);
+
+/** Adds items from a sheet to today's list (one or many, picked on the sheet or on Today). */
+export async function addSheetItemsToPlan(sheetId: string, itemKeys: string[]): Promise<AddResult> {
+  const user = await me();
+  if (!user || !Id.safeParse(sheetId).success) return { ok: false, error: "Sheet not found." };
+  const parsed = SheetItemKeys.safeParse(itemKeys);
+  if (!parsed.success) return { ok: false, error: "Pick up to 30 items." };
+  const day = await today(user.id);
+  const rows = (await db().execute(sql`
+    select si.item_key as "itemKey", si.title, si.url, si.step, si.problem_id as "problemId",
+           sh.name as sheet
+    from sheet_items si join sheets sh on sh.id = si.sheet_id
+    where si.sheet_id = ${sheetId} and si.item_key in ${parsed.data}
+      and not ${ON_TODAY_LIST(user.id, day)}
+    order by si.position`)) as unknown as {
+    itemKey: string;
+    title: string;
+    url: string | null;
+    step: string;
+    problemId: string | null;
+    sheet: string;
+  }[];
+  if (rows.length === 0) return { ok: false, error: "Already on today's list." };
+  const start = await nextPosition(user.id, day);
+  await db()
+    .insert(planItems)
+    .values(
+      rows.map((r, i) => ({
+        userId: user.id,
+        day,
+        kind: "sheet",
+        problemId: r.problemId,
+        title: r.title,
+        url: r.url,
+        detail: `${r.sheet} · ${r.step}`,
+        position: start + i,
+      })),
+    );
+  updateTag(userTag(user.id));
+  return { ok: true, added: rows.length };
 }
 
 // ---------------------------------------------------------------- next problem

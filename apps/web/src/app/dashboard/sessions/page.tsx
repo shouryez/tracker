@@ -18,6 +18,7 @@ import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { HonestSplit, SessionItem } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { LabTimer } from "@/components/daily/lab-timer";
+import { NowSolving } from "@/components/daily/now-solving";
 import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { requestNow } from "@/lib/time";
@@ -124,7 +125,7 @@ async function SessionsContent() {
     return (
       <>
         {header}
-        {lab}
+        <NowSolving />
         {lab}
         <Card tier="hero" className="overflow-hidden">
           <EmptyState
@@ -170,6 +171,7 @@ async function SessionsContent() {
   return (
     <>
       {header}
+      <NowSolving />
       <div className="stagger-in grid grid-cols-12 gap-3.5">
         <Card tier="hero" beam className="col-span-12 lg:col-span-7">
           <CardHeader>
