@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     );
   }
   return shareCard(data, {
-    download: params.get("download") ? "upsolve-card.png" : undefined,
+    download: params.get("download") ? "dsakaro-card.png" : undefined,
   });
 }
 

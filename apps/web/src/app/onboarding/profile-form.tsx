@@ -134,7 +134,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
               </Field>
               <Field
                 label="Profile handle"
-                hint={`upsolve.in/u/${handle || "you"}`}
+                hint={`dsakaro.in/u/${handle || "you"}`}
                 error={errors.handle}
                 htmlFor="handle"
               >
@@ -443,7 +443,7 @@ function ProfilePreview({
         </span>
         <p className="relative mt-4 truncate text-20 font-[600]">{name || "Your name"}</p>
         <p className="relative truncate font-mono text-12 text-white/65">
-          upsolve.in/u/{handle || "you"}
+          dsakaro.in/u/{handle || "you"}
         </p>
         <p className="relative mt-3 flex items-center gap-1.5 text-13 text-white/80">
           <GraduationCap size={14} aria-hidden="true" />

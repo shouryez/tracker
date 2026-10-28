@@ -23,7 +23,7 @@ async function api(path: string, init: RequestInit = {}): Promise<Response | nul
 
 async function handleAuthFailure(res: Response) {
   if (res.status === 401) {
-    await store.setAuthError("Disconnected. Open Upsolve and connect again.");
+    await store.setAuthError("Disconnected. Open DsaKaro and connect again.");
     return true;
   }
   return false;

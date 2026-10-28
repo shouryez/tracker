@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   // Absolute base for link previews (share cards). Set NEXT_PUBLIC_SITE_URL in production.
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3005"),
   title: {
-    default: "Upsolve: every problem you solve, remembered",
-    template: "%s · Upsolve",
+    default: "DsaKaro: every problem you solve, remembered",
+    template: "%s · DsaKaro",
   },
   description:
     "Track time, verdicts and progress across LeetCode, Codeforces, GFG and more, then know exactly what to revise next.",

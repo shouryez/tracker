@@ -2,7 +2,7 @@ import "server-only";
 import { ImageResponse } from "next/og";
 
 // Share card (DESIGN.md §9.5): dark, serif name, heatmap, three big numbers,
-// lime pixel logo. 1200×630, rendered by next/og (flexbox only, no grid).
+// lime-node logo. 1200×630, rendered by next/og (flexbox only, no grid).
 
 export type ShareCardData = {
   name: string;
@@ -111,13 +111,38 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* Pixel logo: three squares stepping up, the last one lime. */}
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 4 }}>
-            <div style={{ width: 10, height: 10, borderRadius: 2, background: "#3a3a46" }} />
-            <div style={{ width: 10, height: 18, borderRadius: 2, background: "#5a5a68" }} />
-            <div style={{ width: 10, height: 26, borderRadius: 2, background: LIME }} />
+          {/* The logo: a tick through two hollow nodes, ending in a lime node. */}
+          <svg width="40" height="40" viewBox="2.5 0.5 28 28">
+            <mask id="holes" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+              <rect x="0" y="0" width="32" height="32" fill="#fff" />
+              <circle cx="5.5" cy="16" r="1.3" fill="#000" />
+              <circle cx="12.5" cy="23" r="1.3" fill="#000" />
+            </mask>
+            <path
+              d="M5.5 16 12.5 23 24.5 9.5"
+              fill="none"
+              stroke={INK}
+              strokeWidth="5.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              mask="url(#holes)"
+            />
+            <circle cx="26" cy="7.5" r="4.2" fill={LIME} />
+          </svg>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              fontSize: 30,
+              fontWeight: 600,
+              letterSpacing: -1,
+            }}
+          >
+            Dsa
+            <span style={{ fontFamily: "Serif", fontWeight: 400, fontSize: 35, letterSpacing: 0 }}>
+              Karo
+            </span>
           </div>
-          <div style={{ fontSize: 28, fontWeight: 600, letterSpacing: -1 }}>upsolve</div>
         </div>
         <div
           style={{
@@ -130,7 +155,7 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
             color: MUTED,
           }}
         >
-          {d.handle ? `upsolve.in/u/${d.handle}` : "DSA practice, remembered"}
+          {d.handle ? `dsakaro.in/u/${d.handle}` : "DSA practice, remembered"}
         </div>
       </div>
 

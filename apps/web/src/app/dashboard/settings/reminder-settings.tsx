@@ -60,7 +60,7 @@ export function ReminderSettings({ initial, best }: { initial: Values; best: num
         onCheckedChange={(contestReminders) => save({ ...values, contestReminders })}
       />
       <p className="text-12 text-ink-3">
-        Reminders come from the Upsolve extension, so they need it installed and connected.
+        Reminders come from the DsaKaro extension, so they need it installed and connected.
       </p>
     </div>
   );

@@ -21,27 +21,41 @@ function h<K extends keyof HTMLElementTagNameMap>(
 const send = (msg: Message) => browser.runtime.sendMessage(msg);
 const open = (path: string) => browser.tabs.create({ url: `${WEB_URL}${path}` });
 
+/** The DsaKaro mark: a tick through two hollow nodes, ending in a lime node. */
 function logo() {
   const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("width", "20");
-  svg.setAttribute("height", "20");
-  svg.setAttribute("viewBox", "0 0 22 22");
-  for (const [x, y, fill, op] of [
-    [0, 14, "#f4f4f6", ".35"],
-    [7.5, 7, "#f4f4f6", ".7"],
-    [15, 0, "#d7ff3a", "1"],
-  ] as const) {
-    const r = document.createElementNS(ns, "rect");
-    r.setAttribute("x", String(x));
-    r.setAttribute("y", String(y));
-    r.setAttribute("width", "7");
-    r.setAttribute("height", "7");
-    r.setAttribute("rx", "1.5");
-    r.setAttribute("fill", fill);
-    r.setAttribute("opacity", op);
-    svg.append(r);
-  }
+  const node = (tag: string, attrs: Record<string, string>) => {
+    const el = document.createElementNS(ns, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    return el;
+  };
+  const svg = node("svg", { width: "20", height: "20", viewBox: "2.5 0.5 28 28" });
+  const mask = node("mask", {
+    id: "dk-holes",
+    maskUnits: "userSpaceOnUse",
+    x: "0",
+    y: "0",
+    width: "32",
+    height: "32",
+  });
+  mask.append(
+    node("rect", { width: "32", height: "32", fill: "#fff" }),
+    node("circle", { cx: "5.5", cy: "16", r: "1.3", fill: "#000" }),
+    node("circle", { cx: "12.5", cy: "23", r: "1.3", fill: "#000" }),
+  );
+  svg.append(
+    mask,
+    node("path", {
+      d: "M5.5 16 12.5 23 24.5 9.5",
+      fill: "none",
+      stroke: "#f4f4f6",
+      "stroke-width": "5.4",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+      mask: "url(#dk-holes)",
+    }),
+    node("circle", { cx: "26", cy: "7.5", r: "4.2", fill: "#d7ff3a" }),
+  );
   return svg;
 }
 
@@ -51,7 +65,7 @@ function stat(value: string, unit: string, label: string) {
 }
 
 function render(s: Status) {
-  const header = h("header", {}, logo(), "upsolve");
+  const header = h("header", {}, logo(), h("span", {}, "Dsa", h("em", { text: "Karo" })));
 
   if (!s.connected) {
     app.replaceChildren(
@@ -60,7 +74,7 @@ function render(s: Status) {
         "div",
         { class: "card" },
         h("p", {
-          text: "Connect to your Upsolve account to sync your LeetCode and GeeksforGeeks sessions.",
+          text: "Connect to your DsaKaro account to sync your LeetCode and GeeksforGeeks sessions.",
         }),
         h("p", {
           class: "sub",

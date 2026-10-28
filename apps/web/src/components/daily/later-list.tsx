@@ -115,7 +115,7 @@ export function LaterList({
             </>
           }
         >
-          Right-click any page and choose &ldquo;Save to Upsolve&rdquo;, or use the extension
+          Right-click any page and choose &ldquo;Save to DsaKaro&rdquo;, or use the extension
           button. YouTube saves remember the minute you were at.
         </EmptyState>
       ) : (

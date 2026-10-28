@@ -14,10 +14,10 @@ const digest: WeeklyDigest = {
   insights: ["Graphs is your weakest topic (12/100).", "Try <script>alert(1)</script> next."],
 };
 const links = {
-  revision: "https://upsolve.test/dashboard/revision",
-  dashboard: "https://upsolve.test/dashboard",
-  unsubscribe: "https://upsolve.test/api/email/unsubscribe?u=1&s=2",
-  settings: "https://upsolve.test/dashboard/settings",
+  revision: "https://dsakaro.test/dashboard/revision",
+  dashboard: "https://dsakaro.test/dashboard",
+  unsubscribe: "https://dsakaro.test/api/email/unsubscribe?u=1&s=2",
+  settings: "https://dsakaro.test/dashboard/settings",
 };
 
 test("weekly email: subject, numbers, CTA and escaping", () => {
@@ -30,7 +30,7 @@ test("weekly email: subject, numbers, CTA and escaping", () => {
   assert.ok(!html.includes("<script>"));
   assert.match(html, /Try &lt;script&gt;/);
   assert.match(html, /u=1&amp;s=2/);
-  assert.match(text, /Unsubscribe: https:\/\/upsolve.test\/api\/email\/unsubscribe\?u=1&s=2/);
+  assert.match(text, /Unsubscribe: https:\/\/dsakaro.test\/api\/email\/unsubscribe\?u=1&s=2/);
   assert.equal((html.match(/border-radius:3px/g) ?? []).length, 30);
 });
 

@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps<"/u/[handle]">): Pr
   const image = `/api/share-card?handle=${encodeURIComponent(handle)}`;
   return {
     title: `@${handle}`,
-    description: `${handle}'s DSA practice on Upsolve: solved problems, streak and contest ratings.`,
+    description: `${handle}'s DSA practice on DsaKaro: solved problems, streak and contest ratings.`,
     openGraph: { images: [{ url: image, width: 1200, height: 630 }] },
     twitter: { card: "summary_large_image", images: [image] },
   };
@@ -43,7 +43,7 @@ export default function PublicProfilePage({ params }: PageProps<"/u/[handle]">) 
   return (
     <div className="min-h-dvh">
       <header className="mx-auto flex h-[72px] w-[min(1000px,100%-32px)] items-center justify-between">
-        <Link href="/" aria-label="Upsolve home">
+        <Link href="/" aria-label="DsaKaro home">
           <Logo />
         </Link>
         <div className="flex items-center gap-2">
@@ -86,7 +86,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
         <Grain />
         <span aria-hidden="true" className="starfield absolute inset-0 opacity-40" />
         <div className="absolute top-5 right-5 z-10">
-          <ShareButton title={`@${profile.handle} on Upsolve`} />
+          <ShareButton title={`@${profile.handle} on DsaKaro`} />
         </div>
         <div className="relative flex flex-wrap items-center gap-6">
           <AvatarRing

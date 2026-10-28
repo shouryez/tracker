@@ -23,11 +23,11 @@ export function getAdapter(platform: Platform): PlatformAdapter {
   return adapter;
 }
 
-/** Ownership code shown to the user, e.g. "upsolve-7Q2X". No look-alike characters. */
+/** Ownership code shown to the user, e.g. "dsakaro-7Q2X". No look-alike characters. */
 export function newVerifyCode(): string {
   const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
   const bytes = crypto.getRandomValues(new Uint8Array(4));
-  return `upsolve-${Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("")}`;
+  return `dsakaro-${Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("")}`;
 }
 
 /** Handles are case-insensitive on both platforms and only use these characters. */

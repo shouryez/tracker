@@ -203,7 +203,7 @@ async function saveActiveTab(api: Api): Promise<{ ok: boolean; error?: string }>
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (!tab?.url || !/^https?:/.test(tab.url)) return { ok: false, error: "Can't save this page" };
   const ok = await save(api, tab.url, tab.title ?? "", await youtubeSeconds(tab.id, tab.url));
-  return ok ? { ok } : { ok, error: "Couldn't reach Upsolve" };
+  return ok ? { ok } : { ok, error: "Couldn't reach DsaKaro" };
 }
 
 // ---------------------------------------------------------------- problem context
@@ -267,7 +267,7 @@ export function setupDaily(api: Api) {
     browser.contextMenus.removeAll(() => {
       browser.contextMenus.create({
         id: "upsolve-save",
-        title: "Save to Upsolve for later",
+        title: "Save to DsaKaro for later",
         contexts: ["page", "link", "video"],
       });
     });

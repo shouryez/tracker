@@ -20,7 +20,7 @@ export default function JoinPage({ params }: PageProps<"/join/[code]">) {
         color="#ff6bb5"
       />
       <div className="relative w-full max-w-[440px]">
-        <Link href="/" aria-label="Upsolve home" className="mb-6 inline-block">
+        <Link href="/" aria-label="DsaKaro home" className="mb-6 inline-block">
           <Logo />
         </Link>
         <Suspense fallback={<SkeletonCard lines={3} className="h-[240px]" />}>

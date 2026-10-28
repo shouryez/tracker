@@ -30,7 +30,7 @@ export default function ProfileNotFound() {
       <Starfield className="opacity-70" />
       <Meteors count={4} />
       <div className="relative flex flex-col items-center">
-        <Link href="/" aria-label="Upsolve home" className="mb-10 text-white">
+        <Link href="/" aria-label="DsaKaro home" className="mb-10 text-white">
           <Logo />
         </Link>
         <PixelGhost />

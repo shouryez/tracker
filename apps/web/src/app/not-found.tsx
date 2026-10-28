@@ -14,7 +14,7 @@ export default function NotFound() {
         className="absolute top-1/2 left-1/2 size-[520px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(164,139,255,.25),transparent_65%)] blur-2xl"
       />
       <div className="relative flex flex-col items-center text-center">
-        <Link href="/" aria-label="Upsolve home" className="mb-10 text-white">
+        <Link href="/" aria-label="DsaKaro home" className="mb-10 text-white">
           <Logo />
         </Link>
         <span className="mb-4 inline-flex h-7 items-center gap-2 rounded-full border border-[#ff5a78]/40 bg-[#ff5a78]/12 px-3 font-mono text-12 text-[#ff8aa0]">

@@ -1,6 +1,6 @@
 import { PlatformError } from "./types.ts";
 
-const USER_AGENT = "Upsolve/0.1 (+https://github.com/shouryez/upsolve)";
+const USER_AGENT = "DsaKaro/0.1 (+https://github.com/shouryez/upsolve)";
 const lastCall = new Map<string, number>();
 
 /**

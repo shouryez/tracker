@@ -1,4 +1,4 @@
-# Upsolve UI/UX redesign (Oct 2026)
+# DsaKaro UI/UX redesign (Oct 2026)
 
 A visual and interaction upgrade on top of DESIGN.md. **No features, routes, data shapes or
 business logic change.** References: "Donezo" task dashboard (soft canvas, 20–24 px cards, one

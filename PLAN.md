@@ -1,6 +1,6 @@
-# Upsolve — SaaS Build Plan
+# DsaKaro — SaaS Build Plan
 
-> Companion to [DESIGN.md](DESIGN.md). Upsolve is a working name.
+> Companion to [DESIGN.md](DESIGN.md). DsaKaro is a working name.
 > Last updated: 25 Oct 2026.
 
 ---
@@ -177,7 +177,7 @@ interface PlatformAdapter {
 
 **Sync policy:** sync on connect (full backfill), then every 6 h, plus right after the extension reports an AC. Use exponential backoff per platform and a global per-platform concurrency cap. Store a raw payload snapshot (7 days) for debugging parsers.
 
-**Verification:** generate an `upsolve-XXXX` code, the user pastes it into their profile bio/about, and the server checks it once. Codolio-style. Without verification a handle can still be added, but it is hidden from leaderboards.
+**Verification:** generate an `dsakaro-XXXX` code, the user pastes it into their profile bio/about, and the server checks it once. Codolio-style. Without verification a handle can still be added, but it is hidden from leaderboards.
 
 ---
 

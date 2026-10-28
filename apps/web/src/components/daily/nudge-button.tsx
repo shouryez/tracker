@@ -30,7 +30,7 @@ export function NudgeButton({
           if (res.ok) {
             setSent(true);
             toast.success(`Nudged ${name}`, {
-              description: "They'll see it next time they open Upsolve.",
+              description: "They'll see it next time they open DsaKaro.",
             });
           } else {
             toast.error(res.error);

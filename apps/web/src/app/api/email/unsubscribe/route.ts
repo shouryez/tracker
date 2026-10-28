@@ -11,7 +11,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function page(body: string, status = 200) {
   return new Response(
-    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Upsolve email</title></head>
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DsaKaro email</title></head>
 <body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#0b0b0f;color:#f4f4f6;font:15px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:16px">
 <main style="max-width:420px">${body}</main></body></html>`,
     { status, headers: { "Content-Type": "text/html; charset=utf-8" } },

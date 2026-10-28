@@ -80,7 +80,7 @@ export type RawContestResult = {
 };
 
 export type VerifyChallenge = {
-  /** Code the user puts in their profile, e.g. "upsolve-7Q2X". */
+  /** Code the user puts in their profile, e.g. "dsakaro-7Q2X". */
   code: string;
   /** When the challenge was issued. */
   requestedAt: Date;

@@ -141,7 +141,7 @@ export async function sendWeeklyEmails(
   origin: string,
 ): Promise<{ sent: number; skipped: number; failed: number; dryRun: boolean }> {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "Upsolve <weekly@upsolve.app>";
+  const from = process.env.EMAIL_FROM ?? "DsaKaro <weekly@dsakaro.in>";
   const recipients = (await db().execute(sql`
     select p.user_id as "userId", u.email
     from profiles p join auth.users u on u.id = p.user_id

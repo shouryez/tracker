@@ -12,7 +12,7 @@ export default function OnboardingLayout({ children }: LayoutProps<"/onboarding"
         color="var(--aurora-2)"
       />
       <header className="relative mx-auto flex h-[72px] w-[min(1000px,100%-32px)] items-center justify-between">
-        <Link href="/" aria-label="Upsolve home">
+        <Link href="/" aria-label="DsaKaro home">
           <Logo />
         </Link>
         <ThemeToggle />

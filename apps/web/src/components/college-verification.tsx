@@ -166,7 +166,7 @@ export function CollegeVerification({
       )}
       <p className="flex items-start gap-1.5 text-12 text-ink-3">
         <Lock size={12} className="mt-0.5 shrink-0" aria-hidden="true" />
-        Only Upsolve admins see it, and it&apos;s deleted as soon as it&apos;s reviewed. Feel free
+        Only DsaKaro admins see it, and it&apos;s deleted as soon as it&apos;s reviewed. Feel free
         to cover your roll number, date of birth or address.
       </p>
     </div>

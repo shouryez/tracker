@@ -19,7 +19,7 @@ export default function LoginPage() {
           <div className="orb size-[520px] animate-[blob_14s_var(--ease-in-out)_infinite_alternate]" />
         </div>
         <div className="relative z-10 p-10">
-          <Link href="/" aria-label="Upsolve home" className="inline-block text-white">
+          <Link href="/" aria-label="DsaKaro home" className="inline-block text-white">
             <Logo />
           </Link>
           <h2 className="mt-16 max-w-[13ch] font-display text-[56px] leading-[.98] tracking-[-0.02em]">
@@ -74,11 +74,11 @@ export default function LoginPage() {
         </div>
 
         <main id="main" className="relative w-full max-w-[400px] animate-page">
-          <Link href="/" aria-label="Upsolve home" className="mb-10 inline-block lg:hidden">
+          <Link href="/" aria-label="DsaKaro home" className="mb-10 inline-block lg:hidden">
             <Logo />
           </Link>
           <h1 className="mb-2 font-display text-[44px] leading-none tracking-[-0.02em]">
-            Welcome back. <em className="text-violet">Let&apos;s upsolve.</em>
+            Welcome back. <em className="text-violet">Chalo,&nbsp;DSA&nbsp;karo.</em>
           </h1>
           <p className="mb-8 text-ink-2">Sign in to sync your platforms and track every session.</p>
 

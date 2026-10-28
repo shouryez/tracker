@@ -200,7 +200,7 @@ async function CollegeContent({
             viewerId={user.id}
             empty={
               rows.length === 0
-                ? "Nobody else is on this board yet. Share Upsolve with your batch."
+                ? "Nobody else is on this board yet. Share DsaKaro with your batch."
                 : "Nobody here has a contest rating yet."
             }
           />

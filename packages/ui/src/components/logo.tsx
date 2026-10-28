@@ -1,16 +1,43 @@
+"use client";
+
+import { useId } from "react";
 import { cn } from "../cn";
 
-/** Three pixels climbing a staircase; the top one is always lime. */
+/**
+ * A tick drawn through graph nodes: two hollow nodes on the path, ending in a lime one.
+ * The holes are masked out, so the mark sits on any background. The mask covers the whole
+ * grid: its default box hugs the path and would clip the round stroke caps.
+ */
 export function LogoMark({ size = 22, className }: { size?: number; className?: string }) {
+  const mask = `dk-${useId().replace(/[^\w-]/g, "")}`;
   return (
-    <svg width={size} height={size} viewBox="0 0 22 22" aria-hidden="true" className={className}>
-      <rect x="0" y="14" width="7" height="7" rx="1.5" fill="currentColor" opacity=".35" />
-      <rect x="7.5" y="7" width="7" height="7" rx="1.5" fill="currentColor" opacity=".7" />
-      <rect x="15" y="0" width="7" height="7" rx="1.5" fill="var(--signal)" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="2.5 0.5 28 28"
+      aria-hidden="true"
+      className={className}
+    >
+      <mask id={mask} maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+        <rect x="0" y="0" width="32" height="32" fill="#fff" />
+        <circle cx="5.5" cy="16" r="1.3" fill="#000" />
+        <circle cx="12.5" cy="23" r="1.3" fill="#000" />
+      </mask>
+      <path
+        d="M5.5 16 12.5 23 24.5 9.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="5.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        mask={`url(#${mask})`}
+      />
+      <circle cx="26" cy="7.5" r="4.2" fill="var(--signal)" />
     </svg>
   );
 }
 
+/** "Dsa" in the sans, "Karo" in the serif italic, the same pairing as the page headlines. */
 export function Logo({ className }: { className?: string }) {
   return (
     <span
@@ -20,7 +47,10 @@ export function Logo({ className }: { className?: string }) {
       )}
     >
       <LogoMark />
-      upsolve
+      <span>
+        Dsa
+        <em className="font-display text-[1.14em] font-normal tracking-[-0.01em] italic">Karo</em>
+      </span>
     </span>
   );
 }

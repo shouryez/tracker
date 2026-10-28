@@ -1,10 +1,10 @@
-# Upsolve: feature research and roadmap (Oct 2026)
+# DsaKaro: feature research and roadmap (Oct 2026)
 
-What students say they need, what Upsolve should add or cut, and in what order. Sources are at the end; Reddit was read through mirrors and search snippets, so treat single threads as anecdotes and repeated themes as signal.
+What students say they need, what DsaKaro should add or cut, and in what order. Sources are at the end; Reddit was read through mirrors and search snippets, so treat single threads as anecdotes and repeated themes as signal.
 
 ## 1. What people are saying
 
-| Theme                                     | What we found                                                                                                                                                                                                                                                                                                                                                                                | What it means for Upsolve                                                                                                                                                                |
+| Theme                                     | What we found                                                                                                                                                                                                                                                                                                                                                                                | What it means for DsaKaro                                                                                                                                                                |
 | ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Forgetting is the #1 pain**             | Many threads and at least five tools (SpacedLeet, LeetRecur, Leet Repeet, DSAPrep, CodingInterviewHQ) exist because people "forget the solution a week later". The advice that works is **active recall**: rewrite from a blank file the next day, then again days later with only a one-line pattern note; learn the pattern, not the code; solve a close variant after reading a solution. | We already schedule reviews (1→3→7→16→35→90). The gap is the **review itself**: it's "re-solve or self-grade". Add recall drills and variant problems so a review actually tests memory. |
 | **Social accountability beats willpower** | YPT's appeal is groups: "seeing a peer who studied only slightly longer pushes me to keep going"; live status of friends, realtime ranking by study time. Complaints: bugs, miscounted sessions.                                                                                                                                                                                             | We have study rooms and weekly boards. Missing: a **visible study timer**, live time leaderboards, and trustworthy (not miscounted) time.                                                |
@@ -33,7 +33,7 @@ Current Analytics: Active days, Solved, First-try AC, Focus, Best hours, Verdict
 4. **Hint dependence**: solo rate trend over 8 weeks.
 5. **Coverage map**: topics never practised vs. sheet targets (gaps, not just strengths).
 6. **Readiness score** (0–100, per goal: internship / placements / FAANG / CP): weighted coverage, retention, solo rate, speed on Mediums, contest rating. Explained like the consistency score so it never feels arbitrary.
-7. **Upsolve completion**: % of contest problems finished within 7 days of each contest.
+7. **DsaKaro completion**: % of contest problems finished within 7 days of each contest.
 
 ## 3. New features (ranked)
 
@@ -49,7 +49,7 @@ Current Analytics: Active days, Solved, First-try AC, Focus, Best hours, Verdict
 
 **B. Today plan: a to-do list that checks itself**
 
-- Each morning Upsolve proposes 3–6 quests: due revisions, 1 next sheet problem, 1 weak-topic stretch problem, a contest if one is today. The user can add their own tasks (e.g. "OS notes ch. 4").
+- Each morning DsaKaro proposes 3–6 quests: due revisions, 1 next sheet problem, 1 weak-topic stretch problem, a contest if one is today. The user can add their own tasks (e.g. "OS notes ch. 4").
 - **Auto-complete**: when the extension or sync sees an Accepted on a quest's problem, the quest ticks itself (with pixel confetti). No other to-do app can do this.
 - Time-block view: drag quests onto a day strip; Lab mode can start from a quest.
 - Carry-over and "too much today?" trim when the user is behind (burnout guard).
@@ -94,7 +94,7 @@ Current Analytics: Active days, Solved, First-try AC, Focus, Best hours, Verdict
 
 ## 5. Positioning
 
-Other tools pick one thing: a timer (LeetCode Time Tracker), spaced repetition (SpacedLeet, LeetRecur), a study timer with friends (YPT), or company question lists (paid PYQ sites). **Upsolve's edge is that it already sees the whole loop**: what you open, how long you take, every verdict, how you solved it, and when you forget. "A study timer that knows you solved it, a to-do list that checks itself, and revision that proves you remember" is something none of them can copy without the extension and the data model.
+Other tools pick one thing: a timer (LeetCode Time Tracker), spaced repetition (SpacedLeet, LeetRecur), a study timer with friends (YPT), or company question lists (paid PYQ sites). **DsaKaro's edge is that it already sees the whole loop**: what you open, how long you take, every verdict, how you solved it, and when you forget. "A study timer that knows you solved it, a to-do list that checks itself, and revision that proves you remember" is something none of them can copy without the extension and the data model.
 
 ## Sources
 

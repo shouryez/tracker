@@ -13,7 +13,7 @@ export default function ConnectExtensionPage() {
       <DotGrid className="opacity-60" />
       <GlowOrb className="top-[-18%] left-[50%] -translate-x-1/2 opacity-35" size={620} />
       <header className="relative mx-auto flex h-[72px] w-[min(640px,100%-32px)] items-center justify-between">
-        <Link href="/dashboard" aria-label="Upsolve dashboard">
+        <Link href="/dashboard" aria-label="DsaKaro dashboard">
           <Logo />
         </Link>
         <ThemeToggle />
@@ -24,7 +24,7 @@ export default function ConnectExtensionPage() {
         </h1>
         <p className="mb-8 max-w-[52ch] text-ink-2">
           Connecting lets the extension send your timed sessions and verdicts to your dashboard. It
-          only ever talks to LeetCode and Upsolve.
+          only ever talks to LeetCode and DsaKaro.
         </p>
         <Suspense fallback={<div className="h-40 skeleton rounded-lg" />}>
           <Gate />

@@ -74,7 +74,7 @@ export function renderWeeklyEmail(
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;border-radius:18px;overflow:hidden;background:#ffffff">
   <tr><td style="background:#0b0b0f;padding:28px 28px 24px">
-    <div style="font:500 11px/1 ui-monospace,Consolas,monospace;color:#d7ff3a;letter-spacing:.1em;text-transform:uppercase">Upsolve · ${esc(d.weekLabel)}</div>
+    <div style="font:500 11px/1 ui-monospace,Consolas,monospace;color:#d7ff3a;letter-spacing:.1em;text-transform:uppercase">DsaKaro · ${esc(d.weekLabel)}</div>
     <div style="font:600 26px/1.15 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:-.03em;color:#f4f4f6;padding:12px 0 22px">Hey ${esc(first)},<br><span style="color:#686876">${esc(deltaText)}.</span></div>
     <table role="presentation" cellpadding="0" cellspacing="0"><tr>
       ${stat(String(d.solved), "solved")}
@@ -98,7 +98,7 @@ export function renderWeeklyEmail(
 </body></html>`;
 
   const text = [
-    `Upsolve · ${d.weekLabel}`,
+    `DsaKaro · ${d.weekLabel}`,
     "",
     `Hey ${first}, ${deltaText}.`,
     `${d.solved} solved · ${hours(d.focusMs)} focused · ${d.reviewsDone} reviews`,

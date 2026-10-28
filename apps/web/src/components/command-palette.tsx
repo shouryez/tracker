@@ -257,7 +257,7 @@ export function CommandPalette() {
                   // A file download, not a page: click a temporary download link.
                   const a = document.createElement("a");
                   a.href = "/api/share-card?download=1";
-                  a.download = "upsolve-card.png";
+                  a.download = "dsakaro-card.png";
                   a.click();
                 })
               }

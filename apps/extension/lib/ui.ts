@@ -149,7 +149,7 @@ export class TimerUi {
     this.pill = el("button", {
       class: "pill armed",
       type: "button",
-      "aria-label": "Upsolve timer",
+      "aria-label": "DsaKaro timer",
     });
     this.pill.addEventListener("click", () => this.togglePanel());
     this.wrap.append(this.pill);
@@ -171,7 +171,7 @@ export class TimerUi {
     this.hintsShown = 0;
   }
 
-  /** What Upsolve knows about this problem (memory, hints, checklist). */
+  /** What DsaKaro knows about this problem (memory, hints, checklist). */
   setContext(ctx: ExtProblemContext | null) {
     this.context = ctx;
     if (this.panel) this.fillPanel();
@@ -404,7 +404,7 @@ export class TimerUi {
             el(
               "a",
               { class: "link", href: ctx.dashboardUrl, target: "_blank", rel: "noreferrer" },
-              "Open in Upsolve ↗",
+              "Open in DsaKaro ↗",
             ),
           );
         this.panel.append(sec);

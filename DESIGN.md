@@ -1,6 +1,6 @@
-# Upsolve — Design Language & Design Doc
+# DsaKaro — Design Language & Design Doc
 
-> **Upsolve** is a working name. Check domain and trademark before launch (upsolve.org is an existing US nonprofit).
+> **DsaKaro** ("DSA karo", Hindi for "do DSA"). Formerly the working name Upsolve. Domain: dsakaro.in.
 > **Living reference:** [`design/preview.html`](design/preview.html) implements everything in this doc — tokens, components, charts, motion — in one file. When this doc and the preview disagree, fix one of them the same day.
 >
 > View it: `python -m http.server 4173 --directory design` → http://localhost:4173/preview.html
@@ -9,7 +9,7 @@
 
 ## 1. What it should feel like
 
-Upsolve is for college students who grind DSA at 1 a.m. It should feel like **a calm instrument panel, not a game and not a corporate tool**.
+DsaKaro is for college students who grind DSA at 1 a.m. It should feel like **a calm instrument panel, not a game and not a corporate tool**.
 
 | Principle                                         | What it means in practice                                                                                                                  |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -44,7 +44,7 @@ Seven Dribbble references were reviewed. One design language was made by taking 
 
 ### Logo
 
-Three pixels climbing a staircase: two in ink at 35% and 70%, and the top one in **signal lime**. It reads as "up", as solving harder problems step by step, and as the pixel motif. Wordmark: `upsolve`, lowercase, Geist 650, tracking −3%.
+A tick drawn through graph nodes: a thick ink stroke with two hollow nodes at its joints, ending in a **signal lime** node. It reads as "solved" (Accepted), as a path through a graph, and as "karo": do it, done. The holes are masked, so the mark sits on any surface; app icons put it on a dark tile at 70% width, without holes at 16px. Wordmark: `Dsa` in Geist 650, tracking −3%, then `Karo` in Instrument Serif italic, the same sans + serif pairing as the page headlines. Source: `packages/ui/src/components/logo.tsx`; icons: `node scripts/gen-icons.mjs`.
 
 - Minimum size: 16 px (favicon uses just the three pixels).
 - Lime pixel is always lime, even in light mode.
@@ -242,14 +242,14 @@ General rules:
 7. **For colleges**: placement-cell pitch with a batch-readiness mock.
 8. **Pricing**: Free / Pro / College.
 9. **FAQ**: Kora-style dark accordions (privacy questions first).
-10. **Footer**: two-tone CTA + links + giant fading `upsolve` wordmark.
+10. **Footer**: two-tone CTA + links + giant fading `dsakaro` wordmark.
 
 ### 9.2 Onboarding (5 steps, progress = segmented bar at top)
 
 1. Sign up (Google or email).
 2. **About you**: name · college (combobox) · branch · graduation year · current year. _(Ask for graduation year, not age or date of birth.)_
 3. **Goal**: internship / placements / FAANG / competitive programming · target companies (multi) · main language · daily goal (30 / 60 / 120 min, or custom).
-4. **Connect platforms**: one row per platform → enter handle → "Paste `upsolve-7Q2X` into your bio" → verify (green tick pop). Skip allowed.
+4. **Connect platforms**: one row per platform → enter handle → "Paste `dsakaro-7Q2X` into your bio" → verify (green tick pop). Skip allowed.
 5. **Install extension**: detect whether it's installed; show a live "waiting for first problem…" pulse that turns into confetti pixels when the first session arrives.
 
 ### 9.3 App

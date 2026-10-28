@@ -144,7 +144,7 @@ export function SidebarView({
       >
         <Link
           href="/"
-          aria-label="Upsolve home"
+          aria-label="DsaKaro home"
           className="rounded-md transition-transform duration-[var(--dur-slow)] ease-[var(--ease-spring)] hover:-rotate-2 hover:scale-105"
         >
           {collapsed ? <LogoMark /> : <Logo />}

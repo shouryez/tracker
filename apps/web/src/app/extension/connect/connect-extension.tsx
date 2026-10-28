@@ -164,7 +164,7 @@ export function ConnectExtension() {
   );
 }
 
-/** Browser ↔ Upsolve: a radar pulse while searching, a beam once found, a check when linked. */
+/** Browser ↔ DsaKaro: a radar pulse while searching, a beam once found, a check when linked. */
 function Link2({ state }: { state: "searching" | "found" | "connected" }) {
   return (
     <div aria-hidden="true" className="flex items-center gap-3">

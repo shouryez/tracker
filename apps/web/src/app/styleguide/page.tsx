@@ -223,7 +223,7 @@ export default function Styleguide() {
       <SpotlightTracker />
       <header className="glass sticky top-0 z-40 flex items-center justify-between border-b border-line px-6 py-3">
         <span className="font-mono text-[12px] tracking-[.08em] text-ink-3 uppercase">
-          Upsolve · styleguide (dev only)
+          DsaKaro · styleguide (dev only)
         </span>
         <ThemeToggle />
       </header>
@@ -617,7 +617,7 @@ export default function Styleguide() {
                     y: 75,
                   },
                   { id: "ext", label: "Extension", icon: <Puzzle size={18} />, x: 45, y: 52 },
-                  { id: "up", label: "Upsolve", icon: <LogoMark size={20} />, x: 85, y: 52 },
+                  { id: "up", label: "DsaKaro", icon: <LogoMark size={20} />, x: 85, y: 52 },
                 ]}
                 edges={[
                   ["lc", "ext"],

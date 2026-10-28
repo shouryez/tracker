@@ -3,7 +3,7 @@ import { defineContentScript } from "wxt/utils/define-content-script";
 import { EXT_SOURCE, WEB_SOURCE, type Message } from "../lib/messages.ts";
 
 /**
- * Lets the Upsolve website hand this extension its API token
+ * Lets the DsaKaro website hand this extension its API token
  * (apps/web/src/app/extension/connect) and drive Lab-mode tab tracking
  * (apps/web/src/lib/ext-bridge.ts). The match pattern is a placeholder
  * that wxt.config.ts replaces with the configured web origin.

@@ -69,7 +69,7 @@ export function FeedbackButton() {
       onClose={() => setOpen(false)}
       title={
         <>
-          Help shape <em className="font-display font-normal">Upsolve.</em>
+          Help shape <em className="font-display font-normal">DsaKaro.</em>
         </>
       }
       description="Bugs, confusing bits, ideas. Every note gets read."

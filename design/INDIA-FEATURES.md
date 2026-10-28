@@ -1,4 +1,4 @@
-# Upsolve for Indian college students: the bold features (Oct 2026)
+# DsaKaro for Indian college students: the bold features (Oct 2026)
 
 Builds on `FEATURE-RESEARCH.md` (Lab mode, self-checking Today plan, achievements, recall drills, interview mode). This doc is about what's **specific to Indian campuses** and what nobody else can do because nobody else has our data: every solve, its time, its verdicts, how it was solved, and which college and batch the student is in.
 
@@ -20,7 +20,7 @@ Score = student pull × hard to copy × build effort (1–5 each, higher is bett
 
 ### 1. Drive Radar: your college's placement season, live (score 14)
 
-A per-college placement calendar built by opted-in students of that college: company, date, role (intern / FTE / PPO), CGPA cut-off, rounds, OA format (e.g. "20 aptitude + 2 DSA in 45 min"). One tap "I'm sitting for this" and Upsolve:
+A per-college placement calendar built by opted-in students of that college: company, date, role (intern / FTE / PPO), CGPA cut-off, rounds, OA format (e.g. "20 aptitude + 2 DSA in 45 min"). One tap "I'm sitting for this" and DsaKaro:
 
 - starts a **countdown** and switches your Today plan to that company's pattern for the last 14 days (topics, difficulty, OA timing practice),
 - after the drive, asks 3 quick questions (rounds, what was asked, result) to make next year's radar better.
@@ -36,7 +36,7 @@ _Privacy:_ only shown when ≥10 students contribute (k-anonymity), opt-in, neve
 
 ### 3. "Who solved this?" doubt routing (score 13)
 
-Stuck on a problem? Ask the question on the problem page; Upsolve privately notifies people in your **groups and opted-in college peers who solved it solo recently**. They reply in a short thread; good answers earn a **Mentor** badge and show on their profile.
+Stuck on a problem? Ask the question on the problem page; DsaKaro privately notifies people in your **groups and opted-in college peers who solved it solo recently**. They reply in a short thread; good answers earn a **Mentor** badge and show on their profile.
 _Why it wins:_ only we know who solved what, how, and how recently. It replaces "ask in the WhatsApp group and get ignored" with targeted help, and it gives seniors a reason to stay.
 
 ### 4. Senior Vault: interview experiences that plug into your plan (score 12)
@@ -51,7 +51,7 @@ _Why it wins:_ product-company DSA trackers ignore the largest group of Indian s
 
 ### 6. Proof-of-Skill card for the AI-proctoring era (score 12)
 
-Recruiters now distrust OA scores and LeetCode counts. Upsolve already knows **how** you solve: time, verdict path, hint/solution answers. Add a **"Verified by Upsolve"** profile section: solo rate, median Medium time, retention rate, interview-mode results, plus optional 60-second **"explain it" voice notes** on chosen problems (opt-in, the student picks what to publish). A one-click **LinkedIn post / resume line** generator ("412 problems, 78% solved solo, median Medium 24 min; verified at upsolve.in/u/…").
+Recruiters now distrust OA scores and LeetCode counts. DsaKaro already knows **how** you solve: time, verdict path, hint/solution answers. Add a **"Verified by DsaKaro"** profile section: solo rate, median Medium time, retention rate, interview-mode results, plus optional 60-second **"explain it" voice notes** on chosen problems (opt-in, the student picks what to publish). A one-click **LinkedIn post / resume line** generator ("412 problems, 78% solved solo, median Medium 24 min; verified at dsakaro.in/u/…").
 _Why it wins:_ Indian students already flex badges; give them a flex that recruiters can trust. Never uploads code.
 
 ### 7. College League: college vs college (score 11)
@@ -71,9 +71,9 @@ _Why it wins:_ matches hostel culture; builds directly on study rooms + Lab mode
 
 ### 10. Exam-aware planner (score 10)
 
-Students add semester exams / internals (or the college calendar is crowd-sourced like Drive Radar). Upsolve lightens the plan automatically, auto-plans streak freezes, protects the weekly score, and runs a **post-exam ramp** week. Mentions the stress directly instead of pretending every week is the same.
+Students add semester exams / internals (or the college calendar is crowd-sourced like Drive Radar). DsaKaro lightens the plan automatically, auto-plans streak freezes, protects the weekly score, and runs a **post-exam ramp** week. Mentions the stress directly instead of pretending every week is the same.
 
-### 11. Upsolve Wrapped (score 10)
+### 11. DsaKaro Wrapped (score 10)
 
 End of every semester and after placement season: a Spotify-Wrapped-style story (vertical cards for Instagram/WhatsApp status) with your hours, hardest problem, fastest Medium, night-owl score, topic you levelled most, your rank in your college. Pure growth loop.
 
@@ -93,7 +93,7 @@ Toggle UI copy, hints and insight sentences to Hinglish; every sheet problem alr
 
 | When         | Build                                                                                 | Why first                                                                  |
 | ------------ | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| Next 4 weeks | Lab mode + Today plan (from FEATURE-RESEARCH) → **Drive Radar** → **Upsolve Wrapped** | Placement season is Aug–Dec; Wrapped lands at semester end for growth      |
+| Next 4 weeks | Lab mode + Today plan (from FEATURE-RESEARCH) → **Drive Radar** → **DsaKaro Wrapped** | Placement season is Aug–Dec; Wrapped lands at semester end for growth      |
 | 1–2 months   | **Batch Benchmarks**, **Who solved this?**, **Proof-of-Skill card**                   | They need enough opted-in users per college, which Radar and Wrapped bring |
 | 2–4 months   | **Senior Vault**, **College League + Chapter mode**, **Mass-recruiter track**         | Content-heavy; the club network becomes the distribution                   |
 | Later        | Referral Bridge, Night Shift rooms, Exam planner, Hinglish                            | Need scale and trust first                                                 |

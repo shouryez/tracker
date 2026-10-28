@@ -20,7 +20,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
 
       <div className="min-w-0 flex-1 px-4 pb-32 sm:px-6 lg:pb-12">
         <StickyHeader>
-          <Link href="/dashboard" className="lg:hidden" aria-label="Upsolve dashboard">
+          <Link href="/dashboard" className="lg:hidden" aria-label="DsaKaro dashboard">
             <LogoMark size={26} />
           </Link>
           <SearchBox />

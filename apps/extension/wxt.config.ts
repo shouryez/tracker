@@ -1,6 +1,6 @@
 import { defineConfig } from "wxt";
 
-/** The Upsolve web app this build talks to. Set UPSOLVE_WEB_URL for production builds. */
+/** The DsaKaro web app this build talks to. Set UPSOLVE_WEB_URL for production builds. */
 const WEB_URL = (process.env.UPSOLVE_WEB_URL ?? "http://localhost:3005").replace(/\/+$/, "");
 const webOrigin = new URL(WEB_URL);
 // Match patterns can't contain a port; Chrome matches any port on the host.
@@ -11,13 +11,13 @@ const BRIDGE_PLACEHOLDER = "https://upsolve.invalid/*";
 
 export default defineConfig({
   manifest: {
-    name: "Upsolve: LeetCode tracker",
+    name: "DsaKaro: LeetCode tracker",
     description:
-      "Times every LeetCode problem you open, catches every verdict, reminds you at your best hour and syncs it all to your Upsolve dashboard.",
+      "Times every LeetCode problem you open, catches every verdict, reminds you at your best hour and syncs it all to your DsaKaro dashboard.",
     // tabs: Lab mode reads the active tab's address to tell coding from not (never stored).
     permissions: ["storage", "alarms", "tabs", "notifications", "contextMenus"],
     host_permissions: ["https://leetcode.com/*", WEB_MATCH],
-    action: { default_title: "Upsolve" },
+    action: { default_title: "DsaKaro" },
   },
   vite: () => ({
     define: { __WEB_URL__: JSON.stringify(WEB_URL) },

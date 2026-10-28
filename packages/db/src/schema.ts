@@ -1,5 +1,5 @@
 /**
- * Upsolve schema v1 (PLAN.md §3).
+ * DsaKaro schema v1 (PLAN.md §3).
  *
  * Access model: the web server and job workers talk to Postgres directly via
  * Drizzle (DATABASE_URL), which bypasses RLS. RLS here protects the Supabase

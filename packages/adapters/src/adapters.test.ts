@@ -66,7 +66,7 @@ test("topic mapping lines Codeforces tags up with LeetCode slugs", () => {
 });
 
 test("verify codes and handles", () => {
-  assert.match(newVerifyCode(), /^upsolve-[A-Z2-9]{4}$/);
+  assert.match(newVerifyCode(), /^dsakaro-[A-Z2-9]{4}$/);
   assert.equal(normaliseHandle("  @tourist "), "tourist");
   assert.equal(normaliseHandle("bad handle!"), null);
 });

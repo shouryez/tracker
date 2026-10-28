@@ -106,7 +106,7 @@ export function StreakFlame({ streak, size = 44 }: { streak: number; size?: numb
 export type BeamNode = { id: string; label: string; icon?: ReactNode; x: number; y: number };
 
 /**
- * Glowing beams connecting nodes (e.g. LeetCode → Extension → Upsolve → Dashboard).
+ * Glowing beams connecting nodes (e.g. LeetCode → Extension → DsaKaro → Dashboard).
  * Coordinates are percentages of the box. A light pulse travels along each edge.
  */
 export function AnimatedBeam({

@@ -100,7 +100,7 @@ function Nav() {
         aria-label="Main"
         className="glass mx-auto flex h-[56px] w-[min(1100px,100%)] items-center justify-between gap-3 rounded-full border border-line-2 pr-2 pl-5 shadow-e3"
       >
-        <Link href="/" aria-label="Upsolve home">
+        <Link href="/" aria-label="DsaKaro home">
           <Logo />
         </Link>
         <LandingNavLinks
@@ -155,7 +155,7 @@ function Hero() {
             accentClassName="bg-[linear-gradient(100deg,#fff_20%,#d7ff3a_110%)] bg-clip-text text-transparent"
           />
           <p className="mb-8 max-w-[560px] text-[clamp(15px,1.6vw,17px)] leading-relaxed text-white/75">
-            Upsolve times every problem you open, catches every verdict, ticks your Striver and
+            DsaKaro times every problem you open, catches every verdict, ticks your Striver and
             NeetCode sheets for you, and tells you exactly what to revise before you forget it.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
@@ -311,7 +311,7 @@ function ProductFrame() {
           <i className="size-2.5 rounded-full bg-line-2" />
           <i className="size-2.5 rounded-full bg-line-2" />
           <span className="mx-auto rounded-full bg-surface-2 px-4 py-1 font-mono text-[11px] text-ink-3">
-            upsolve · your dashboard
+            dsakaro.in/dashboard
           </span>
           <span className="font-mono text-[10px] tracking-[.08em] text-ink-3 uppercase">
             example
@@ -802,7 +802,7 @@ function HowItWorks() {
               y: 82,
             },
             { id: "ext", label: "Extension", icon: <Puzzle size={20} />, x: 38, y: 34 },
-            { id: "up", label: "Upsolve", icon: <LogoMark size={22} />, x: 66, y: 50 },
+            { id: "up", label: "DsaKaro", icon: <LogoMark size={22} />, x: 66, y: 50 },
             {
               id: "dash",
               label: "Your dashboard",
@@ -887,7 +887,7 @@ function ForColleges() {
             only for students who opt in.
           </p>
           <a
-            href="mailto:shouryapratap6081@gmail.com?subject=Upsolve%20for%20our%20college"
+            href="mailto:shouryapratap6081@gmail.com?subject=DsaKaro%20for%20our%20college"
             className={buttonClasses({ variant: "secondary" })}
           >
             Pilot it at your college <ButtonArrow />
@@ -955,7 +955,7 @@ function Pricing() {
       note: "free pilot for the first placement cells",
       cta: {
         label: "Get in touch",
-        href: "mailto:shouryapratap6081@gmail.com?subject=Upsolve%20for%20our%20college",
+        href: "mailto:shouryapratap6081@gmail.com?subject=DsaKaro%20for%20our%20college",
       },
       items: ["Batch dashboards", "Topic gaps by section", "Inactive-student alerts", "CSV export"],
     },
@@ -1131,13 +1131,13 @@ function Footer() {
         aria-hidden="true"
         className="pointer-events-none -mb-[0.22em] text-center font-[650] leading-none tracking-[-0.06em] text-ink select-none [font-size:clamp(90px,22vw,320px)] [mask-image:linear-gradient(180deg,rgba(0,0,0,.14),transparent_85%)]"
       >
-        upsolve
+        dsa<em className="font-display font-normal tracking-[-0.03em] italic">karo</em>
       </div>
     </footer>
   );
 }
 
-/** A tiny heart drawn in pixels, like the logo. */
+/** A tiny heart drawn in pixels, like the heatmap. */
 function PixelHeart() {
   const rows = ["0110110", "1111111", "1111111", "0111110", "0011100", "0001000"];
   return (
