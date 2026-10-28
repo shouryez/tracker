@@ -22,6 +22,10 @@ export function createDb(databaseUrl: string) {
     idle_timeout: DB_IDLE_TIMEOUT_S,
     // Recycle connections so one left in a bad state by a frozen function doesn't live on.
     max_lifetime: 60 * 5,
+    // One query per connection at a time. Through the transaction pooler, replies to
+    // pipelined queries could go missing on Vercel and the query then waited forever.
+    // postgres.js reads `max_pipeline` (src/index.js) but its types leave it out.
+    ...({ max_pipeline: 0 } as object),
     connect_timeout: 15,
   });
   return drizzle(client, { schema });
