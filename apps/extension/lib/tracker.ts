@@ -2,7 +2,7 @@
 // prompt, persistence and upload. Each site's content script supplies how to
 // read the current problem and feeds submissions in via recordSubmission().
 import { browser } from "wxt/browser";
-import type { ExtSubmission } from "@upsolve/contracts";
+import type { ExtProblemContext, ExtSubmission } from "@upsolve/contracts";
 import type { ContentScriptContext } from "wxt/utils/content-script-context";
 import type { Message } from "./messages.ts";
 import {
@@ -21,6 +21,15 @@ import { TimerUi } from "./ui.ts";
 
 const PERSIST_EVERY_TICKS = 15;
 const UPLOAD_EVERY_TICKS = 60;
+/** Active time before the panel offers hints instead of the editorial. */
+const STUCK_MS = 25 * 60_000;
+
+const VERDICT_TEXT: Record<string, string> = {
+  WA: "Wrong answer",
+  TLE: "Time limit exceeded",
+  MLE: "Memory limit exceeded",
+  RE: "Runtime error",
+};
 
 export type Site = {
   platform: SessionPlatform;
@@ -43,6 +52,8 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   let lastInputAt = Date.now();
   let ticks = 0;
   let connected = Boolean(await store.token());
+  let hintsOffered = false;
+  let checklistShown = false;
   const ui = new TimerUi(togglePause);
   // Read the review flag before the site's router can rewrite the URL.
   const reviewSlug = isReviewUrl(window.location.href)
@@ -103,8 +114,23 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     if (isReviewUrl(window.location.href) || next === reviewSlug) session.mode = "review";
     ui.mount();
     ui.setHidden(false);
+    hintsOffered = session.outcome === "solved";
+    checklistShown = false;
     render();
     await persist();
+    void loadContext(next);
+  }
+
+  /** Memory, hints and checklist for the panel (needs a connection; silent otherwise). */
+  async function loadContext(forSlug: string) {
+    if (!connected) return;
+    const msg: Message = { type: "problem:context", platform: site.platform, slug: forSlug };
+    try {
+      const ctx = (await browser.runtime.sendMessage(msg)) as ExtProblemContext | null;
+      if (slug === forSlug && ctx && "hints" in ctx) ui.setContext(ctx);
+    } catch {
+      // Worker asleep: the panel just shows the timer.
+    }
   }
 
   async function leave() {
@@ -140,6 +166,10 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     if (session.timer.status === "armed") session.timer = onInput(session.timer, now);
     session = addSubmission(session, sub);
 
+    if (sub.verdict !== "AC" && session.outcome !== "solved" && !checklistShown) {
+      checklistShown = true;
+      ui.showChecklist(VERDICT_TEXT[sub.verdict] ?? "Not accepted");
+    }
     if (sub.verdict !== "AC" || session.outcome === "solved") {
       render();
       await persist();
@@ -159,12 +189,21 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
       elapsedMs: solved.timer.activeMs,
       hadFailures: solved.submissions.some((s) => s.verdict !== "AC"),
     });
-    if (!answer.independence && answer.mistakeTags.length === 0 && !answer.note) return;
+    if (
+      !answer.independence &&
+      answer.mistakeTags.length === 0 &&
+      !answer.note &&
+      !answer.pattern &&
+      !answer.takeaway
+    )
+      return;
     // The user may have moved on; update whichever copy is current.
     const target = session?.clientId === solved.clientId ? session : solved;
     target.independence = answer.independence;
     target.mistakeTags = answer.mistakeTags;
     target.note = answer.note;
+    target.pattern = answer.pattern;
+    target.takeaway = answer.takeaway;
     if (target === session) await persist();
     else await store.setSession({ ...target, updatedAt: Date.now() });
     send(target, true);
@@ -199,6 +238,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     if (area !== "local" || !("token" in changes)) return;
     connected = Boolean(changes.token?.newValue);
     render();
+    if (connected && slug) void loadContext(slug);
   });
 
   // Both sites are single-page apps: watch the URL, and tick the timer once a second.
@@ -216,6 +256,10 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
       lastInputAt,
     });
     session.title ??= site.titleFromDocument(document.title);
+    if (!hintsOffered && session.timer.status === "active" && session.timer.activeMs >= STUCK_MS) {
+      hintsOffered = true;
+      ui.offerHints();
+    }
     render();
     ticks++;
     if (ticks % PERSIST_EVERY_TICKS === 0) void persist();

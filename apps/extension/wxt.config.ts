@@ -13,8 +13,9 @@ export default defineConfig({
   manifest: {
     name: "Upsolve: LeetCode tracker",
     description:
-      "Times every LeetCode problem you open, catches every verdict, and syncs it to your Upsolve dashboard.",
-    permissions: ["storage", "alarms"],
+      "Times every LeetCode problem you open, catches every verdict, reminds you at your best hour and syncs it all to your Upsolve dashboard.",
+    // tabs: Lab mode reads the active tab's address to tell coding from not (never stored).
+    permissions: ["storage", "alarms", "tabs", "notifications", "contextMenus"],
     host_permissions: ["https://leetcode.com/*", WEB_MATCH],
     action: { default_title: "Upsolve" },
   },

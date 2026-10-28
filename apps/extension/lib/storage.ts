@@ -1,5 +1,6 @@
 import { browser } from "wxt/browser";
 import type { ExtSession } from "@upsolve/contracts";
+import type { LabState } from "./lab.ts";
 import type { CurrentSession, HistoryState } from "./messages.ts";
 import type { LocalSession, SessionPlatform } from "./session.ts";
 
@@ -40,6 +41,15 @@ export const store = {
 
   current: () => get<CurrentSession>("current"),
   setCurrent: (c: CurrentSession | null) => (c ? set("current", c) : local().remove("current")),
+
+  lab: () => get<LabState>("lab"),
+  setLab: (l: LabState | null) => (l ? set("lab", l) : local().remove("lab")),
+
+  /** Notifications already shown (id → shown at, plus the URL a click opens). */
+  notified: async () => (await get<Record<string, Notified>>("notified")) ?? {},
+  setNotified: (n: Record<string, Notified>) => set("notified", n),
 };
+
+export type Notified = { at: number; url: string };
 
 export const WEB_URL = __WEB_URL__;

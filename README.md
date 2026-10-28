@@ -52,11 +52,12 @@ Set `CRON_SECRET` (any long random string; it also signs unsubscribe links), `RE
    ```
 2. In Chrome open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick `apps/extension/.output/chrome-mv3`.
 3. Start the web app (`pnpm --filter @upsolve/web exec next dev --port 3005`), sign in, and open **Settings → Browser extension → Connect a browser** (or click the extension icon → Connect).
-4. Open any LeetCode or GeeksforGeeks problem. A small timer appears bottom-left and starts after 10 seconds or your first keystroke. Submit, and after **Accepted** it asks how you solved it.
+4. Open any LeetCode or GeeksforGeeks problem. A small timer appears bottom-left and starts after 10 seconds or your first keystroke. Click it for your memory of the problem, hints and a pre-submit checklist. After 25 active minutes it offers hints one at a time; after a wrong verdict it shows the checks you usually miss. After **Accepted** a 10-second wrap-up asks how you solved it, the pattern and a one-line takeaway.
+5. Daily loop: the extension polls `/api/ext/today` every 15 minutes for one reminder a day at your best hour, contest alerts 30 minutes before, and group nudges. Start a Lab focus session from **Sessions** and it counts time on coding sites as focus and everything else as away. Right-click any page (or use the popup) to **Save to Upsolve for later**; YouTube keeps the timestamp.
 
 After changing extension code, rebuild and press the reload icon on the extension card in `chrome://extensions`.
 
-What the extension can access: `leetcode.com` and the Upsolve site only, plus `storage` and `alarms`. On LeetCode it reads verdict responses and, for the history import, your submission list (never code). Your LeetCode cookies never leave the browser.
+What the extension can access: `leetcode.com`, GeeksforGeeks problem pages, YouTube (only the video's current time, when you save it) and the Upsolve site, plus `storage`, `alarms`, `notifications`, `contextMenus` and `tabs`. On LeetCode it reads verdict responses and, for the history import, your submission list (never code). `tabs` is used only during a Lab focus session, to tell a coding tab from any other; it keeps two totals and a switch count, never a URL or title. Your LeetCode cookies never leave the browser.
 
 ## Design system
 

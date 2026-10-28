@@ -25,6 +25,9 @@ export type LocalSession = {
   independence: ExtSession["independence"];
   note: string | null;
   mistakeTags: MistakeTag[];
+  /** Wrap-up after Accepted (missing on older sessions). */
+  pattern?: string | null;
+  takeaway?: string | null;
   endedAt: number | null;
 };
 
@@ -48,6 +51,8 @@ export function newSession(
     independence: null,
     note: null,
     mistakeTags: [],
+    pattern: null,
+    takeaway: null,
     endedAt: null,
   };
 }
@@ -93,6 +98,8 @@ export function toWire(s: LocalSession): ExtSession {
     independence: s.independence,
     note: s.note,
     mistakeTags: s.mistakeTags,
+    pattern: s.pattern ?? null,
+    takeaway: s.takeaway ?? null,
     submissions: s.submissions,
   };
 }

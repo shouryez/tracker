@@ -130,6 +130,65 @@ function render(s: Status) {
     );
   }
 
+  if (s.lab) {
+    children.push(
+      h(
+        "div",
+        { class: "card" },
+        h("p", { class: "eyebrow", text: "Lab mode · focusing" }),
+        h(
+          "div",
+          { class: "stats" },
+          stat(formatClock(s.lab.focusMs), "", "focus"),
+          stat(formatClock(s.lab.awayMs), "", "away"),
+          stat(String(s.lab.switches), "", "switches"),
+        ),
+        h(
+          "div",
+          { class: "row" },
+          h("button", {
+            text: "Stop and save",
+            onclick: () => void send({ type: "lab:stop", report: true }).then(load),
+          }),
+          h("button", {
+            class: "ghost",
+            text: "Open timer",
+            onclick: () => open("/dashboard/sessions#lab"),
+          }),
+        ),
+      ),
+    );
+  }
+
+  const saved = h("p", { class: "sub" });
+  children.push(
+    h(
+      "div",
+      { class: "card" },
+      h("p", { class: "eyebrow", text: "Save for later" }),
+      h("p", {
+        class: "sub",
+        text: "A tutorial, an article or a problem you'll come back to. YouTube keeps your timestamp.",
+      }),
+      h(
+        "div",
+        { class: "row" },
+        h("button", {
+          text: "Save this page",
+          onclick: () =>
+            void (send({ type: "save:tab" }) as Promise<{ ok: boolean; error?: string }>).then(
+              (r) => {
+                saved.textContent = r.ok ? "Saved to your list." : (r.error ?? "Couldn't save.");
+                saved.className = `sub ${r.ok ? "ok" : "warn"}`;
+              },
+            ),
+        }),
+        h("button", { class: "ghost", text: "View list", onclick: () => open("/dashboard/later") }),
+      ),
+      saved,
+    ),
+  );
+
   const hist = s.history;
   const historyText = !hist
     ? "History import starts the next time you open leetcode.com."
@@ -156,7 +215,11 @@ function render(s: Status) {
     h(
       "div",
       { class: "row" },
-      h("button", { class: "primary", text: "Open dashboard", onclick: () => open("/dashboard") }),
+      h("button", {
+        class: "primary",
+        text: "Today's plan",
+        onclick: () => open("/dashboard/today"),
+      }),
       ...(s.pending > 0
         ? [
             h("button", {

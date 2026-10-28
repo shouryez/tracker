@@ -1,6 +1,7 @@
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import type { ExtHistoryItem, ExtMeResponse, ExtSession } from "@upsolve/contracts";
+import { handleDaily, labStatusForPopup, setupDaily } from "../lib/daily.ts";
 import type { Message, PutResult, Status } from "../lib/messages.ts";
 import { SESSION_EXPIRES_MS, toWire, worthUploading } from "../lib/session.ts";
 import { WEB_URL, store } from "../lib/storage.ts";
@@ -104,12 +105,13 @@ async function putHistory(items: ExtHistoryItem[]): Promise<PutResult> {
 }
 
 async function status(): Promise<Status> {
-  const [token, authError, outbox, history, current] = await Promise.all([
+  const [token, authError, outbox, history, current, lab] = await Promise.all([
     store.token(),
     store.authError(),
     store.outbox(),
     store.history(),
     store.current(),
+    labStatusForPopup(),
   ]);
   let me: ExtMeResponse | null = null;
   if (token) {
@@ -130,6 +132,7 @@ async function status(): Promise<Status> {
     pending: Object.keys(outbox).length,
     history: history ?? null,
     current: current ?? null,
+    lab,
   };
 }
 
@@ -154,6 +157,8 @@ async function handle(msg: Message): Promise<unknown> {
     case "flush":
       await flush();
       return { ok: true };
+    default:
+      return handleDaily(api, msg);
   }
 }
 
@@ -169,4 +174,6 @@ export default defineBackground(() => {
     if (alarm.name === "flush") void flush();
     if (alarm.name === "sweep") void sweep();
   });
+
+  setupDaily(api);
 });

@@ -11,6 +11,7 @@ import {
   submissionIdFromPath,
   titleFromDocument,
 } from "./leetcode.ts";
+import { advance, categorize, newLab, totals } from "./lab.ts";
 import { canResume, isReviewUrl, newSession, toWire, worthUploading } from "./session.ts";
 import {
   gfgProblemSlug,
@@ -230,4 +231,58 @@ test("review mode comes from the revision queue link and reaches the server", ()
   const s = newSession("leetcode", "two-sum", "Two Sum", 0, "id");
   assert.equal(toWire(s).mode, "practice");
   assert.equal(toWire({ ...s, mode: "review" }).mode, "review");
+});
+
+// ---------------------------------------------------------------- Lab mode
+
+const WEB = "http://localhost:3005";
+
+test("lab: coding sites, the dashboard and DSA videos count as focus", () => {
+  assert.equal(categorize("https://leetcode.com/problems/two-sum/", "", WEB), "focus");
+  assert.equal(categorize("https://www.geeksforgeeks.org/x", "", WEB), "focus");
+  assert.equal(categorize("https://codeforces.com/contest/1", "", WEB), "focus");
+  assert.equal(categorize("http://localhost:3005/dashboard", "", WEB), "focus");
+  assert.equal(
+    categorize("https://www.youtube.com/watch?v=1", "Sliding Window in 20 min | Striver", WEB),
+    "focus",
+  );
+});
+
+test("lab: everything else, and no focused window, is away", () => {
+  assert.equal(
+    categorize("https://www.youtube.com/watch?v=2", "Funny cats compilation", WEB),
+    "away",
+  );
+  assert.equal(categorize("https://www.instagram.com/", "", WEB), "away");
+  assert.equal(categorize("https://notleetcode.com/", "", WEB), "away");
+  assert.equal(categorize(null, null, WEB), "away");
+  assert.equal(categorize("chrome://newtab/", "", WEB), "away");
+});
+
+test("lab: advance adds time to the previous category and counts switches away", () => {
+  let s = newLab("f", T0, "focus");
+  s = advance(s, T0 + 60_000, "away");
+  assert.equal(s.focusMs, 60_000);
+  assert.equal(s.switches, 1);
+  s = advance(s, T0 + 90_000, "focus");
+  assert.equal(s.awayMs, 30_000);
+  assert.equal(s.switches, 1);
+  // A long gap (worker asleep, lid closed) is capped.
+  s = advance(s, T0 + 90_000 + 3_600_000, "focus");
+  assert.equal(s.focusMs, 60_000 + 3 * 60_000);
+  assert.deepEqual(totals(null), { focusMs: 0, awayMs: 0, switches: 0, tracking: false });
+});
+
+test("toWire carries the wrap-up pattern and takeaway", () => {
+  const s = newSession(
+    "leetcode",
+    "two-sum",
+    "Two Sum",
+    T0,
+    "00000000-0000-4000-8000-000000000000",
+  );
+  assert.equal(toWire(s).pattern, null);
+  const w = toWire({ ...s, pattern: "hashing", takeaway: "store complements" });
+  assert.equal(w.pattern, "hashing");
+  assert.equal(w.takeaway, "store complements");
 });
