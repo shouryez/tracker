@@ -1,6 +1,8 @@
 import { Skeleton } from "@upsolve/ui";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { isAdmin } from "@/lib/admin";
 import { getProfile } from "@/lib/data";
+import { pendingVerificationCount } from "@/lib/verification";
 import { AvatarMenu, type AvatarUser } from "./avatar-menu";
 
 /** Who is signed in, shaped for the avatar menu and the sidebar user card. */
@@ -23,6 +25,7 @@ export async function getAvatarUser(): Promise<AvatarUser> {
     handle: profile?.handle ?? null,
     initials,
     canSignOut: !demo,
+    admin: isAdmin(user.email) ? { pending: await pendingVerificationCount() } : null,
   };
 }
 

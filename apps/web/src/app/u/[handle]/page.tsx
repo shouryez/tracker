@@ -25,6 +25,7 @@ import { PLATFORM_LABEL, PLATFORM_PROFILE_URL } from "@/components/platform-meta
 import { ShareButton } from "@/components/share-button";
 import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { buildStats, getPublicProfile } from "@/lib/data";
+import { VerifiedBadge } from "@/components/verified-badge";
 import type { SolvedCounts } from "@upsolve/adapters";
 
 export async function generateMetadata({ params }: PageProps<"/u/[handle]">): Promise<Metadata> {
@@ -98,7 +99,16 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
             <h1 className="mt-2 font-display text-[clamp(40px,6.4vw,72px)] leading-[.98] tracking-[-0.02em]">
               {profile.name ?? profile.handle}
             </h1>
-            {subtitle && <p className="mt-2 text-15 text-white/75 italic">{subtitle}</p>}
+            {subtitle && (
+              <p className="mt-2 flex flex-wrap items-center gap-x-2 text-15 text-white/75 italic">
+                {subtitle}
+                {profile.collegeVerified && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/12 px-2 py-0.5 text-12 font-[600] text-white not-italic">
+                    <VerifiedBadge size={13} className="text-white" /> Verified student
+                  </span>
+                )}
+              </p>
+            )}
             {stats.streak > 0 && (
               <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/12 py-1 pr-3 pl-1.5 text-13 font-[600]">
                 <StreakFlame streak={stats.streak} size={22} /> {stats.streak}-day streak

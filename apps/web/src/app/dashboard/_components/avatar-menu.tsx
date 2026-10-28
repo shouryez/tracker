@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { LogOut, Moon, Settings, UserRound } from "lucide-react";
+import { LogOut, MessageSquareText, Moon, Settings, ShieldCheck, UserRound } from "lucide-react";
 import { THEME_STORAGE_KEY, cn } from "@upsolve/ui";
 
 export type AvatarUser = {
@@ -12,6 +12,8 @@ export type AvatarUser = {
   handle: string | null;
   initials: string;
   canSignOut: boolean;
+  /** Set for admins (ADMIN_EMAILS): college IDs waiting for review. */
+  admin: { pending: number } | null;
 };
 
 export function Avatar({ user, size = 36 }: { user: AvatarUser; size?: number }) {
@@ -123,6 +125,31 @@ export function AvatarMenu({ user }: { user: AvatarUser }) {
             >
               <Settings size={15} aria-hidden="true" /> Settings
             </Link>
+            {user.admin && (
+              <>
+                <Link
+                  role="menuitem"
+                  href="/dashboard/admin/verifications"
+                  className={item}
+                  onClick={() => setOpen(false)}
+                >
+                  <ShieldCheck size={15} aria-hidden="true" /> College verifications
+                  {user.admin.pending > 0 && (
+                    <span className="tnum ml-auto rounded-full bg-signal px-1.5 text-11 font-[700] text-signal-ink">
+                      {user.admin.pending}
+                    </span>
+                  )}
+                </Link>
+                <Link
+                  role="menuitem"
+                  href="/dashboard/feedback"
+                  className={item}
+                  onClick={() => setOpen(false)}
+                >
+                  <MessageSquareText size={15} aria-hidden="true" /> Beta feedback
+                </Link>
+              </>
+            )}
             <button type="button" role="menuitem" className={item} onClick={toggleTheme}>
               <Moon size={15} aria-hidden="true" /> Toggle light / dark
             </button>

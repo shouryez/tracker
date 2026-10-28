@@ -29,6 +29,8 @@ export type BoardRow = WeekActivity & {
   gradYear: number | null;
   rating: number | null;
   score: number;
+  /** College ID checked by an admin. */
+  verified: boolean;
 };
 
 /** This week's numbers for every user the `members` subquery returns (it must select `user_id`). */
@@ -78,7 +80,7 @@ async function boardRows(members: SQL, weekStart: number): Promise<BoardRow[]> {
       group by 1
     )
     select p.user_id as "userId", p.name, p.handle, p.avatar_url as "avatarUrl",
-           p.grad_year as "gradYear",
+           p.grad_year as "gradYear", p.college_verified_at is not null as verified,
            (select count(distinct d)::int from act where act.user_id = p.user_id) as "activeDays",
            coalesce(solved.n, 0) as solved,
            coalesce(resolves.n, 0) + coalesce(manual.n, 0) as reviews,

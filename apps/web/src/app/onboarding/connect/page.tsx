@@ -6,6 +6,8 @@ import { finishOnboarding } from "@/app/actions/profile";
 import { PlatformConnections } from "@/components/platform-connections";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
+import { getMyVerification } from "@/lib/verification";
+import { CollegeVerification } from "@/components/college-verification";
 import { OnboardingSteps } from "../steps";
 
 export const metadata: Metadata = { title: "Connect your platforms" };
@@ -35,7 +37,10 @@ async function ConnectStep() {
       <p className="text-ink-2">Connecting platforms needs sign-in. Configure Supabase first.</p>
     );
   }
-  const profile = await getProfile(user.id);
+  const [profile, verification] = await Promise.all([
+    getProfile(user.id),
+    getMyVerification(user.id),
+  ]);
   if (!profile?.handle) redirect("/onboarding");
 
   return (
@@ -43,6 +48,19 @@ async function ConnectStep() {
       <Card>
         <PlatformConnections userId={user.id} />
       </Card>
+      {profile.college && !verification.verifiedAt && (
+        <Card className="mt-5">
+          <div className="mb-4">
+            <p className="label-mono mb-1.5">Optional · 30 seconds</p>
+            <h2 className="text-18 font-[600]">Verify you study at {profile.college.name}</h2>
+            <p className="mt-1 text-13 text-ink-2">
+              Verified students get a badge on college boards. You can also do this later in
+              Settings.
+            </p>
+          </div>
+          <CollegeVerification state={verification} compact />
+        </Card>
+      )}
       <p className="mt-4 text-xs text-ink-3">
         The first Codeforces sync can take a few seconds if you have lots of submissions. You can
         connect or verify platforms later from Settings.

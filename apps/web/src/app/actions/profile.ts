@@ -4,9 +4,10 @@ import { and, eq, ne, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { colleges, profiles } from "@upsolve/db";
+import { collegeVerifications, colleges, profiles } from "@upsolve/db";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { searchCollegesByName } from "@/lib/data";
+import { VERIFICATIONS_TAG } from "@/lib/verification";
 import { db, userTag } from "@/lib/db";
 import {
   BRANCHES,
@@ -98,6 +99,20 @@ export async function saveProfile(values: ProfileInputValues): Promise<SaveProfi
   }
 
   await db().insert(profiles).values({ userId: user.id }).onConflictDoNothing(); // in case the signup trigger didn't run
+  const [before] = await db()
+    .select({ collegeId: profiles.collegeId })
+    .from(profiles)
+    .where(eq(profiles.userId, user.id));
+  const collegeChanged = before?.collegeId !== collegeId;
+  if (collegeChanged) {
+    // A new college needs a new check; a waiting photo of the old card is deleted.
+    await db()
+      .delete(collegeVerifications)
+      .where(
+        and(eq(collegeVerifications.userId, user.id), eq(collegeVerifications.status, "pending")),
+      );
+    updateTag(VERIFICATIONS_TAG);
+  }
   await db()
     .update(profiles)
     .set({
@@ -111,6 +126,7 @@ export async function saveProfile(values: ProfileInputValues): Promise<SaveProfi
       targetCompanies: companies,
       mainLanguage: v.mainLanguage,
       dailyGoalMin: v.dailyGoalMin,
+      ...(collegeChanged ? { collegeVerifiedAt: null } : {}),
     })
     .where(eq(profiles.userId, user.id));
 

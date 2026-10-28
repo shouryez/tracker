@@ -9,6 +9,7 @@
 import { sql } from "drizzle-orm";
 import {
   boolean,
+  customType,
   date,
   index,
   integer,
@@ -144,6 +145,8 @@ export const profiles = pgTable(
     /** Remind 30 minutes before upcoming contests. */
     contestReminders: boolean("contest_reminders").notNull().default(true),
     onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
+    /** An admin checked a college ID for the current college. Cleared when the college changes. */
+    collegeVerifiedAt: timestamp("college_verified_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -751,4 +754,43 @@ export const topicMastery = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [primaryKey({ columns: [t.userId, t.topic] }), ownerCanRead(t.userId)],
+).enableRLS();
+
+// ---------------------------------------------------------------- college verification
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({ dataType: () => "bytea" });
+
+export const verificationStatus = pgEnum("verification_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
+/**
+ * College ID uploads waiting for an admin. The photo is deleted (set to null) as soon
+ * as it is reviewed; only the decision is kept. No RLS policies: server code only.
+ */
+export const collegeVerifications = pgTable(
+  "college_verifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    collegeId: uuid("college_id")
+      .notNull()
+      .references(() => colleges.id, { onDelete: "cascade" }),
+    status: verificationStatus("status").notNull().default("pending"),
+    image: bytea("image"),
+    imageType: text("image_type"),
+    /** Optional note from the student ("new card, old college name on it"). */
+    note: text("note"),
+    /** Shown to the student when rejected. */
+    reason: text("reason"),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedBy: text("reviewed_by"),
+  },
+  (t) => [
+    index("college_verifications_queue_idx").on(t.status, t.submittedAt),
+    index("college_verifications_user_idx").on(t.userId, t.submittedAt),
+  ],
 ).enableRLS();

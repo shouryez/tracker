@@ -16,6 +16,7 @@ const SAMPLE_USER = {
   handle: "shourya",
   initials: "S",
   canSignOut: false,
+  admin: null,
 };
 
 export function ShellSection({

@@ -14,6 +14,7 @@ import {
   Plug,
   Puzzle,
   RotateCcw,
+  ShieldCheck,
   Target,
   Timer,
   UserRound,
@@ -30,6 +31,8 @@ import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
 import { getExtensionTokens } from "@/lib/sessions-data";
 import { getStreakFreezes } from "@/lib/social-data";
 import { bestHour } from "@/lib/daily-data";
+import { getMyVerification } from "@/lib/verification";
+import { CollegeVerification } from "@/components/college-verification";
 import { localDate, requestNow } from "@/lib/time";
 import { ExtensionTokens } from "./extension-tokens";
 import { LearningSettings } from "./learning-settings";
@@ -42,6 +45,7 @@ export const metadata: Metadata = { title: "Settings" };
 
 const SECTIONS = [
   { id: "profile", label: "Profile" },
+  { id: "verify", label: "College verification" },
   { id: "platforms", label: "Platforms" },
   { id: "extension", label: "Extension" },
   { id: "learning", label: "Revision & email" },
@@ -93,7 +97,10 @@ async function SettingsContent() {
     getExtensionTokens(user.id),
     getStreakFreezes(user.id),
   ]);
-  const best = await bestHour(user.id, profile?.timezone ?? "Asia/Kolkata");
+  const [best, verification] = await Promise.all([
+    bestHour(user.id, profile?.timezone ?? "Asia/Kolkata"),
+    getMyVerification(user.id),
+  ]);
   const now = requestNow();
   const today = localDate(profile?.timezone ?? "Asia/Kolkata", now);
   const icon = (I: typeof Plug) => <I size={14} strokeWidth={2} />;
@@ -164,6 +171,15 @@ async function SettingsContent() {
             {user.email ?? "—"}
           </Item>
         </dl>
+      </Card>
+
+      <Card id="verify" className="scroll-mt-24">
+        <CardHeader>
+          <CardTitle icon={icon(ShieldCheck)} tint="var(--violet)">
+            College verification
+          </CardTitle>
+        </CardHeader>
+        <CollegeVerification state={verification} />
       </Card>
 
       <Card id="platforms" className="scroll-mt-24">

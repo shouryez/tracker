@@ -201,6 +201,8 @@ export type PublicProfile = {
   handle: string;
   avatarUrl: string | null;
   college: string | null;
+  /** An admin verified their college ID. */
+  collegeVerified: boolean;
   gradYear: number | null;
   branch: string | null;
   accounts: AccountView[];
@@ -233,6 +235,7 @@ export async function getPublicProfile(handle: string): Promise<PublicProfile | 
     handle: row.profile.handle,
     avatarUrl: row.profile.avatarUrl,
     college: row.college?.name ?? null,
+    collegeVerified: Boolean(row.college && row.profile.collegeVerifiedAt),
     gradYear: row.profile.gradYear,
     branch: row.profile.branch,
     accounts,

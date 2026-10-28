@@ -3,6 +3,7 @@ import { MAX_SCORE, SCORE_PARTS } from "@upsolve/core";
 import { cn } from "@upsolve/ui";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { RangeControl } from "@/components/range-control";
+import { VerifiedBadge } from "@/components/verified-badge";
 import { formatDuration } from "@/lib/sessions-data";
 import { BOARD_METRICS, rankBoard, type BoardMetric, type BoardRow } from "@/lib/social-data";
 
@@ -118,6 +119,7 @@ export function Leaderboard({
                 </span>
                 <span className="w-full truncate text-13 font-[600]">
                   {r.name ?? r.handle ?? "Someone"}
+                  {r.verified && <VerifiedBadge size={13} className="ml-1" />}
                   {me && <span className="ml-1 text-11 text-ink-3">you</span>}
                 </span>
                 <span
@@ -165,6 +167,7 @@ export function Leaderboard({
               <span className="min-w-0">
                 <span className="block truncate text-[13.5px] font-[550]">
                   {r.name ?? r.handle ?? "Someone"}
+                  {r.verified && <VerifiedBadge size={13} className="ml-1" />}
                   {me && <span className="ml-1.5 text-11 text-ink-3">you</span>}
                 </span>
                 <span className="tnum block truncate text-11 text-ink-3">
