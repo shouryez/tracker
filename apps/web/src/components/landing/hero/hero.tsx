@@ -168,6 +168,8 @@ function Backdrop() {
       <div className="absolute inset-0 bg-[radial-gradient(70%_55%_at_50%_0%,rgba(255,255,255,.05),transparent_70%)]" />
       <div className="absolute -bottom-[30%] -left-[10%] h-[80%] w-[60%] bg-[radial-gradient(closest-side,rgba(245,185,77,.12),transparent)]" />
       <Starfield className="opacity-40 [mask-image:linear-gradient(180deg,#000,transparent_45%)]" />
+      {/* The desk: a faint blueprint grid in 2D (a 3D floor plane crashed iOS Safari). */}
+      <div className="absolute inset-x-0 bottom-0 h-[55%] [mask-image:radial-gradient(70%_80%_at_50%_100%,#000,transparent)] [background-image:linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] [background-size:56px_56px]" />
       <Grain />
       <div data-part="page-bg" className="absolute inset-0 hidden bg-bg opacity-0 scene:block" />
     </div>

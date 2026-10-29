@@ -97,32 +97,6 @@
   margin-left: calc(var(--bw) / -2);
   transform-style: preserve-3d;
 }
-/* The desk: a big floor plane under the laptop with a faint blueprint grid. */
-.lt-desk {
-  position: absolute;
-  left: 50%;
-  top: 18px;
-  width: 3600px;
-  height: 2600px;
-  margin: -1300px 0 0 -1800px;
-  transform: translate3d(0, 0, calc(var(--bd) / 2)) rotateX(90deg);
-  background-color: #0d0d10;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  background-size: 64px 64px;
-  background-position: center;
-  mask-image: radial-gradient(closest-side, #000 25%, transparent);
-}
-.lt-desk-spill {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1700px;
-  height: 1300px;
-  margin: -900px 0 0 -850px;
-  background: radial-gradient(closest-side, rgba(175, 205, 255, 0.2), transparent);
-}
 /* Base slab: lies flat (rotateX 90° around the hinge) and reaches toward the viewer. */
 .lt-base {
   position: absolute;

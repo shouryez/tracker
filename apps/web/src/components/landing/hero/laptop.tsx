@@ -44,13 +44,6 @@ export function Laptop({
   return (
     <div data-part="persp" aria-hidden="true" className={cn("lt-persp", className)} style={vars}>
       <div data-part="rig" className="lt-rig" style={rigStyle}>
-        <div data-part="desk" className="lt-desk">
-          <span
-            data-part="desk-spill"
-            className="lt-desk-spill"
-            style={{ opacity: pose?.lid ? 0.9 : 0 }}
-          />
-        </div>
         <div data-part="base" className="lt-base">
           <div className="lt-keys">
             {Array.from({ length: 5 * 14 }, (_, i) => (
