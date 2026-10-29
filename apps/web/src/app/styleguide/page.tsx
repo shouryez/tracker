@@ -688,7 +688,8 @@ export default function Styleguide() {
           <p className="max-w-[70ch] text-14 text-ink-2">
             Stacky: a stack of clay plates with graph-node eyes and the lime top pointer on its
             head. Pass <code className="font-mono text-12">mascot</code> to EmptyState or
-            ErrorState, or render <code className="font-mono text-12">Stacky</code> directly.
+            ErrorState, or render <code className="font-mono text-12">Stacky</code> directly. Tap
+            any of them for a reaction; tap five times fast to overflow the stack.
           </p>
           <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 lg:grid-cols-7">
             <StackyCard mood="idle">idle · nothing yet</StackyCard>

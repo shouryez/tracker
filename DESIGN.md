@@ -64,6 +64,7 @@ Wordmark **DSA करो**, set in Poppins ExtraBold (its Latin and Devanagari w
 | `sleepy`    | Nothing due today                               |
 | `celebrate` | Sheet complete (`push()`: a plate lands on top) |
 
+- **Interactive by default.** A tap (or Enter/Space) plays a random reaction (boing, wink, pop, giggle, spin) with a one-line bubble, announced politely to screen readers; five taps within two seconds overflow the stack (dizzy eyes, hard wobble). On fine pointers the pupils follow the cursor while Stacky is on screen. Touch taps give a 12 ms vibration where supported. Pass `interactive={false}` for a plain image, e.g. inside a link.
 - Use it through `EmptyState`/`ErrorState`'s `mascot` prop, at most one Stacky per view.
 - Its colours are fixed in both themes, like the logo's lime. Lime stays on the bulb; the flame appears only with `streak`.
 

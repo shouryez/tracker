@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { cn } from "../cn";
 
 /*
@@ -9,6 +9,9 @@ import { cn } from "../cn";
  * lime as the logo's headline bar. Shaded with gradients (no WebGL) and animated with
  * transform/opacity only, so it stays cheap and goes still under reduced motion. Its colours
  * are fixed in both themes, like the logo's lime.
+ *
+ * Interactive by default: a tap plays a random reaction with a one-line bubble, five quick
+ * taps overflow the stack, and on fine pointers the pupils follow the cursor.
  */
 
 export type StackyMood =
@@ -27,7 +30,7 @@ const C = {
 
 const CX = 120;
 
-type EyeShape = "open" | "wide" | "happy" | "think" | "closed";
+type EyeShape = "open" | "wide" | "happy" | "think" | "closed" | "wink" | "dizzy";
 type MouthShape = "smile" | "grin" | "o" | "wobble" | "flat" | "proud";
 type ArmPose = "down" | "up" | "chin" | "hold";
 
@@ -40,6 +43,40 @@ const FACE: Record<StackyMood, { eye: EyeShape; mouth: MouthShape; arms: ArmPose
   sleepy: { eye: "closed", mouth: "flat", arms: "down" },
   celebrate: { eye: "happy", mouth: "grin", arms: "up" },
 };
+
+type Reaction = "boing" | "wink" | "pop" | "giggle" | "spin" | "overflow";
+
+const TAP_REACTIONS: Reaction[] = ["boing", "wink", "pop", "giggle", "spin"];
+
+const REACTION_FACE: Record<Reaction, { eye: EyeShape; mouth: MouthShape; arms: ArmPose }> = {
+  boing: { eye: "happy", mouth: "grin", arms: "up" },
+  wink: { eye: "wink", mouth: "smile", arms: "hold" },
+  pop: { eye: "wide", mouth: "o", arms: "up" },
+  giggle: { eye: "happy", mouth: "grin", arms: "down" },
+  spin: { eye: "happy", mouth: "grin", arms: "up" },
+  overflow: { eye: "dizzy", mouth: "o", arms: "up" },
+};
+
+/** How long each reaction holds its face; matches the keyframe durations in the stylesheet. */
+const REACTION_MS: Record<Reaction, number> = {
+  boing: 800,
+  wink: 900,
+  pop: 900,
+  giggle: 700,
+  spin: 900,
+  overflow: 1300,
+};
+
+const LINES: Record<Reaction, string[]> = {
+  boing: ["Boing!", "O(1) happy!", "Accepted ✓"],
+  wink: ["Upsolve karo!", "Psst… revise today", "Ek aur question?"],
+  pop: ["pop()", "push() → pop()", "Last in, first out!"],
+  giggle: ["Hehe, that tickles", "No TLE here", "Stacked & ready"],
+  spin: ["Recursion!", "Base case reached", "Spin, then solve"],
+  overflow: ["Stack overflow!", "Too many calls!"],
+};
+
+const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)]!;
 
 /** Body motion per mood (keyframes live in the ui stylesheet). */
 const MOTION: Record<StackyMood, string> = {
@@ -90,7 +127,7 @@ function Eyes({ shape }: { shape: EyeShape }) {
     <g key={x}>
       <circle cx={x} cy={y} r={r - 2.5} fill="#0B0B0D" />
       <circle cx={x} cy={y} r={r} {...stroke} />
-      <circle cx={x + 3} cy={y - 3} r={2.8} fill={C.ink} />
+      <circle className="stacky-pupil" cx={x + 3} cy={y - 3} r={2.8} fill={C.ink} />
     </g>
   );
   switch (shape) {
@@ -123,6 +160,28 @@ function Eyes({ shape }: { shape: EyeShape }) {
         <>
           {ring(xs[0]!)}
           <path d={`M${xs[1]! - 11} ${y + 1} L${xs[1]! + 11} ${y - 2}`} {...stroke} />
+        </>
+      );
+    case "wink":
+      return (
+        <>
+          {ring(xs[0]!)}
+          <path
+            d={`M${xs[1]! - 11} ${y + 4} Q${xs[1]!} ${y - 10} ${xs[1]! + 11} ${y + 4}`}
+            {...stroke}
+          />
+        </>
+      );
+    case "dizzy":
+      return (
+        <>
+          {xs.map((x) => (
+            <path
+              key={x}
+              d={`M${x - 8} ${y - 8} L${x + 8} ${y + 8} M${x + 8} ${y - 8} L${x - 8} ${y + 8}`}
+              {...stroke}
+            />
+          ))}
         </>
       );
   }
@@ -202,13 +261,15 @@ function Pointer({ id, mood }: { id: string; mood: StackyMood }) {
   const dim = mood === "sleepy";
   return (
     <g opacity={dim ? 0.35 : 1}>
-      <circle
-        cx={CX}
-        cy={42}
-        r={mood === "due" ? 30 : 22}
-        fill={`url(#${id}-glow)`}
-        className={mood === "due" ? "stacky-pulse" : undefined}
-      />
+      <g className="stacky-glow">
+        <circle
+          cx={CX}
+          cy={42}
+          r={mood === "due" ? 30 : 22}
+          fill={`url(#${id}-glow)`}
+          className={mood === "due" ? "stacky-pulse" : undefined}
+        />
+      </g>
       <path d={`M${CX} 54 V76`} stroke="#A8CC1F" strokeWidth={5} strokeLinecap="round" />
       <path d={`M${CX - 1.2} 55 V74`} stroke={C.lime} strokeWidth={2} strokeLinecap="round" />
       <circle cx={CX} cy={42} r={11} fill={`url(#${id}-bulb)`} />
@@ -350,6 +411,7 @@ export function Stacky({
   mood = "idle",
   size = 120,
   animate = true,
+  interactive = true,
   label,
   className,
 }: {
@@ -357,24 +419,118 @@ export function Stacky({
   /** Rendered width in px; height follows the 240 × 260 artboard. */
   size?: number;
   animate?: boolean;
-  /** Accessible name. Without one, Stacky is decorative and hidden from screen readers. */
+  /** Tap for a reaction and let the eyes follow the cursor. Off renders a plain image. */
+  interactive?: boolean;
+  /** Accessible name. Without one, a non-interactive Stacky is decorative and hidden. */
   label?: string;
   className?: string;
 }) {
   const id = `stacky-${useId().replace(/[^\w-]/g, "")}`;
-  const face = FACE[mood];
-  const tilted = mood === "thinking";
-  const a11y: { role?: string; "aria-label"?: string; "aria-hidden"?: true } = label
-    ? { role: "img", "aria-label": label }
-    : { "aria-hidden": true };
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [play, setPlay] = useState<{ reaction: Reaction | null; line: string | null; n: number }>({
+    reaction: null,
+    line: null,
+    n: 0,
+  });
+  const taps = useRef<number[]>([]);
+  const last = useRef<Reaction | null>(null);
+  const timers = useRef<{ face?: number; line?: number }>({});
 
-  return (
+  useEffect(() => {
+    const t = timers.current;
+    return () => {
+      window.clearTimeout(t.face);
+      window.clearTimeout(t.line);
+    };
+  }, []);
+
+  // Pupils follow the cursor (fine pointers only, while on screen). The box is measured
+  // once after each scroll or resize, not on every frame.
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!interactive || !el) return;
+    if (!matchMedia("(pointer: fine)").matches) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let visible = false;
+    let raf = 0;
+    let box: DOMRect | null = null;
+    let px = 0;
+    let py = 0;
+    const io = new IntersectionObserver(([entry]) => {
+      visible = !!entry?.isIntersecting;
+      box = null;
+    });
+    io.observe(el);
+    const update = () => {
+      raf = 0;
+      box ??= el.getBoundingClientRect();
+      const dx = px - (box.left + box.width / 2);
+      const dy = py - (box.top + box.height * 0.42);
+      const dist = Math.hypot(dx, dy) || 1;
+      const reach = Math.min(1, dist / 260) * 3.5;
+      el.style.setProperty("--stacky-px", ((dx / dist) * reach).toFixed(2));
+      el.style.setProperty("--stacky-py", ((dy / dist) * reach).toFixed(2));
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!visible) return;
+      px = e.clientX;
+      py = e.clientY;
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    const stale = () => {
+      box = null;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("scroll", stale, { passive: true, capture: true });
+    window.addEventListener("resize", stale, { passive: true });
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("scroll", stale, { capture: true });
+      window.removeEventListener("resize", stale);
+    };
+  }, [interactive]);
+
+  const react = (e: MouseEvent<HTMLButtonElement>) => {
+    const now = Date.now();
+    taps.current = [...taps.current.filter((t) => now - t < 2000), now];
+    let reaction: Reaction;
+    if (taps.current.length >= 5) {
+      reaction = "overflow";
+      taps.current = [];
+    } else {
+      reaction = pick(TAP_REACTIONS.filter((r) => r !== last.current));
+    }
+    last.current = reaction;
+    setPlay((p) => ({ reaction, line: pick(LINES[reaction]), n: p.n + 1 }));
+    const t = timers.current;
+    window.clearTimeout(t.face);
+    window.clearTimeout(t.line);
+    t.face = window.setTimeout(
+      () => setPlay((p) => ({ ...p, reaction: null })),
+      REACTION_MS[reaction],
+    );
+    t.line = window.setTimeout(() => setPlay((p) => ({ ...p, line: null })), 1900);
+    if ((e.nativeEvent as PointerEvent).pointerType === "touch") navigator.vibrate?.(12);
+  };
+
+  const reaction = interactive ? play.reaction : null;
+  const face = reaction ? REACTION_FACE[reaction] : FACE[mood];
+  const tilted = mood === "thinking" && !reaction;
+
+  const svg = (
     <svg
+      ref={svgRef}
       viewBox="0 0 240 260"
       width={size}
       height={(size * 260) / 240}
-      className={cn("stacky shrink-0 overflow-visible", !animate && "stacky-still", className)}
-      {...a11y}
+      className={cn(
+        "stacky shrink-0 overflow-visible",
+        !animate && "stacky-still",
+        !interactive && className,
+      )}
+      {...(!interactive && label ? { role: "img", "aria-label": label } : { "aria-hidden": true })}
     >
       <defs>
         <linearGradient id={`${id}-plate`} x1="0" y1="0" x2="0" y2="1">
@@ -415,49 +571,94 @@ export function Stacky({
 
       <ellipse cx={CX} cy={246} rx={86} ry={10} fill={`url(#${id}-shadow)`} />
 
-      <g className={MOTION[mood]}>
-        <g className={tilted ? "stacky-tilt" : undefined}>
-          <Plate y={204} dx={-4} id={id} />
-          <Plate y={178} dx={4} id={id} />
-          <Plate y={152} dx={-2} id={id} />
+      <g key={play.n} className={reaction ? `stacky-r-${reaction}` : undefined}>
+        <g className={MOTION[mood]}>
+          <g className={tilted ? "stacky-tilt" : undefined}>
+            <Plate y={204} dx={-4} id={id} />
+            <Plate y={178} dx={4} id={id} />
+            <Plate y={152} dx={-2} id={id} />
 
-          <Arms pose={face.arms} id={id} />
+            <Arms pose={face.arms} id={id} />
 
-          {/* head: depth, clay face, gloss */}
-          <rect x={52} y={80} width={136} height={76} rx={28} fill="#0B0B0D" />
-          <rect
-            x={52}
-            y={72}
-            width={136}
-            height={76}
-            rx={28}
-            fill={`url(#${id}-head)`}
-            stroke={C.rim}
-            strokeWidth={2.6}
-          />
-          <ellipse
-            cx={92}
-            cy={84}
-            rx={28}
-            ry={6.5}
-            fill="#fff"
-            opacity={0.14}
-            transform="rotate(-6 92 84)"
-          />
-          {mood !== "sleepy" && (
-            <>
-              <ellipse cx={78} cy={127} rx={8} ry={4.5} fill={C.rose} opacity={0.4} />
-              <ellipse cx={162} cy={127} rx={8} ry={4.5} fill={C.rose} opacity={0.4} />
-            </>
+            {/* head: depth, clay face, gloss */}
+            <rect x={52} y={80} width={136} height={76} rx={28} fill="#0B0B0D" />
+            <rect
+              x={52}
+              y={72}
+              width={136}
+              height={76}
+              rx={28}
+              fill={`url(#${id}-head)`}
+              stroke={C.rim}
+              strokeWidth={2.6}
+            />
+            <ellipse
+              cx={92}
+              cy={84}
+              rx={28}
+              ry={6.5}
+              fill="#fff"
+              opacity={0.14}
+              transform="rotate(-6 92 84)"
+            />
+            {mood !== "sleepy" && (
+              <>
+                <ellipse cx={78} cy={127} rx={8} ry={4.5} fill={C.rose} opacity={0.4} />
+                <ellipse cx={162} cy={127} rx={8} ry={4.5} fill={C.rose} opacity={0.4} />
+              </>
+            )}
+            <Eyes shape={face.eye} />
+            <Mouth shape={face.mouth} />
+            <Arms pose={face.arms} id={id} front />
+            <Pointer id={id} mood={mood} />
+          </g>
+          <Extras mood={mood} id={id} />
+          {reaction === "pop" && (
+            <g className="stacky-popplate">
+              <rect x={88} y={66} width={64} height={12} rx={6} fill="#111113" />
+              <rect
+                x={88}
+                y={60}
+                width={64}
+                height={12}
+                rx={6}
+                fill={`url(#${id}-plate)`}
+                stroke={C.lime}
+                strokeWidth={2}
+              />
+            </g>
           )}
-          <Eyes shape={face.eye} />
-          <Mouth shape={face.mouth} />
-          <Arms pose={face.arms} id={id} front />
-          <Pointer id={id} mood={mood} />
         </g>
-        <Extras mood={mood} id={id} />
       </g>
     </svg>
+  );
+
+  if (!interactive) return svg;
+
+  return (
+    <span className={cn("relative inline-grid shrink-0 place-items-center", className)}>
+      <button
+        type="button"
+        onClick={react}
+        aria-label={label ?? "Stacky, the DsaKaro mascot. Tap for a reaction."}
+        className="stacky-btn cursor-pointer touch-manipulation rounded-[24px] transition-transform duration-[var(--dur-base)] select-none active:scale-[0.96] [-webkit-tap-highlight-color:transparent]"
+      >
+        {svg}
+      </button>
+      <span
+        aria-live="polite"
+        className="pointer-events-none absolute -top-5 left-1/2 z-10 -translate-x-1/2"
+      >
+        {play.line && (
+          <span
+            key={play.n}
+            className="block animate-pop rounded-full border border-line-2 bg-surface-2 px-2.5 py-1 text-12 font-[600] whitespace-nowrap text-ink shadow-e2"
+          >
+            {play.line}
+          </span>
+        )}
+      </span>
+    </span>
   );
 }
 
