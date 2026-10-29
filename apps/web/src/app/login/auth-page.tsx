@@ -69,7 +69,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 overflow-hidden lg:hidden"
         >
-          <i className="absolute top-[-10%] left-1/2 h-[480px] w-[560px] -translate-x-1/2 animate-drift-a rounded-full bg-[var(--glow-a)] opacity-60 blur-[110px]" />
+          <i className="absolute top-[-10%] left-1/2 h-[480px] w-[560px] -translate-x-1/2 scale-150 animate-drift-a bg-[radial-gradient(closest-side,var(--glow-a),transparent)] opacity-60" />
         </div>
         <div className="absolute top-5 right-5">
           <ThemeToggle />

@@ -262,7 +262,7 @@ function Group({
                 <span
                   aria-label={`${badge} due`}
                   className={cn(
-                    "pulse-ring tnum rounded-full bg-signal px-1.5 font-mono text-[10px] leading-[18px] font-semibold text-signal-ink",
+                    "pulse-ring tnum rounded-full bg-signal px-1.5 font-mono [--pulse-color:var(--signal)] [--pulse-scale:1.45] text-[10px] leading-[18px] font-semibold text-signal-ink",
                     collapsed ? "absolute top-0.5 right-1.5 h-[16px] leading-[16px]" : "ml-auto",
                   )}
                 >

@@ -170,7 +170,8 @@ function Backdrop() {
       <Starfield className="opacity-40 [mask-image:linear-gradient(180deg,#000,transparent_45%)]" />
       {/* The desk: a faint blueprint grid in 2D (a 3D floor plane crashed iOS Safari). */}
       <div className="absolute inset-x-0 bottom-0 h-[55%] [mask-image:radial-gradient(70%_80%_at_50%_100%,#000,transparent)] [background-image:linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] [background-size:56px_56px]" />
-      <Grain />
+      {/* Blending grain over the moving scene costs a full-screen GPU pass per frame on phones. */}
+      <Grain className="pointer-coarse:hidden" />
       <div data-part="page-bg" className="absolute inset-0 hidden bg-bg opacity-0 scene:block" />
     </div>
   );

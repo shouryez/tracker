@@ -28,7 +28,11 @@ export function DotGrid({ className, style }: LayerProps) {
   );
 }
 
-/** A single soft blurred light. Tint with `color` (any CSS colour or var). */
+/**
+ * A single soft light. Tint with `color` (any CSS colour or var). Drawn as a radial gradient,
+ * not a blurred disc: a large blur filter is one of the costliest things a phone GPU can
+ * draw, and these lights often drift.
+ */
 export function GlowOrb({
   className,
   color = "var(--glow-a)",
@@ -38,8 +42,13 @@ export function GlowOrb({
   return (
     <div
       aria-hidden="true"
-      className={cn("pointer-events-none absolute rounded-full blur-[110px]", className)}
-      style={{ width: size, height: size, background: color, ...style }}
+      className={cn("pointer-events-none absolute scale-[1.45]", className)}
+      style={{
+        width: size,
+        height: size,
+        background: `radial-gradient(closest-side, ${color}, color-mix(in srgb, ${color} 45%, transparent) 45%, transparent)`,
+        ...style,
+      }}
     />
   );
 }
@@ -83,8 +92,9 @@ export function Starfield({ className, style }: LayerProps) {
 }
 
 /**
- * Slow mesh-gradient aurora: three blurred lights drifting on an 18 s loop.
- * GPU-cheap (transform only), paused off-screen, static under reduced motion.
+ * Slow mesh-gradient aurora: three soft lights drifting on an 18 s loop. The lights are
+ * radial gradients (no blur filter) moved by transform only, so they stay on the GPU
+ * compositor; paused off-screen, static under reduced motion.
  */
 export function Aurora({ className, style }: LayerProps) {
   const ref = usePauseOffscreen<HTMLDivElement>();
@@ -95,9 +105,9 @@ export function Aurora({ className, style }: LayerProps) {
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
       style={style}
     >
-      <i className="absolute -top-1/4 -left-1/6 h-[70%] w-[60%] animate-aurora rounded-full bg-[var(--aurora-1)] blur-[100px]" />
-      <i className="absolute top-[10%] right-[-10%] h-[60%] w-[55%] animate-aurora rounded-full bg-[var(--aurora-2)] blur-[110px] [animation-delay:-6s] [animation-direction:alternate-reverse]" />
-      <i className="absolute bottom-[-30%] left-[25%] h-[60%] w-[50%] animate-aurora rounded-full bg-[var(--aurora-3)] blur-[120px] [animation-delay:-12s]" />
+      <i className="absolute -top-1/4 -left-1/6 h-[70%] w-[60%] scale-150 animate-aurora bg-[radial-gradient(closest-side,var(--aurora-1),transparent)]" />
+      <i className="absolute top-[10%] right-[-10%] h-[60%] w-[55%] scale-150 animate-aurora bg-[radial-gradient(closest-side,var(--aurora-2),transparent)] [animation-delay:-6s] [animation-direction:alternate-reverse]" />
+      <i className="absolute bottom-[-30%] left-[25%] h-[60%] w-[50%] scale-150 animate-aurora bg-[radial-gradient(closest-side,var(--aurora-3),transparent)] [animation-delay:-12s]" />
     </div>
   );
 }

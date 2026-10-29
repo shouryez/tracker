@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { memo, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import {
   CalendarPlus,
@@ -600,21 +600,7 @@ export function SheetBrowser({
   );
 }
 
-function ItemRow({
-  sheetId,
-  item,
-  review,
-  starred,
-  highlighted,
-  noteOpen,
-  picking,
-  picked,
-  onToday,
-  onPick,
-  onStar,
-  onNote,
-  onVideo,
-}: {
+type ItemRowProps = {
   sheetId: string;
   item: SheetItemView;
   review: ItemReview | undefined;
@@ -628,7 +614,42 @@ function ItemRow({
   onStar: (on: boolean) => void;
   onNote: () => void;
   onVideo: (url: string) => void;
-}) {
+};
+
+/**
+ * Rows re-render only when their own data changes. The callbacks are rebuilt on every
+ * parent render but only ever act on the row's own item, so they don't count: ticking one
+ * star on a 495-problem sheet re-renders one row, not all of them.
+ */
+function sameRow(a: ItemRowProps, b: ItemRowProps) {
+  return (
+    a.sheetId === b.sheetId &&
+    a.item === b.item &&
+    a.review === b.review &&
+    a.starred === b.starred &&
+    a.highlighted === b.highlighted &&
+    a.noteOpen === b.noteOpen &&
+    a.picking === b.picking &&
+    a.picked === b.picked &&
+    a.onToday === b.onToday
+  );
+}
+
+const ItemRow = memo(function ItemRowView({
+  sheetId,
+  item,
+  review,
+  starred,
+  highlighted,
+  noteOpen,
+  picking,
+  picked,
+  onToday,
+  onPick,
+  onStar,
+  onNote,
+  onVideo,
+}: ItemRowProps) {
   const link = (site: Site) => item.links.find((l) => l.site === site)?.url;
   const practice = link("takeuforward") ?? link("neetcode") ?? link("source");
   const practiceSite: Site | null = link("takeuforward")
@@ -803,7 +824,7 @@ function ItemRow({
       )}
     </>
   );
-}
+}, sameRow);
 
 /** Selection box for "Add to today" mode: lime, so it never reads as "done". */
 function PickBox({

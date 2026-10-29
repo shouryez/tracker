@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
-import { useMotionValueEvent, useScroll, useSpring } from "motion/react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useMotionValue, useMotionValueEvent, useSpring } from "motion/react";
 import { cn } from "@upsolve/ui";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { Laptop } from "./laptop";
@@ -41,12 +41,28 @@ type Geo = {
 
 const INITIAL = stateAt(0);
 
+type Prop = "transform" | "opacity" | "visibility" | "clipPath";
+/**
+ * Last value written per node and property. Unchanged values are skipped, so a frame only
+ * invalidates (and repaints) what actually moved: on phones a needless write inside the
+ * screen repaints the whole screen.
+ */
+const written = new WeakMap<HTMLElement, Partial<Record<Prop, string>>>();
+function put(el: HTMLElement | null | undefined, prop: Prop, v: string) {
+  if (!el) return;
+  let w = written.get(el);
+  if (!w) written.set(el, (w = {}));
+  if (w[prop] === v) return;
+  w[prop] = v;
+  el.style[prop] = v;
+}
+const o = (n: number) => n.toFixed(3);
+const px = (n: number) => n.toFixed(2);
+
 const PARTS = [
   "persp",
   "rig",
   "lid",
-  "desk",
-  "desk-spill",
   "base",
   "edge",
   "lid-back",
@@ -76,6 +92,13 @@ export default function HeroScene() {
   const pin = useRef<HTMLElement | null>(null);
   const parts = useRef<Partial<Record<Part, HTMLElement>>>({});
   const geo = useRef<Geo | null>(null);
+  /** Server-rendered layers the scene fades (headline, glance head, page colour). */
+  const page = useRef<{ copy: HTMLElement[]; glance: HTMLElement | null; bg: HTMLElement | null }>({
+    copy: [],
+    glance: null,
+    bg: null,
+  });
+  const shownTime = useRef("");
   const state = useRef<SceneState>(INITIAL);
   const [s, setS] = useState<SceneState>(INITIAL);
   const debug = useRef<HTMLSpanElement>(null);
@@ -84,11 +107,9 @@ export default function HeroScene() {
   useLayoutEffect(() => {
     pin.current = root.current!.closest<HTMLElement>("[data-hero-pin]");
   }, []);
-  const { scrollYProgress } = useScroll({
-    target: pin as RefObject<HTMLElement>,
-    offset: ["start start", "end end"],
-  });
-  const p = useSpring(scrollYProgress, CAMERA.spring);
+  // Scroll progress through the pin (set from scrollY in the effect below), smoothed.
+  const raw = useMotionValue(0);
+  const p = useSpring(raw, CAMERA.spring);
 
   const stage = () => root.current?.parentElement ?? null;
 
@@ -183,34 +204,34 @@ export default function HeroScene() {
 
     // Server-rendered layers: headline, glance head, page colour.
     const lift = easeOut(seg(v, [BEATS.open[0], BEATS.open[0] + 0.08]));
-    st.querySelectorAll<HTMLElement>("[data-hero-copy]").forEach((el) => {
-      el.style.opacity = String(1 - lift);
-      el.style.transform = `translateY(${-70 * lift}px)`;
-      el.style.visibility = lift >= 1 ? "hidden" : "";
-    });
-    const glance = st.querySelector<HTMLElement>("[data-glance]");
+    for (const el of page.current.copy) {
+      put(el, "opacity", o(1 - lift));
+      put(el, "transform", `translateY(${px(-70 * lift)}px)`);
+      put(el, "visibility", lift >= 1 ? "hidden" : "");
+    }
+    const glance = page.current.glance;
     if (glance) {
       const t = easeOut(seg(v, [MOMENTS.glance, MOMENTS.glance + 0.06]));
-      glance.style.opacity = String(t);
-      glance.style.transform = `translateY(${24 * (1 - t)}px)`;
-      glance.style.visibility = t <= 0 ? "hidden" : "visible";
+      put(glance, "opacity", o(t));
+      put(glance, "transform", `translateY(${px(24 * (1 - t))}px)`);
+      put(glance, "visibility", t <= 0 ? "hidden" : "visible");
     }
-    const pageBg = st.querySelector<HTMLElement>("[data-part=page-bg]");
     const hand = easeInOut(seg(v, BEATS.handoff));
-    if (pageBg)
-      pageBg.style.opacity = String(
-        easeInOut(seg(v, [BEATS.handoff[0] + 0.03, BEATS.handoff[1] - 0.02])),
-      );
+    put(
+      page.current.bg,
+      "opacity",
+      o(easeInOut(seg(v, [BEATS.handoff[0] + 0.03, BEATS.handoff[1] - 0.02]))),
+    );
 
     // Laptop: open the lid, flatten the tilt, dolly in.
     const open = easeInOut(seg(v, BEATS.open));
     const tilt = lerp(CAMERA.tiltClosed, CAMERA.tiltOpen, open);
     const lid = lerp(CAMERA.lidClosed, CAMERA.lidOpen, easeInOut(seg(v, CAMERA.lidRange)));
-    P.rig.style.transform = `translateY(${rigY(g, open)}px) rotateX(${-tilt}deg)`;
-    P.lid.style.transform = `rotateX(${lid - 90}deg)`;
+    put(P.rig, "transform", `translateY(${px(rigY(g, open))}px) rotateX(${px(-tilt)}deg)`);
+    put(P.lid, "transform", `rotateX(${px(lid - 90)}deg)`);
 
     // Camera: dolly while opening, push into the screen, then settle into the frame.
-    let cam = `scale(${g.k * lerp(CAMERA.restScale, CAMERA.dolly, open)})`;
+    let cam = `scale(${(g.k * lerp(CAMERA.restScale, CAMERA.dolly, open)).toFixed(4)})`;
     const push = easeInOut(seg(v, BEATS.push));
     if (v >= BEATS.push[0] && !g.screen) measureScreen(g);
     if (g.screen && v >= BEATS.push[0]) {
@@ -232,40 +253,32 @@ export default function HeroScene() {
         tx = lerp(-dx * f, fx, hand);
         ty = lerp(-dy * f, fy, hand);
       }
-      cam = `translate3d(${tx}px, ${ty}px, 0) scale(${g.k * CAMERA.dolly * c})`;
+      cam = `translate3d(${px(tx)}px, ${px(ty)}px, 0) scale(${(g.k * CAMERA.dolly * c).toFixed(4)})`;
     }
-    P.persp.style.transform = cam;
+    put(P.persp, "transform", cam);
 
     // Power on, light spill, reflection.
     const on = seg(v, MOMENTS.powerOn);
-    if (P["screen-off"])
-      P["screen-off"].style.opacity = String(
-        1 - seg(v, [MOMENTS.powerOn[0] + 0.02, MOMENTS.powerOn[1]]),
-      );
-    if (P["screen-glow"]) P["screen-glow"].style.opacity = String(Math.sin(Math.PI * on) * 0.85);
+    put(P["screen-off"], "opacity", o(1 - seg(v, [MOMENTS.powerOn[0] + 0.02, MOMENTS.powerOn[1]])));
+    put(P["screen-glow"], "opacity", o(Math.sin(Math.PI * on) * 0.85));
     const lit = on * seg(lid, [40, CAMERA.lidOpen]);
-    if (P.spill) P.spill.style.opacity = String(lit * 0.9);
-    if (P["desk-spill"]) P["desk-spill"].style.opacity = String(lit);
-    if (P.reflect) P.reflect.style.transform = `translateX(${-45 * (lid / CAMERA.lidOpen)}%)`;
+    put(P.spill, "opacity", o(lit * 0.9));
+    put(P.reflect, "transform", `translateX(${(-45 * (lid / CAMERA.lidOpen)).toFixed(1)}%)`);
 
     // Problem page → dashboard.
     const dis = easeInOut(seg(v, BEATS.dissolve));
-    if (P["ui-problem"]) P["ui-problem"].style.opacity = String(1 - dis);
-    if (P["ui-dash"]) {
-      P["ui-dash"].style.opacity = String(dis);
-      P["ui-dash"].style.transform = `scale(${lerp(1.03, 1, dis)})`;
-    }
+    put(P["ui-problem"], "opacity", o(1 - dis));
+    put(P["ui-dash"], "opacity", o(dis));
+    put(P["ui-dash"], "transform", `scale(${lerp(1.03, 1, dis).toFixed(4)})`);
 
     // The body falls away while we're inside the screen; the frame takes over.
     const body = 1 - seg(v, [BEATS.handoff[0], BEATS.handoff[0] + 0.04]);
-    for (const n of ["bezel", "desk", "base", "edge", "lid-back"] as const)
-      if (P[n]) P[n].style.opacity = String(body);
-    if (P.frame) P.frame.style.opacity = String(hand);
-    if (P.screen) {
-      // Rounded like the product frame: ~22 px on screen once it has settled.
-      const r = (hand * 22 * RIG.screenW) / (g.frame?.w ?? RIG.screenW);
-      P.screen.style.clipPath = hand > 0 ? `inset(0 round ${r}px)` : "";
-    }
+    for (const n of ["bezel", "base", "edge", "lid-back"] as const) put(P[n], "opacity", o(body));
+    put(P.frame, "opacity", o(hand));
+    // Rounded like the product frame (~22 px on screen once settled). The radius is set once
+    // when the hand-off starts, not per frame: an animated clip-path repaints the screen.
+    const r = (22 * RIG.screenW) / (g.frame?.w ?? RIG.screenW);
+    put(P.screen, "clipPath", hand > 0 ? `inset(0 round ${r.toFixed(1)}px)` : "");
 
     // The pixel flight: Accepted chip → today's cell, along a curve.
     if (P.pixel) {
@@ -279,13 +292,22 @@ export default function HeroScene() {
         const x = (1 - e) ** 2 * fl.ax + 2 * (1 - e) * e * cx + e ** 2 * fl.bx;
         const y = (1 - e) ** 2 * fl.ay + 2 * (1 - e) * e * cy + e ** 2 * fl.by;
         const size = lerp(12, fl.size, e);
-        P.pixel.style.opacity = "1";
-        P.pixel.style.transform = `translate3d(${x - size / 2}px, ${y - size / 2}px, 0) scale(${size / 12})`;
-      } else P.pixel.style.opacity = "0";
+        put(P.pixel, "opacity", "1");
+        put(
+          P.pixel,
+          "transform",
+          `translate3d(${px(x - size / 2)}px, ${px(y - size / 2)}px, 0) scale(${(size / 12).toFixed(3)})`,
+        );
+      } else put(P.pixel, "opacity", "0");
     }
 
-    // The pill's clock, from scroll (so scrolling back rewinds it).
-    if (P.clock) P.clock.textContent = clock(timerAt(v));
+    // The pill's clock, from scroll (so scrolling back rewinds it). A text change re-lays
+    // out the pill, so it's written only when the shown time changes.
+    const time = clock(timerAt(v));
+    if (P.clock && (time !== shownTime.current || P.clock.textContent !== time)) {
+      shownTime.current = time;
+      P.clock.textContent = time;
+    }
 
     if (debug.current) debug.current.textContent = `p ${v.toFixed(3)}`;
   };
@@ -308,27 +330,54 @@ export default function HeroScene() {
   useEffect(() => {
     const st = stage();
     if (!st) return;
+    page.current = {
+      copy: [...st.querySelectorAll<HTMLElement>("[data-hero-copy]")],
+      glance: st.querySelector<HTMLElement>("[data-glance]"),
+      bg: st.querySelector<HTMLElement>("[data-part=page-bg]"),
+    };
+    // Progress from scrollY alone. The pin's place on the page is measured on resize only,
+    // so a scroll event reads no layout (re-measuring per event forced a style pass right
+    // after each frame's writes). The viewport is the layout viewport (clientHeight), which
+    // doesn't change when a phone's address bar slides away.
+    let top = 0;
+    let range = 1;
+    const measurePin = () => {
+      const el = pin.current;
+      if (!el) return;
+      top = el.getBoundingClientRect().top + window.scrollY;
+      range = Math.max(1, el.offsetHeight - document.documentElement.clientHeight);
+    };
+    const progress = () => Math.min(1, Math.max(0, (window.scrollY - top) / range));
+    const onScroll = () => raw.set(progress());
+    measurePin();
+    raw.set(progress());
+    p.jump(progress());
+
     collect();
     measureBase();
     render(p.get());
     root.current!.dataset.shown = "";
     const ro = new ResizeObserver(() => {
+      measurePin();
+      onScroll();
       measureBase();
       render(p.get());
     });
     ro.observe(st);
+    if (pin.current) ro.observe(pin.current);
+    window.addEventListener("scroll", onScroll, { passive: true });
     // Captions are server-rendered; mark the scene live so CSS switches them to one-at-a-time.
     st.dataset.live = "";
-    // will-change only while the stage is on screen.
+    // GPU layers (will-change, in globals.css) only while the stage is on screen.
     const io = new IntersectionObserver(([e]) => {
-      const on = !!e?.isIntersecting;
-      parts.current.persp?.style.setProperty("will-change", on ? "transform" : "auto");
-      parts.current.rig?.style.setProperty("will-change", on ? "transform" : "auto");
+      if (e?.isIntersecting) st.dataset.active = "";
+      else delete st.dataset.active;
     });
     if (pin.current) io.observe(pin.current);
     return () => {
       ro.disconnect();
       io.disconnect();
+      window.removeEventListener("scroll", onScroll);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -346,7 +395,7 @@ export default function HeroScene() {
     const el = pin.current;
     if (!el) return;
     const top = el.getBoundingClientRect().top + window.scrollY;
-    const y = top + at * (el.offsetHeight - window.innerHeight);
+    const y = top + at * (el.offsetHeight - document.documentElement.clientHeight);
     const lenis = (window as Window & { __lenis?: { scrollTo: (y: number, o?: object) => void } })
       .__lenis;
     if (lenis) lenis.scrollTo(y, { duration: 1.4 });

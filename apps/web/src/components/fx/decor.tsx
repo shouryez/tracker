@@ -79,26 +79,27 @@ export function StreakFlame({ streak, size = 44 }: { streak: number; size?: numb
           style={{ background: outer, opacity: 0.35 + level * 0.1 }}
         />
       )}
-      <svg
-        viewBox="0 0 32 40"
-        width={size * scale}
-        height={size * scale * 1.25}
+      {/* The flicker runs on an HTML wrapper: Chrome can't hand an animated <svg> to the
+          compositor, so animating the svg itself costs a main-thread frame, forever. */}
+      <span
         className={cn(
-          "relative origin-bottom",
+          "relative block origin-bottom",
           level > 0 && "animate-[flame_1.6s_ease-in-out_infinite] motion-reduce:animate-none",
         )}
       >
-        <path
-          d="M16 1c2 7 12 11 12 22a12 12 0 0 1-24 0c0-5 2.5-8 5-10 .3 4 2.5 6 4.5 6.5C12 13 12 6 16 1Z"
-          fill={outer}
-          opacity={level === 0 ? 0.55 : 1}
-        />
-        <path
-          d="M16 17c1 3.5 6 5.5 6 10.5a6 6 0 0 1-12 0c0-2.4 1.2-3.8 2.4-4.8.2 1.9 1.2 2.9 2.2 3.1C14 22 14 19.5 16 17Z"
-          fill={inner}
-          opacity={level === 0 ? 0.5 : 1}
-        />
-      </svg>
+        <svg viewBox="0 0 32 40" width={size * scale} height={size * scale * 1.25}>
+          <path
+            d="M16 1c2 7 12 11 12 22a12 12 0 0 1-24 0c0-5 2.5-8 5-10 .3 4 2.5 6 4.5 6.5C12 13 12 6 16 1Z"
+            fill={outer}
+            opacity={level === 0 ? 0.55 : 1}
+          />
+          <path
+            d="M16 17c1 3.5 6 5.5 6 10.5a6 6 0 0 1-12 0c0-2.4 1.2-3.8 2.4-4.8.2 1.9 1.2 2.9 2.2 3.1C14 22 14 19.5 16 17Z"
+            fill={inner}
+            opacity={level === 0 ? 0.5 : 1}
+          />
+        </svg>
+      </span>
     </span>
   );
 }
@@ -160,13 +161,9 @@ export function AnimatedBeam({
                 vectorEffect="non-scaling-stroke"
                 pathLength={100}
                 strokeDasharray="18 82"
-                className="animate-[beam-travel_2.8s_linear_infinite] motion-reduce:hidden"
-                style={
-                  {
-                    animationDelay: `${i * 0.7}s`,
-                    filter: "drop-shadow(0 0 4px var(--violet))",
-                  } as CSSProperties
-                }
+                // The glow is a filter redrawn every frame: mouse devices only, not phones.
+                className="animate-[beam-travel_2.8s_linear_infinite] motion-reduce:hidden pointer-fine:[filter:drop-shadow(0_0_4px_var(--violet))]"
+                style={{ animationDelay: `${i * 0.7}s` } as CSSProperties}
               />
             </g>
           );

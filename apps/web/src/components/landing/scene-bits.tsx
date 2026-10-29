@@ -9,7 +9,11 @@ import { WORDMARK } from "@upsolve/ui/brand";
 
 const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Calls `fn(progress)` once per frame while scrolling; progress = 0..1 through `el`. */
+/**
+ * Calls `fn(progress)` once per frame while scrolling; progress = 0..1 through `el`. It only
+ * listens while `el` is near the viewport (one last update as it leaves), so the long page
+ * doesn't pay for every scene on every frame.
+ */
 function useScrollProgress(
   ref: React.RefObject<HTMLElement | null>,
   fn: (p: number) => void,
@@ -23,24 +27,53 @@ function useScrollProgress(
     const el = ref.current;
     if (!el) return;
     let frame = 0;
+    let near = false;
     const update = () => {
       frame = 0;
       const [top, len] = range(el.getBoundingClientRect(), window.innerHeight);
       cb.current(len > 0 ? Math.min(1, Math.max(0, -top / len)) : 1);
     };
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+      if (near && !frame) frame = requestAnimationFrame(update);
     };
+    const io = new IntersectionObserver(
+      ([e]) => {
+        near = !!e?.isIntersecting;
+        if (!frame) frame = requestAnimationFrame(update);
+      },
+      { rootMargin: "25% 0px" },
+    );
+    io.observe(el);
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {
+      io.disconnect();
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+}
+
+/**
+ * Pauses the CSS loops (beams, marquee, sheen, twinkle, pulses) inside every element matching
+ * `selector` while it is off screen. A running loop costs a style pass per frame even
+ * when nobody can see it.
+ */
+export function PauseOffscreen({ selector }: { selector: string }) {
+  useEffect(() => {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) e.target.classList.toggle("paused", !e.isIntersecting);
+      },
+      { rootMargin: "10% 0px" },
+    );
+    document.querySelectorAll(selector).forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [selector]);
+  return null;
 }
 
 /**
@@ -147,25 +180,39 @@ export function TimerDemo() {
   );
 }
 
-/** The platform marquee leans and speeds up a little with how fast you scroll. */
+/**
+ * The platform marquee leans and speeds up a little with how fast you scroll (mouse and
+ * trackpad only: on touch, changing a running animation's rate every frame re-syncs it with
+ * the compositor and makes it stutter, so phones get the plain marquee).
+ */
 export function VelocityMarquee({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
-    if (!el || reduced()) return;
+    if (!el || reduced() || matchMedia("(pointer: coarse)").matches) return;
     let last = window.scrollY;
     let lastT = performance.now();
     let v = 0;
     let frame = 0;
     let visible = false;
+    let rate = 1;
     const loop = () => {
       frame = 0;
       v *= 0.9;
-      const rate = 1 + Math.min(3, Math.abs(v) * 2.2);
-      el.getAnimations({ subtree: true }).forEach((a) => (a.playbackRate = rate));
+      const next = Math.round((1 + Math.min(3, Math.abs(v) * 2.2)) * 20) / 20;
+      if (next !== rate) {
+        rate = next;
+        el.getAnimations({ subtree: true }).forEach((a) => (a.playbackRate = rate));
+      }
       el.style.transform = `skewX(${Math.max(-5, Math.min(5, -v * 3)).toFixed(2)}deg)`;
       if (Math.abs(v) > 0.01 && visible) frame = requestAnimationFrame(loop);
-      else el.style.transform = "";
+      else {
+        el.style.transform = "";
+        if (rate !== 1) {
+          rate = 1;
+          el.getAnimations({ subtree: true }).forEach((a) => (a.playbackRate = 1));
+        }
+      }
     };
     const onScroll = () => {
       const now = performance.now();
@@ -197,15 +244,19 @@ export function StackCards({ children, className }: { children: ReactNode; class
     const el = ref.current;
     if (!el || reduced()) return;
     const cards = [...el.children] as HTMLElement[];
+    // All reads, then all writes: interleaving them forces a style pass per card.
+    const tops = cards.map((c) => c.getBoundingClientRect().top);
+    const heights = cards.map((c) => c.offsetHeight);
     cards.forEach((card, i) => {
-      const next = cards[i + 1];
-      if (!next) return;
-      const a = card.getBoundingClientRect();
-      const b = next.getBoundingClientRect();
+      if (i === cards.length - 1) return;
       // 0 when the next card is a full card-height below, 1 when it has covered this one.
-      const t = Math.min(1, Math.max(0, 1 - (b.top - a.top) / a.height));
-      card.style.transform = `scale(${1 - t * 0.05})`;
-      card.style.opacity = String(1 - t * 0.35);
+      const t = Math.min(1, Math.max(0, 1 - (tops[i + 1]! - tops[i]!) / heights[i]!));
+      const key = t.toFixed(4);
+      if (card.dataset.t !== key) {
+        card.dataset.t = key;
+        card.style.transform = `scale(${1 - t * 0.05})`;
+        card.style.opacity = String(1 - t * 0.35);
+      }
     });
   });
   return (

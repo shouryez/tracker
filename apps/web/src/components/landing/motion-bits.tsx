@@ -24,7 +24,15 @@ export function Reveal({
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
-    if (!el || reduced() || el.getBoundingClientRect().top < window.innerHeight) return;
+    // Not on touch screens: fading a whole section in promotes it to one big GPU layer for
+    // the transition, a raster spike right as you scroll into it.
+    if (
+      !el ||
+      reduced() ||
+      window.matchMedia("(pointer: coarse)").matches ||
+      el.getBoundingClientRect().top < window.innerHeight
+    )
+      return;
     el.dataset.reveal = "hidden";
     const io = new IntersectionObserver(
       ([e]) => {
@@ -94,24 +102,37 @@ export function Parallax({ children, className }: { children: ReactNode; classNa
   );
 }
 
-/** Thin ink hairline showing how far down the page you are (lime is kept for the CTA). */
+/**
+ * Thin ink hairline showing how far down the page you are (lime is kept for the CTA).
+ * A CSS scroll-driven animation where supported (runs on the compositor, no JS per frame);
+ * a once-per-frame listener elsewhere.
+ */
 export function ScrollProgress() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const onScroll = () => {
+    if (CSS.supports("animation-timeline: scroll()")) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       if (ref.current)
         ref.current.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
     };
-    onScroll();
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
   return (
     <div
       ref={ref}
       aria-hidden="true"
-      className="fixed inset-x-0 top-0 z-[60] h-px origin-left scale-x-0 bg-ink/60"
+      className="scroll-progress fixed inset-x-0 top-0 z-[60] h-px origin-left [transform:scaleX(0)] bg-ink/60"
     />
   );
 }
@@ -127,23 +148,34 @@ export function NavAutoHide({ children, className }: { children: ReactNode; clas
     if (!el) return;
     let last = window.scrollY;
     let frame = 0;
+    // Where the hero ends, measured on resize only (reading layout on every scroll frame
+    // forces a layout pass whenever anything else changed it).
+    const pin = document.querySelector<HTMLElement>("[data-hero-pin]");
+    let heroEnd = 0;
+    const measure = () => {
+      heroEnd = pin ? pin.offsetTop + pin.offsetHeight - window.innerHeight : 0;
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (pin) ro.observe(pin);
     const update = () => {
       frame = 0;
       const y = window.scrollY;
-      const pin = document.querySelector<HTMLElement>("[data-hero-pin]");
-      const heroEnd = pin ? pin.offsetTop + pin.offsetHeight - window.innerHeight : 0;
       const hide = y > last + 2 && y > 80 && y < heroEnd;
-      if (y < last - 2 || y <= 80 || y >= heroEnd) el.dataset.hidden = "false";
-      if (hide) el.dataset.hidden = "true";
+      const next = hide ? "true" : y < last - 2 || y <= 80 || y >= heroEnd ? "false" : null;
+      if (next && el.dataset.hidden !== next) el.dataset.hidden = next;
       last = y;
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", measure);
     return () => {
       cancelAnimationFrame(frame);
+      ro.disconnect();
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", measure);
     };
   }, []);
   return (
@@ -163,7 +195,12 @@ export function NavAutoHide({ children, className }: { children: ReactNode; clas
 export function BackToTop() {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > window.innerHeight);
+    // React only hears about it when the answer flips, not on every scroll event.
+    let shown = false;
+    const onScroll = () => {
+      const next = window.scrollY > window.innerHeight;
+      if (next !== shown) setShow((shown = next));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);

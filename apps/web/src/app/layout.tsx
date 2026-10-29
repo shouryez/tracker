@@ -9,9 +9,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+// Mono is only used for small labels: not preloaded, so it doesn't compete with the
+// headline fonts for the first paint.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 const instrumentSerif = Instrument_Serif({

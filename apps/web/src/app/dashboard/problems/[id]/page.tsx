@@ -140,9 +140,9 @@ async function ProblemContent({
       <header className="relative isolate flex flex-wrap items-end justify-between gap-4">
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] rounded-full opacity-[.14] blur-[90px]"
+          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] scale-[1.6] opacity-[.14]"
           style={{
-            background: problem.difficulty ? `var(--${problem.difficulty})` : "var(--violet)",
+            background: `radial-gradient(closest-side, ${problem.difficulty ? `var(--${problem.difficulty})` : "var(--violet)"}, transparent)`,
           }}
         />
         <div className="min-w-0">

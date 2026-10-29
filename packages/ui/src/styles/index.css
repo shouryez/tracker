@@ -350,6 +350,13 @@
   background: var(--overlay);
   backdrop-filter: saturate(160%) blur(16px);
   -webkit-backdrop-filter: saturate(160%) blur(16px);
+  /* Touch screens: a near-solid fill instead. A backdrop blur over scrolling content is
+     redrawn on every scroll frame, and stacked bars (header, toolbar, dock) add up on phones. */
+  @media (pointer: coarse) {
+    background: color-mix(in srgb, var(--overlay) 30%, var(--bg));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* Faint dot grid for hero and feature backgrounds. */
@@ -454,7 +461,11 @@
 /* Pause decorative loops when off-screen or the tab is hidden (set by usePauseOffscreen). */
 @utility paused {
   &,
-  & * {
+  & *,
+  &::before,
+  &::after,
+  & *::before,
+  & *::after {
     animation-play-state: paused !important;
   }
 }
@@ -556,25 +567,53 @@
     mask:
       linear-gradient(#000 0 0) content-box exclude,
       linear-gradient(#000 0 0);
-    animation: beam 6s linear infinite;
+    --beam-angle: 210deg;
+  }
+  /* Animating the angle repaints the card every frame on the main thread: only where
+     there's a mouse (laptops and desktops). Touch screens get the light, standing still. */
+  @media (hover: hover) and (pointer: fine) {
+    &::after {
+      animation: beam 6s linear infinite;
+    }
   }
 }
 @keyframes beam {
+  from {
+    --beam-angle: 0deg;
+  }
   to {
     --beam-angle: 360deg;
   }
 }
 
-/* Soft pulse for "very overdue" and live presence dots. */
+/* Soft pulse for "very overdue" and live presence dots: a ring that grows and fades behind
+   the element. Transform + opacity only, so it runs on the compositor (an animated
+   box-shadow repaints on every frame). Tune with --pulse-scale and --pulse-color. */
 @utility pulse-ring {
-  animation: pulse-ring 2s var(--ease-out) infinite;
+  isolation: isolate;
+  &:where(:not(.absolute, .fixed, .sticky)) {
+    position: relative;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--pulse-color, currentColor);
+    opacity: 0;
+    pointer-events: none;
+    animation: pulse-ring 2s var(--ease-out) infinite;
+  }
 }
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 45%, transparent);
+    opacity: 0.45;
+    transform: scale(1);
   }
   100% {
-    box-shadow: 0 0 0 7px transparent;
+    opacity: 0;
+    transform: scale(var(--pulse-scale, 2.6));
   }
 }
 
@@ -696,6 +735,20 @@
   from {
     transform: translateY(0.35em) skewX(-6deg);
     filter: blur(10px);
+  }
+}
+/* Phones: no blur in the entrance (a blur filter per word on every frame of page load). */
+@media (pointer: coarse) {
+  @keyframes word-rise {
+    from {
+      transform: translateY(0.35em) skewX(-6deg);
+    }
+  }
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.35em) skewX(-6deg);
+    }
   }
 }
 @keyframes beam-travel {

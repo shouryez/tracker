@@ -74,6 +74,31 @@ Pin height: 500vh desktop, 320vh under 640px (`scene:h-[500vh] max-sm:scene:h-[3
 - No horizontal scroll at 360, 390, 768, 1024, 1440, 1920.
 - Keyboard: Tab order is nav → "Skip intro" → CTAs; Enter on "Skip intro" lands at p ≈ 0.97.
 
+## Staying smooth on phones
+
+Measured with an Android-like profile (412×915 at 2.625×, touch, 4× CPU throttle, scroll gestures
+through the whole page): janky frames (>20 ms) went from 10% to 2%, and the idle main thread on the
+hero from ~27% busy to ~1%. The rules that got it there (apply them to new effects too):
+
+- **Write only what changed.** `hero-scene.tsx` caches the last value per node and property (`put`); an
+  unchanged write still invalidates, and inside the laptop screen that means repainting the screen.
+- **No layout reads per scroll event.** The hero's progress is `(scrollY − pinTop) / range`, with
+  `pinTop` measured on resize only; nav auto-hide caches where the hero ends; scroll-progress is a CSS
+  scroll-driven animation. Other scroll scenes read all rects first, then write, and only listen while
+  they're near the viewport.
+- **Animate transform and opacity, on GPU layers.** Parts the hero animates get `will-change` while
+  the stage is on screen; the revision curve draws by sliding two nested boxes (an animated
+  `clip-path` repaints every frame). Infinite loops on `<svg>` elements, `box-shadow`, `border-radius`
+  or custom properties run on the main thread: the streak flame animates an HTML wrapper, the pulse
+  ring is a scaled pseudo-element, the border beam only spins on mouse devices.
+- **No big blur filters.** Soft lights are radial gradients (`GlowOrb`, `Aurora`, page-header glows);
+  `glass` drops its backdrop blur on touch screens; the hero grain (a blend over the whole stage) is
+  hidden on touch.
+- **Pause what nobody sees.** `PauseOffscreen` stops CSS loops in landing sections that are off
+  screen; `Reveal` doesn't fade whole sections on touch (it promotes a page-sized layer).
+- **React state only on change.** Back-to-top and the dashboard header set state when their boolean
+  flips, not on every scroll event.
+
 ## Alternative (documented, not built)
 
 A photoreal "hands opening a laptop" image sequence (~120 AVIF frames) scrubbed on a `<canvas>`,

@@ -31,6 +31,7 @@ import {
 } from "@/components/landing/motion-bits";
 import {
   PlayOnView,
+  PauseOffscreen,
   StackCards,
   TimerDemo,
   VelocityMarquee,
@@ -89,6 +90,7 @@ export default function Home() {
       <BackToTop />
       <SpotlightTracker />
       <SmoothScroll />
+      <PauseOffscreen selector="main > *, footer" />
     </div>
   );
 }
@@ -546,7 +548,10 @@ function HowItWorks() {
           <li
             key={s.title}
             data-spotlight
-            className={cn(cardClasses({ spotlight: true }), "sticky origin-top p-[22px] sm:p-7")}
+            className={cn(
+              cardClasses({ spotlight: true }),
+              "sticky origin-top p-[22px] will-change-transform sm:p-7",
+            )}
             style={{ top: `${96 + i * 18}px` }}
           >
             <div className="flex items-start gap-5">

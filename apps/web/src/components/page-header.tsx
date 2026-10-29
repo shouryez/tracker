@@ -41,8 +41,8 @@ export function PageHeader({
       {glow && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] rounded-full opacity-[.16] blur-[90px]"
-          style={{ background: glow }}
+          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] scale-[1.6] opacity-[.16]"
+          style={{ background: `radial-gradient(closest-side, ${glow}, transparent)` }}
         />
       )}
       <div className="min-w-0">

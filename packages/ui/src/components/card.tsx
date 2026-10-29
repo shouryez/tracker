@@ -85,7 +85,7 @@ export function Card({
       {glow && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-16 -right-16 -z-10 size-48 rounded-full bg-[var(--card-glow)] opacity-[.14] blur-[60px]"
+          className="pointer-events-none absolute -top-16 -right-16 -z-10 size-48 scale-[1.5] bg-[radial-gradient(closest-side,var(--card-glow),transparent)] opacity-[.14]"
         />
       )}
       {tier === "hero" && (

@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Mail } from "lucide-react";
 import { Button, ButtonArrow, inputClasses } from "@upsolve/ui";
 import { safeNextPath } from "@/lib/safe-next";
-import { createClient } from "@/lib/supabase/client";
+
+// The Supabase client is ~67 KB gzipped and only needed once a button is pressed: it loads
+// after the page is up (or on the first press), not with the page.
+const supabase = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
 type Status =
   | { kind: "idle" }
@@ -25,13 +28,20 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
       : { kind: "idle" },
   );
 
+  useEffect(() => {
+    const id = setTimeout(() => void supabase(), 1500);
+    return () => clearTimeout(id);
+  }, []);
+
   function callbackUrl() {
     return `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
   }
 
   async function signInWithGoogle() {
     setStatus({ kind: "sending" });
-    const { error } = await createClient().auth.signInWithOAuth({
+    const { error } = await (
+      await supabase()
+    ).auth.signInWithOAuth({
       provider: "google",
       options: { redirectTo: callbackUrl() },
     });
@@ -44,7 +54,9 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
     const address = email.trim();
     if (!address) return;
     setStatus({ kind: "sending" });
-    const { error } = await createClient().auth.signInWithOtp({
+    const { error } = await (
+      await supabase()
+    ).auth.signInWithOtp({
       email: address,
       // Signing in never creates an account; that's what sign-up is for.
       options: { emailRedirectTo: callbackUrl(), shouldCreateUser: mode === "signup" },

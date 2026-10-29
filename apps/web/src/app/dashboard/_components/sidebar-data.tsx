@@ -69,7 +69,7 @@ export function ExtensionPromo({ connected }: { connected: boolean }) {
       <span aria-hidden="true" className="grain absolute inset-0" />
       <span
         aria-hidden="true"
-        className="absolute -top-12 -right-10 size-36 rounded-full bg-[var(--signal)] opacity-20 blur-[50px]"
+        className="absolute -top-12 -right-10 size-36 scale-[1.6] bg-[radial-gradient(closest-side,var(--signal),transparent)] opacity-20"
       />
       <span className="relative mb-3 grid size-8 place-items-center rounded-[10px] bg-white/12">
         <Puzzle size={15} aria-hidden="true" />

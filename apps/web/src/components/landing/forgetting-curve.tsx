@@ -49,28 +49,81 @@ const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 /** Share of the chart width (0..1) where a day sits. */
 const xShare = (d: number) => (xOf(d) - PAD.l) / (W - PAD.l - PAD.r);
 
+/**
+ * A curve drawn left to right without repainting: the outer box slides left (its overflow
+ * clips the right side) while the inner one slides back by the same amount, so the curve
+ * stays put. Both are transforms, so the reveal runs on the GPU compositor (an animated
+ * clip-path repaints the chart every frame, which stutters on phones).
+ */
+function CurveReveal({
+  ref,
+  d,
+  stroke,
+  width,
+  opacity,
+}: {
+  ref: React.Ref<HTMLDivElement>;
+  d: string;
+  stroke: string;
+  width: number;
+  opacity?: number;
+}) {
+  return (
+    <div
+      ref={ref}
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 overflow-hidden will-change-transform"
+    >
+      <div className="absolute inset-0 will-change-transform">
+        <svg viewBox={`0 0 ${W} ${H}`} className="size-full">
+          <path
+            d={d}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={width}
+            strokeLinejoin="round"
+            opacity={opacity}
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export function ForgettingCurve() {
   const pin = useRef<HTMLDivElement>(null);
-  const grey = useRef<SVGGElement>(null);
-  const sky = useRef<SVGGElement>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const grey = useRef<HTMLDivElement>(null);
+  const sky = useRef<HTMLDivElement>(null);
   const [step, setStep] = useState(REVIEWS.length);
 
   useEffect(() => {
     const el = pin.current;
-    if (!el || reduced() || document.documentElement.dataset.scene !== "on") return;
+    const chart = box.current;
+    if (!el || !chart || reduced() || document.documentElement.dataset.scene !== "on") return;
     let frame = 0;
     let shown = -1;
-    const clip = (g: SVGGElement | null, t: number) => {
-      if (g) g.style.clipPath = `inset(-20px ${((1 - t) * 100).toFixed(2)}% -20px 0)`;
+    let near = false;
+    // The chart's box, measured on resize only. The SVG letterboxes (meet), so a viewBox x
+    // maps to box px through the fitted scale and the side offset.
+    let size = { w: chart.clientWidth, h: chart.clientHeight };
+    const reveal = (layer: HTMLDivElement | null, t: number) => {
+      const inner = layer?.firstElementChild as HTMLElement | null | undefined;
+      if (!layer || !inner) return;
+      const k = Math.min(size.w / W, size.h / H);
+      const edge = (size.w - W * k) / 2 + k * (PAD.l + t * (W - PAD.l - PAD.r));
+      const hide = t >= 1 ? 0 : Math.max(0, size.w - edge);
+      layer.style.transform = `translateX(${(-hide).toFixed(1)}px)`;
+      inner.style.transform = `translateX(${hide.toFixed(1)}px)`;
     };
     const update = () => {
       frame = 0;
       const r = el.getBoundingClientRect();
       const p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - window.innerHeight)));
       // 0–.25: the grey curve decays. .25–.9: the ladder draws, pulse by pulse.
-      clip(grey.current, Math.min(1, p / 0.25));
+      reveal(grey.current, Math.min(1, p / 0.25));
       const t = Math.min(1, Math.max(0, (p - 0.25) / 0.65));
-      clip(sky.current, t);
+      reveal(sky.current, t);
       const passed = REVIEWS.filter((d) => xShare(d) <= t + 0.001).length;
       if (passed !== shown) {
         shown = passed;
@@ -78,15 +131,29 @@ export function ForgettingCurve() {
       }
     };
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(update);
+      if (near && !frame) frame = requestAnimationFrame(update);
     };
+    // Only track scrolling while the section is near the viewport.
+    const io = new IntersectionObserver(
+      ([e]) => {
+        near = !!e?.isIntersecting;
+        if (!frame) frame = requestAnimationFrame(update);
+      },
+      { rootMargin: "25% 0px" },
+    );
+    io.observe(el);
+    const ro = new ResizeObserver(() => {
+      size = { w: chart.clientWidth, h: chart.clientHeight };
+      if (!frame) frame = requestAnimationFrame(update);
+    });
+    ro.observe(chart);
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
     return () => {
       cancelAnimationFrame(frame);
+      io.disconnect();
+      ro.disconnect();
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
     };
   }, []);
 
@@ -125,74 +192,66 @@ export function ForgettingCurve() {
                 </span>
                 <span className="ml-auto">example · how much you still remember</span>
               </div>
-              <svg
-                viewBox={`0 0 ${W} ${H}`}
-                className="h-auto max-h-[38svh] w-full overflow-visible"
-                role="img"
-                aria-label="Example: without revision, memory of a solve drops below 10% within a week. Reviewed at 1, 3, 7, 16, 35 and 90 days, it stays high and decays more slowly each time."
-              >
-                {[1, 0.5, 0].map((r) => (
-                  <g key={r}>
-                    <line
-                      x1={PAD.l}
-                      x2={W - PAD.r}
-                      y1={yOf(r)}
-                      y2={yOf(r)}
-                      stroke="var(--line)"
-                      strokeDasharray={r === 0 ? undefined : "3 5"}
-                    />
+              <div ref={box} className="relative">
+                <svg
+                  viewBox={`0 0 ${W} ${H}`}
+                  className="h-auto max-h-[38svh] w-full overflow-visible"
+                  role="img"
+                  aria-label="Example: without revision, memory of a solve drops below 10% within a week. Reviewed at 1, 3, 7, 16, 35 and 90 days, it stays high and decays more slowly each time."
+                >
+                  {[1, 0.5, 0].map((r) => (
+                    <g key={r}>
+                      <line
+                        x1={PAD.l}
+                        x2={W - PAD.r}
+                        y1={yOf(r)}
+                        y2={yOf(r)}
+                        stroke="var(--line)"
+                        strokeDasharray={r === 0 ? undefined : "3 5"}
+                      />
+                      <text
+                        x={PAD.l - 8}
+                        y={yOf(r) + 4}
+                        textAnchor="end"
+                        className="fill-ink-3 font-mono text-[11px]"
+                      >
+                        {r * 100}%
+                      </text>
+                    </g>
+                  ))}
+                  {[0, ...REVIEWS].map((d) => (
                     <text
-                      x={PAD.l - 8}
-                      y={yOf(r) + 4}
-                      textAnchor="end"
+                      key={d}
+                      x={xOf(d)}
+                      y={H - 10}
+                      textAnchor="middle"
                       className="fill-ink-3 font-mono text-[11px]"
                     >
-                      {r * 100}%
+                      {d === 0 ? "solved" : `${d}d`}
                     </text>
-                  </g>
-                ))}
-                {[0, ...REVIEWS].map((d) => (
-                  <text
-                    key={d}
-                    x={xOf(d)}
-                    y={H - 10}
-                    textAnchor="middle"
-                    className="fill-ink-3 font-mono text-[11px]"
-                  >
-                    {d === 0 ? "solved" : `${d}d`}
-                  </text>
-                ))}
-                <g ref={grey}>
-                  <path
-                    d={FORGET}
-                    fill="none"
-                    stroke="var(--ink-3)"
-                    strokeWidth="2"
-                    opacity="0.7"
-                  />
-                </g>
-                <g ref={sky}>
-                  <path
-                    d={REVISED}
-                    fill="none"
-                    stroke="var(--primary)"
-                    strokeWidth="3"
-                    strokeLinejoin="round"
-                  />
-                </g>
-                {REVIEWS.map((d, i) => (
-                  <g
-                    key={d}
-                    className={cn(
-                      "transition-[opacity,scale] duration-500 ease-[var(--ease-spring)] [transform-box:fill-box] [transform-origin:center]",
-                      i < step ? "scale-100 opacity-100" : "scale-50 opacity-0",
-                    )}
-                  >
-                    <circle cx={xOf(d)} cy={yOf(1)} r="11" fill="var(--primary)" opacity="0.18" />
-                    <circle cx={xOf(d)} cy={yOf(1)} r="5" fill="var(--primary)" />
-                  </g>
-                ))}
-              </svg>
+                  ))}
+                </svg>
+                <CurveReveal ref={grey} d={FORGET} stroke="var(--ink-3)" width={2} opacity={0.7} />
+                <CurveReveal ref={sky} d={REVISED} stroke="var(--primary)" width={3} />
+                <svg
+                  viewBox={`0 0 ${W} ${H}`}
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 size-full overflow-visible"
+                >
+                  {REVIEWS.map((d, i) => (
+                    <g
+                      key={d}
+                      className={cn(
+                        "transition-[opacity,scale] duration-500 ease-[var(--ease-spring)] [transform-box:fill-box] [transform-origin:center]",
+                        i < step ? "scale-100 opacity-100" : "scale-50 opacity-0",
+                      )}
+                    >
+                      <circle cx={xOf(d)} cy={yOf(1)} r="11" fill="var(--primary)" opacity="0.18" />
+                      <circle cx={xOf(d)} cy={yOf(1)} r="5" fill="var(--primary)" />
+                    </g>
+                  ))}
+                </svg>
+              </div>
 
               {/* The problem card hops along the ladder as each review is passed. */}
               <div className="relative mt-4">

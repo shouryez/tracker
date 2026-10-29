@@ -7,7 +7,13 @@ import { cn } from "@upsolve/ui";
 export function StickyHeader({ children }: { children: ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    // Only tell React when it flips: a state update per scroll event costs a render each
+    // time (a few ms per frame on a phone), on every page of the app.
+    let last = false;
+    const onScroll = () => {
+      const next = window.scrollY > 8;
+      if (next !== last) setScrolled((last = next));
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);

@@ -19,7 +19,7 @@ export function Eyebrow({ live, className, children, ...props }: EyebrowProps) {
     <span
       className={cn(
         "inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface/70 px-[11px] py-[5px]",
-        "font-mono text-[11px] leading-none font-medium tracking-[.08em] text-ink-2 uppercase backdrop-blur-md",
+        "font-mono text-[11px] leading-none font-medium tracking-[.08em] text-ink-2 uppercase pointer-fine:backdrop-blur-md",
         className,
       )}
       {...props}

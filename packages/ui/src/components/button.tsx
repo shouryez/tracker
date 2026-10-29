@@ -55,7 +55,7 @@ const variants: Record<ButtonVariant, string> = {
     lift,
   ),
   secondary: cn(
-    "border border-line-2 bg-surface-2/80 text-ink shadow-xs backdrop-blur-sm hover:border-line-3 hover:bg-surface-3 hover:shadow-e2",
+    "border border-line-2 bg-surface-2/80 text-ink shadow-xs pointer-fine:backdrop-blur-sm hover:border-line-3 hover:bg-surface-3 hover:shadow-e2",
     lift,
   ),
   outline: "border border-line-2 bg-transparent text-ink hover:border-ink-3 hover:bg-surface-2",
