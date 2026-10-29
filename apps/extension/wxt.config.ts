@@ -18,8 +18,9 @@ const BRIDGE_PLACEHOLDER = "https://upsolve.invalid/*";
 export default defineConfig({
   manifest: {
     name: "DsaKaro: LeetCode tracker",
+    // The store allows at most 132 characters here.
     description:
-      "Times every LeetCode problem you open, catches every verdict, reminds you at your best hour and syncs it all to your DsaKaro dashboard.",
+      "Times every LeetCode and GFG problem you open, catches every verdict and syncs it all to your DsaKaro dashboard.",
     // tabs: Lab mode reads the active tab's address to tell coding from not (never stored).
     permissions: ["storage", "alarms", "tabs", "notifications", "contextMenus"],
     host_permissions: ["https://leetcode.com/*", WEB_MATCH],
