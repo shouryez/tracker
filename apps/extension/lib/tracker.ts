@@ -47,7 +47,18 @@ export type Tracker = {
   current(): LocalSession | null;
 };
 
+/**
+ * Bot-check and error pages (Cloudflare's "Just a moment...") briefly sit at the problem's URL
+ * with their own title; never take that as the problem's name.
+ */
+const INTERSTITIAL =
+  /^(just a moment|attention required|access denied|please wait|checking your browser)/i;
+
 export async function startTracker(ctx: ContentScriptContext, site: Site): Promise<Tracker> {
+  const docTitle = () => {
+    const t = site.titleFromDocument(document.title);
+    return t && !INTERSTITIAL.test(t) ? t : null;
+  };
   let slug: string | null = null;
   let session: LocalSession | null = null;
   let lastInputAt = Date.now();
@@ -72,6 +83,15 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
       // Worker asleep or extension reloading: the session is in storage and the sweep will send it.
     });
   };
+
+  /**
+   * Leaving the problem (another page, tab closed): report it as paused, so the dashboard's
+   * live clock stops now instead of running on until the report goes stale.
+   */
+  const away = (s: LocalSession): LocalSession =>
+    s.timer.status === "active" || s.timer.status === "armed"
+      ? { ...s, timer: { ...s.timer, status: "paused" } }
+      : s;
 
   async function persist() {
     if (!session) return;
@@ -110,13 +130,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     session =
       existing && canResume(existing, now)
         ? { ...existing, timer: resume(existing.timer, now) }
-        : newSession(
-            site.platform,
-            next,
-            site.titleFromDocument(document.title),
-            now,
-            crypto.randomUUID(),
-          );
+        : newSession(site.platform, next, docTitle(), now, crypto.randomUUID());
     // The revision queue links here with ?upsolve=review; the problem page may drop it later.
     if (isReviewUrl(window.location.href) || next === reviewSlug) session.mode = "review";
     ui.mount();
@@ -148,7 +162,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     ui.unmount();
     await store.setSession({ ...s, updatedAt: Date.now() });
     await store.setCurrent(null);
-    send(s, false);
+    send(away(s), true);
   }
 
   function togglePause() {
@@ -237,7 +251,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   ctx.addEventListener(window, "pagehide", () => {
     if (session) {
       void store.setSession({ ...session, updatedAt: Date.now() });
-      send(session, false);
+      send(away(session), true);
     }
   });
 
@@ -262,7 +276,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
       focused: document.hasFocus(),
       lastInputAt,
     });
-    session.title ??= site.titleFromDocument(document.title);
+    if (!session.title || INTERSTITIAL.test(session.title)) session.title = docTitle();
     if (!hintsOffered && session.timer.status === "active" && session.timer.activeMs >= STUCK_MS) {
       hintsOffered = true;
       ui.offerHints();

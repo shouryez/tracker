@@ -103,6 +103,27 @@ test("manual pause, solve and clock formatting", () => {
   assert.equal(formatClock(3_725_000), "1:02:05");
 });
 
+test("manual pause holds through typing and tab switches; resume doesn't count the pause", () => {
+  // 20 s of solving, then pause.
+  let s = run(onInput(newTimer(T0), T0), T0, 20, (n) => focused(n));
+  assert.equal(s.activeMs, 20_000);
+  s = setManualPause(s, true, T0 + 20_000);
+  // Typing (fresh input), another tab and back: still paused, nothing counted.
+  s = onInput(s, T0 + 25_000);
+  s = run(s, T0 + 20_000, 30, (n) => ({
+    visible: n % 10_000 < 5_000,
+    focused: true,
+    lastInputAt: n,
+  }));
+  assert.equal(s.status, "paused");
+  assert.equal(s.activeMs, 20_000);
+  // Resume after a 10-minute break: only the time after resuming counts.
+  s = setManualPause(s, false, T0 + 650_000);
+  s = run(s, T0 + 650_000, 10, (n) => focused(n));
+  assert.equal(s.status, "active");
+  assert.equal(s.activeMs, 30_000);
+});
+
 test("URL and title parsing", () => {
   assert.equal(problemSlug("/problems/two-sum/description/"), "two-sum");
   assert.equal(problemSlug("/problems/two-sum"), "two-sum");

@@ -29,21 +29,36 @@ async function handleAuthFailure(res: Response) {
   return false;
 }
 
+const postSessions = (sessions: ExtSession[]) =>
+  api("/api/ext/sessions", { method: "POST", body: JSON.stringify({ sessions }) });
+
+/** The server refused the request itself (invalid or too large): retrying won't help. */
+const refused = (res: Response) => res.status === 413 || res.status === 422;
+
 /** One upload of queued sessions. Returns false when the server can't be reached. */
 async function flushOnce(): Promise<boolean> {
   try {
     const outbox = await store.outbox();
     const sessions = Object.values(outbox).slice(0, BATCH);
     if (sessions.length === 0) return true;
-    const res = await api("/api/ext/sessions", {
-      method: "POST",
-      body: JSON.stringify({ sessions }),
-    });
-    if (!res || (await handleAuthFailure(res)) || !res.ok) return false;
+    const res = await postSessions(sessions);
+    if (!res || (await handleAuthFailure(res))) return false;
+    let done = sessions;
+    if (refused(res)) {
+      // One bad record must not block the queue forever: send them one by one and drop only
+      // the ones the server refuses on their own.
+      done = [];
+      for (const s of sessions) {
+        const one = await postSessions([s]);
+        if (!one || (await handleAuthFailure(one))) return false;
+        if (one.ok || refused(one)) done.push(s);
+        else return false;
+      }
+    } else if (!res.ok) return false;
     await store.setAuthError(null);
     // Entries that changed while uploading stay queued for the next pass.
     const latest = await store.outbox();
-    for (const s of sessions) {
+    for (const s of done) {
       if (JSON.stringify(latest[s.clientId]) === JSON.stringify(s)) delete latest[s.clientId];
     }
     await store.setOutbox(latest);
