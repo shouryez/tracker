@@ -14,7 +14,7 @@ const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
  * listens while `el` is near the viewport (one last update as it leaves), so the long page
  * doesn't pay for every scene on every frame.
  */
-function useScrollProgress(
+export function useScrollProgress(
   ref: React.RefObject<HTMLElement | null>,
   fn: (p: number) => void,
   range: (r: DOMRect, vh: number) => [number, number] = (r, vh) => [r.top, r.height - vh],

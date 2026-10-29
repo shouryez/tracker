@@ -37,6 +37,7 @@ import {
   VelocityMarquee,
   WordmarkFill,
 } from "@/components/landing/scene-bits";
+import { CONTACT_EMAIL, Founders } from "@/components/landing/founders";
 import { SheetCover } from "@/components/sheet-identity";
 import { PlatformMark } from "@/components/site-icons";
 
@@ -85,6 +86,7 @@ export default function Home() {
         <Reveal>
           <Faq />
         </Reveal>
+        <Founders />
       </main>
       <Footer />
       <BackToTop />
@@ -732,7 +734,7 @@ function ForColleges() {
             only for students who opt in.
           </p>
           <a
-            href="mailto:shouryapratap6081@gmail.com?subject=DsaKaro%20for%20our%20college"
+            href="mailto:cutubuildlabs@gmail.com?subject=DsaKaro%20for%20our%20college"
             className={buttonClasses({ variant: "secondary" })}
           >
             Pilot it at your college <ButtonArrow />
@@ -801,7 +803,7 @@ function Pricing() {
       note: "free pilot for the first placement cells",
       cta: {
         label: "Get in touch",
-        href: "mailto:shouryapratap6081@gmail.com?subject=DsaKaro%20for%20our%20college",
+        href: "mailto:cutubuildlabs@gmail.com?subject=DsaKaro%20for%20our%20college",
       },
       items: ["Batch dashboards", "Topic gaps by section", "Inactive-student alerts", "CSV export"],
     },
@@ -952,11 +954,17 @@ function Footer() {
         </div>
         <div className="mt-6 flex w-full flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-[13px] text-ink-3">
           <span className="flex items-center gap-2">
-            <PixelHeart /> Built by a student, for students.
+            <PixelHeart /> Built by students, for students.
           </span>
           <nav aria-label="Footer" className="flex flex-wrap gap-5">
             <a href="#features" className="hover:text-ink">
               Features
+            </a>
+            <a href="#team" className="hover:text-ink">
+              Team
+            </a>
+            <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-ink">
+              Contact
             </a>
             <Link href="/privacy" className="hover:text-ink">
               Privacy
@@ -970,8 +978,9 @@ function Footer() {
           </nav>
         </div>
       </div>
-      {/* DSA करो across the full width; its headline bar fills with lime as you reach the end. */}
-      <WordmarkFill className="mx-auto mt-6 w-[min(1180px,100%-32px)] pb-10 select-none" />
+      {/* DSA करो across the full width; its headline bar fills with lime as you reach the end,
+          and the letters fade toward the bottom of the page. */}
+      <WordmarkFill className="mx-auto mt-6 w-[min(1180px,100%-32px)] pb-10 [mask-image:linear-gradient(180deg,#000_12%,rgba(0,0,0,.45)_42%,rgba(0,0,0,.1)_75%,transparent)] select-none" />
     </footer>
   );
 }

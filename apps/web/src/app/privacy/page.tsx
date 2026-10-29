@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 const UPDATED = "29 October 2026";
-const CONTACT = "shouryapratap6081@gmail.com";
+const CONTACT = "cutubuildlabs@gmail.com";
 
 // Plain, static and specific: it says only what the app and extension actually do
 // (apps/extension, lib/ext-ingest.ts, actions/verification.ts). Update it with them.
