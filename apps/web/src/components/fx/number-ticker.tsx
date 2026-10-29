@@ -15,16 +15,19 @@ export function NumberTicker({
   decimals = 0,
   suffix,
   className,
+  roll = true,
 }: {
   value: number;
   decimals?: number;
   suffix?: string;
   className?: string;
+  /** Roll up from 0 the first time it's seen. Off: start at `value`, only roll on changes. */
+  roll?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [shown, setShown] = useState(value);
   const [animated, setAnimated] = useState(true);
-  const [rolled, setRolled] = useState(false);
+  const [rolled, setRolled] = useState(!roll);
 
   useEffect(() => {
     const el = ref.current;

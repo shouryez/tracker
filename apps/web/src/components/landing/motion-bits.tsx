@@ -94,7 +94,7 @@ export function Parallax({ children, className }: { children: ReactNode; classNa
   );
 }
 
-/** Thin lime bar showing how far down the page you are. */
+/** Thin ink hairline showing how far down the page you are (lime is kept for the CTA). */
 export function ScrollProgress() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -111,8 +111,51 @@ export function ScrollProgress() {
     <div
       ref={ref}
       aria-hidden="true"
-      className="fixed inset-x-0 top-0 z-[60] h-[2px] origin-left scale-x-0 bg-signal shadow-[0_0_8px_var(--signal)]"
+      className="fixed inset-x-0 top-0 z-[60] h-px origin-left scale-x-0 bg-ink/60"
     />
+  );
+}
+
+/**
+ * The landing nav: hides while you scroll down through the hero story (it would sit on
+ * the laptop), comes back the moment you scroll up, and stays once you're past the hero.
+ */
+export function NavAutoHide({ children, className }: { children: ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let last = window.scrollY;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const pin = document.querySelector<HTMLElement>("[data-hero-pin]");
+      const heroEnd = pin ? pin.offsetTop + pin.offsetHeight - window.innerHeight : 0;
+      const hide = y > last + 2 && y > 80 && y < heroEnd;
+      if (y < last - 2 || y <= 80 || y >= heroEnd) el.dataset.hidden = "false";
+      if (hide) el.dataset.hidden = "true";
+      last = y;
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "transition-[translate,opacity] duration-[var(--dur-slow)] ease-[var(--ease-out)] data-[hidden=true]:pointer-events-none data-[hidden=true]:-translate-y-[140%] data-[hidden=true]:opacity-0 focus-within:!translate-y-0 focus-within:!opacity-100",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }
 

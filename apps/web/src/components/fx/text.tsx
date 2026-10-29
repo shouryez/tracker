@@ -59,6 +59,7 @@ export function DecodeText({
 /**
  * Headline whose words rise from a blur, staggered. The `accent` words are set in serif
  * italic with a soft glow and a small skew that settles. Pure CSS, runs once on mount.
+ * Words never start transparent, so a hero headline still counts as painted for LCP.
  */
 export function TextReveal({
   as: Tag = "h1",
@@ -67,8 +68,10 @@ export function TextReveal({
   className,
   accentClassName,
   delay = 0,
+  id,
 }: {
   as?: ElementType;
+  id?: string;
   text: string;
   accent?: string;
   className?: string;
@@ -84,7 +87,7 @@ export function TextReveal({
       <span
         key={`${w}-${i}`}
         className={cn(
-          "inline-block animate-[word-in_800ms_var(--ease-out)_backwards] motion-reduce:animate-none",
+          "inline-block animate-[word-rise_800ms_var(--ease-out)_backwards] motion-reduce:animate-none",
           em &&
             "font-display font-normal italic [text-shadow:0_0_28px_color-mix(in_srgb,currentColor_35%,transparent)]",
           em && accentClassName,
@@ -96,7 +99,7 @@ export function TextReveal({
     );
   };
   return (
-    <Tag className={className} aria-label={accent ? `${text} ${accent}` : text}>
+    <Tag id={id} className={className} aria-label={accent ? `${text} ${accent}` : text}>
       <span aria-hidden="true">
         {words.map((w, idx) => (
           <span key={idx}>{word(w, false)} </span>

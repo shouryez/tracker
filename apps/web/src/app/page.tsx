@@ -1,19 +1,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  Check,
-  Flame,
-  LayoutDashboard,
-  Lock,
-  Puzzle,
-  Timer,
-  Trophy,
-  UsersRound,
-} from "lucide-react";
+import { Check, LayoutDashboard, Lock, Puzzle, Timer, Trophy, UsersRound } from "lucide-react";
 import {
   Aurora,
   ButtonArrow,
-  DifficultyTag,
   Eyebrow,
   LiveDot,
   Logo,
@@ -26,15 +16,15 @@ import {
   cardClasses,
   cn,
 } from "@upsolve/ui";
-import { AnimatedBeam, Marquee as Ticker, Meteors } from "@/components/fx/decor";
-import { CursorGlow, TiltCard } from "@/components/fx/pointer";
-import { TextReveal } from "@/components/fx/text";
+import { AnimatedBeam, Marquee as Ticker } from "@/components/fx/decor";
+import { CursorGlow } from "@/components/fx/pointer";
+import { Hero } from "@/components/landing/hero/hero";
 import { LandingNavLinks, SheetDemo, SmoothScroll } from "@/components/landing/landing-fx";
 import { LiveTimer } from "@/components/landing/live-timer";
 import {
   BackToTop,
   Magnetic,
-  Parallax,
+  NavAutoHide,
   Reveal,
   ScrollProgress,
 } from "@/components/landing/motion-bits";
@@ -62,27 +52,28 @@ export default function Home() {
     <div className="relative overflow-x-clip">
       <Nav />
       <ScrollProgress />
-      <Hero />
-      <Marquee />
-      <DashboardPreview />
-      <Reveal>
-        <Features />
-      </Reveal>
-      <Reveal>
-        <HowItWorks />
-      </Reveal>
-      <Reveal>
-        <SheetShowcase />
-      </Reveal>
-      <Reveal>
-        <ForColleges />
-      </Reveal>
-      <Reveal>
-        <Pricing />
-      </Reveal>
-      <Reveal>
-        <Faq />
-      </Reveal>
+      <main id="main">
+        <Hero />
+        <Marquee />
+        <Reveal>
+          <Features />
+        </Reveal>
+        <Reveal>
+          <HowItWorks />
+        </Reveal>
+        <Reveal>
+          <SheetShowcase />
+        </Reveal>
+        <Reveal>
+          <ForColleges />
+        </Reveal>
+        <Reveal>
+          <Pricing />
+        </Reveal>
+        <Reveal>
+          <Faq />
+        </Reveal>
+      </main>
       <Footer />
       <BackToTop />
       <SpotlightTracker />
@@ -95,7 +86,7 @@ export default function Home() {
 
 function Nav() {
   return (
-    <div className="sticky top-3 z-50 px-4">
+    <NavAutoHide className="sticky top-3 z-50 px-4">
       <nav
         aria-label="Main"
         className="glass mx-auto flex h-[56px] w-[min(1100px,100%)] items-center justify-between gap-3 rounded-full border border-line-2 pr-2 pl-5 shadow-e3"
@@ -118,296 +109,14 @@ function Nav() {
           </Link>
           {/* cn() doesn't merge classes, so hide a wrapper rather than the button. */}
           <span className="hidden sm:contents">
-            <Link href="/signup" className={buttonClasses({ variant: "signal", size: "sm" })}>
+            {/* Ink, not lime: the hero's CTA is the one lime element up here. */}
+            <Link href="/signup" className={buttonClasses({ variant: "primary", size: "sm" })}>
               Get started
             </Link>
           </span>
         </div>
       </nav>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------- hero
-
-function Hero() {
-  return (
-    // The stage stays dark in both themes, like a lit product shot.
-    <header className="relative -mt-[68px] px-3 pt-[80px] sm:px-4">
-      <Parallax className="relative mx-auto w-[min(1280px,100%)] overflow-hidden rounded-[28px] bg-[#08080d] text-[#f4f4f6] shadow-xl ring-1 ring-white/10 sm:rounded-[36px]">
-        {/* Starfield + soft colour wash. */}
-        <div
-          aria-hidden="true"
-          className="starfield pointer-events-none absolute inset-0 opacity-70"
-        />
-        <Aurora className="opacity-70" />
-        <Meteors count={5} />
-        <CursorGlow />
-
-        <div className="relative z-10 flex flex-col items-center px-5 pt-16 text-center sm:pt-24">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-3 py-1.5 font-mono text-[11px] tracking-[.08em] text-white/75 uppercase backdrop-blur">
-            <LiveDot /> LeetCode · Codeforces · GFG · free for students
-          </span>
-          <TextReveal
-            text="Every problem you solve,"
-            accent="remembered."
-            className="mt-6 mb-5 max-w-[14ch] font-display text-[clamp(44px,8vw,100px)] leading-[.98] tracking-[-0.02em] text-balance text-white"
-            accentClassName="bg-[linear-gradient(100deg,#fff_20%,#d7ff3a_110%)] bg-clip-text text-transparent"
-          />
-          <p className="mb-8 max-w-[560px] text-[clamp(15px,1.6vw,17px)] leading-relaxed text-white/75">
-            DsaKaro times every problem you open, catches every verdict, ticks your Striver and
-            NeetCode sheets for you, and tells you exactly what to revise before you forget it.
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Magnetic>
-              <Link href="/signup" className={buttonClasses({ variant: "signal", size: "lg" })}>
-                <span data-magnetic-label className="inline-flex items-center gap-2">
-                  Start free with Google <ButtonArrow />
-                </span>
-              </Link>
-            </Magnetic>
-            <a
-              href="#how"
-              className="inline-flex h-[50px] items-center rounded-full border border-white/15 bg-white/5 px-6 text-[15px] font-[550] text-white backdrop-blur transition-[background-color,border-color,transform] duration-[var(--dur-base)] hover:-translate-y-px hover:border-white/30 hover:bg-white/10 active:scale-[.97]"
-            >
-              See how it works
-            </a>
-          </div>
-          <Ticker speed={30} className="mt-6 w-[min(520px,90vw)]">
-            {["Striver A2Z", "Striver SDE", "NeetCode 150", "Blind 75", "Grind 75"].map((t) => (
-              <span key={t} className="font-mono text-12 whitespace-nowrap text-white/55">
-                {t}
-              </span>
-            ))}
-          </Ticker>
-        </div>
-
-        {/* The scene: a glossy orb rising from the bottom, glass cards floating around it. */}
-        <div className="relative mt-10 h-[340px] sm:mt-14 sm:h-[420px]" aria-hidden="true">
-          <div data-depth="14" className="absolute bottom-[-46%] left-1/2 -translate-x-1/2">
-            <div className="orb size-[min(560px,92vw)] animate-[blob_14s_var(--ease-in-out)_infinite_alternate] motion-reduce:animate-none" />
-          </div>
-          <div
-            data-depth="34"
-            className="absolute top-[8%] left-[4%] hidden md:block lg:left-[10%]"
-          >
-            <TiltCard className="rounded-[18px]">
-              <GlassCard className="animate-float">
-                <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
-                  Striver A2Z <ArrowCircle />
-                </span>
-                <span className="mt-2 block text-[15px] leading-snug font-medium">
-                  495 problems,
-                  <br /> ticked for you
-                </span>
-                <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/10">
-                  <span className="block h-full w-[43%] origin-left animate-[fill-loop_6s_var(--ease-out)_infinite] rounded-full bg-signal shadow-[0_0_8px_var(--signal)]" />
-                </span>
-              </GlassCard>
-            </TiltCard>
-          </div>
-          <div
-            data-depth="26"
-            className="absolute top-[34%] right-[4%] hidden sm:block lg:right-[12%]"
-          >
-            <TiltCard className="rounded-[18px]">
-              <GlassCard className="animate-float [animation-delay:-3s]">
-                <span className="flex items-center justify-between gap-6 text-[12px] text-white/55">
-                  Revision ladder <ArrowCircle />
-                </span>
-                <span className="num mt-2 block text-[30px]">90 days</span>
-                <span className="mt-2 flex items-end gap-1">
-                  {[1, 3, 7, 16, 35, 90].map((d, i) => (
-                    <span key={d} className="flex flex-col items-center gap-1">
-                      <i
-                        className="block w-3 animate-[ladder-step_6s_ease-in-out_infinite] rounded-[3px] bg-white/15"
-                        style={{ height: 8 + i * 3, animationDelay: `${i * 0.5}s` }}
-                      />
-                      <span className="font-mono text-[9px] text-white/45">{d}</span>
-                    </span>
-                  ))}
-                </span>
-              </GlassCard>
-            </TiltCard>
-          </div>
-          <div data-depth="40" className="absolute bottom-[12%] left-[14%] hidden lg:block">
-            <TiltCard className="rounded-[18px]">
-              <GlassCard className="animate-float [animation-delay:-5s]">
-                <span className="flex items-center gap-2 text-[12px] text-white/55">
-                  <LiveDot /> Now solving
-                </span>
-                <span className="mt-1.5 block text-[14px] font-medium">
-                  875. Koko Eating Bananas
-                </span>
-                <LiveTimer
-                  startSeconds={18 * 60 + 42}
-                  className="num mt-1 block font-mono text-[26px]"
-                />
-              </GlassCard>
-            </TiltCard>
-          </div>
-        </div>
-      </Parallax>
-    </header>
-  );
-}
-
-function GlassCard({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div
-      className={cn(
-        "w-[236px] rounded-[18px] border border-white/12 bg-white/[.06] p-4 text-left text-white shadow-[0_30px_60px_-20px_rgba(0,0,0,.7)] backdrop-blur-xl",
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
-
-function ArrowCircle() {
-  return (
-    <span className="grid size-6 place-items-center rounded-full bg-white text-[#08080d]">
-      <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d="M5 11 11 5M6 5h5v5"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-  );
-}
-
-/** The real dashboard, as a frame (example numbers, labelled). */
-function DashboardPreview() {
-  return (
-    <section className={cn(WRAP, "pt-24")}>
-      <Reveal>
-        <SectionHead eyebrow="The dashboard" soft="Your prep," em="at a glance.">
-          Everything on one screen: what you solved, what you&apos;re about to forget, and what to
-          do next. The numbers below are an example.
-        </SectionHead>
-      </Reveal>
-      <Reveal>
-        <ProductFrame />
-      </Reveal>
-    </section>
-  );
-}
-
-function ProductFrame() {
-  return (
-    <div className="relative mx-auto w-full max-w-[1040px]">
-      <div
-        aria-hidden="true"
-        className="absolute -inset-x-10 -top-10 bottom-0 rounded-[40px] bg-[radial-gradient(ellipse_at_top,var(--glow-a),transparent_70%)] opacity-60 blur-2xl"
-      />
-      <div className="relative overflow-hidden rounded-[28px] border border-line bg-surface text-left shadow-frame">
-        <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-          <i className="size-2.5 rounded-full bg-line-2" />
-          <i className="size-2.5 rounded-full bg-line-2" />
-          <i className="size-2.5 rounded-full bg-line-2" />
-          <span className="mx-auto rounded-full bg-surface-2 px-4 py-1 font-mono text-[11px] text-ink-3">
-            dsakaro.site/dashboard
-          </span>
-          <span className="font-mono text-[10px] tracking-[.08em] text-ink-3 uppercase">
-            example
-          </span>
-        </div>
-        <div className="grid gap-3 bg-bg-2 p-3 sm:grid-cols-12 sm:p-4">
-          <MiniKpi
-            className="sm:col-span-4"
-            label="Solved · all platforms"
-            value="412"
-            unit="problems"
-            feature
-          />
-          <MiniKpi
-            className="sm:col-span-4"
-            label="Streak"
-            value="47"
-            unit="days"
-            icon={<Flame size={13} className="text-ember" />}
-          />
-          <MiniKpi className="sm:col-span-4" label="Due for revision" value="5" unit="today" />
-          <div className="rounded-[18px] border border-line bg-surface p-4 sm:col-span-8">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-[13px] font-[550]">Activity</span>
-              <span className="font-mono text-[10.5px] text-ink-3">
-                last 26 weeks · all platforms
-              </span>
-            </div>
-            <PixelHeatmap
-              levels={demoLevels(26 * 7, 7)}
-              weeks={26}
-              label="Example activity heatmap"
-            />
-          </div>
-          <div className="flex flex-col justify-between gap-3 rounded-[18px] border border-line bg-surface p-4 sm:col-span-4">
-            <span className="flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-              <LiveDot /> Now solving · LeetCode
-            </span>
-            <span className="text-[14px] font-[550]">875. Koko Eating Bananas</span>
-            <span>
-              <DifficultyTag difficulty="medium" />
-            </span>
-            <LiveTimer
-              startSeconds={18 * 60 + 42}
-              className="num font-mono text-[44px] leading-none tracking-[-0.05em]"
-            />
-            <span className="font-mono text-[11px] text-ink-3">auto-paused 2× · 3 submits</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MiniKpi({
-  label,
-  value,
-  unit,
-  icon,
-  feature,
-  className,
-}: {
-  label: string;
-  value: string;
-  unit: string;
-  icon?: ReactNode;
-  feature?: boolean;
-  className?: string;
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-[18px] border p-4",
-        feature
-          ? "border-transparent bg-[linear-gradient(155deg,color-mix(in_srgb,var(--primary)_92%,#000),var(--primary-2))] text-white"
-          : "border-line bg-surface",
-        className,
-      )}
-    >
-      <span
-        className={cn(
-          "flex items-center gap-1.5 font-mono text-[10.5px] tracking-[.08em] uppercase",
-          feature ? "text-white/70" : "text-ink-3",
-        )}
-      >
-        {label} {icon}
-      </span>
-      <span className="num mt-2 block text-[34px]">
-        {value}
-        <small
-          className={cn("ml-1 text-[.42em] font-normal", feature ? "text-white/60" : "text-ink-3")}
-        >
-          {unit}
-        </small>
-      </span>
-    </div>
+    </NavAutoHide>
   );
 }
 
@@ -426,7 +135,7 @@ function Marquee() {
       { label: "Striver SDE", site: "tuf" },
     ];
   return (
-    <div aria-label="Supported platforms and sheets" className="mt-20 border-y border-line py-5">
+    <div aria-label="Supported platforms and sheets" className="border-y border-line py-5">
       <Ticker speed={40}>
         {items.map((t) => (
           <span
@@ -459,10 +168,7 @@ function SectionHead({
     <div className="mb-10 flex flex-col items-start gap-4 sm:mb-12">
       <Eyebrow>{eyebrow}</Eyebrow>
       <h2 className="max-w-[18ch] font-display text-[clamp(36px,5.4vw,64px)] leading-[1] tracking-[-0.02em]">
-        <span className="text-ink">{soft}</span>{" "}
-        <em className="bg-[linear-gradient(100deg,var(--ink)_10%,var(--violet)_120%)] bg-clip-text text-transparent">
-          {em}
-        </em>
+        <span className="text-ink">{soft}</span> <em>{em}</em>
       </h2>
       <p className="max-w-[56ch] text-[15.5px] leading-relaxed text-ink-2">{children}</p>
     </div>

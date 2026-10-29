@@ -691,6 +691,13 @@
     filter: blur(10px);
   }
 }
+/* Like word-in, but never transparent: a hero headline still paints (and counts for LCP). */
+@keyframes word-rise {
+  from {
+    transform: translateY(0.35em) skewX(-6deg);
+    filter: blur(10px);
+  }
+}
 @keyframes beam-travel {
   from {
     stroke-dashoffset: 100;

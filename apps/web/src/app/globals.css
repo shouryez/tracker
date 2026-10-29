@@ -61,6 +61,287 @@
   }
 }
 
+/* ---- Landing hero v3: "The 1 a.m. desk" (design/LANDING-V3.md) ----
+   <html data-scene="on"> is set inline before paint when the scroll scene can run. */
+@custom-variant scene (&:where(html[data-scene="on"] *));
+@custom-variant noscene (&:where(html:not([data-scene="on"]) *));
+
+/* Camera: 2D translate/scale on the perspective box; the rig inside is 3D. */
+.lt-persp {
+  pointer-events: none;
+  perspective: 2600px;
+  perspective-origin: 50% 40%;
+  transform-origin: 50% 50%;
+}
+.lt-rig {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--bw);
+  height: 0;
+  margin-left: calc(var(--bw) / -2);
+  transform-style: preserve-3d;
+}
+/* The desk: a big floor plane under the laptop with a faint blueprint grid. */
+.lt-desk {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  width: 3600px;
+  height: 2600px;
+  margin: -1300px 0 0 -1800px;
+  transform: translate3d(0, 0, calc(var(--bd) / 2)) rotateX(90deg);
+  background-color: #0d0d10;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 64px 64px;
+  background-position: center;
+  mask-image: radial-gradient(closest-side, #000 25%, transparent);
+}
+.lt-desk-spill {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1700px;
+  height: 1300px;
+  margin: -900px 0 0 -850px;
+  background: radial-gradient(closest-side, rgba(175, 205, 255, 0.2), transparent);
+}
+/* Base slab: lies flat (rotateX 90° around the hinge) and reaches toward the viewer. */
+.lt-base {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--bw);
+  height: var(--bd);
+  transform-origin: 50% 0;
+  transform: rotateX(90deg);
+  border-radius: 6px 6px 30px 30px;
+  background: linear-gradient(180deg, #2b2b30, #1c1c20);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+.lt-keys {
+  position: absolute;
+  left: 92px;
+  right: 92px;
+  top: 64px;
+  height: 320px;
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  grid-auto-rows: 1fr;
+  gap: 9px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #121215;
+}
+.lt-keys > i {
+  border-radius: 6px;
+  background: #1d1d21;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 0 rgba(0, 0, 0, 0.5);
+}
+.lt-keys > i.lt-space {
+  grid-column: 4 / span 8;
+}
+.lt-pad {
+  position: absolute;
+  left: 50%;
+  top: 424px;
+  width: 420px;
+  height: 236px;
+  margin-left: -210px;
+  border-radius: 16px;
+  background: #242429;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+.lt-spill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(75% 60% at 50% 0%, rgba(190, 215, 255, 0.24), transparent 72%);
+}
+.lt-edge {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--bw);
+  height: 16px;
+  transform: translateZ(var(--bd));
+  border-radius: 0 0 16px 16px;
+  background: linear-gradient(180deg, #3b3b41, #141417);
+}
+/* Lid: rotates around its bottom edge (the hinge); two faces, back and front. */
+.lt-lid {
+  position: absolute;
+  left: calc((var(--bw) - var(--lw)) / 2);
+  top: calc(var(--lh) * -1 - 2px);
+  width: var(--lw);
+  height: var(--lh);
+  transform-origin: 50% 100%;
+  transform-style: preserve-3d;
+}
+.lt-lid-back,
+.lt-lid-front {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px 24px 8px 8px;
+  backface-visibility: hidden;
+}
+.lt-lid-back {
+  display: grid;
+  place-items: center;
+  transform: rotateX(180deg);
+  background: linear-gradient(170deg, #303036, #1a1a1e);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  color: #f4f4f6;
+}
+.lt-bezel {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #0a0a0c;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 0 0 3px #1a1a1e;
+}
+.lt-notch {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  border-radius: 50%;
+  background: #1c2430;
+}
+.lt-reflect {
+  position: absolute;
+  inset: 0 -60%;
+  z-index: 3;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.06) 46%,
+    rgba(255, 255, 255, 0.02) 52%,
+    transparent 60%
+  );
+}
+.lt-screen {
+  position: absolute;
+  left: var(--bz);
+  top: var(--bz);
+  width: var(--sw);
+  height: var(--sh);
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+  color: var(--ink);
+}
+.lt-screen-glow,
+.lt-screen-off,
+.lt-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.lt-screen-glow {
+  z-index: 6;
+  background: radial-gradient(
+    60% 60% at 50% 45%,
+    rgba(225, 238, 255, 0.55),
+    rgba(124, 183, 255, 0.12) 60%,
+    transparent
+  );
+}
+.lt-screen-off {
+  z-index: 7;
+  background: #050506;
+}
+.lt-frame {
+  z-index: 8;
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+/* Screen UI is designed at desktop scale; phones get it larger, in less space. */
+.lt-ui {
+  zoom: 1.12;
+}
+@media (max-width: 639px) {
+  .lt-ui {
+    zoom: 1.55;
+  }
+}
+.lt-pixel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--signal);
+  box-shadow:
+    0 0 16px var(--signal),
+    0 0 4px var(--signal);
+  opacity: 0;
+}
+.lt-pop {
+  animation: lt-pop 460ms var(--ease-spring) both;
+}
+@keyframes lt-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.86);
+  }
+}
+.lt-press {
+  animation: lt-press 260ms var(--ease-out);
+}
+@keyframes lt-press {
+  40% {
+    transform: scale(0.92);
+  }
+}
+.lt-row {
+  transition:
+    opacity 400ms var(--ease-out),
+    transform 520ms var(--ease-spring);
+}
+.lt-row-hidden {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.97);
+}
+.lt-flicker {
+  display: inline-block;
+  animation: lt-flicker 900ms var(--ease-out);
+}
+@keyframes lt-flicker {
+  30% {
+    transform: scale(1.25);
+  }
+}
+/* The static poster: one fixed scale per breakpoint (no JS to measure with). */
+.lt-poster {
+  transform: scale(0.3);
+}
+@media (min-width: 640px) {
+  .lt-poster {
+    transform: scale(0.48);
+  }
+}
+@media (min-width: 900px) {
+  .lt-poster {
+    transform: scale(0.62);
+  }
+}
+@media (min-width: 1132px) {
+  .lt-poster {
+    transform: scale(0.8);
+  }
+}
+
 /* Printing (the pattern notebook): just the page content, on white. */
 @media print {
   aside,

@@ -20,12 +20,17 @@ export function SmoothScroll() {
     let stop: (() => void) | undefined;
     void import("lenis").then(({ default: Lenis }) => {
       const lenis = new Lenis({ lerp: 0.12, anchors: { offset: -80 } });
+      // The hero's step rail scrolls through Lenis so it doesn't fight the smoothing.
+      (window as Window & { __lenis?: typeof lenis }).__lenis = lenis;
       const raf = (t: number) => {
         lenis.raf(t);
         frame = requestAnimationFrame(raf);
       };
       frame = requestAnimationFrame(raf);
-      stop = () => lenis.destroy();
+      stop = () => {
+        lenis.destroy();
+        delete (window as Window & { __lenis?: typeof lenis }).__lenis;
+      };
     });
     return () => {
       cancelAnimationFrame(frame);

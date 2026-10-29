@@ -165,6 +165,7 @@ Fonts load through `next/font` in the app (Geist from the `geist` package, Instr
 | **Press**          | scale .97, 240 ms                                                                                     | All buttons                                                       |
 | **Theme switch**   | All colour transitions to 480 ms for one switch                                                       | Theme toggle                                                      |
 | **Marquee**        | Platform names scroll 38 s linear, edge-masked                                                        | Landing only                                                      |
+| **Scroll story**   | Pinned section (500vh / 320vh phones), sticky `100svh` stage; scroll progress drives transforms only. Fully reversible, no scroll-jacking. Timeline in `components/landing/hero/scene.ts` | Landing hero only ([LANDING-V3](design/LANDING-V3.md)). Never in the app |
 
 **Reduced motion:** with `prefers-reduced-motion: reduce`, every animation duration becomes ~0. Reveals and words are shown immediately, the frame is flat, and timers still tick (they are information, not decoration).
 
@@ -233,12 +234,12 @@ General rules:
 
 ### 9.1 Marketing site
 
-1. **Nav**: floating glass pill.
-2. **Hero**: eyebrow chip with live dot · two-tone serif H1 with word reveal · lede · lime CTA "Add to Chrome — it's free" + secondary · mono line listing supported sheets · product frame that flattens on scroll · glow + blueprint grid.
-3. **Platform marquee** (text wordmarks; no third-party logos without permission).
-4. **Bento features** (5 cards): auto timer · merged heatmap · honest count · proven revision · auto-ticked sheets.
-5. **How it works**: 3 numbered steps (Install → Connect handles → Just solve).
-6. **Dashboard showcase**: the real app shell, interactive.
+1. **Nav**: floating glass pill; hides while you scroll down through the hero, returns on scroll-up. Ink scroll-progress hairline.
+2. **Hero, "The 1 a.m. desk"** ([LANDING-V3](design/LANDING-V3.md)): serif H1 over a closed DOM-built laptop; scrolling opens it, times a problem, shows WA → Accepted → the honest question, pushes into the screen, flies a lime pixel into today's heatmap cell, then settles into the framed dashboard.
+3. **Dashboard showcase** ("Your prep, at a glance."): the hero's last frame. The scene hands off into it with no jump.
+4. **Platform marquee** (text wordmarks; no third-party logos without permission).
+5. **Bento features**: auto timer · merged heatmap · honest count · proven revision · auto-ticked sheets · friends · contests.
+6. **How it works**: 3 numbered steps (Sign in → Add the extension → Just solve).
 7. **For colleges**: placement-cell pitch with a batch-readiness mock.
 8. **Pricing**: Free / Pro / College.
 9. **FAQ**: Kora-style dark accordions (privacy questions first).
