@@ -11,6 +11,35 @@ import { safeNextPath } from "@/lib/safe-next";
 // after the page is up (or on the first press), not with the page.
 const supabase = () => import("@/lib/supabase/client").then((m) => m.createClient());
 
+/** Seconds between sign-in emails (Supabase refuses a second one sooner anyway). */
+const COOLDOWN_S = 60;
+const COOLDOWN_KEY = "dsakaro:link-sent-at";
+
+/** Supabase's email errors, in words people can act on. */
+function friendlyError(message: string): { text: string; wait?: number } {
+  const after = /after (\d+) seconds?/i.exec(message);
+  if (after)
+    return {
+      text: "A link was just sent. Check your inbox, or try again shortly.",
+      wait: Number(after[1]),
+    };
+  if (/rate limit|too many|over_email_send_rate_limit/i.test(message))
+    return {
+      text: "We're sending a lot of sign-in emails right now. Continue with Google above (instant), or try the email link again in a few minutes.",
+    };
+  return { text: message };
+}
+
+/** Seconds left before another link can be sent (survives a refresh). */
+function cooldownLeft(): number {
+  try {
+    const at = Number(sessionStorage.getItem(COOLDOWN_KEY) ?? 0);
+    return Math.max(0, Math.ceil((at + COOLDOWN_S * 1000 - Date.now()) / 1000));
+  } catch {
+    return 0;
+  }
+}
+
 type Status =
   | { kind: "idle" }
   | { kind: "sending" }
@@ -27,6 +56,26 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
       ? { kind: "error", message: "That sign-in link didn't work. Try again." }
       : { kind: "idle" },
   );
+
+  // Countdown until another link may be sent; ticks only while it's running.
+  const [wait, setWait] = useState(0);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads sessionStorage once on mount
+    setWait(cooldownLeft());
+  }, []);
+  useEffect(() => {
+    if (wait <= 0) return;
+    const id = setTimeout(() => setWait(cooldownLeft()), 1000);
+    return () => clearTimeout(id);
+  }, [wait]);
+  const startCooldown = (seconds = COOLDOWN_S) => {
+    try {
+      sessionStorage.setItem(COOLDOWN_KEY, String(Date.now() - (COOLDOWN_S - seconds) * 1000));
+    } catch {
+      // Storage blocked: the countdown still runs for this page.
+    }
+    setWait(seconds);
+  };
 
   useEffect(() => {
     const id = setTimeout(() => void supabase(), 1500);
@@ -51,8 +100,11 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
 
   async function sendMagicLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const address = email.trim();
-    if (!address) return;
+    await sendLink(email.trim());
+  }
+
+  async function sendLink(address: string) {
+    if (!address || cooldownLeft() > 0) return;
     setStatus({ kind: "sending" });
     const { error } = await (
       await supabase()
@@ -65,7 +117,14 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
       setStatus({ kind: "no-account", email: address });
       return;
     }
-    setStatus(error ? { kind: "error", message: error.message } : { kind: "sent", email: address });
+    if (error) {
+      const f = friendlyError(error.message);
+      if (f.wait) startCooldown(f.wait);
+      setStatus({ kind: "error", message: f.text });
+      return;
+    }
+    startCooldown();
+    setStatus({ kind: "sent", email: address });
   }
 
   if (status.kind === "sent") {
@@ -85,13 +144,24 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
           We sent a {mode === "login" ? "sign-in" : "sign-up"} link to{" "}
           <span className="text-ink">{status.email}</span>. Open it in this browser.
         </p>
-        <button
-          type="button"
-          onClick={() => setStatus({ kind: "idle" })}
-          className="mt-4 text-sm text-ink-2 underline-offset-4 hover:text-ink hover:underline"
-        >
-          Use a different email
-        </button>
+        <p className="mt-2 text-12 text-ink-3">Not there? Check spam or Promotions.</p>
+        <div className="mt-4 flex items-center gap-4 text-sm">
+          <button
+            type="button"
+            disabled={wait > 0}
+            onClick={() => void sendLink(status.email)}
+            className="tnum font-[550] text-ink underline-offset-4 hover:underline disabled:font-normal disabled:text-ink-3 disabled:no-underline"
+          >
+            {wait > 0 ? `Resend in ${wait}s` : "Resend link"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStatus({ kind: "idle" })}
+            className="text-ink-2 underline-offset-4 hover:text-ink hover:underline"
+          >
+            Use a different email
+          </button>
+        </div>
       </div>
     );
   }
@@ -149,11 +219,17 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
           type="submit"
           variant="secondary"
           className="w-full"
-          disabled={disabled}
+          disabled={disabled || wait > 0}
           loading={busy}
         >
-          {mode === "login" ? "Email me a sign-in link" : "Create account with email"}{" "}
-          <ButtonArrow />
+          {wait > 0 ? (
+            <span className="tnum">Link sent · send again in {wait}s</span>
+          ) : (
+            <>
+              {mode === "login" ? "Email me a sign-in link" : "Create account with email"}{" "}
+              <ButtonArrow />
+            </>
+          )}
         </Button>
       </form>
 
