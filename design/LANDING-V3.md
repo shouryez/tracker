@@ -47,13 +47,32 @@ Pin height: 500vh desktop, 320vh under 640px (`scene:h-[500vh] max-sm:scene:h-[3
 - No scroll-jacking: native scroll (Lenis smoothing on desktop only, as before), no snap.
 - Fallback (no JS, reduced motion, low-end): no pin; H1 + CTAs, a static open laptop showing the dashboard, captions as a stepped list.
 
-## Measured (phase a)
+## After the hero (phases b–d)
+
+| Scene | Where | How |
+| --- | --- | --- |
+| Loading | `hero.tsx`, `.lt-rest*` in `globals.css` | The closed laptop is server-rendered in the rest pose (scale approximated in CSS steps) and cross-fades out when the scene mounts. The scene chunk starts downloading when the loader module runs. |
+| Marquee | `VelocityMarquee` (`scene-bits.tsx`) | Playback rate and a small skew follow scroll velocity, then ease back. |
+| Features bento | `PlayOnView` + `armed:` variant + `.demo-t` | Each card's demo plays once at 40% visible and resets when you scroll back above it. Starting states are written with `armed:`; with no JS or reduced motion nothing is armed, so the finished state shows. Delays go in inline `transitionDelay` (`.demo-t` is unlayered CSS and wins over Tailwind's layered utilities). |
+| Forgetting curve | `forgetting-curve.tsx` | Pinned (260vh / 190vh phones) only with `data-scene="on"`. Grey decay clips in over p 0–.25, the ladder curve over .25–.9 (left-to-right `clip-path`), pulses and the hopping card follow. Illustrative curve, labelled "example". |
+| How it works | `StackCards` | Sticky cards 18 px apart; the covered card scales to .95 and dims. |
+| Sheets | `SheetCover` rail | Native `scroll-snap` row (no scroll-jacking). |
+| Friends | `Friends()` in `page.tsx` | Study room (ticking timers) and a board whose rows slide to the new order (CSS transforms, no layout animation library). |
+| Footer | `WordmarkFill` | The headline bar's lime overlay scales 0→1 from the wordmark entering the viewport to the bottom of the page. |
+
+## Measured
 
 - New JS on `/`: ~2 KB gz initial + ~27.5 KB gz lazy (scene 11.9, motion hooks 9.3, NumberFlow 6.3). Budget 40 KB.
-- Real LCP = FCP (the H1 paints at once; words rise without starting transparent). CLS 0.
-- Lighthouse mobile (local `next start`): Performance 90, Best Practices 100, SEO 100. Simulated LCP 3.6 s
-  (live site with the old hero: 3.0 s). Both are dominated by the app-wide ~200 KB gz initial JS that
-  Lighthouse puts on the LCP path; cutting that is phase e.
+  The page's own initial JS is ~169 KB gz (the 38.6 KB polyfill chunk is `noModule`, so modern
+  browsers skip it); ~129 KB of that is React DOM + the Next runtime.
+- Lighthouse mobile (local `next start`): Performance 90, Accessibility 100, Best Practices 100, SEO 100, CLS 0, TBT 50 ms.
+- LCP: real LCP = FCP (~0.3 s, the H1 paints at once). Lighthouse's *simulated* LCP is 3.6 s, but
+  `/login` (no scene at all) simulates the same 3.6 s and `/?noscene` 3.3 s: it's the app-wide
+  framework JS + four preloaded fonts replayed on throttled 4G, not the landing. Fixes belong to
+  the app shell (see Part 2 proposals): lazy toaster, fewer preloaded fonts, less client JS in the root layout.
+- Scrolling the hero with 4× CPU throttling and real wheel input: no long tasks.
+- No horizontal scroll at 360, 390, 768, 1024, 1440, 1920.
+- Keyboard: Tab order is nav → "Skip intro" → CTAs; Enter on "Skip intro" lands at p ≈ 0.97.
 
 ## Alternative (documented, not built)
 
