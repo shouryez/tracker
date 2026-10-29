@@ -18,13 +18,13 @@ const FOUNDERS = [
     initials: "SS",
     linkedin: "https://www.linkedin.com/in/sarthak-srivastava-b99181213",
     /** A square photo in public/team/ (null: the monogram shows instead). */
-    photo: null as string | null,
+    photo: "/team/sarthak.webp" as string | null,
   },
   {
     name: "Shourya Pratap Singh Chouhan",
     initials: "SC",
     linkedin: "https://www.linkedin.com/in/shourya-pratap-singh-chouhan-b06294242/",
-    photo: null as string | null,
+    photo: "/team/shourya.webp" as string | null,
   },
 ];
 
