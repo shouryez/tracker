@@ -69,7 +69,7 @@ const REACTION_MS: Record<Reaction, number> = {
 
 const LINES: Record<Reaction, string[]> = {
   boing: ["Boing!", "O(1) happy!", "Accepted ✓"],
-  wink: ["Upsolve karo!", "Psst… revise today", "Ek aur question?"],
+  wink: ["DSA karo!", "Psst… revise today", "Ek aur question?"],
   pop: ["pop()", "push() → pop()", "Last in, first out!"],
   giggle: ["Hehe, that tickles", "No TLE here", "Stacked & ready"],
   spin: ["Recursion!", "Base case reached", "Spin, then solve"],
