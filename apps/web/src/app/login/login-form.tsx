@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { Mail } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Button, ButtonArrow, inputClasses } from "@upsolve/ui";
 import { safeNextPath } from "@/lib/safe-next";
 
@@ -57,6 +57,12 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
       : { kind: "idle" },
   );
 
+  // Password sign-in, for accounts that verified their email once and then set a password
+  // in Settings. Sign-up never uses a password, so every password account is verified.
+  const [withPassword, setWithPassword] = useState(false);
+  const [password, setPasswordValue] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   // Countdown until another link may be sent; ticks only while it's running.
   const [wait, setWait] = useState(0);
   useEffect(() => {
@@ -101,6 +107,30 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
   async function sendMagicLink(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await sendLink(email.trim());
+  }
+
+  async function signInWithPassword(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const address = email.trim();
+    if (!address || !password) return;
+    setStatus({ kind: "sending" });
+    const { error } = await (
+      await supabase()
+    ).auth.signInWithPassword({ email: address, password });
+    if (error) {
+      const code = error.code ?? error.message;
+      setStatus({
+        kind: "error",
+        message: /invalid_credentials|invalid login credentials/i.test(code)
+          ? "Wrong email or password. No password yet? Sign in once with Google or an email link, then add one in Settings → Password."
+          : /email_not_confirmed|not confirmed/i.test(code)
+            ? "Verify your email first: sign in once with Google or an email link."
+            : friendlyError(error.message).text,
+      });
+      return;
+    }
+    // A full page load, so the server sees the new session cookies.
+    window.location.assign(next);
   }
 
   async function sendLink(address: string) {
@@ -187,7 +217,10 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
         <span className="h-px flex-1 bg-line-2" />
       </div>
 
-      <form onSubmit={sendMagicLink} className="flex flex-col gap-2.5">
+      <form
+        onSubmit={withPassword ? signInWithPassword : sendMagicLink}
+        className="flex flex-col gap-2.5"
+      >
         <label htmlFor="email" className="sr-only">
           Email address
         </label>
@@ -201,7 +234,7 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
             id="email"
             type="email"
             required
-            autoComplete="email"
+            autoComplete={withPassword ? "username" : "email"}
             placeholder="you@college.edu"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -215,14 +248,54 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
             })}
           />
         </span>
+        {withPassword && (
+          <span className="relative">
+            <label htmlFor="password" className="sr-only">
+              Password
+            </label>
+            <Lock
+              size={16}
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-ink-3"
+            />
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPasswordValue(e.target.value)}
+              disabled={disabled || busy}
+              aria-invalid={status.kind === "error" || undefined}
+              className={inputClasses({
+                icon: true,
+                error: status.kind === "error",
+                className: "h-[46px] pr-11",
+              })}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="absolute top-1/2 right-2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-ink-3 hover:text-ink"
+            >
+              {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+            </button>
+          </span>
+        )}
         <Button
           type="submit"
           variant="secondary"
           className="w-full"
-          disabled={disabled || wait > 0}
+          disabled={disabled || (!withPassword && wait > 0)}
           loading={busy}
         >
-          {wait > 0 ? (
+          {withPassword ? (
+            <>
+              Sign in <ButtonArrow />
+            </>
+          ) : wait > 0 ? (
             <span className="tnum">Link sent · send again in {wait}s</span>
           ) : (
             <>
@@ -232,6 +305,34 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
           )}
         </Button>
       </form>
+
+      {mode === "login" && (
+        <div className="-mt-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-13">
+          <button
+            type="button"
+            onClick={() => {
+              setWithPassword((w) => !w);
+              setStatus({ kind: "idle" });
+            }}
+            className="font-[550] text-ink-2 underline-offset-4 hover:text-ink hover:underline"
+          >
+            {withPassword ? "Email me a link instead" : "Use a password instead"}
+          </button>
+          {withPassword && (
+            <button
+              type="button"
+              onClick={() => {
+                setWithPassword(false);
+                setStatus({ kind: "idle" });
+              }}
+              title="Sign in with an email link, then set a new password in Settings → Password"
+              className="text-ink-3 underline-offset-4 hover:text-ink hover:underline"
+            >
+              Forgot password?
+            </button>
+          )}
+        </div>
+      )}
 
       {status.kind === "no-account" && (
         <p role="alert" className="text-sm text-ink-2">

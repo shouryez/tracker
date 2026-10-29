@@ -10,6 +10,7 @@ import {
   Flame,
   Globe,
   GraduationCap,
+  KeyRound,
   Mail,
   Plug,
   Puzzle,
@@ -25,6 +26,7 @@ import { ButtonArrow, Card, CardHeader, CardTitle, SkeletonCard, buttonClasses }
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { PlatformConnections } from "@/components/platform-connections";
 import { PrefSwitch } from "@/components/social";
+import { getHasPassword } from "@/lib/account";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
@@ -36,6 +38,7 @@ import { CollegeVerification } from "@/components/college-verification";
 import { localDate, requestNow } from "@/lib/time";
 import { ExtensionTokens } from "./extension-tokens";
 import { LearningSettings } from "./learning-settings";
+import { PasswordSettings } from "./password-settings";
 import { PublicToggle } from "./public-toggle";
 import { ReminderSettings } from "./reminder-settings";
 import { SectionNav } from "./section-nav";
@@ -45,6 +48,7 @@ export const metadata: Metadata = { title: "Settings" };
 
 const SECTIONS = [
   { id: "profile", label: "Profile" },
+  { id: "password", label: "Password" },
   { id: "verify", label: "College verification" },
   { id: "platforms", label: "Platforms" },
   { id: "extension", label: "Extension" },
@@ -92,10 +96,11 @@ async function SettingsContent() {
   if (isDemoUser(user)) {
     return <p className="text-ink-2">Sign in to manage your settings.</p>;
   }
-  const [profile, tokens, freezes] = await Promise.all([
+  const [profile, tokens, freezes, hasPassword] = await Promise.all([
     getProfile(user.id),
     getExtensionTokens(user.id),
     getStreakFreezes(user.id),
+    getHasPassword(user.id),
   ]);
   const [best, verification] = await Promise.all([
     bestHour(user.id, profile?.timezone ?? "Asia/Kolkata"),
@@ -171,6 +176,15 @@ async function SettingsContent() {
             {user.email ?? "—"}
           </Item>
         </dl>
+      </Card>
+
+      <Card id="password" className="scroll-mt-24">
+        <CardHeader>
+          <CardTitle icon={icon(KeyRound)} tint="var(--signal-mark)">
+            Password
+          </CardTitle>
+        </CardHeader>
+        <PasswordSettings email={user.email} hasPassword={hasPassword} />
       </Card>
 
       <Card id="verify" className="scroll-mt-24">
