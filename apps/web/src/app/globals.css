@@ -65,6 +65,21 @@
    <html data-scene="on"> is set inline before paint when the scroll scene can run. */
 @custom-variant scene (&:where(html[data-scene="on"] *));
 @custom-variant noscene (&:where(html:not([data-scene="on"]) *));
+/* Scene demos (PlayOnView): `armed:` is the state before the demo plays. */
+@custom-variant armed (&:where([data-demo="armed"] *));
+.demo-t {
+  transition:
+    translate 700ms var(--ease-out),
+    scale 700ms var(--ease-out),
+    opacity 500ms var(--ease-out),
+    background-color 400ms var(--ease-out),
+    color 400ms var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-t {
+    transition: none;
+  }
+}
 
 /* Camera: 2D translate/scale on the perspective box; the rig inside is 3D. */
 .lt-persp {
@@ -322,6 +337,50 @@
     transform: scale(1.25);
   }
 }
+/* The loading placeholder: the scene's rest pose in CSS. Its scale is the scene's
+   0.82·min(width fit, height fit), approximated in steps (CSS can't divide lengths). */
+.lt-rest-wrap {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% + 21svh);
+  height: 0;
+  pointer-events: none;
+  transition: opacity 500ms var(--ease-out);
+  --sa: 0.435;
+  --sb: 0.47;
+  --drop: 21svh;
+}
+[data-hero-stage]:has([data-shown]) .lt-rest-wrap {
+  opacity: 0;
+}
+.lt-rest {
+  position: absolute;
+  inset: 0;
+  height: 0;
+  --s: calc(0.82 * min(var(--sa), var(--sb)));
+  scale: var(--s);
+  transform-origin: 50% 0;
+  perspective-origin: 50% calc(-10svh - var(--drop) / var(--s));
+}
+@media (min-width: 768px) { .lt-rest-wrap { --sa: 0.52; } }
+@media (min-width: 900px) { .lt-rest-wrap { --sa: 0.61; } }
+@media (min-width: 1024px) { .lt-rest-wrap { --sa: 0.7; } }
+@media (min-width: 1280px) { .lt-rest-wrap { --sa: 0.87; } }
+@media (min-width: 1440px) { .lt-rest-wrap { --sa: 0.98; } }
+@media (min-width: 1700px) { .lt-rest-wrap { --sa: 1.15; } }
+@media (min-height: 700px) { .lt-rest-wrap { --sb: 0.55; } }
+@media (min-height: 800px) { .lt-rest-wrap { --sb: 0.63; } }
+@media (min-height: 900px) { .lt-rest-wrap { --sb: 0.71; } }
+@media (min-height: 1000px) { .lt-rest-wrap { --sb: 0.79; } }
+@media (min-height: 1100px) { .lt-rest-wrap { --sb: 0.86; } }
+/* Phones: the rig fits the width only. */
+@media (max-width: 639px) {
+  .lt-rest-wrap { top: calc(50% + 20svh); --drop: 20svh; --sb: 9; --sa: 0.31; }
+}
+@media (min-width: 380px) and (max-width: 639px) { .lt-rest-wrap { --sa: 0.34; } }
+@media (min-width: 420px) and (max-width: 639px) { .lt-rest-wrap { --sa: 0.38; } }
+@media (min-width: 500px) and (max-width: 639px) { .lt-rest-wrap { --sa: 0.45; } }
+
 /* The static poster: one fixed scale per breakpoint (no JS to measure with). */
 .lt-poster {
   transform: scale(0.3);

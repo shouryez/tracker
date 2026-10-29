@@ -19,6 +19,7 @@ import {
 import { AnimatedBeam, Marquee as Ticker } from "@/components/fx/decor";
 import { CursorGlow } from "@/components/fx/pointer";
 import { Hero } from "@/components/landing/hero/hero";
+import { ForgettingCurve } from "@/components/landing/forgetting-curve";
 import { LandingNavLinks, SheetDemo, SmoothScroll } from "@/components/landing/landing-fx";
 import { LiveTimer } from "@/components/landing/live-timer";
 import {
@@ -28,6 +29,14 @@ import {
   Reveal,
   ScrollProgress,
 } from "@/components/landing/motion-bits";
+import {
+  PlayOnView,
+  StackCards,
+  TimerDemo,
+  VelocityMarquee,
+  WordmarkFill,
+} from "@/components/landing/scene-bits";
+import { SheetCover } from "@/components/sheet-identity";
 import { PlatformMark } from "@/components/site-icons";
 
 // Marketing site (DESIGN.md §9.1). Static: every number here is illustrative and
@@ -58,11 +67,13 @@ export default function Home() {
         <Reveal>
           <Features />
         </Reveal>
-        <Reveal>
-          <HowItWorks />
-        </Reveal>
+        <ForgettingCurve />
+        <HowItWorks />
         <Reveal>
           <SheetShowcase />
+        </Reveal>
+        <Reveal>
+          <Friends />
         </Reveal>
         <Reveal>
           <ForColleges />
@@ -136,17 +147,19 @@ function Marquee() {
     ];
   return (
     <div aria-label="Supported platforms and sheets" className="border-y border-line py-5">
-      <Ticker speed={40}>
-        {items.map((t) => (
-          <span
-            key={t.label}
-            className="group inline-flex items-center gap-2.5 text-[20px] font-semibold tracking-[-0.03em] whitespace-nowrap text-ink-3 transition-colors hover:text-ink"
-          >
-            {t.site && <PlatformMark site={t.site} size={20} />}
-            {t.label}
-          </span>
-        ))}
-      </Ticker>
+      <VelocityMarquee>
+        <Ticker speed={40}>
+          {items.map((t) => (
+            <span
+              key={t.label}
+              className="group inline-flex items-center gap-2.5 text-[20px] font-semibold tracking-[-0.03em] whitespace-nowrap text-ink-3 transition-colors hover:text-ink"
+            >
+              {t.site && <PlatformMark site={t.site} size={20} />}
+              {t.label}
+            </span>
+          ))}
+        </Ticker>
+      </VelocityMarquee>
     </div>
   );
 }
@@ -195,7 +208,7 @@ function Bento({
         className,
       )}
     >
-      <div className="flex-1">{visual}</div>
+      <PlayOnView className="flex-1">{visual}</PlayOnView>
       <h3 className="mt-5 text-[17px] font-semibold tracking-[-0.02em]">{title}</h3>
       <p className="mt-1.5 max-w-[46ch] text-[14px] leading-relaxed text-ink-2">{children}</p>
     </article>
@@ -218,29 +231,9 @@ function Features() {
             <div className="grid gap-3 sm:grid-cols-[1.4fr_1fr]">
               <div className="overflow-hidden rounded-[14px] border border-line bg-bg-2">
                 <div className="flex items-center gap-2 border-b border-line px-3 py-2 font-mono text-[11px] text-ink-3">
-                  <span className="size-2 rounded-full bg-bad" />{" "}
-                  leetcode.com/problems/koko-eating-bananas
+                  <span className="size-2 rounded-full bg-line-3" /> …/problems/koko-eating-bananas
                 </div>
-                <div className="p-4">
-                  <span className="font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                    Session · auto-started
-                  </span>
-                  <LiveTimer
-                    startSeconds={18 * 60 + 42}
-                    className="num mt-1 block font-mono text-[46px] leading-none tracking-[-0.05em]"
-                  />
-                  <div className="mt-3 flex gap-1.5">
-                    <Tag tone="wa" mono>
-                      WA
-                    </Tag>
-                    <Tag tone="tle" mono>
-                      TLE
-                    </Tag>
-                    <Tag tone="ac" mono>
-                      AC
-                    </Tag>
-                  </div>
-                </div>
+                <TimerDemo />
               </div>
               <dl className="flex flex-col justify-center gap-2 font-mono text-[12px]">
                 {[
@@ -273,6 +266,18 @@ function Features() {
               <span className="mb-3 block font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
                 One heatmap · every platform
               </span>
+              <div className="mb-3 flex items-center gap-3 rounded-[12px] border border-line bg-bg-2 px-3 py-2.5">
+                <span className="text-[12.5px] font-medium">1. Two Sum</span>
+                <span aria-hidden="true" className="relative ml-auto h-4 w-[84px]">
+                  <i className="demo-t absolute top-0 left-0 size-4 translate-x-[34px] rounded-[4px] bg-heat-3 armed:translate-x-0" />
+                  <i className="demo-t absolute top-0 left-0 size-4 translate-x-[34px] rounded-[4px] bg-heat-3 opacity-0 armed:translate-x-[68px] armed:opacity-100" />
+                </span>
+                <Swap
+                  className="w-[78px] text-right font-mono text-[10.5px] text-ink-3"
+                  from="LC + GFG"
+                  to="counts once"
+                />
+              </div>
               <PixelHeatmap levels={demoLevels(18 * 7, 3)} weeks={18} label="Example heatmap" />
             </div>
           }
@@ -291,9 +296,19 @@ function Features() {
                 412<small className="ml-1 text-[.42em] font-normal text-ink-3">solved</small>
               </span>
               <div className="mt-2 flex h-2.5 gap-[3px] overflow-hidden rounded-full">
-                <i className="rounded-[3px] bg-ink" style={{ flex: 281 }} />
-                <i className="rounded-[3px] bg-ink-3" style={{ flex: 86 }} />
-                <i className="rounded-[3px] bg-violet/60" style={{ flex: 45 }} />
+                {(
+                  [
+                    [281, "bg-ink", 0],
+                    [86, "bg-ink-3", 250],
+                    [45, "hatch bg-surface-3", 500],
+                  ] as const
+                ).map(([n, tone, delay]) => (
+                  <i
+                    key={n}
+                    className={cn("demo-t origin-left rounded-[3px] armed:scale-x-0", tone)}
+                    style={{ flex: n, transitionDelay: `${delay}ms` }}
+                  />
+                ))}
               </div>
               <div className="mt-2 flex flex-wrap gap-x-3 font-mono text-[11px] text-ink-3">
                 <span>281 solo</span>
@@ -313,21 +328,34 @@ function Features() {
               <span className="mb-1 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
                 Due today · 5
               </span>
-              {[
-                ["Course Schedule II", "2d overdue", "wa"],
-                ["Coin Change", "today", "neutral"],
-                ["Longest Substring Without Repeating", "today", "neutral"],
-              ].map(([t, due, tone]) => (
-                <div
-                  key={t}
-                  className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-bg-2 px-3 py-2"
-                >
-                  <b className="truncate text-[13px] font-medium">{t}</b>
-                  <Tag tone={tone as "wa" | "neutral"} mono>
-                    {due}
-                  </Tag>
+              <div className="rounded-[12px] border border-line bg-bg-2 p-3">
+                <span className="mb-2.5 flex items-center justify-between gap-2">
+                  <b className="truncate text-[13px] font-medium">Coin Change</b>
+                  <span
+                    className="demo-t rounded-full bg-ok-soft px-2 py-0.5 font-mono text-[10.5px] text-ok armed:opacity-0"
+                    style={{ transitionDelay: "500ms" }}
+                  >
+                    remembered ✓
+                  </span>
+                </span>
+                <div aria-hidden="true" className="relative grid grid-cols-6 gap-1">
+                  {[1, 3, 7, 16, 35, 90].map((d) => (
+                    <span
+                      key={d}
+                      className="grid h-7 place-items-center rounded-[7px] border border-line font-mono text-[10.5px] text-ink-3"
+                    >
+                      {d}d
+                    </span>
+                  ))}
+                  <span className="demo-t absolute inset-y-0 left-0 w-[calc((100%-20px)/6)] translate-x-[calc(300%+12px)] rounded-[7px] bg-primary-soft ring-1 ring-primary/60 armed:translate-x-[calc(200%+8px)]" />
                 </div>
-              ))}
+              </div>
+              <div className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-bg-2 px-3 py-2">
+                <b className="truncate text-[13px] font-medium">Course Schedule II</b>
+                <Tag tone="wa" mono>
+                  2d overdue
+                </Tag>
+              </div>
             </div>
           }
         >
@@ -339,24 +367,27 @@ function Features() {
           title="Your sheets, ticked for you"
           visual={
             <div className="flex flex-col gap-4">
-              <span className="font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                Sheets · auto-ticked
+              <span className="flex items-center justify-between gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
+                Solved · Koko Eating Bananas
+                <span className="demo-t text-ok normal-case armed:opacity-0">2 sheets ticked</span>
               </span>
-              {[
-                ["Striver A2Z", 212, 495],
-                ["NeetCode 150", 98, 150],
-              ].map(([name, done, total]) => (
+              {(
+                [
+                  ["Striver A2Z", 212, 495, 0],
+                  ["NeetCode 150", 98, 150, 250],
+                ] as const
+              ).map(([name, done, total, delay]) => (
                 <div key={name}>
                   <div className="mb-1.5 flex justify-between text-[13px]">
                     <b className="font-medium">{name}</b>
                     <span className="font-mono text-ink-3">
-                      {done}/{total}
+                      <Swap from={String(done)} to={String(done + 1)} delay={delay} />/{total}
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-surface-3">
                     <div
                       className="h-full rounded-full bg-ink"
-                      style={{ width: `${(Number(done) / Number(total)) * 100}%` }}
+                      style={{ width: `${((done + 1) / total) * 100}%` }}
                     />
                   </div>
                 </div>
@@ -368,84 +399,36 @@ function Features() {
         </Bento>
 
         <Bento
-          className="lg:col-span-2"
-          title="Practise with your friends"
-          visual={
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[14px] border border-line bg-bg-2 p-3">
-                <span className="mb-2 flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                  <Trophy size={12} /> This week
-                </span>
-                {[
-                  ["Asha", 118, true],
-                  ["You", 104, false],
-                  ["Rohan", 87, false],
-                ].map(([n, s, first], i) => (
-                  <div
-                    key={String(n)}
-                    className="flex items-center gap-2.5 border-t border-dashed border-line-2 py-2 first:border-t-0"
-                  >
-                    <span
-                      className={cn(
-                        "num grid size-6 place-items-center rounded-[6px] text-[13px]",
-                        first ? "bg-signal text-signal-ink" : "text-ink-3",
-                      )}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="flex-1 text-[13px]">{n}</span>
-                    <span className="num text-[15px]">{s}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="rounded-[14px] border border-line bg-bg-2 p-3">
-                <span className="mb-2 flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                  <LiveDot /> Study room
-                </span>
-                {[
-                  ["Asha", "Word Ladder", "24:10"],
-                  ["Rohan", "Rotting Oranges", "08:55"],
-                ].map(([n, p, t]) => (
-                  <div
-                    key={n}
-                    className="border-t border-dashed border-line-2 py-2 first:border-t-0"
-                  >
-                    <span className="block text-[13px] font-medium">{n}</span>
-                    <span className="flex justify-between text-[12px] text-ink-2">
-                      {p} <span className="font-mono">{t}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          }
-        >
-          Friend groups with a weekly leaderboard that rewards showing up, not one-night grinds, and
-          a study room that shows who&apos;s solving what right now. College and batch boards are
-          opt-in.
-        </Bento>
-
-        <Bento
+          className="md:col-span-2 lg:col-span-3 lg:min-h-0"
           title="Contests, then upsolve"
           visual={
-            <div className="flex flex-col gap-2">
-              <span className="font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                Weekly Contest 421
-              </span>
-              <div className="flex gap-1.5">
-                <Tag tone="ac" mono>
-                  <Check size={10} /> Q1
-                </Tag>
-                <Tag tone="ac" mono>
-                  <Check size={10} /> Q2
-                </Tag>
-                <Tag tone="signal" mono>
-                  <Check size={10} /> Q3
-                </Tag>
-                <Tag mono>Q4</Tag>
+            <div className="grid gap-4 sm:grid-cols-[1.2fr_auto_auto] sm:items-end">
+              <div className="flex flex-col gap-2">
+                <span className="font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
+                  Weekly Contest 421
+                </span>
+                <div className="flex gap-1.5">
+                  <Tag tone="ac" mono>
+                    <Check size={10} /> Q1
+                  </Tag>
+                  <Tag tone="ac" mono>
+                    <Check size={10} /> Q2
+                  </Tag>
+                  <span className="relative inline-grid">
+                    <Tag mono className="demo-t [grid-area:1/1] opacity-0 armed:opacity-100">
+                      Q3
+                    </Tag>
+                    <Tag tone="ac" mono className="demo-t [grid-area:1/1] armed:opacity-0">
+                      <Check size={10} /> Q3
+                    </Tag>
+                  </span>
+                  <Tag mono>Q4</Tag>
+                </div>
               </div>
-              <span className="num mt-2 text-[28px] text-ok">+38</span>
-              <span className="font-mono text-[11px] text-ink-3">1 left to upsolve</span>
+              <span className="num text-[28px] text-ok">+38</span>
+              <span className="font-mono text-[12px] text-ink-3">
+                <Swap from="2" to="1" /> left to upsolve
+              </span>
             </div>
           }
         >
@@ -454,6 +437,37 @@ function Features() {
         </Bento>
       </div>
     </section>
+  );
+}
+
+/** A value that rolls from `from` to `to` when its demo plays (see PlayOnView). */
+function Swap({
+  from,
+  to,
+  delay = 0,
+  className,
+}: {
+  from: string;
+  to: string;
+  delay?: number;
+  className?: string;
+}) {
+  return (
+    <span className={cn("relative inline-grid overflow-hidden align-bottom", className)}>
+      <span
+        aria-hidden="true"
+        className="demo-t [grid-area:1/1] -translate-y-full opacity-0 armed:translate-y-0 armed:opacity-100"
+        style={{ transitionDelay: `${delay}ms` }}
+      >
+        {from}
+      </span>
+      <span
+        className="demo-t [grid-area:1/1] armed:translate-y-full armed:opacity-0"
+        style={{ transitionDelay: `${delay}ms` }}
+      >
+        {to}
+      </span>
+    </span>
   );
 }
 
@@ -526,31 +540,45 @@ function HowItWorks() {
           ]}
         />
       </div>
-      <ol className="grid gap-3.5 md:grid-cols-3">
+      {/* Sticky stacked cards: each step slides over the last, which settles back. */}
+      <StackCards className="flex flex-col gap-4">
         {steps.map((s, i) => (
           <li
             key={s.title}
             data-spotlight
-            className={cn(cardClasses({ interactive: true, spotlight: true }), "p-[22px]")}
+            className={cn(cardClasses({ spotlight: true }), "sticky origin-top p-[22px] sm:p-7")}
+            style={{ top: `${96 + i * 18}px` }}
           >
-            <div className="mb-8 flex items-center justify-between">
-              <span className="grid size-10 place-items-center rounded-[12px] border border-line bg-surface-2 text-ink-2">
-                {s.icon}
-              </span>
-              <span className="tnum font-mono text-[40px] leading-none font-[600] text-ink-4">
+            <div className="flex items-start gap-5">
+              <span className="tnum font-mono text-[44px] leading-none font-[600] text-ink-4">
                 {String(i + 1).padStart(2, "0")}
               </span>
+              <div className="min-w-0 flex-1">
+                <span className="mb-4 grid size-10 place-items-center rounded-[12px] border border-line bg-surface-2 text-ink-2">
+                  {s.icon}
+                </span>
+                <h3 className="text-[19px] font-semibold tracking-[-0.02em]">{s.title}</h3>
+                <p className="mt-1.5 max-w-[60ch] text-[14.5px] leading-relaxed text-ink-2">
+                  {s.body}
+                </p>
+              </div>
             </div>
-            <h3 className="text-[17px] font-semibold tracking-[-0.02em]">{s.title}</h3>
-            <p className="mt-1.5 text-[14px] leading-relaxed text-ink-2">{s.body}</p>
           </li>
         ))}
-      </ol>
+      </StackCards>
     </section>
   );
 }
 
 // ---------------------------------------------------------------- sheet showcase
+
+const SHEETS = [
+  { slug: "striver-a2z", name: "Striver's A2Z DSA Sheet", by: "Striver (takeUforward)", n: 495 },
+  { slug: "striver-sde", name: "SDE Sheet", by: "Striver (takeUforward)", n: 156 },
+  { slug: "neetcode-150", name: "NeetCode 150", by: "NeetCode", n: 150 },
+  { slug: "blind-75", name: "Blind 75", by: "NeetCode", n: 75 },
+  { slug: "grind-75", name: "Grind 75", by: "Yangshun Tay", n: 75 },
+];
 
 function SheetShowcase() {
   return (
@@ -560,7 +588,113 @@ function SheetShowcase() {
         article, and a button for LeetCode, GFG or takeUforward. Notes, stars and revision badges on
         every row. We only link: the videos and articles stay with their creators.
       </SectionHead>
+      <ul
+        aria-label="Supported sheets"
+        className="-mx-4 mb-3.5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {SHEETS.map((s) => (
+          <li
+            key={s.slug}
+            className="surface-card w-[250px] shrink-0 snap-start overflow-hidden rounded-[20px] sm:w-[270px]"
+          >
+            <SheetCover slug={s.slug} name={s.name} className="h-[104px]" />
+            <div className="px-4 pt-1 pb-4">
+              <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">
+                {s.name}
+              </span>
+              <span className="mt-0.5 flex justify-between gap-2 text-[12.5px] text-ink-3">
+                <span className="truncate">by {s.by}</span>
+                <span className="tnum shrink-0 font-mono">{s.n}</span>
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
       <SheetDemo />
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------- friends
+
+function Friends() {
+  const room = [
+    ["Asha", "Word Ladder", 24 * 60 + 10, "Hard"],
+    ["Rohan", "Rotting Oranges", 8 * 60 + 55, "Medium"],
+    ["Meera", "Top K Frequent Elements", 3 * 60 + 2, "Medium"],
+  ] as const;
+  // Before and after the week's last solves: You overtake Asha.
+  const board = [
+    { name: "You", from: 104, to: 121, was: 1, now: 0, you: true },
+    { name: "Asha", from: 118, to: 119, was: 0, now: 1, you: false },
+    { name: "Rohan", from: 87, to: 90, was: 2, now: 2, you: false },
+  ];
+  const rowY = ["translate-y-0", "translate-y-[52px]", "translate-y-[104px]"];
+  const armedY = ["armed:translate-y-0", "armed:translate-y-[52px]", "armed:translate-y-[104px]"];
+  return (
+    <section id="friends" className={cn(WRAP, "scroll-mt-24 pt-28")}>
+      <SectionHead eyebrow="Friends" soft="Grind together." em="Not alone at 1 a.m.">
+        Friend groups with a weekly leaderboard that rewards showing up, not one-night grinds, and a
+        study room that shows who&apos;s solving what right now. College and batch boards are
+        opt-in. Names below are an example.
+      </SectionHead>
+      <div className="grid gap-3.5 lg:grid-cols-2">
+        <div className="surface-card rounded-[22px] p-5">
+          <span className="mb-3 flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
+            <LiveDot /> Study room · 3 solving now
+          </span>
+          <ul className="flex flex-col">
+            {room.map(([name, problem, start, diff]) => (
+              <li
+                key={name}
+                className="flex items-center gap-3 border-t border-dashed border-line-2 py-3 first:border-t-0"
+              >
+                <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#34343a,#18181b)] text-[12px] font-semibold text-white">
+                  {name.slice(0, 1)}
+                  <i className="absolute right-0 bottom-0 size-2.5 rounded-full bg-ok ring-2 ring-[var(--surface)]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[13.5px] font-medium">{name}</span>
+                  <span className="block truncate text-[12.5px] text-ink-2">
+                    {problem} · {diff}
+                  </span>
+                </span>
+                <LiveTimer startSeconds={start} className="num font-mono text-[15px] text-ink-2" />
+              </li>
+            ))}
+          </ul>
+        </div>
+        <PlayOnView className="surface-card rounded-[22px] p-5">
+          <span className="mb-3 flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
+            <Trophy size={12} /> This week · honest solved count
+          </span>
+          {/* Rows sit at their rank; when the demo plays they slide into the new order. */}
+          <ol className="relative h-[156px]">
+            {board.map((r) => (
+              <li
+                key={r.name}
+                className={cn(
+                  "demo-t absolute inset-x-0 top-0 flex h-[52px] items-center gap-3 rounded-[12px] px-3",
+                  r.you && "bg-surface-2 ring-1 ring-line-2",
+                  rowY[r.now],
+                  armedY[r.was],
+                )}
+              >
+                <span className="num grid size-7 place-items-center rounded-[8px] bg-surface-3 text-[13px]">
+                  <Swap from={String(r.was + 1)} to={String(r.now + 1)} />
+                </span>
+                <span className="flex-1 text-[14px] font-medium">{r.name}</span>
+                <span className="num text-[16px]">
+                  <Swap from={String(r.from)} to={String(r.to)} />
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 font-mono text-[11.5px] text-ink-3">
+            Weekly board · example names and numbers.
+          </p>
+        </PlayOnView>
+      </div>
     </section>
   );
 }
@@ -599,9 +733,9 @@ function ForColleges() {
             Pilot it at your college <ButtonArrow />
           </a>
         </div>
-        <div className="surface-inset rounded-[20px] p-5">
+        <PlayOnView className="surface-inset rounded-[20px] p-5">
           <span className="mb-4 block label-mono">Batch 2027 · topic mastery (example)</span>
-          {batches.map(([t, v]) => (
+          {batches.map(([t, v], i) => (
             <div key={t} className="mb-3 last:mb-0">
               <div className="mb-1.5 flex justify-between text-[13px]">
                 <span>{t.replace("Topic: ", "")}</span>
@@ -616,8 +750,9 @@ function ForColleges() {
               </div>
               <div className="relative h-2 overflow-hidden rounded-full bg-surface-3">
                 <span
-                  className="absolute inset-y-0 left-0 origin-left animate-[grow-x_1100ms_var(--ease-out)_backwards] rounded-full"
+                  className="demo-t absolute inset-y-0 left-0 origin-left rounded-full armed:scale-x-0"
                   style={{
+                    transitionDelay: `${i * 120}ms`,
                     width: `${v}%`,
                     background: `linear-gradient(90deg, transparent, ${v < 25 ? "var(--hard)" : v < 60 ? "var(--medium)" : "var(--easy)"})`,
                   }}
@@ -625,7 +760,7 @@ function ForColleges() {
               </div>
             </div>
           ))}
-        </div>
+        </PlayOnView>
       </div>
     </section>
   );
@@ -667,7 +802,7 @@ function Pricing() {
     },
   ];
   return (
-    <section className={cn(WRAP, "pt-28")}>
+    <section className={cn(WRAP, "pt-24")}>
       <SectionHead eyebrow="Pricing" soft="Free for students." em="Really.">
         The things that help you practise are free. If we ever charge, it&apos;s for extras, and
         we&apos;ll say so up front.
@@ -753,7 +888,7 @@ function Faq() {
     ],
   ];
   return (
-    <section id="faq" className={cn(WRAP, "scroll-mt-24 pt-28")}>
+    <section id="faq" className={cn(WRAP, "scroll-mt-24 pt-24")}>
       <SectionHead eyebrow="FAQ" soft="Privacy first," em="always.">
         The questions people ask before installing anything that touches their coding accounts.
       </SectionHead>
@@ -795,10 +930,7 @@ function Footer() {
           <span aria-hidden="true" className="starfield absolute inset-0 opacity-60" />
           <CursorGlow />
           <h2 className="relative mx-auto max-w-[16ch] font-display text-[clamp(40px,6vw,80px)] leading-[1] tracking-[-0.02em]">
-            Stop counting.{" "}
-            <em className="bg-[linear-gradient(100deg,#fff_20%,#d7ff3a_110%)] bg-clip-text text-transparent">
-              Start upsolving.
-            </em>
+            Stop counting. <em>Start upsolving.</em>
           </h2>
           <p className="relative mx-auto mt-4 max-w-[46ch] text-15 text-white/70">
             Free for students. Sign in with Google and your history is here in seconds.
@@ -833,12 +965,8 @@ function Footer() {
           </nav>
         </div>
       </div>
-      <div
-        aria-hidden="true"
-        className="pointer-events-none mt-10 -mb-[4vw] flex justify-center text-ink select-none [mask-image:linear-gradient(180deg,rgba(0,0,0,.16),transparent_88%)]"
-      >
-        <Logo height={320} className="h-auto w-[min(1180px,92vw)]" />
-      </div>
+      {/* DSA करो across the full width; its headline bar fills with lime as you reach the end. */}
+      <WordmarkFill className="mx-auto mt-6 w-[min(1180px,100%-32px)] pb-10 select-none" />
     </footer>
   );
 }

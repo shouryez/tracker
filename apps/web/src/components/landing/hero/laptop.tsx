@@ -17,8 +17,11 @@ export function Laptop({
   className,
 }: {
   screen: ReactNode;
-  /** A fixed pose for the static poster; the scene drives transforms itself when omitted. */
-  pose?: { tilt: number; lid: number };
+  /**
+   * A fixed pose (static poster, loading placeholder); the scene drives transforms itself
+   * when omitted. `y` moves the hinge (default: centres the open screen).
+   */
+  pose?: { tilt: number; lid: number; y?: number };
   className?: string;
 }) {
   const lidW = RIG.screenW + RIG.bezel * 2;
@@ -33,7 +36,9 @@ export function Laptop({
     "--bd": `${RIG.baseD}px`,
   } as CSSProperties;
   const rigStyle = pose
-    ? { transform: `translateY(${RIG.screenH * 0.5 + RIG.bezel}px) rotateX(${-pose.tilt}deg)` }
+    ? {
+        transform: `translateY(${pose.y ?? RIG.screenH * 0.5 + RIG.bezel}px) rotateX(${-pose.tilt}deg)`,
+      }
     : undefined;
   const lidStyle = pose ? { transform: `rotateX(${pose.lid - 90}deg)` } : undefined;
   return (
@@ -43,7 +48,7 @@ export function Laptop({
           <span
             data-part="desk-spill"
             className="lt-desk-spill"
-            style={{ opacity: pose ? 0.9 : 0 }}
+            style={{ opacity: pose?.lid ? 0.9 : 0 }}
           />
         </div>
         <div data-part="base" className="lt-base">
@@ -54,7 +59,7 @@ export function Laptop({
             <i className="lt-space" />
           </div>
           <div className="lt-pad" />
-          <span data-part="spill" className="lt-spill" style={{ opacity: pose ? 0.8 : 0 }} />
+          <span data-part="spill" className="lt-spill" style={{ opacity: pose?.lid ? 0.8 : 0 }} />
         </div>
         <div data-part="edge" className="lt-edge" />
         <div data-part="lid" className="lt-lid" style={lidStyle}>

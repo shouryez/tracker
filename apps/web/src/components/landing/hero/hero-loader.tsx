@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { sceneAllowed } from "./scene-script";
 
 // Code-split: the scene (and motion) load after the server-rendered headline has painted.
-const HeroScene = dynamic(() => import("./hero-scene"), { ssr: false });
+// The download starts as soon as this small module runs, not after hydration finishes.
+const loadScene = () => import("./hero-scene");
+if (typeof window !== "undefined" && document.documentElement.dataset.scene === "on")
+  void loadScene();
+const HeroScene = dynamic(loadScene, { ssr: false });
 
 /**
  * Mounts the scroll scene when the inline gate turned it on. After a client-side

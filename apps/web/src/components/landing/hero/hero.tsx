@@ -5,7 +5,7 @@ import { TextReveal } from "@/components/fx/text";
 import { Magnetic } from "@/components/landing/motion-bits";
 import { HeroSceneLoader } from "./hero-loader";
 import { Laptop, POSTER_POSE } from "./laptop";
-import { CAPTIONS } from "./scene";
+import { CAMERA, CAPTIONS } from "./scene";
 import { SCENE_SCRIPT } from "./scene-script";
 import { ScreenDashboard } from "./screen-dashboard";
 
@@ -20,8 +20,21 @@ export function Hero() {
     <section aria-labelledby="hero-title" className="relative -mt-[68px]">
       <script dangerouslySetInnerHTML={{ __html: SCENE_SCRIPT }} />
       <div data-hero-pin className="relative scene:h-[500vh] max-sm:scene:h-[320vh]">
-        <div className="relative isolate overflow-hidden bg-[#08080a] pb-16 text-[#f4f4f6] scene:sticky scene:top-0 scene:h-svh scene:pb-0">
+        <div
+          data-hero-stage
+          className="relative isolate overflow-hidden bg-[#08080a] pb-16 text-[#f4f4f6] scene:sticky scene:top-0 scene:h-svh scene:pb-0"
+        >
           <Backdrop />
+
+          {/* The closed laptop, server-rendered in the scene's rest pose, so the stage is never
+              empty while the scene's JS loads. It cross-fades out when the scene mounts. */}
+          <div data-rest-laptop className="lt-rest-wrap hidden scene:block">
+            <Laptop
+              pose={{ tilt: CAMERA.tiltClosed, lid: CAMERA.lidClosed, y: 0 }}
+              className="lt-rest"
+              screen={null}
+            />
+          </div>
 
           <a
             href="#glance"
