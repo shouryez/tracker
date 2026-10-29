@@ -130,6 +130,26 @@ export type ExtTodayResponse = {
   dashboardUrl: string;
 };
 
+/**
+ * Progress read from the user's own takeUforward sheet page (their ticks there). `solved`
+ * adds ticks; `removed` holds items the user just unticked on takeUforward.
+ */
+/** takeUforward item slugs can hold apostrophes and commas ("kadane's-algorithm"). */
+const tufSlug = z
+  .string()
+  .min(1)
+  .max(200)
+  .regex(/^[^\s<>"\\]+$/);
+
+export const ExtSheetSyncRequest = z.object({
+  source: z.literal("takeuforward"),
+  /** takeUforward's sheet slug, e.g. "strivers-a2z-dsa-sheet". */
+  sheet: slug,
+  solved: z.array(tufSlug).max(1000),
+  removed: z.array(tufSlug).max(50).default([]),
+});
+export type ExtSheetSyncRequest = z.infer<typeof ExtSheetSyncRequest>;
+
 /** Focus totals reported by the extension when a Lab session ends. */
 export const ExtFocusReport = z.object({
   focusId: z.uuid(),

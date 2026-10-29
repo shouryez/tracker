@@ -12,6 +12,7 @@ import {
   titleFromDocument,
 } from "./leetcode.ts";
 import { advance, categorize, newLab, totals } from "./lab.ts";
+import { isTufProgressUrl, parseTufSheet, tufTickFromBody } from "./tuf.ts";
 import { canResume, isReviewUrl, newSession, toWire, worthUploading } from "./session.ts";
 import {
   gfgProblemSlug,
@@ -324,4 +325,47 @@ test("toWire carries the wrap-up pattern and takeaway", () => {
   const w = toWire({ ...s, pattern: "hashing", takeaway: "store complements" });
   assert.equal(w.pattern, "hashing");
   assert.equal(w.takeaway, "store complements");
+});
+
+test("takeUforward: sheet page ticks, and tick requests", () => {
+  const data = {
+    sheetSlug: "strivers-a2z-dsa-sheet",
+    solvedProblemIds: [12],
+    sheet: {
+      info: { slug: "strivers-a2z-dsa-sheet" },
+      sheet_syllabus: {
+        fields: [
+          ["id", "slug", "type", "label", "children"],
+          ["id", "slug", "type", "label", "status"],
+        ],
+        roots: [0],
+        rows: [
+          [0, 1, "step-1", "category", "Step 1", [1, 2, 3]],
+          [1, 11, "two-sum", "item", "Two Sum", "solved"],
+          [1, 12, "kadane's-algorithm", "item", "Kadane", "unsolved"],
+          [1, 13, "pattern-9", "item", "Pattern 9", "unsolved"],
+        ],
+      },
+    },
+  };
+  const line = `6e:${JSON.stringify(["$", "div", null, { data }])}\n`;
+  const html = `<script>self.__next_f.push([1,${JSON.stringify(line)}])</script>`;
+  const sheet = parseTufSheet(html);
+  assert.equal(sheet?.sheet, "strivers-a2z-dsa-sheet");
+  assert.deepEqual(
+    sheet?.items.filter((i) => i.solved).map((i) => i.slug),
+    ["two-sum", "kadane's-algorithm"],
+  );
+  assert.equal(parseTufSheet("<html>no sheet here</html>"), null);
+
+  assert.ok(isTufProgressUrl("https://backend-go.takeuforward.org/api/v2/progress"));
+  assert.ok(!isTufProgressUrl("https://backend-go.takeuforward.org/api/v2/progress/reset"));
+  assert.deepEqual(
+    tufTickFromBody(
+      '{"type":"source","key":"strivers-a2z-dsa-sheet","problem_id":13,"action":"add"}',
+    ),
+    { sheet: "strivers-a2z-dsa-sheet", problemId: 13, action: "add" },
+  );
+  assert.equal(tufTickFromBody({ type: "list", key: "x", problem_id: 1, action: "add" }), null);
+  assert.equal(tufTickFromBody("not json"), null);
 });

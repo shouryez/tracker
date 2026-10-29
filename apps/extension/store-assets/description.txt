@@ -17,6 +17,9 @@ Open the panel to see when you last solved it, your best time, how you solved it
 • A checklist of your own mistakes
 After a wrong answer, a short pre-submit checklist appears, starting with the slips you've made before (edge cases, overflow, off-by-one).
 
+• Synced with Striver's sheet on takeUforward
+Tick a problem on Striver's A2Z or SDE sheet at takeuforward.org and it's ticked on your DsaKaro copy too. Open the sheet there once and all your past ticks come across.
+
 • Your past history, imported
 When you connect, your existing LeetCode submissions are imported from your own logged-in session, so your dashboard starts full, not empty.
 

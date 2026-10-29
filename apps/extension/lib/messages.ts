@@ -56,7 +56,9 @@ export type Message =
   | { type: "lab:status" }
   /** `report` uploads the totals (stopping from the popup); the web page reports its own. */
   | { type: "lab:stop"; report: boolean }
-  | { type: "save:tab" };
+  | { type: "save:tab" }
+  /** Ticks read from the user's own takeUforward sheet page. */
+  | { type: "tuf:sync"; sheet: string; solved: string[]; removed: string[] };
 
 export type PutResult = { ok: true; stored: number } | { ok: false; error: string; auth?: boolean };
 

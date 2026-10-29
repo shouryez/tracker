@@ -79,6 +79,12 @@ export default function PrivacyPage() {
               logged-in LeetCode session, inside your browser, and sends only the same details as
               above (never code). Your LeetCode cookies never leave your browser.
             </Item>
+            <Item label="takeUforward sheet sync (extension)">
+              When you open or tick a Striver sheet on takeuforward.org while signed in there, the
+              extension reads which items you&apos;ve ticked on that page and sends only those
+              items&apos; names (and any you just unticked), so your DsaKaro copy of the sheet
+              matches. Your takeUforward cookies and account details never leave your browser.
+            </Item>
             <Item label="Lab mode (extension, only while you run a focus session)">
               The extension looks at the address and title of your active tab to decide whether
               you&apos;re on a coding site (focus) or not (away). It keeps and sends only{" "}

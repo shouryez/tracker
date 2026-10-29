@@ -119,6 +119,26 @@ async function putHistory(items: ExtHistoryItem[]): Promise<PutResult> {
   }
 }
 
+/** Mirrors takeUforward sheet ticks onto the same sheet in DsaKaro. */
+async function syncTuf(sheet: string, solved: string[], removed: string[]) {
+  try {
+    const res = await api("/api/ext/sheet-sync", {
+      method: "POST",
+      body: JSON.stringify({
+        source: "takeuforward",
+        sheet,
+        solved: solved.slice(0, 1000),
+        removed,
+      }),
+    });
+    if (!res) return { ok: false, error: "Not connected" };
+    if (await handleAuthFailure(res)) return { ok: false, error: "Not connected" };
+    return { ok: res.ok };
+  } catch {
+    return { ok: false, error: "Offline" };
+  }
+}
+
 async function status(): Promise<Status> {
   const [token, authError, outbox, history, current, lab] = await Promise.all([
     store.token(),
@@ -172,6 +192,8 @@ async function handle(msg: Message): Promise<unknown> {
     case "flush":
       await flush();
       return { ok: true };
+    case "tuf:sync":
+      return syncTuf(msg.sheet, msg.solved, msg.removed);
     default:
       return handleDaily(api, msg);
   }
