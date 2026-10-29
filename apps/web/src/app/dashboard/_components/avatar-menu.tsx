@@ -19,7 +19,7 @@ export type AvatarUser = {
 export function Avatar({ user, size = 36 }: { user: AvatarUser; size?: number }) {
   return (
     <span
-      className="relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--violet),var(--ember))] text-13 font-[600] text-white"
+      className="relative grid shrink-0 place-items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#34343a,#18181b)] text-13 font-[600] text-white"
       style={{ width: size, height: size }}
     >
       {user.avatarUrl ? (

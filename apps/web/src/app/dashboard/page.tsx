@@ -373,7 +373,7 @@ async function Overview() {
                       background: last
                         ? "var(--signal)"
                         : v
-                          ? "rgba(196, 181, 253, 0.55)"
+                          ? "rgba(255, 255, 255, 0.32)"
                           : "rgba(255, 255, 255, 0.08)",
                       animationDelay: `${i * 15}ms`,
                     }}

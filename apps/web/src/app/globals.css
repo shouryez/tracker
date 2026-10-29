@@ -18,13 +18,13 @@
       transparent 20%
     ),
     radial-gradient(circle at 70% 70%, rgba(215, 255, 58, 0.55), transparent 42%),
-    radial-gradient(circle at 34% 66%, rgba(110, 123, 255, 0.95), transparent 55%),
+    radial-gradient(circle at 34% 66%, rgba(124, 183, 255, 0.85), transparent 55%),
     radial-gradient(circle at 64% 30%, rgba(255, 168, 82, 0.75), transparent 48%),
-    radial-gradient(circle at 50% 50%, #1b1b33, #06060b 72%);
+    radial-gradient(circle at 50% 50%, #18181d, #060608 72%);
   box-shadow:
     inset -40px -60px 120px rgba(0, 0, 0, 0.75),
     inset 30px 30px 80px rgba(255, 255, 255, 0.1),
-    0 0 140px 30px rgba(110, 123, 255, 0.32),
+    0 0 140px 30px rgba(124, 183, 255, 0.24),
     0 0 60px 4px rgba(255, 168, 82, 0.18);
 }
 /* Bright rim along the top edge. */

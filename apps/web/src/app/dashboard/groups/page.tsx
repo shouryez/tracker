@@ -11,7 +11,7 @@ import { getMyGroups } from "@/lib/social-data";
 export const metadata: Metadata = { title: "Groups" };
 
 const icon = (Icon: typeof Plus) => <Icon size={14} strokeWidth={2} />;
-const AVATAR_TINTS = ["var(--violet)", "var(--easy)", "var(--medium)", "var(--primary)", "#ff6bb5"];
+const AVATAR_TINTS = ["var(--sky)", "var(--lime)", "var(--amber)", "var(--rose)"];
 
 export default function GroupsPage() {
   return (

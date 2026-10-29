@@ -123,7 +123,7 @@ async function SettingsContent() {
           </Link>
         </CardHeader>
         <div className="mb-5 flex items-center gap-4">
-          <span className="grid size-16 place-items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--violet),var(--ember))] text-20 font-[600] text-white ring-4 ring-violet-soft">
+          <span className="grid size-16 place-items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,#34343a,#18181b)] text-20 font-[600] text-white ring-4 ring-line-2">
             {user.avatarUrl ? (
               // Google avatar, already sized by the provider.
               // eslint-disable-next-line @next/next/no-img-element
@@ -248,7 +248,7 @@ async function SettingsContent() {
       {profile && (
         <Card id="social" className="scroll-mt-24">
           <CardHeader>
-            <CardTitle icon={icon(UsersRound)} tint="#ff6bb5">
+            <CardTitle icon={icon(UsersRound)} tint="var(--sky)">
               Social &amp; privacy
             </CardTitle>
           </CardHeader>

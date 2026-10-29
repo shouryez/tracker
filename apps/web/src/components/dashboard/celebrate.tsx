@@ -20,7 +20,7 @@ export async function burst(opts: { origin?: { x: number; y: number }; small?: b
     shapes: ["square"],
     flat: true,
     origin: opts.origin ?? { x: 0.5, y: 0.35 },
-    colors: ["#d7ff3a", "#a48bff", "#6e7bff", "#ffffff", "#34d6d0"],
+    colors: ["#d7ff3a", "#7cb7ff", "#f5b94d", "#ffffff"],
     disableForReducedMotion: true,
   });
 }

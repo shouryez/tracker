@@ -104,7 +104,7 @@ async function ReviewContent() {
                 "Revisions",
                 week.progress.revisions,
                 week.goals.revisions,
-                "#c4b5fd",
+                "var(--sky)",
                 delta(week.progress.revisions, week.lastWeek.revisions),
               ],
             ].map(([label, value, goal, color, sub]) => (

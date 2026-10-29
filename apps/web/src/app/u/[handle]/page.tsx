@@ -267,7 +267,7 @@ function AvatarRing({
       className="grid size-[112px] shrink-0 place-items-center rounded-full p-[5px] shadow-[0_0_40px_-8px_var(--violet)]"
       style={{ background: ring }}
     >
-      <span className="grid size-full place-items-center overflow-hidden rounded-full border-4 border-[#191645] bg-[linear-gradient(135deg,var(--violet),var(--ember))] text-[28px] font-semibold text-white">
+      <span className="grid size-full place-items-center overflow-hidden rounded-full border-4 border-[var(--bg)] bg-[linear-gradient(135deg,#34343a,#18181b)] text-[28px] font-semibold text-white">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={src} alt="" referrerPolicy="no-referrer" className="size-full object-cover" />

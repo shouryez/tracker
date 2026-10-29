@@ -201,7 +201,7 @@ export function ChartsSection({
             <CardTitle>Codeforces rating</CardTitle>
             <CardSub>rank bands</CardSub>
           </CardHeader>
-          <RatingChart points={RATING} stroke="#5eb8ff" bands={CF_BANDS} />
+          <RatingChart points={RATING} stroke="var(--sky)" bands={CF_BANDS} />
         </Card>
       </div>
     </Section>

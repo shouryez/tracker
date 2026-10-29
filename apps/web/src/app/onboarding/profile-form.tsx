@@ -438,7 +438,7 @@ function ProfilePreview({
       <p className="mb-2 label-mono">Preview</p>
       <div className="surface-hero relative overflow-hidden rounded-[22px] p-5">
         <span aria-hidden="true" className="grain absolute inset-0" />
-        <span className="relative grid size-16 place-items-center rounded-full bg-[linear-gradient(135deg,var(--violet),var(--ember))] text-20 font-[600] text-white ring-4 ring-white/15">
+        <span className="relative grid size-16 place-items-center rounded-full bg-[linear-gradient(135deg,#34343a,#18181b)] text-20 font-[600] text-white ring-4 ring-white/15">
           {initials}
         </span>
         <p className="relative mt-4 truncate text-20 font-[600]">{name || "Your name"}</p>
@@ -459,7 +459,7 @@ function ProfilePreview({
               key={i}
               className="size-2.5 rounded-[2px]"
               style={{
-                background: i % 7 === 3 || i % 11 === 0 ? "#a48bff" : "rgba(255,255,255,.1)",
+                background: i % 7 === 3 || i % 11 === 0 ? "#d7ff3a" : "rgba(255,255,255,.1)",
               }}
             />
           ))}

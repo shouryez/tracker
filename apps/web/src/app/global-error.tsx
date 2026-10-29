@@ -39,9 +39,9 @@ export default function GlobalError({
               gap: 8,
               padding: "4px 12px",
               borderRadius: 999,
-              border: "1px solid rgba(255,90,120,.4)",
-              background: "rgba(255,90,120,.12)",
-              color: "#ff8aa0",
+              border: "1px solid rgba(242,109,130,.4)",
+              background: "rgba(242,109,130,.12)",
+              color: "#f7909f",
               fontFamily: "ui-monospace, monospace",
               fontSize: 12,
             }}

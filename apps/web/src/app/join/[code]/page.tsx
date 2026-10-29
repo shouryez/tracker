@@ -17,7 +17,7 @@ export default function JoinPage({ params }: PageProps<"/join/[code]">) {
       <GlowOrb
         className="top-[-20%] left-1/2 -translate-x-1/2 opacity-30"
         size={560}
-        color="#ff6bb5"
+        color="#7cb7ff"
       />
       <div className="relative w-full max-w-[440px]">
         <Link href="/" aria-label="DsaKaro home" className="mb-6 inline-block">

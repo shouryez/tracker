@@ -1,19 +1,19 @@
 import type { CSSProperties } from "react";
 import { cn } from "@upsolve/ui";
 
-/** Accent colour + monogram per curated sheet (falls back to violet + initials). */
+/** Accent colour (one of the four theme accents) + monogram per curated sheet (falls back to sky + initials). */
 export const SHEET_IDENTITY: Record<string, { color: string; mono: string }> = {
-  "striver-a2z": { color: "#a48bff", mono: "A2Z" },
-  "striver-sde": { color: "#ff7a45", mono: "SDE" },
-  "neetcode-150": { color: "#5eb8ff", mono: "150" },
-  "blind-75": { color: "#34d6d0", mono: "B75" },
-  "grind-75": { color: "#ffb938", mono: "G75" },
+  "striver-a2z": { color: "#7cb7ff", mono: "A2Z" },
+  "striver-sde": { color: "#f5b94d", mono: "SDE" },
+  "neetcode-150": { color: "#bfe85a", mono: "150" },
+  "blind-75": { color: "#f26d82", mono: "B75" },
+  "grind-75": { color: "#7cb7ff", mono: "G75" },
 };
 
 export function sheetIdentity(slug: string, name: string) {
   return (
     SHEET_IDENTITY[slug] ?? {
-      color: "#a48bff",
+      color: "#7cb7ff",
       mono: name
         .split(/\s+/)
         .map((w) => w[0])
