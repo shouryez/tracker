@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useOptimistic, useRef, useState, useTransition } from "react";
-import { ArrowUpRight, Plus, Trash2 } from "lucide-react";
+import { useOptimistic, useRef, useState, useTransition, type ReactNode } from "react";
+import { ArrowUpRight, CalendarClock, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, DifficultyTag, ProgressRing, Tag, cn, inputClasses } from "@upsolve/ui";
 import { addPlanTask, removePlanItem, setPlanItemDone } from "@/app/actions/daily";
@@ -26,12 +26,34 @@ export const KIND: Record<
 
 type Op = { id: string; done?: boolean; removed?: boolean } | { add: PlanItem };
 
+/** "Yesterday", or "Tue, 28 Oct": when a rolled-over item was planned. */
+function dayLabel(day: string, today: string) {
+  const diff = Math.round((Date.parse(today) - Date.parse(day)) / 86_400_000);
+  if (diff === 1) return "Yesterday";
+  return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
+
 /**
  * Today's to-do list: only what you added (suggestions, sheet items, your own tasks).
  * Problem items tick themselves when you solve them (the extension or a sync reports
- * Accepted); anything can be ticked by hand.
+ * Accepted) or tick them on a sheet; anything can be ticked by hand. Unfinished items roll
+ * over to the next day with the date they were planned for.
  */
-export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; compact?: boolean }) {
+export function TodayPlanList({
+  plan,
+  compact = false,
+  action,
+}: {
+  plan: TodayPlan;
+  compact?: boolean;
+  /** Shown beside the summary, e.g. the "Add from sheet" button. */
+  action?: ReactNode;
+}) {
   const [pending, start] = useTransition();
   const [title, setTitle] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -41,6 +63,7 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
     return state.map((i) => (i.id === op.id ? { ...i, done: op.done ?? i.done } : i));
   });
   const done = items.filter((i) => i.done).length;
+  const carried = items.filter((i) => i.day < plan.day && !i.done).length;
   const shown = compact ? items.slice(0, 6) : items;
 
   function toggle(item: PlanItem, el: HTMLElement) {
@@ -78,6 +101,7 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
           difficulty: null,
           done: false,
           auto: false,
+          day: plan.day,
         },
       });
       const res = await addPlanTask(t);
@@ -89,7 +113,7 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
   return (
     <div className="flex flex-col gap-4">
       {items.length > 0 && done === items.length && <CelebrateOnce id={`plan-${plan.day}`} />}
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <ProgressRing
           total={Math.max(1, items.length)}
           size={compact ? 64 : 84}
@@ -102,7 +126,7 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
             <span className="text-ink-3">/{items.length}</span>
           </span>
         </ProgressRing>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-15 font-[600]">
             {items.length === 0
               ? "Nothing planned yet"
@@ -115,9 +139,12 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
               ? compact
                 ? "Pick from suggestions and your sheets on Today."
                 : "Add suggestions or sheet problems, or write your own task below."
-              : "Problems tick themselves when you solve them."}
+              : carried > 0
+                ? `${carried} rolled over from earlier. Problems tick themselves when you solve or tick them.`
+                : "Problems tick themselves when you solve them or tick them on a sheet."}
           </p>
         </div>
+        {action}
       </div>
 
       <ul className="flex flex-col gap-1.5">
@@ -160,8 +187,22 @@ export function TodayPlanList({ plan, compact = false }: { plan: TodayPlan; comp
                 )}
                 {item.difficulty && !compact && <DifficultyTag difficulty={item.difficulty} />}
               </span>
-              {item.detail && (
-                <span className="block truncate text-11 text-ink-3">{item.detail}</span>
+              {(item.detail || item.day < plan.day) && (
+                <span className="flex min-w-0 items-center gap-1.5 text-11 text-ink-3">
+                  {item.day < plan.day && (
+                    <span
+                      title={`Planned for ${dayLabel(item.day, plan.day)}, rolled over`}
+                      className={cn(
+                        "inline-flex shrink-0 items-center gap-1 font-[550]",
+                        item.done ? "text-ink-3" : "text-medium",
+                      )}
+                    >
+                      <CalendarClock size={11} aria-hidden="true" />
+                      {dayLabel(item.day, plan.day)}
+                    </span>
+                  )}
+                  {item.detail && <span className="truncate">{item.detail}</span>}
+                </span>
               )}
             </span>
             <span className="hidden sm:inline-flex">

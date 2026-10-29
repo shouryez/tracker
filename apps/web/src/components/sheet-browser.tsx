@@ -70,6 +70,15 @@ export function SheetBrowser({
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [onToday, setOnToday] = useState(() => new Set(initialOnToday));
   const [adding, startAdding] = useTransition();
+  // "Next 5 unsolved": the first practice problems not done and not already on the list.
+  const nextUp = useMemo(
+    () =>
+      items
+        .filter((i) => i.kind === "practice" && !i.status && !onToday.has(i.itemKey))
+        .slice(0, 5)
+        .map((i) => i.itemKey),
+    [items, onToday],
+  );
   const [status, setStatus] = useState<Status>("all");
   const [tiers, setTiers] = useState<string[]>([]);
   const [stars, setStars] = useState(
@@ -296,15 +305,20 @@ export function SheetBrowser({
             setPicking((on) => !on);
             setPicked(new Set());
           }}
+          // Lime-tinted so it's easy to find; solid lime while you're picking.
           className={cn(
-            "ml-auto inline-flex h-[28px] items-center gap-1.5 rounded-full border px-3 text-12 font-[600] transition-colors duration-[var(--dur-base)]",
+            "ml-auto inline-flex h-[32px] items-center gap-1.5 rounded-full border px-3.5 text-13 font-[650] transition-[background-color,border-color,color,transform] duration-[var(--dur-base)] active:scale-[.97]",
             picking
               ? "border-transparent bg-signal text-signal-ink"
-              : "border-line-2 text-ink-2 hover:border-line-3 hover:text-ink",
+              : "border-[color-mix(in_srgb,var(--signal)_55%,transparent)] bg-[color-mix(in_srgb,var(--signal)_14%,transparent)] text-ink shadow-[0_0_0_3px_color-mix(in_srgb,var(--signal)_8%,transparent)] hover:border-signal hover:bg-[color-mix(in_srgb,var(--signal)_24%,transparent)]",
           )}
         >
-          <CalendarPlus size={13} aria-hidden="true" />
-          {picking ? "Picking for today" : "Add to today"}
+          <CalendarPlus
+            size={14}
+            aria-hidden="true"
+            className={picking ? undefined : "text-[var(--signal-mark)]"}
+          />
+          {picking ? "Done picking" : "Add to today"}
         </button>
         <button
           type="button"
@@ -538,16 +552,26 @@ export function SheetBrowser({
       })}
 
       {picking && (
-        <div className="sticky bottom-4 z-40 mx-auto flex w-full max-w-[560px] animate-[rise-in_var(--dur-base)_var(--ease-out)_backwards] items-center gap-3 rounded-full border border-line-2 bg-surface-3/95 py-2 pr-2 pl-5 shadow-e2 backdrop-blur-xl">
+        // Above the phone's bottom nav (it used to sit under it, so "Add" couldn't be tapped).
+        <div className="sticky bottom-24 z-40 mx-auto flex w-full max-w-[560px] animate-[rise-in_var(--dur-base)_var(--ease-out)_backwards] items-center gap-2 rounded-full border border-line-2 bg-surface-3/95 py-2 pr-2 pl-5 shadow-e2 pointer-fine:backdrop-blur-xl lg:bottom-4">
           <span className="min-w-0 flex-1 truncate text-13">
             {picked.size === 0 ? (
-              <span className="text-ink-3">Tick problems to add to today</span>
+              <span className="text-ink-3">Tick problems to add</span>
             ) : (
               <>
                 <span className="tnum font-[650]">{picked.size}</span> selected
               </>
             )}
           </span>
+          {picked.size === 0 && nextUp.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setPicked(new Set(nextUp))}
+              className="shrink-0 rounded-full border border-line-2 px-3 py-1.5 text-12 font-[600] text-ink-2 transition-colors hover:border-line-3 hover:text-ink"
+            >
+              Next {nextUp.length} unsolved
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

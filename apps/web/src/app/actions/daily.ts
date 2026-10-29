@@ -21,7 +21,7 @@ import { classifySaved } from "@/lib/daily-data";
 import { db, userTag } from "@/lib/db";
 import { getProfile } from "@/lib/data";
 import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/lib/learning";
-import { ON_TODAY_LIST, getTodaySuggestions } from "@/lib/plan";
+import { ON_LIST, ON_TODAY_LIST, SAME_SHEET_ITEM, getTodaySuggestions } from "@/lib/plan";
 import { getStudyContents, type StudyContents } from "@/lib/study-data";
 import { localDate, requestNow } from "@/lib/time";
 
@@ -77,10 +77,31 @@ export async function addPlanTask(title: string): Promise<DailyResult> {
 export async function setPlanItemDone(id: string, done: boolean): Promise<DailyResult> {
   const user = await me();
   if (!user || !Id.safeParse(id).success) return fail("Not found.");
-  await db()
+  const [item] = await db()
     .update(planItems)
     .set({ doneAt: done ? new Date() : null })
-    .where(and(eq(planItems.id, id), eq(planItems.userId, user.id)));
+    .where(and(eq(planItems.id, id), eq(planItems.userId, user.id)))
+    .returning({ kind: planItems.kind });
+  if (!item) return fail("Not found.");
+  // The same item on a sheet ticks along (the list and the sheet never disagree). Unticking
+  // takes back only sheet ticks made since it was planned, never an older one.
+  if (item.kind !== "contest") {
+    if (done) {
+      await db().execute(sql`
+        insert into sheet_marks (user_id, sheet_id, item_key)
+        select ${user.id}, si.sheet_id, si.item_key
+        from plan_items pi join sheet_items si on ${SAME_SHEET_ITEM}
+        where pi.id = ${id} and pi.user_id = ${user.id}
+        on conflict do nothing`);
+    } else {
+      await db().execute(sql`
+        delete from sheet_marks sm
+        using plan_items pi, sheet_items si
+        where pi.id = ${id} and pi.user_id = ${user.id} and sm.user_id = ${user.id}
+          and si.sheet_id = sm.sheet_id and si.item_key = sm.item_key
+          and sm.created_at >= pi.created_at and ${SAME_SHEET_ITEM}`);
+    }
+  }
   updateTag(userTag(user.id));
   return { ok: true };
 }
@@ -110,7 +131,7 @@ export async function addProblemsToPlan(
         order by (pp.platform = 'leetcode') desc limit 1) as url
     from problems p where p.id in ${ids}
       and not exists (select 1 from plan_items pi where pi.user_id = ${user.id}
-        and pi.day = ${day} and pi.problem_id = p.id)`)) as unknown as {
+        and ${ON_LIST(day)} and pi.problem_id = p.id)`)) as unknown as {
     id: string;
     title: string;
     url: string | null;

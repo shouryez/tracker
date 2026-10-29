@@ -21,6 +21,7 @@ import {
   SkeletonCard,
   buttonClasses,
 } from "@upsolve/ui";
+import { AddFromSheet } from "@/components/daily/add-from-sheet";
 import { NextProblemButton } from "@/components/daily/next-problem";
 import { PlanSuggestions, SheetPicks } from "@/components/daily/plan-suggestions";
 import { TodayPlanList } from "@/components/daily/today-plan";
@@ -29,7 +30,7 @@ import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getActiveFocus, getFocusSummary, getWeekReview } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
-import { getSheetPicks, getTodayPlan, getTodaySuggestions } from "@/lib/plan";
+import { getFollowedSheets, getSheetPicks, getTodayPlan, getTodaySuggestions } from "@/lib/plan";
 import { requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Today" };
@@ -58,13 +59,14 @@ async function TodayContent() {
   const tz = profile?.timezone ?? "Asia/Kolkata";
   const now = requestNow();
   const cap = profile?.reviewCap ?? 5;
-  const [plan, suggestions, picks, focus, active, week] = await Promise.all([
+  const [plan, suggestions, picks, focus, active, week, followed] = await Promise.all([
     getTodayPlan(user.id, tz, cap, now),
     getTodaySuggestions(user.id, tz, cap, now),
     getSheetPicks(user.id, tz, now),
     getFocusSummary(user.id, tz, now),
     getActiveFocus(user.id),
     getWeekReview(user.id, tz, now),
+    getFollowedSheets(user.id),
   ]);
   const goalMin = profile?.dailyGoalMin ?? 60;
   const left = plan.total - plan.done;
@@ -123,9 +125,9 @@ async function TodayContent() {
             <CardTitle icon={<ListTodo size={14} />} tint="var(--signal-mark)">
               Today&apos;s to-do
             </CardTitle>
-            <CardSub>only what you add</CardSub>
+            <CardSub>unfinished items roll over</CardSub>
           </CardHeader>
-          <TodayPlanList plan={plan} />
+          <TodayPlanList plan={plan} action={<AddFromSheet sheets={followed} />} />
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
