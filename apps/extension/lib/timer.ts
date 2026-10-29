@@ -66,8 +66,14 @@ export function tick(s: TimerState, now: number, sig: Signals): TimerState {
     !s.manualPause && sig.visible && sig.focused && now - sig.lastInputAt < IDLE_AFTER_MS;
   if (engaged) {
     next.status = "active";
-    next.activeMs += counted;
-    next.idleMs += overflow;
+    if (s.status === "active") {
+      next.activeMs += counted;
+      next.idleMs += overflow;
+    } else {
+      // Coming back from a pause (another tab, a throttled background tab): the gap since the
+      // last tick was time away, so none of it counts as solving.
+      next.idleMs += dt;
+    }
   } else {
     next.status = "paused";
     next.idleMs += dt;

@@ -54,6 +54,8 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   let ticks = 0;
   /** The first report of a session goes out as soon as it's worth uploading. */
   let reported = false;
+  /** Timer status at the last report: a pause or resume is reported straight away. */
+  let reportedStatus: string | null = null;
   let connected = Boolean(await store.token());
   let hintsOffered = false;
   let checklistShown = false;
@@ -102,6 +104,7 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     await leave();
     slug = next;
     reported = false;
+    reportedStatus = null;
     const now = Date.now();
     const existing = await store.session(site.platform, next);
     session =
@@ -267,9 +270,15 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
     render();
     ticks++;
     if (ticks % PERSIST_EVERY_TICKS === 0) void persist();
-    if (session.timer.status === "active" && (!reported || ticks % UPLOAD_EVERY_TICKS === 0)) {
-      // Sent straight away rather than on the next one-minute flush.
-      if (worthUploading(session)) reported = true;
+    const status = session.timer.status;
+    const changed = reported && status !== reportedStatus;
+    if (changed || (status === "active" && (!reported || ticks % UPLOAD_EVERY_TICKS === 0))) {
+      // Sent straight away rather than on the next one-minute flush, so the website's live
+      // clock stops the moment you switch away and starts when you're back.
+      if (worthUploading(session)) {
+        reported = true;
+        reportedStatus = status;
+      }
       send(session, true);
     }
   }, 1000);

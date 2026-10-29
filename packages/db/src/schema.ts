@@ -300,6 +300,8 @@ export const practiceSessions = pgTable(
     idleMs: integer("idle_ms").notNull().default(0),
     submits: integer("submits").notNull().default(0),
     outcome: sessionOutcome("outcome").notNull().default("open"),
+    /** The extension's timer at its last report (active/paused/...), for the live clock. */
+    liveStatus: text("live_status"),
     independence: independence("independence"),
     note: text("note"),
     mistakeTags: text("mistake_tags")

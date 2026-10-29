@@ -9,6 +9,7 @@ import { SidebarView } from "./_components/nav-links";
 import { MobileNavWithData, SidebarWithData } from "./_components/sidebar-data";
 import { SearchBox } from "./_components/search-box";
 import { StickyHeader } from "./_components/sticky-header";
+import { StudyBarWithData } from "./_components/study-bar-data";
 import { UserMenu, UserMenuSkeleton } from "./_components/user-menu";
 
 export default function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
@@ -42,6 +43,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
 
       <Suspense fallback={null}>
         <MobileNavWithData />
+      </Suspense>
+      <Suspense fallback={null}>
+        <StudyBarWithData />
       </Suspense>
       <Suspense fallback={null}>
         <NavHistory />

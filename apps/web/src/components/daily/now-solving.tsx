@@ -5,9 +5,13 @@ import { ArrowUpRight, Timer } from "lucide-react";
 import { DifficultyTag, LiveDot, cn } from "@upsolve/ui";
 import type { LiveSession } from "@/lib/sessions-data";
 
-const POLL_MS = 20_000;
-/** The extension reports about once a minute while you solve; quieter than this means paused. */
-const FRESH_MS = 150_000;
+const POLL_MS = 15_000;
+/**
+ * The extension reports every pause and resume at once, and every 30 s while you solve.
+ * Its clock runs on here only while the last report says active and is this recent;
+ * otherwise it shows exactly the time the extension measured.
+ */
+const FRESH_MS = 75_000;
 
 const PLATFORM: Record<string, string> = {
   leetcode: "LeetCode",
@@ -87,7 +91,9 @@ export function NowSolving({ className }: { className?: string }) {
 
   const serverNow = now + (live?.offset ?? 0);
   const sinceReport = Math.max(0, serverNow - session.reportedAt);
-  const running = sinceReport < FRESH_MS;
+  // Older extension builds don't send a status: fall back to how recent the report is.
+  const running =
+    (session.status === "active" || session.status === null) && sinceReport < FRESH_MS;
   const elapsed = session.activeMs + (running ? sinceReport : 0);
 
   return (

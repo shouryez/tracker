@@ -158,8 +158,10 @@ export type LiveSession = {
   startedAt: number;
   activeMs: number;
   submits: number;
-  /** When the extension last reported (it reports about once a minute while you solve). */
+  /** When the extension last reported: on every pause and resume, and every 30 s while solving. */
   reportedAt: number;
+  /** The extension's timer at that report; null from builds before it was sent. */
+  status: "armed" | "active" | "paused" | "solved" | null;
 };
 
 /** Uncached on purpose: it has to be fresh. Open sessions untouched for 30 minutes don't count. */
@@ -174,6 +176,7 @@ export async function getLiveSession(userId: string): Promise<LiveSession | null
       activeMs: practiceSessions.activeMs,
       submits: practiceSessions.submits,
       updatedAt: practiceSessions.updatedAt,
+      status: practiceSessions.liveStatus,
     })
     .from(practiceSessions)
     .innerJoin(platformProblems, eq(platformProblems.id, practiceSessions.platformProblemId))
@@ -188,9 +191,10 @@ export async function getLiveSession(userId: string): Promise<LiveSession | null
     .orderBy(desc(practiceSessions.updatedAt))
     .limit(1);
   if (!row) return null;
-  const { difficultyRaw, updatedAt, startedAt, ...rest } = row;
+  const { difficultyRaw, updatedAt, startedAt, status, ...rest } = row;
   return {
     ...rest,
+    status: (["armed", "active", "paused", "solved"] as const).find((s) => s === status) ?? null,
     difficulty:
       (["easy", "medium", "hard"] as const).find((d) => d === difficultyRaw?.toLowerCase()) ?? null,
     startedAt: startedAt.getTime(),

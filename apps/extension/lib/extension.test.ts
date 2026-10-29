@@ -65,7 +65,25 @@ test("hidden tab and 3 minutes without input count as idle", () => {
 
   const lastInput = T0 + 90_000;
   s = run(s, T0 + 90_000, 240, () => focused(lastInput)); // visible but no input for 4 min
-  assert.equal(s.activeMs, 60_000 + IDLE_AFTER_MS - 1000);
+  // The first tick back only resumes (it doesn't count), then counts until the idle cutoff.
+  assert.equal(s.activeMs, 60_000 + IDLE_AFTER_MS - 2000);
+});
+
+test("switching tabs pauses at once and coming back adds none of the time away", () => {
+  let s = onInput(newTimer(T0), T0);
+  s = run(s, T0, 60, (n) => focused(n)); // 1 min solving
+  // Another tab for 2 min: the hidden tab is throttled, so ticks arrive once a minute.
+  const away = { visible: false, focused: false, lastInputAt: T0 + 60_000 };
+  s = tick(s, T0 + 61_000, away);
+  assert.equal(s.status, "paused");
+  s = tick(s, T0 + 121_000, away);
+  s = tick(s, T0 + 181_000, away);
+  // Back on the problem: the first tick only resumes; the gap is idle, not solving.
+  s = tick(s, T0 + 182_000, focused(T0 + 182_000));
+  assert.equal(s.status, "active");
+  assert.equal(s.activeMs, 60_000);
+  s = run(s, T0 + 182_000, 10, (n) => focused(n));
+  assert.equal(s.activeMs, 70_000);
 });
 
 test("a laptop sleeping mid-session doesn't inflate active time", () => {

@@ -101,5 +101,6 @@ export function toWire(s: LocalSession): ExtSession {
     pattern: s.pattern ?? null,
     takeaway: s.takeaway ?? null,
     submissions: s.submissions,
+    status: s.timer.status,
   };
 }

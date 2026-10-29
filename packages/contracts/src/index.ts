@@ -55,6 +55,8 @@ export const ExtSession = z.object({
     .default(null),
   takeaway: z.string().max(200).nullable().default(null),
   submissions: z.array(ExtSubmission).max(200),
+  /** The timer right now, so the website's live clock runs only while you're solving. */
+  status: z.enum(["armed", "active", "paused", "solved"]).optional(),
 });
 
 export const ExtSessionsRequest = z.object({

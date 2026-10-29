@@ -9,8 +9,10 @@ import { PageHeader } from "@/components/page-header";
 import { formatEta } from "@/components/progress";
 import { SheetBrowser, type ItemReview } from "@/components/sheet-browser";
 import { SheetCover, sheetIdentity } from "@/components/sheet-identity";
+import { StartStudyButton } from "@/components/daily/study-bar";
 import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { getActiveFocus } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { getLearning } from "@/lib/learning";
 import { getSheetKeysOnToday } from "@/lib/plan";
@@ -65,10 +67,11 @@ async function SheetContent({
   const { slug } = await params;
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to track sheets.</p>;
-  const [sheet, learning, profile] = await Promise.all([
+  const [sheet, learning, profile, active] = await Promise.all([
     getSheetDetail(user.id, slug),
     getLearning(user.id),
     getProfile(user.id),
+    getActiveFocus(user.id),
   ]);
   if (!sheet) notFound();
   const tz = profile?.timezone ?? "Asia/Kolkata";
@@ -129,7 +132,12 @@ async function SheetContent({
             </a>
           ) : undefined
         }
-        actions={<FollowButton sheetId={sheet.id} following={sheet.following} />}
+        actions={
+          <>
+            <StartStudyButton label={sheet.name} active={active} />
+            <FollowButton sheetId={sheet.id} following={sheet.following} />
+          </>
+        }
       />
 
       <Card

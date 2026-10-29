@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Coffee, Pause, Play, Square } from "lucide-react";
+import { Coffee, Play, Square } from "lucide-react";
 import { toast } from "sonner";
-import { Button, ProgressRing, SegmentedControl, Tag, cn, inputClasses } from "@upsolve/ui";
+import { Button, ProgressRing, SegmentedControl, Tag, inputClasses } from "@upsolve/ui";
 import { getStudySummary, startFocus, stopFocus } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
-import { Modal } from "@/components/fx/overlay";
 import { labStart, labStatus, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
 import type { StudyContents } from "@/lib/study-data";
-import { StudyContentsList, studyCounts } from "./study-session";
+import { StudySummaryModal } from "./study-bar";
 
 type Mode = "stopwatch" | "pomodoro-25" | "pomodoro-50";
 const CYCLE: Record<Exclude<Mode, "stopwatch">, { work: number; rest: number }> = {
@@ -230,64 +229,12 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
         </div>
       </div>
 
-      <Modal
-        open={summary !== null}
+      <StudySummaryModal
+        summary={summary}
+        pending={pending}
         onClose={() => setSummary(null)}
-        title={
-          <>
-            Nice <em className="font-display font-normal">session.</em>
-          </>
-        }
-        description="Keep it, or throw it away if the timer ran by mistake."
-      >
-        {summary && (
-          <div className="flex flex-col gap-5">
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                [
-                  "Focus",
-                  summary.totals ? mins(summary.totals.focusMs) : mins(summary.wall),
-                  "text-success",
-                ],
-                ["Away", summary.totals ? mins(summary.totals.awayMs) : "—", "text-medium"],
-                ["Switches", summary.totals ? String(summary.totals.switches) : "—", "text-ink"],
-              ].map(([k, v, c]) => (
-                <div key={k} className="surface-inset rounded-[14px] p-3 text-center">
-                  <p className="label-mono">{k}</p>
-                  <p className={cn("num mt-1 text-24", c)}>{v}</p>
-                </div>
-              ))}
-            </div>
-            {summary.contents && (
-              <div className="flex flex-col gap-2">
-                <p className="label-mono">
-                  In this session
-                  {studyCounts(summary.contents).length
-                    ? ` · ${studyCounts(summary.contents).join(" · ")}`
-                    : ""}
-                </p>
-                <StudyContentsList
-                  contents={summary.contents}
-                  className="max-h-[40vh] overflow-y-auto"
-                />
-              </div>
-            )}
-            {summary.totals && summary.totals.awayMs > 10 * 60_000 && (
-              <p className="text-13 text-ink-2">
-                You were away for {mins(summary.totals.awayMs)}. Away time never counts as focus.
-              </p>
-            )}
-            <div className="flex justify-end gap-2">
-              <Button variant="ghost" disabled={pending} onClick={() => save(true)}>
-                Discard
-              </Button>
-              <Button variant="signal" loading={pending} onClick={() => save(false)}>
-                <Pause size={14} aria-hidden="true" /> Save session
-              </Button>
-            </div>
-          </div>
-        )}
-      </Modal>
+        onSave={save}
+      />
     </div>
   );
 }
