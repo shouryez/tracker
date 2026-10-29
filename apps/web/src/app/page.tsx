@@ -958,9 +958,9 @@ function Footer() {
             <a href="#features" className="hover:text-ink">
               Features
             </a>
-            <a href="#faq" className="hover:text-ink">
+            <Link href="/privacy" className="hover:text-ink">
               Privacy
-            </a>
+            </Link>
             <a href="https://github.com/shouryez/upsolve" className="hover:text-ink">
               GitHub
             </a>
