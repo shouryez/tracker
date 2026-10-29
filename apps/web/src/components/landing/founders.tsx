@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef, useState } from "react";
 import { ArrowUpRight, Check, Copy, Mail } from "lucide-react";
 import { Eyebrow, cardClasses, cn } from "@upsolve/ui";
@@ -16,11 +17,14 @@ const FOUNDERS = [
     name: "Sarthak Srivastava",
     initials: "SS",
     linkedin: "https://www.linkedin.com/in/sarthak-srivastava-b99181213",
+    /** A square photo in public/team/ (null: the monogram shows instead). */
+    photo: null as string | null,
   },
   {
     name: "Shourya Pratap Singh Chouhan",
     initials: "SC",
     linkedin: "https://www.linkedin.com/in/shourya-pratap-singh-chouhan-b06294242/",
+    photo: null as string | null,
   },
 ];
 
@@ -90,10 +94,20 @@ function FounderCard({ f, i }: { f: (typeof FOUNDERS)[number]; i: number }) {
         <span className="relative grid size-16 place-items-center rounded-[18px] border border-line-2 bg-surface-2 font-display text-[28px] tracking-[-0.02em] text-ink sm:size-[72px]">
           <span
             aria-hidden="true"
-            className="demo-t absolute -top-[5px] left-2 h-[4px] w-[calc(100%-16px)] origin-left rounded-full bg-[var(--signal-mark)] armed:scale-x-0"
+            className="demo-t absolute -top-[5px] left-2 z-10 h-[4px] w-[calc(100%-16px)] origin-left rounded-full bg-[var(--signal-mark)] armed:scale-x-0"
             style={{ transitionDelay: `${300 + i * 140}ms` }}
           />
-          {f.initials}
+          {f.photo ? (
+            <Image
+              src={f.photo}
+              alt={f.name}
+              fill
+              sizes="72px"
+              className="rounded-[17px] object-cover"
+            />
+          ) : (
+            f.initials
+          )}
         </span>
         <span className="font-mono text-[11px] tracking-[.1em] text-ink-4 uppercase">0{i + 1}</span>
       </div>
@@ -166,12 +180,8 @@ export function Founders() {
       className="mx-auto w-[min(1200px,100%-32px)] scroll-mt-24 pt-28"
     >
       <div className="mb-10 flex flex-col items-start gap-4 sm:mb-12">
-        <Eyebrow>The team</Eyebrow>
-        <ScrollWords text="Built by two students" em="who needed it." />
-        <p className="max-w-[56ch] text-[15.5px] leading-relaxed text-ink-2">
-          We were tired of spreadsheets, forgotten solutions and fake hours, so we built the tracker
-          we wanted. Say hi, tell us what to build next.
-        </p>
+        <Eyebrow>Team</Eyebrow>
+        <ScrollWords text="Meet the" em="team." />
       </div>
 
       <PlayOnView className="flex flex-col gap-3.5">
