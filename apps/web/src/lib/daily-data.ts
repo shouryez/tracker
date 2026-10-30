@@ -619,3 +619,5 @@ export async function bestHour(userId: string, tz: string): Promise<number> {
     group by 1 order by count(*) desc limit 1`)) as unknown as { hour: number }[];
   return row?.hour ?? 20;
 }
+
+// DsaKaro

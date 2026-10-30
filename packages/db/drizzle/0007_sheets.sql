@@ -34,3 +34,5 @@ ALTER TABLE "user_sheets" ADD CONSTRAINT "user_sheets_sheet_id_sheets_id_fk" FOR
 CREATE INDEX "sheet_items_sheet_position_idx" ON "sheet_items" USING btree ("sheet_id","position");--> statement-breakpoint
 CREATE POLICY "owner can read" ON "sheet_marks" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("sheet_marks"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "user_sheets" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("user_sheets"."user_id" = (select auth.uid()));
+
+-- DsaKaro

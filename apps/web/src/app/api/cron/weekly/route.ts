@@ -17,3 +17,5 @@ export async function GET(request: Request) {
   const result = await sendWeeklyEmails(new URL(request.url).origin);
   return Response.json({ ok: true, ...result });
 }
+
+// DsaKaro

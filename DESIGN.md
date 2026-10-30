@@ -348,3 +348,5 @@ General rules:
 2. Should the app default to dark, or follow the OS? (Current choice: follow the OS, falling back to dark.)
 3. Should the session card stay dark in light mode? (Current choice: yes. It's the one "hero" object.)
 4. Should the college leaderboard rank by honest count, focus hours or a blend? Test with real users.
+
+<!-- DsaKaro -->

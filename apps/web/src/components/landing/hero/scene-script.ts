@@ -23,3 +23,5 @@ export function sceneAllowed(): boolean {
  * as a static poster. Same check as sceneAllowed().
  */
 export const SCENE_SCRIPT = `(function(){try{var n=navigator,d=document.documentElement,u=n.userAgent;if(/iP(hone|ad|od)/.test(u)||(/Mac/.test(u)&&n.maxTouchPoints>1)||/[?&]noscene\\b/.test(location.search)||matchMedia("(prefers-reduced-motion: reduce)").matches||(n.hardwareConcurrency||8)<=2||(n.deviceMemory||8)<=2)delete d.dataset.scene;else d.dataset.scene="on"}catch(e){}})();`;
+
+// DsaKaro

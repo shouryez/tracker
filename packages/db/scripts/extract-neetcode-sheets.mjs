@@ -84,3 +84,5 @@ for (const sheet of SHEETS) {
     `${sheet.out}: ${items.length} problems in ${new Set(items.map((i) => i.step)).size} patterns, ${items.filter((i) => i.video).length} videos`,
   );
 }
+
+// DsaKaro

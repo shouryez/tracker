@@ -39,3 +39,5 @@ export const REJECT_REASONS = [
   "The name on the card doesn't match your profile name.",
   "The card looks expired. Please upload your current one.",
 ] as const;
+
+// DsaKaro

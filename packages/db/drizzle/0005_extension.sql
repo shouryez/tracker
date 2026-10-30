@@ -16,3 +16,5 @@ ALTER TABLE "extension_tokens" ADD CONSTRAINT "extension_tokens_user_id_users_id
 CREATE INDEX "extension_tokens_user_idx" ON "extension_tokens" USING btree ("user_id");--> statement-breakpoint
 ALTER TABLE "practice_sessions" ADD CONSTRAINT "practice_sessions_user_client_uq" UNIQUE("user_id","client_id");--> statement-breakpoint
 CREATE POLICY "owner can read" ON "extension_tokens" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("extension_tokens"."user_id" = (select auth.uid()));
+
+-- DsaKaro

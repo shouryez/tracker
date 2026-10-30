@@ -162,3 +162,5 @@ export function stateAt(p: number): SceneState {
 
 export const sameState = (a: SceneState, b: SceneState) =>
   (Object.keys(a) as (keyof SceneState)[]).every((k) => a[k] === b[k]);
+
+// DsaKaro

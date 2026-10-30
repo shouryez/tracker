@@ -298,3 +298,5 @@ WHERE NOT EXISTS (SELECT 1 FROM "colleges" c WHERE lower(c."name") = lower(v.nam
 
 writeFileSync(new URL("../drizzle/0003_seed_colleges.sql", import.meta.url), sql);
 console.log(`Wrote ${COLLEGES.length} colleges`);
+
+// DsaKaro

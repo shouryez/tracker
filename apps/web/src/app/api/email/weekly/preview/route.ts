@@ -11,3 +11,5 @@ export async function GET(request: Request) {
   const { html } = renderWeeklyEmail(digest, emailLinks(new URL(request.url).origin, user.id));
   return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
+
+// DsaKaro

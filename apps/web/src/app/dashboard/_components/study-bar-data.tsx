@@ -8,3 +8,5 @@ export async function StudyBarWithData() {
   if (isDemoUser(user)) return null;
   return <StudyBar active={await getActiveFocus(user.id)} />;
 }
+
+// DsaKaro

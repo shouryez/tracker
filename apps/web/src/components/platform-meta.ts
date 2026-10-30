@@ -23,3 +23,5 @@ export const PLATFORM_STROKE: Partial<Record<Platform, string>> = {
   codeforces: "var(--primary)",
   geeksforgeeks: "var(--easy)",
 };
+
+// DsaKaro

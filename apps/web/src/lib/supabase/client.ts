@@ -5,3 +5,5 @@ import { supabasePublishableKey, supabaseUrl } from "@/lib/env";
 export function createClient() {
   return createBrowserClient(supabaseUrl, supabasePublishableKey);
 }
+
+// DsaKaro

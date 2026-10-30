@@ -77,3 +77,5 @@ export default defineContentScript({
     ctx.setTimeout(() => void maybeImportHistory(), 5000);
   },
 });
+
+// DsaKaro

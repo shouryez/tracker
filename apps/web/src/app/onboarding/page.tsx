@@ -48,3 +48,5 @@ function DemoOnly() {
     <p className="text-ink-2">Onboarding needs sign-in. Configure Supabase first (see README).</p>
   );
 }
+
+// DsaKaro

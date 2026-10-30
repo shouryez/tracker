@@ -71,3 +71,5 @@ export function Tabs({ items, className }: { items: TabItem[]; className?: strin
     </div>
   );
 }
+
+// DsaKaro

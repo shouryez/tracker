@@ -19,3 +19,5 @@ ALTER TABLE "college_verifications" ADD CONSTRAINT "college_verifications_user_i
 ALTER TABLE "college_verifications" ADD CONSTRAINT "college_verifications_college_id_colleges_id_fk" FOREIGN KEY ("college_id") REFERENCES "public"."colleges"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "college_verifications_queue_idx" ON "college_verifications" USING btree ("status","submitted_at");--> statement-breakpoint
 CREATE INDEX "college_verifications_user_idx" ON "college_verifications" USING btree ("user_id","submitted_at");
+
+-- DsaKaro

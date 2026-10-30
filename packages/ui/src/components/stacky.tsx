@@ -671,3 +671,5 @@ export function StackyCard({ mood, children }: { mood: StackyMood; children?: Re
     </figure>
   );
 }
+
+// DsaKaro

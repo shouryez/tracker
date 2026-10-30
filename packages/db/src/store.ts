@@ -178,3 +178,5 @@ export async function linkCatalog(db: Database): Promise<number> {
   `);
   return (linked as unknown as { count?: number }).count ?? 0;
 }
+
+// DsaKaro

@@ -70,3 +70,5 @@ export const HOOK_SOURCE = "upsolve-hook";
 
 /** Background → YouTube content script: the playing video's position, in seconds. */
 export type YoutubeTimeRequest = { type: "yt:time" };
+
+// DsaKaro

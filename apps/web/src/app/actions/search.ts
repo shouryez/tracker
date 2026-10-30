@@ -24,3 +24,5 @@ export async function quickSearch(query: string): Promise<QuickResult[]> {
     solved: p.solved,
   }));
 }
+
+// DsaKaro

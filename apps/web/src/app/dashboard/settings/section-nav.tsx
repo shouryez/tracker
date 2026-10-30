@@ -81,3 +81,5 @@ export function SectionNav({ sections }: { sections: { id: string; label: string
     </nav>
   );
 }
+
+// DsaKaro

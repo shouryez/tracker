@@ -47,3 +47,5 @@ export async function POST(request: Request) {
   return page(`<h1 style="font-size:22px;margin:0 0 8px">Unsubscribed</h1>
 <p style="color:#a3a3b0;margin:0">No more weekly emails. Turn it back on in Settings whenever you like.</p>`);
 }
+
+// DsaKaro

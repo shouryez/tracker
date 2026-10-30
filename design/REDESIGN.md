@@ -77,3 +77,5 @@ All eight phases, in one pass. No route, data shape, prop contract or business r
 - Settings save on change, so there's no sticky "unsaved changes" bar.
 - Code blocks with syntax highlighting: the app never stores code (privacy), so there's nothing to highlight.
 - The dashboard itself can't be screenshotted without signing in; its widgets are reviewed on `/styleguide` with sample data.
+
+<!-- DsaKaro -->

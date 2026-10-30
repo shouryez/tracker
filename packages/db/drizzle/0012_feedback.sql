@@ -12,3 +12,5 @@ ALTER TABLE "feedback" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 ALTER TABLE "feedback" ADD CONSTRAINT "feedback_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "feedback_created_idx" ON "feedback" USING btree ("created_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE POLICY "owner can read" ON "feedback" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("feedback"."user_id" = (select auth.uid()));
+
+-- DsaKaro

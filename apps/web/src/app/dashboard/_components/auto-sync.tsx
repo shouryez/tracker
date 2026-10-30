@@ -31,3 +31,5 @@ export function AutoSync({ stale }: { stale: boolean }) {
     </span>
   );
 }
+
+// DsaKaro

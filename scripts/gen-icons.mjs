@@ -36,3 +36,5 @@ writeFileSync(out("apps/web/src/app/favicon.ico"), ico([16, 32, 48].map((s) => [
 writeFileSync(out("apps/web/src/app/icon.png"), png(512));
 writeFileSync(out("apps/web/src/app/apple-icon.png"), png(180));
 console.log("Wrote extension icons, favicon.ico, icon.png and apple-icon.png");
+
+// DsaKaro

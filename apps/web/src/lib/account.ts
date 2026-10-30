@@ -13,3 +13,5 @@ export async function getHasPassword(userId: string): Promise<boolean | null> {
     return null;
   }
 }
+
+// DsaKaro

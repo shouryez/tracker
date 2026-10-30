@@ -246,3 +246,5 @@ CREATE POLICY "public read" ON "sheets" AS PERMISSIVE FOR SELECT TO "anon", "aut
 CREATE POLICY "owner can read" ON "solves" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("solves"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "submissions" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("submissions"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "topic_mastery" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("topic_mastery"."user_id" = (select auth.uid()));
+
+-- DsaKaro

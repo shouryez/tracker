@@ -23,3 +23,8 @@ Thumbs.db
 *.pem
 # Supabase CLI cache
 **/supabase/.temp/
+
+# Raw team images
+*.jpeg
+
+# DsaKaro

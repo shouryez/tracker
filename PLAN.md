@@ -441,3 +441,5 @@ Goal: the people who reply to the LinkedIn/Reddit posts can sign up, connect the
 3. Port tokens and the Card/KPI/Tag components from `design/preview.html`.
 4. Write the Codeforces adapter first (official API, easiest win), then LeetCode GraphQL.
 5. Line up 5 friends to test Phase 1.
+
+<!-- DsaKaro -->

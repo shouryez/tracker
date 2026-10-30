@@ -10,3 +10,5 @@ export async function POST(request: NextRequest) {
   // 303 so the browser follows with GET after the form POST.
   return NextResponse.redirect(new URL("/login", request.nextUrl.origin), { status: 303 });
 }
+
+// DsaKaro

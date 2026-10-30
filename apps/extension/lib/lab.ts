@@ -92,3 +92,5 @@ export function totals(s: LabState | null | undefined): LabTotals {
     ? { focusMs: s.focusMs, awayMs: s.awayMs, switches: s.switches, tracking: true }
     : { focusMs: 0, awayMs: 0, switches: 0, tracking: false };
 }
+
+// DsaKaro

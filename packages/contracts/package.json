@@ -17,5 +17,6 @@
   "devDependencies": {
     "@types/node": "^26.6.5",
     "typescript": "^5.9.3"
-  }
+  },
+  "description": "Shared TypeScript and Zod contracts for DsaKaro API and extension."
 }

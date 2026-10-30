@@ -1,1 +1,3 @@
 ALTER TABLE "practice_sessions" ADD COLUMN "live_status" text;
+
+-- DsaKaro

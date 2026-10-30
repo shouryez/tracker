@@ -32,3 +32,5 @@ export function gfgVerdictFromText(text: string): VerdictCode | null {
   for (const [re, verdict] of VERDICTS) if (re.test(text)) return verdict;
   return null;
 }
+
+// DsaKaro

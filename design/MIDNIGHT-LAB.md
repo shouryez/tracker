@@ -213,3 +213,5 @@ Custom SVG/CSS, no chart library. Existing components upgraded in place (same na
 - Not verified visually: signed-in pages (build + types only). Check Overview, Revision, Sheets, Problem, Sessions, Analytics, Contests, Groups, College and Settings in both themes.
 - Lighthouse not run here (needs a deployed build); effects are transform/opacity only, decorative loops pause off-screen, Lenis/confetti are lazy.
 - Route pixel transition can't be switched off by users yet (it is off under reduced motion).
+
+<!-- DsaKaro -->

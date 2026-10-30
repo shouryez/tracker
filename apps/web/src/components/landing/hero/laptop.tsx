@@ -83,3 +83,5 @@ export function Laptop({
 
 /** Rest pose the scene starts from (kept here so the poster and scene agree). */
 export const POSTER_POSE = { tilt: CAMERA.tiltOpen + 2, lid: CAMERA.lidOpen } as const;
+
+// DsaKaro

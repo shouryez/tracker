@@ -249,3 +249,5 @@ export async function getNextCandidates(userId: string): Promise<NextCandidate[]
     order by rank, position
     limit 500`)) as unknown as NextCandidate[];
 }
+
+// DsaKaro

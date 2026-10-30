@@ -1,3 +1,4 @@
+// DsaKaro TypeScript configuration
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": { "types": ["node"], "erasableSyntaxOnly": true },

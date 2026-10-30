@@ -174,3 +174,5 @@ export type ExtMeResponse = {
 };
 
 export type ExtSyncResponse = { ok: true; stored: number } | { ok: false; error: string };
+
+// DsaKaro

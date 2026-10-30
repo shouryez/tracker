@@ -155,3 +155,5 @@ FROM (VALUES
   ('Tezpur University', 'Tezpur', 'Tezpur', 'Assam')
 ) AS v(name, short_name, city, state)
 WHERE NOT EXISTS (SELECT 1 FROM "colleges" c WHERE lower(c."name") = lower(v.name));
+
+-- DsaKaro

@@ -33,3 +33,5 @@ export async function GET(request: NextRequest) {
   const url = new URL(ok ? next : "/login?error=auth", origin);
   return NextResponse.redirect(url);
 }
+
+// DsaKaro

@@ -43,3 +43,5 @@ HOW TO START
 1. Install the extension.
 2. Click the DsaKaro icon and press Connect (sign in with Google on dsakaro.site).
 3. Open any LeetCode or GeeksforGeeks problem and start solving. That's it.
+
+# DsaKaro

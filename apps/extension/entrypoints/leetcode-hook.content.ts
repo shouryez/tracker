@@ -78,3 +78,5 @@ export default defineContentScript({
     } as typeof XMLHttpRequest.prototype.open;
   },
 });
+
+// DsaKaro

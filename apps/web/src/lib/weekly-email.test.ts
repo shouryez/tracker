@@ -43,3 +43,5 @@ test("weekly email without reviews due points to the dashboard", () => {
   assert.match(html, /a quiet week/);
   assert.match(html, /Open your dashboard/);
 });
+
+// DsaKaro

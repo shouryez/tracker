@@ -125,3 +125,5 @@ export async function pendingVerificationCount(): Promise<number> {
   )) as unknown as { n: number }[];
   return row?.n ?? 0;
 }
+
+// DsaKaro

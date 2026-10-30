@@ -124,3 +124,5 @@ CREATE POLICY "owner can read" ON "plan_items" AS PERMISSIVE FOR SELECT TO "auth
 CREATE POLICY "owner can read" ON "recall_answers" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("recall_answers"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "saved_items" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("saved_items"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "weekly_goals" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("weekly_goals"."user_id" = (select auth.uid()));
+
+-- DsaKaro

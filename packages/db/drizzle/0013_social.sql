@@ -38,3 +38,5 @@ CREATE INDEX "streak_freezes_user_idx" ON "streak_freezes" USING btree ("user_id
 CREATE POLICY "owner can read" ON "group_members" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("group_members"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "members can read" ON "groups" AS PERMISSIVE FOR SELECT TO "authenticated" USING (exists (select 1 from group_members m where m.group_id = "groups"."id" and m.user_id = (select auth.uid())));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "streak_freezes" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("streak_freezes"."user_id" = (select auth.uid()));
+
+-- DsaKaro

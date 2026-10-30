@@ -84,3 +84,5 @@ What the extension can access: `leetcode.com`, GeeksforGeeks problem pages, YouT
 - `apps/web` runs Next.js 16 with **Cache Components** on. Anything that reads cookies (the session) must render inside `<Suspense>`. See `apps/web/AGENTS.md` and the docs bundled in `node_modules/next/dist/docs/`.
 - Request interception lives in `src/proxy.ts` (Next 16 renamed `middleware` to `proxy`).
 - Use design tokens (`bg-surface`, `text-ink-2`, `surface-card`, `label-mono`, …), never raw hex. Lime (`signal`) is the one primary action per view; hatch means planned/future, never empty. See `design/MIDNIGHT-LAB.md`.
+
+<!-- DsaKaro -->

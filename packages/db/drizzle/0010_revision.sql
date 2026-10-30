@@ -26,3 +26,5 @@ ALTER TABLE "review_logs" ADD CONSTRAINT "review_logs_problem_id_problems_id_fk"
 CREATE INDEX "review_logs_user_idx" ON "review_logs" USING btree ("user_id","problem_id");--> statement-breakpoint
 CREATE POLICY "owner can read" ON "problem_notes" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("problem_notes"."user_id" = (select auth.uid()));--> statement-breakpoint
 CREATE POLICY "owner can read" ON "review_logs" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("review_logs"."user_id" = (select auth.uid()));
+
+-- DsaKaro

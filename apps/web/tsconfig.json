@@ -1,3 +1,4 @@
+// DsaKaro TypeScript configuration
 {
   "compilerOptions": {
     "target": "ES2017",

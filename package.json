@@ -17,5 +17,6 @@
     "prettier": "^3.9.10",
     "turbo": "^2.11.10",
     "typescript": "^5.9.3"
-  }
+  },
+  "description": "A DSA practice tracker for college students: time problems, auto-tick sheets, and spaced revision."
 }

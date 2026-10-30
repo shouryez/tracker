@@ -15,3 +15,5 @@ ALTER TABLE "video_watches" ADD CONSTRAINT "video_watches_user_id_users_id_fk" F
 ALTER TABLE "video_watches" ADD CONSTRAINT "video_watches_sheet_id_sheets_id_fk" FOREIGN KEY ("sheet_id") REFERENCES "public"."sheets"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "video_watches_user_idx" ON "video_watches" USING btree ("user_id","started_at" DESC NULLS LAST);--> statement-breakpoint
 CREATE POLICY "owner can read" ON "video_watches" AS PERMISSIVE FOR SELECT TO "authenticated" USING ("video_watches"."user_id" = (select auth.uid()));
+
+-- DsaKaro

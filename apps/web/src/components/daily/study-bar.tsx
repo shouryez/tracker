@@ -219,3 +219,5 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
     </>
   );
 }
+
+// DsaKaro

@@ -816,3 +816,5 @@ export const collegeVerifications = pgTable(
     index("college_verifications_user_idx").on(t.userId, t.submittedAt),
   ],
 ).enableRLS();
+
+// DsaKaro

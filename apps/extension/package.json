@@ -18,5 +18,6 @@
   },
   "dependencies": {
     "@upsolve/ui": "workspace:*"
-  }
+  },
+  "description": "DsaKaro browser extension: LeetCode & GFG timer, auto-sync, and focus tracking."
 }

@@ -8,3 +8,5 @@ export const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHAB
  * pages render, auth is skipped, and a banner explains what to set up.
  */
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabasePublishableKey);
+
+// DsaKaro

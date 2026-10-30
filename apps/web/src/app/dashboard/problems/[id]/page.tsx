@@ -513,3 +513,5 @@ function ResourceTile({
     </a>
   );
 }
+
+// DsaKaro
