@@ -95,7 +95,7 @@ export function PlatformRow({
             {account.solved !== null && (
               <Tag className="tnum h-5 px-1.5 text-11">{account.solved} solved</Tag>
             )}
-            <span className="ml-auto flex items-center gap-1.5">
+            <span className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
               <Button
                 size="sm"
                 variant="secondary"
@@ -111,33 +111,18 @@ export function PlatformRow({
                 />
                 Sync
               </Button>
-              {confirmRemove ? (
-                <>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    disabled={pending}
-                    onClick={() => run(() => disconnectPlatform(account.id))}
-                  >
-                    Remove {label} and its data
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setConfirmRemove(false)}>
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  size="icon-sm"
-                  variant="ghost"
-                  disabled={pending}
-                  onClick={() => setConfirmRemove(true)}
-                  aria-label={`Remove ${label}`}
-                  title={`Remove ${label}`}
-                  className="hover:text-bad"
-                >
-                  <Trash2 size={14} aria-hidden="true" />
-                </Button>
-              )}
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                disabled={pending}
+                onClick={() => setConfirmRemove((c) => !c)}
+                aria-label={`Remove ${label}`}
+                aria-expanded={confirmRemove}
+                title={`Remove ${label}`}
+                className={cn("hover:text-bad", confirmRemove && "text-bad")}
+              >
+                <Trash2 size={14} aria-hidden="true" />
+              </Button>
             </span>
           </>
         ) : (
@@ -172,6 +157,39 @@ export function PlatformRow({
           </form>
         )}
       </div>
+
+      {/* The confirm step gets its own line: inline beside Sync it was wider than a phone
+          screen, and the dashboard clips overflow, so "Remove" couldn't be tapped. */}
+      {account && confirmRemove && (
+        <div
+          role="group"
+          aria-label={`Remove ${label}`}
+          className="mt-3 flex flex-wrap items-center gap-2.5 rounded-[12px] border border-bad/30 bg-bad-soft p-3"
+        >
+          <p className="min-w-[200px] flex-1 text-13 text-ink-2">
+            Remove <span className="font-[600] text-ink">{account.handle}</span>? Its synced history
+            is deleted too. You can connect it again any time.
+          </p>
+          <span className="flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="danger"
+              loading={pending}
+              onClick={() => run(() => disconnectPlatform(account.id))}
+            >
+              Remove
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={pending}
+              onClick={() => setConfirmRemove(false)}
+            >
+              Cancel
+            </Button>
+          </span>
+        </div>
+      )}
 
       {account && (
         <p className="mt-2 text-12 text-ink-3">
@@ -250,5 +268,3 @@ export function PlatformRow({
     </div>
   );
 }
-
-// DsaKaro
