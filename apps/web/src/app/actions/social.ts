@@ -1,7 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { and, asc, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -112,24 +112,25 @@ export async function leaveGroup(groupId: string): Promise<SocialResult> {
   const role = await myRole(user.id, groupId);
   if (!role) return { ok: false, error: "You're not in this group." };
 
-  await db().transaction(async (tx) => {
-    await tx
-      .delete(groupMembers)
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
-    const [next] = await tx
-      .select({ userId: groupMembers.userId })
-      .from(groupMembers)
-      .where(eq(groupMembers.groupId, groupId))
-      .orderBy(sql`(${groupMembers.role} = 'admin') desc`, asc(groupMembers.joinedAt))
-      .limit(1);
-    if (!next) await tx.delete(groups).where(eq(groups.id, groupId));
-    else if (role === "owner") {
-      await tx
-        .update(groupMembers)
-        .set({ role: "owner" })
-        .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, next.userId)));
-    }
-  });
+  // One statement (all-or-nothing): leave, hand ownership on if needed, delete an empty group.
+  // Every part sees the group as it was before, so "next" leaves the leaver out itself.
+  await db().execute(sql`
+    with me as (
+      delete from group_members where group_id = ${groupId} and user_id = ${user.id}
+      returning role
+    ), next as (
+      select user_id from group_members
+      where group_id = ${groupId} and user_id <> ${user.id}
+      order by (role = 'admin') desc, joined_at
+      limit 1
+    ), promote as (
+      update group_members set role = 'owner'
+      where group_id = ${groupId} and user_id = (select user_id from next)
+        and ${role} = 'owner'
+    ), empty as (
+      delete from groups where id = ${groupId} and not exists (select 1 from next)
+    )
+    select count(*)::int as n from me`);
   await touchMembers(groupId, [user.id]);
   redirect("/dashboard/groups");
 }
@@ -221,16 +222,11 @@ export async function transferOwnership(groupId: string, memberId: string): Prom
   const [mine, theirs] = await Promise.all([myRole(user.id, groupId), myRole(memberId, groupId)]);
   if (mine !== "owner") return { ok: false, error: "Only the owner can hand the group over." };
   if (!theirs) return { ok: false, error: "They're not in this group." };
-  await db().transaction(async (tx) => {
-    await tx
-      .update(groupMembers)
-      .set({ role: "owner" })
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, memberId)));
-    await tx
-      .update(groupMembers)
-      .set({ role: "admin" })
-      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
-  });
+  // Both roles change in one statement, so a group never has two owners or none.
+  await db().execute(sql`
+    update group_members
+    set role = case when user_id = ${memberId} then 'owner'::group_role else 'admin'::group_role end
+    where group_id = ${groupId} and user_id in (${memberId}, ${user.id})`);
   await touchMembers(groupId);
   return { ok: true };
 }

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import {
   HandleNotFoundError,
@@ -10,7 +10,7 @@ import {
   normaliseHandle,
   type Platform,
 } from "@upsolve/adapters";
-import { contestResults, platformAccounts, profiles, submissions } from "@upsolve/db";
+import { platformAccounts, profiles } from "@upsolve/db";
 import { getCurrentUser, isDemoUser, type CurrentUser } from "@/lib/auth";
 import { CONNECTABLE } from "@/lib/data";
 import { db, userTag } from "@/lib/db";
@@ -162,16 +162,21 @@ export async function disconnectPlatform(accountId: string): Promise<ActionResul
   if ("ok" in user) return user;
   const account = await ownedAccount(user.id, accountId);
   if (!account) return { ok: false, error: "Account not found." };
-  // Removing a platform removes its history too; reconnecting re-syncs it.
-  await db().transaction(async (tx) => {
-    const own = (t: typeof submissions | typeof contestResults) =>
-      and(eq(t.userId, user.id), eq(t.platform, account.platform));
-    await tx.delete(submissions).where(own(submissions));
-    await tx.delete(contestResults).where(own(contestResults));
-    await tx.delete(platformAccounts).where(eq(platformAccounts.id, account.id));
-  });
+  // Removing a platform removes its history too; reconnecting re-syncs it. One statement,
+  // so it's all-or-nothing without a transaction (our pool runs one query per connection
+  // at a time, which postgres.js can't combine with sql.begin).
+  await db().execute(sql`
+    with gone as (
+      delete from platform_accounts where id = ${account.id} and user_id = ${user.id}
+      returning platform
+    ), subs as (
+      delete from submissions
+      where user_id = ${user.id} and platform = (select platform from gone)
+    ), contests as (
+      delete from contest_results
+      where user_id = ${user.id} and platform = (select platform from gone)
+    )
+    select count(*)::int as n from gone`);
   await invalidate(user.id);
   return { ok: true, message: "Disconnected." };
 }
-
-// DsaKaro
