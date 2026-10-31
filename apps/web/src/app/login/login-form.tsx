@@ -148,13 +148,10 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
     if (clean.length < 6) return;
     setVerifying(true);
     setCodeError(null);
-    const { error } = await (
-      await supabase()
-    ).auth.verifyOtp({
-      email: address,
-      token: clean,
-      type: "email",
-    });
+    const auth = (await supabase()).auth;
+    let { error } = await auth.verifyOtp({ email: address, token: clean, type: "email" });
+    // Codes made for a brand-new account can need the sign-up type.
+    if (error) ({ error } = await auth.verifyOtp({ email: address, token: clean, type: "signup" }));
     if (error) {
       setVerifying(false);
       setCodeError(
@@ -171,21 +168,28 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
   async function sendLink(address: string) {
     if (!address || cooldownLeft() > 0) return;
     setStatus({ kind: "sending" });
-    const { error } = await (
-      await supabase()
-    ).auth.signInWithOtp({
-      email: address,
-      // Signing in never creates an account; that's what sign-up is for.
-      options: { emailRedirectTo: callbackUrl(), shouldCreateUser: mode === "signup" },
-    });
-    if (error && mode === "login" && /signups? not allowed|user not found/i.test(error.message)) {
+    // Our own email (with the 6-digit code), not Supabase's template.
+    const res = await fetch("/api/auth/email-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: address, mode, next }),
+    }).catch(() => null);
+    const body = (await res?.json().catch(() => null)) as {
+      ok?: boolean;
+      noAccount?: boolean;
+      error?: string;
+      wait?: number;
+    } | null;
+    if (body?.noAccount) {
       setStatus({ kind: "no-account", email: address });
       return;
     }
-    if (error) {
-      const f = friendlyError(error.message);
-      if (f.wait) startCooldown(f.wait);
-      setStatus({ kind: "error", message: f.text });
+    if (!res?.ok || !body?.ok) {
+      if (body?.wait) startCooldown(body.wait);
+      setStatus({
+        kind: "error",
+        message: body?.error ?? "Couldn't send the code. Check your connection and try again.",
+      });
       return;
     }
     startCooldown();
