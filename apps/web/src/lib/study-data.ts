@@ -145,14 +145,23 @@ export async function getStudyContents(
   return strip(await contentsBetween(userId, from, to));
 }
 
-/** Recent finished study sessions with what you did in each, newest first. Uncached. */
-export async function getStudyHistory(userId: string, limit = 10): Promise<StudySession[]> {
+/**
+ * Finished study sessions with what you did in each, newest first. Uncached. `sinceMs` keeps
+ * only sessions that ended after it (the Sessions page fetches 7 days and filters in place).
+ */
+export async function getStudyHistory(
+  userId: string,
+  limit = 10,
+  sinceMs?: number,
+): Promise<StudySession[]> {
+  const since = sinceMs ? new Date(sinceMs).toISOString() : null;
   const rows = (await db().execute(sql`
     select id, label, focus_ms as "focusMs", away_ms as "awayMs", tracked,
            extract(epoch from started_at) * 1000 as "startedAt",
            extract(epoch from ended_at) * 1000 as "endedAt"
     from focus_sessions
     where user_id = ${userId} and ended_at is not null
+      and (${since}::timestamptz is null or ended_at >= ${since}::timestamptz)
     order by started_at desc limit ${limit}`)) as unknown as {
     id: string;
     label: string | null;

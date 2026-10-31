@@ -2,13 +2,20 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { BookOpenCheck, Pause, Square } from "lucide-react";
+import { BookOpenCheck, Pause, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
-import { getStudySummary, startFocus, stopFocus } from "@/app/actions/daily";
+import {
+  getStudySummary,
+  pauseFocus,
+  resumeFocus,
+  startFocus,
+  stopFocus,
+} from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
 import { Modal } from "@/components/fx/overlay";
 import type { ActiveFocus } from "@/lib/daily-data";
+import { focusElapsed, focusTotals } from "@/lib/focus";
 import { labStart, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { StudyContents } from "@/lib/study-data";
 import { StudyContentsList, studyCounts } from "./study-session";
@@ -98,10 +105,47 @@ export function StudySummaryModal({
   );
 }
 
-/** Ends a study session: asks the extension for its totals and the server for what you did. */
+/**
+ * Ends a study session: asks the extension for its totals (added to those banked at earlier
+ * pauses) and the server for what you did. Paused time is left out of the wall clock.
+ */
 export async function endStudy(active: ActiveFocus): Promise<StudyEnd> {
-  const [t, contents] = await Promise.all([labStop(active.id), getStudySummary(active.id)]);
-  return { wall: Date.now() - active.startedAt, totals: t?.tracking ? t : null, contents };
+  const [t, contents] = await Promise.all([
+    active.pausedAt ? Promise.resolve(null) : labStop(active.id),
+    getStudySummary(active.id),
+  ]);
+  const totals = focusTotals(active, t);
+  return {
+    wall: focusElapsed(active, Date.now()),
+    totals: totals.tracking ? totals : null,
+    contents,
+  };
+}
+
+/**
+ * Pauses: the extension stops tracking and its totals so far are banked on the session.
+ * Returns what was banked (or null) when it worked, false when it didn't.
+ */
+export async function pauseStudy(active: ActiveFocus) {
+  const t = await labStop(active.id);
+  const add = t?.tracking ? { focusMs: t.focusMs, awayMs: t.awayMs, switches: t.switches } : null;
+  const res = await pauseFocus(active.id, add);
+  if (!res.ok) {
+    toast.error(res.error);
+    return false;
+  }
+  return { add };
+}
+
+/** Resumes: the server adds the pause to the paused time, the extension starts tracking again. */
+export async function resumeStudy(active: ActiveFocus) {
+  const res = await resumeFocus(active.id);
+  if (!res.ok) {
+    toast.error(res.error);
+    return false;
+  }
+  void labStart(active.id, Date.now());
+  return true;
 }
 
 /** Saves (or discards) an ended study session. */
@@ -119,7 +163,7 @@ export async function saveStudy(active: ActiveFocus, end: StudyEnd, discard: boo
   if (!discard) {
     void burst({ small: true });
     toast.success("Session saved", {
-      description: `${mins(r?.focusMs ?? end.wall)} of focus · see it in Study history`,
+      description: `${mins(r?.focusMs ?? end.wall)} of focus · see it in Recent study sessions`,
     });
   }
   return true;
@@ -172,27 +216,55 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const [pending, start] = useTransition();
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || active.pausedAt) return;
     void labStart(active.id, active.startedAt); // re-attach the extension after a reload
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [active]);
 
   if (!active || pathname === "/dashboard/sessions") return null;
-  const elapsed = Math.max(0, (now || active.startedAt) - active.startedAt);
+  const paused = active.pausedAt !== null;
+  const elapsed = focusElapsed(active, now || active.startedAt);
 
   return (
     <>
       <div className="fixed inset-x-0 bottom-24 z-40 flex justify-center px-4 lg:bottom-6">
         <div className="flex max-w-full items-center gap-3 rounded-full border border-line-2 bg-surface-3/95 py-1.5 pr-1.5 pl-4 shadow-e2 backdrop-blur-xl">
-          <span className="pulse-ring size-2 shrink-0 rounded-full bg-success text-success" />
+          <span
+            className={cn(
+              "size-2 shrink-0 rounded-full",
+              paused ? "bg-medium" : "pulse-ring bg-success text-success",
+            )}
+          />
           <span className="min-w-0 truncate text-13">
-            <span className="font-[600]">Studying</span>
+            <span className="font-[600]">{paused ? "Paused" : "Studying"}</span>
             {active.label && <span className="text-ink-3"> · {active.label}</span>}
           </span>
-          <span className="num font-mono text-15" suppressHydrationWarning>
+          <span
+            className={cn("num font-mono text-15", paused && "text-ink-3")}
+            suppressHydrationWarning
+          >
             {clock(elapsed)}
           </span>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={pending}
+            aria-label={paused ? "Resume study session" : "Pause study session"}
+            onClick={() =>
+              start(async () => {
+                if ((await (paused ? resumeStudy(active) : pauseStudy(active))) !== false)
+                  router.refresh();
+              })
+            }
+          >
+            {paused ? (
+              <Play size={12} className="fill-current" aria-hidden="true" />
+            ) : (
+              <Pause size={12} className="fill-current" aria-hidden="true" />
+            )}
+            {paused ? "Resume" : "Pause"}
+          </Button>
           <Button
             variant="danger"
             size="sm"
@@ -219,5 +291,3 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
     </>
   );
 }
-
-// DsaKaro

@@ -109,9 +109,14 @@ export function rankBoard(rows: BoardRow[], metric: BoardMetric) {
 export type GroupSummary = {
   id: string;
   name: string;
-  role: "owner" | "member";
+  role: GroupRole;
   members: number;
 };
+
+/** owner (one per group) > admin > member, as in WhatsApp groups. */
+export type GroupRole = "owner" | "admin" | "member";
+export const canManage = (role: GroupRole | null | undefined) =>
+  role === "owner" || role === "admin";
 
 export async function getMyGroups(userId: string): Promise<GroupSummary[]> {
   "use cache";
@@ -130,12 +135,12 @@ export type GroupDetail = {
   id: string;
   name: string;
   inviteCode: string;
-  role: "owner" | "member";
+  role: GroupRole;
   members: {
     userId: string;
     name: string | null;
     handle: string | null;
-    role: "owner" | "member";
+    role: GroupRole;
   }[];
 };
 
@@ -152,7 +157,7 @@ export async function getGroup(userId: string, groupId: string): Promise<GroupDe
     select gm.user_id as "userId", p.name, p.handle, gm.role
     from group_members gm left join profiles p on p.user_id = gm.user_id
     where gm.group_id = ${groupId}
-    order by (gm.role = 'owner') desc, gm.joined_at`)) as unknown as GroupDetail["members"];
+    order by (gm.role = 'owner') desc, (gm.role = 'admin') desc, gm.joined_at`)) as unknown as GroupDetail["members"];
   return { ...group, members };
 }
 
@@ -303,5 +308,3 @@ export async function getStreakFreezes(userId: string): Promise<StreakFreeze[]> 
     from streak_freezes where user_id = ${userId}
     order by start_date desc limit 50`)) as unknown as StreakFreeze[];
 }
-
-// DsaKaro

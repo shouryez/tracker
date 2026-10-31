@@ -9,7 +9,7 @@ import { freezeProblem } from "@upsolve/core";
 import { groupMembers, groups, profiles, streakFreezes } from "@upsolve/db";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { db, userTag } from "@/lib/db";
-import { MAX_GROUP_MEMBERS, MAX_GROUPS_PER_USER } from "@/lib/social-data";
+import { MAX_GROUP_MEMBERS, MAX_GROUPS_PER_USER, canManage } from "@/lib/social-data";
 import { localDate } from "@/lib/time";
 
 export type SocialResult = { ok: true } | { ok: false; error: string };
@@ -102,7 +102,10 @@ export async function joinGroup(code: string): Promise<SocialResult> {
   redirect(`/dashboard/groups/${group.id}`);
 }
 
-/** Leaves a group. The owner's role passes to the longest-standing member; an empty group is deleted. */
+/**
+ * Leaves a group. The owner's role passes to the longest-serving admin, else the
+ * longest-standing member; an empty group is deleted.
+ */
 export async function leaveGroup(groupId: string): Promise<SocialResult> {
   const user = await signedIn();
   if (!user || !Id.safeParse(groupId).success) return { ok: false, error: "Not allowed." };
@@ -117,7 +120,7 @@ export async function leaveGroup(groupId: string): Promise<SocialResult> {
       .select({ userId: groupMembers.userId })
       .from(groupMembers)
       .where(eq(groupMembers.groupId, groupId))
-      .orderBy(asc(groupMembers.joinedAt))
+      .orderBy(sql`(${groupMembers.role} = 'admin') desc`, asc(groupMembers.joinedAt))
       .limit(1);
     if (!next) await tx.delete(groups).where(eq(groups.id, groupId));
     else if (role === "owner") {
@@ -136,8 +139,13 @@ export async function removeMember(groupId: string, memberId: string): Promise<S
   if (!user || !Id.safeParse(groupId).success || !Id.safeParse(memberId).success) {
     return { ok: false, error: "Not allowed." };
   }
-  if ((await myRole(user.id, groupId)) !== "owner" || memberId === user.id) {
-    return { ok: false, error: "Only the owner can remove members." };
+  if (memberId === user.id) return { ok: false, error: "Use Leave group to leave." };
+  const [mine, theirs] = await Promise.all([myRole(user.id, groupId), myRole(memberId, groupId)]);
+  if (!canManage(mine)) return { ok: false, error: "Only admins can remove members." };
+  if (!theirs) return { ok: false, error: "They're not in this group." };
+  if (theirs === "owner") return { ok: false, error: "The owner can't be removed." };
+  if (theirs === "admin" && mine !== "owner") {
+    return { ok: false, error: "Only the owner can remove an admin." };
   }
   await db()
     .delete(groupMembers)
@@ -151,8 +159,8 @@ export async function renameGroup(groupId: string, name: string): Promise<Social
   const parsed = Name.safeParse(name);
   if (!user || !Id.safeParse(groupId).success) return { ok: false, error: "Not allowed." };
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]!.message };
-  if ((await myRole(user.id, groupId)) !== "owner") {
-    return { ok: false, error: "Only the owner can rename the group." };
+  if (!canManage(await myRole(user.id, groupId))) {
+    return { ok: false, error: "Only admins can rename the group." };
   }
   await db().update(groups).set({ name: parsed.data }).where(eq(groups.id, groupId));
   await touchMembers(groupId);
@@ -163,12 +171,95 @@ export async function renameGroup(groupId: string, name: string): Promise<Social
 export async function resetInvite(groupId: string): Promise<SocialResult> {
   const user = await signedIn();
   if (!user || !Id.safeParse(groupId).success) return { ok: false, error: "Not allowed." };
-  if ((await myRole(user.id, groupId)) !== "owner") {
-    return { ok: false, error: "Only the owner can reset the link." };
+  if (!canManage(await myRole(user.id, groupId))) {
+    return { ok: false, error: "Only admins can reset the link." };
   }
   await db().update(groups).set({ inviteCode: newInviteCode() }).where(eq(groups.id, groupId));
   await touchMembers(groupId);
   return { ok: true };
+}
+
+/**
+ * Makes a member an admin, or an admin a member again. Any admin can promote; only the
+ * owner can dismiss another admin (an admin can always step down themselves).
+ */
+export async function setMemberRole(
+  groupId: string,
+  memberId: string,
+  role: "admin" | "member",
+): Promise<SocialResult> {
+  const user = await signedIn();
+  if (!user || !Id.safeParse(groupId).success || !Id.safeParse(memberId).success) {
+    return { ok: false, error: "Not allowed." };
+  }
+  if (role !== "admin" && role !== "member") return { ok: false, error: "Not allowed." };
+  const [mine, theirs] = await Promise.all([myRole(user.id, groupId), myRole(memberId, groupId)]);
+  if (!theirs) return { ok: false, error: "They're not in this group." };
+  if (theirs === "owner") return { ok: false, error: "The owner's role can't be changed." };
+  const self = memberId === user.id;
+  if (role === "admin" && !canManage(mine)) {
+    return { ok: false, error: "Only admins can make someone an admin." };
+  }
+  if (role === "member" && !self && mine !== "owner") {
+    return { ok: false, error: "Only the owner can dismiss an admin." };
+  }
+  await db()
+    .update(groupMembers)
+    .set({ role })
+    .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, memberId)));
+  await touchMembers(groupId);
+  return { ok: true };
+}
+
+/** Hands the group to another member; the old owner stays on as an admin. Owner only. */
+export async function transferOwnership(groupId: string, memberId: string): Promise<SocialResult> {
+  const user = await signedIn();
+  if (!user || !Id.safeParse(groupId).success || !Id.safeParse(memberId).success) {
+    return { ok: false, error: "Not allowed." };
+  }
+  if (memberId === user.id) return { ok: false, error: "You already own this group." };
+  const [mine, theirs] = await Promise.all([myRole(user.id, groupId), myRole(memberId, groupId)]);
+  if (mine !== "owner") return { ok: false, error: "Only the owner can hand the group over." };
+  if (!theirs) return { ok: false, error: "They're not in this group." };
+  await db().transaction(async (tx) => {
+    await tx
+      .update(groupMembers)
+      .set({ role: "owner" })
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, memberId)));
+    await tx
+      .update(groupMembers)
+      .set({ role: "admin" })
+      .where(and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)));
+  });
+  await touchMembers(groupId);
+  return { ok: true };
+}
+
+/**
+ * Deletes the group for everyone: its members, board, shared problems and nudges go with it
+ * (they cascade). Owner or admin; the exact group name confirms it.
+ */
+export async function deleteGroup(groupId: string, confirmName: string): Promise<SocialResult> {
+  const user = await signedIn();
+  if (!user || !Id.safeParse(groupId).success) return { ok: false, error: "Not allowed." };
+  if (!canManage(await myRole(user.id, groupId))) {
+    return { ok: false, error: "Only admins can delete the group." };
+  }
+  const [group] = await db()
+    .select({ name: groups.name })
+    .from(groups)
+    .where(eq(groups.id, groupId));
+  if (!group) return { ok: false, error: "That group is gone." };
+  if (confirmName.trim() !== group.name) {
+    return { ok: false, error: "Type the group name exactly to confirm." };
+  }
+  const members = await db()
+    .select({ userId: groupMembers.userId })
+    .from(groupMembers)
+    .where(eq(groupMembers.groupId, groupId));
+  await db().delete(groups).where(eq(groups.id, groupId));
+  for (const m of members) updateTag(userTag(m.userId));
+  redirect("/dashboard/groups");
 }
 
 // ---------------------------------------------------------------- privacy switches
@@ -239,5 +330,3 @@ export async function removeStreakFreeze(id: string): Promise<SocialResult> {
   updateTag(userTag(user.id));
   return { ok: true };
 }
-
-// DsaKaro

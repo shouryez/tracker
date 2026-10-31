@@ -3,7 +3,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, Link2, Radio, Send, Timer, Trophy, UsersRound } from "lucide-react";
+import { ArrowLeft, Link2, Radio, Send, Settings2, Timer, Trophy, UsersRound } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -19,9 +19,10 @@ import { Leaderboard, MetricTabs, ScoreExplainer } from "@/components/leaderboar
 import {
   AutoRefresh,
   InviteLink,
+  GroupSettings,
   LeaveGroupButton,
+  MemberMenu,
   LiveClock,
-  RemoveMemberButton,
 } from "@/components/social";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -101,6 +102,7 @@ async function GroupContent({
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
   const inviteUrl = `${proto}://${host}/join/${group.inviteCode}`;
   const owner = group.role === "owner";
+  const manager = owner || group.role === "admin";
   const liveCount = room.filter((m) => m.live && !m.live.solved).length;
 
   return (
@@ -342,7 +344,7 @@ async function GroupContent({
                 Invite
               </CardTitle>
             </CardHeader>
-            <InviteLink groupId={group.id} url={inviteUrl} canReset={owner} />
+            <InviteLink groupId={group.id} url={inviteUrl} canReset={manager} />
           </Card>
 
           <Card>
@@ -362,18 +364,31 @@ async function GroupContent({
                       <span className="ml-1.5 font-mono text-[11px] text-ink-3">@{m.handle}</span>
                     )}
                   </span>
+                  {m.userId === user.id && <Tag className="h-5 px-1.5 text-11">you</Tag>}
                   {m.role === "owner" && <Tag tone="signal">owner</Tag>}
-                  {owner && m.userId !== user.id && (
-                    <RemoveMemberButton groupId={group.id} memberId={m.userId} />
-                  )}
+                  {m.role === "admin" && <Tag tone="info">admin</Tag>}
+                  <MemberMenu
+                    groupId={group.id}
+                    member={{ userId: m.userId, name: m.name ?? m.handle ?? "them", role: m.role }}
+                    viewerRole={group.role}
+                    self={m.userId === user.id}
+                  />
                 </li>
               ))}
             </ul>
           </Card>
+
+          {manager && (
+            <Card>
+              <CardHeader>
+                <CardTitle icon={icon(Settings2)}>Group settings</CardTitle>
+                <CardSub>{owner ? "you own this group" : "you're an admin"}</CardSub>
+              </CardHeader>
+              <GroupSettings groupId={group.id} name={group.name} />
+            </Card>
+          )}
         </div>
       </div>
     </>
   );
 }
-
-// DsaKaro

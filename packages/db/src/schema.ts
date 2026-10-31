@@ -499,7 +499,8 @@ export const contestResults = pgTable(
 
 // ---------------------------------------------------------------- social
 
-export const groupRole = pgEnum("group_role", ["owner", "member"]);
+/** owner (one, created the group) > admin (can manage members and settings) > member. */
+export const groupRole = pgEnum("group_role", ["owner", "member", "admin"]);
 
 /** Friend groups: a shared leaderboard and study room, joined with an invite link. */
 export const groups = pgTable(
@@ -604,6 +605,10 @@ export const focusSessions = pgTable(
     switches: integer("switches").notNull().default(0),
     /** True when the extension measured focus/away; false = wall-clock only. */
     tracked: boolean("tracked").notNull().default(false),
+    /** Set while the session is paused. Paused time never counts. */
+    pausedAt: timestamp("paused_at", { withTimezone: true }),
+    /** Total paused time of earlier pauses. */
+    pausedMs: integer("paused_ms").notNull().default(0),
   },
   (t) => [
     index("focus_sessions_user_idx").on(t.userId, t.startedAt.desc()),

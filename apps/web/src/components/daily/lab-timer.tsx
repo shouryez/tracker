@@ -1,15 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Coffee, Play, Square } from "lucide-react";
+import { Coffee, Pause, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, ProgressRing, SegmentedControl, Tag, inputClasses } from "@upsolve/ui";
-import { getStudySummary, startFocus, stopFocus } from "@/app/actions/daily";
+import { startFocus } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
-import { labStart, labStatus, labStop, type LabTotals } from "@/lib/ext-bridge";
+import { labStart, labStatus, type LabTotals } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
-import type { StudyContents } from "@/lib/study-data";
-import { StudySummaryModal } from "./study-bar";
+import { focusElapsed, focusTotals } from "@/lib/focus";
+import {
+  StudySummaryModal,
+  endStudy,
+  pauseStudy,
+  resumeStudy,
+  saveStudy,
+  type StudyEnd,
+} from "./study-bar";
 
 type Mode = "stopwatch" | "pomodoro-25" | "pomodoro-50";
 const CYCLE: Record<Exclude<Mode, "stopwatch">, { work: number; rest: number }> = {
@@ -51,17 +58,13 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
   const [label, setLabel] = useState("");
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [totals, setTotals] = useState<LabTotals | null>(null);
-  const [summary, setSummary] = useState<{
-    wall: number;
-    totals: LabTotals | null;
-    contents: StudyContents | null;
-  } | null>(null);
+  const [summary, setSummary] = useState<StudyEnd | null>(null);
   const [pending, start] = useTransition();
   const lastPhase = useRef<boolean | null>(null);
 
-  // Tick once a second while running; poll the extension's totals every 5 s.
+  // Tick once a second while running (not while paused); poll the extension every 5 s.
   useEffect(() => {
-    if (!running) return;
+    if (!running || running.pausedAt) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     let alive = true;
     const poll = async () => {
@@ -78,7 +81,9 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
     };
   }, [running]);
 
-  const elapsed = running ? Math.max(0, now - running.startedAt) : 0;
+  const paused = Boolean(running?.pausedAt);
+  const elapsed = running ? focusElapsed(running, now || running.startedAt) : 0;
+  const shown = running ? focusTotals(running, totals) : null;
   const p = running ? phase((running.mode as Mode) ?? "stopwatch", elapsed) : null;
 
   // A small chime of confetti when a work block ends.
@@ -95,7 +100,15 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
     start(async () => {
       const res = await startFocus(mode, label || null);
       if (!res.ok) return void toast.error(res.error);
-      const f = { id: res.id, startedAt: res.startedAt, mode, label: label || null };
+      const f: ActiveFocus = {
+        id: res.id,
+        startedAt: res.startedAt,
+        mode,
+        label: label || null,
+        pausedAt: null,
+        pausedMs: 0,
+        banked: { focusMs: 0, awayMs: 0, switches: 0, tracked: false },
+      };
       setNow(Date.now());
       setRunning(f);
       const t = await labStart(res.id, res.startedAt);
@@ -106,31 +119,52 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
     });
   }
 
-  async function end() {
+  function end() {
     if (!running) return;
-    const [t, contents] = await Promise.all([labStop(running.id), getStudySummary(running.id)]);
-    setSummary({ wall: Date.now() - running.startedAt, totals: t?.tracking ? t : null, contents });
+    start(async () => setSummary(await endStudy(running)));
+  }
+
+  /** Pause banks the extension totals so far; resume starts a fresh tracking segment. */
+  function togglePause() {
+    if (!running) return;
+    start(async () => {
+      if (running.pausedAt) {
+        if (!(await resumeStudy(running))) return;
+        const t = Date.now();
+        setRunning({
+          ...running,
+          pausedAt: null,
+          pausedMs: running.pausedMs + (t - running.pausedAt),
+        });
+        setNow(t);
+      } else {
+        const res = await pauseStudy(running);
+        if (res === false) return;
+        const b = running.banked;
+        setTotals(null);
+        setRunning({
+          ...running,
+          pausedAt: Date.now(),
+          banked: res.add
+            ? {
+                focusMs: b.focusMs + res.add.focusMs,
+                awayMs: b.awayMs + res.add.awayMs,
+                switches: b.switches + res.add.switches,
+                tracked: true,
+              }
+            : b,
+        });
+      }
+    });
   }
 
   function save(discard: boolean) {
-    if (!running) return;
-    const r = summary?.totals;
+    if (!running || !summary) return;
     start(async () => {
-      const res = await stopFocus(
-        running.id,
-        r ? { focusMs: r.focusMs, awayMs: r.awayMs, switches: r.switches } : null,
-        discard,
-      );
-      if (!res.ok) return void toast.error(res.error);
+      if (!(await saveStudy(running, summary, discard))) return;
       setRunning(null);
       setTotals(null);
       setSummary(null);
-      if (!discard) {
-        void burst({ small: true });
-        toast.success("Session saved", {
-          description: `${mins(r?.focusMs ?? summary?.wall ?? 0)} of focus`,
-        });
-      }
     });
   }
 
@@ -197,9 +231,15 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
       </ProgressRing>
       <div className="flex min-w-[220px] flex-1 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-2 rounded-full border border-success-line bg-success-soft px-2.5 py-1 text-12 font-[600] text-success">
-            <span className="pulse-ring size-2 rounded-full bg-success text-success" /> In Lab
-          </span>
+          {paused ? (
+            <span className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-medium-soft px-2.5 py-1 text-12 font-[600] text-medium">
+              <Pause size={11} className="fill-current" aria-hidden="true" /> Paused
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-2 rounded-full border border-success-line bg-success-soft px-2.5 py-1 text-12 font-[600] text-success">
+              <span className="pulse-ring size-2 rounded-full bg-success text-success" /> In Lab
+            </span>
+          )}
           {running.label && <Tag>{running.label}</Tag>}
           {p && !p.working && (
             <Tag tone="info">
@@ -213,17 +253,29 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
             total
           </small>
         </p>
-        {totals ? (
+        {shown?.tracking ? (
           <div className="flex flex-wrap gap-2 text-12">
-            <Tag tone="success">Focus {mins(totals.focusMs)}</Tag>
-            <Tag tone="medium">Away {mins(totals.awayMs)}</Tag>
-            <Tag>{totals.switches} tab switches</Tag>
+            <Tag tone="success">Focus {mins(shown.focusMs)}</Tag>
+            <Tag tone="medium">Away {mins(shown.awayMs)}</Tag>
+            <Tag>{shown.switches} tab switches</Tag>
           </div>
         ) : (
-          <p className="text-12 text-ink-3">Counting wall-clock time (extension not detected).</p>
+          <p className="text-12 text-ink-3">
+            {paused
+              ? "Paused: nothing counts until you resume."
+              : "Counting wall-clock time (extension not detected)."}
+          </p>
         )}
         <div className="flex gap-2">
-          <Button variant="danger" onClick={() => void end()}>
+          <Button variant="secondary" disabled={pending} onClick={togglePause}>
+            {paused ? (
+              <Play size={14} className="fill-current" aria-hidden="true" />
+            ) : (
+              <Pause size={14} className="fill-current" aria-hidden="true" />
+            )}
+            {paused ? "Resume" : "Pause"}
+          </Button>
+          <Button variant="danger" disabled={pending} onClick={end}>
             <Square size={14} className="fill-current" aria-hidden="true" /> Stop
           </Button>
         </div>
@@ -238,5 +290,3 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
     </div>
   );
 }
-
-// DsaKaro

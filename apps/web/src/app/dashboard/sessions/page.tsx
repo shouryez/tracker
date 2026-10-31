@@ -18,7 +18,7 @@ import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { HonestSplit, SessionItem } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { LabTimer } from "@/components/daily/lab-timer";
-import { StudyHistory } from "@/components/daily/study-session";
+import { RecentStudySessions } from "@/components/daily/recent-study-sessions";
 import { NowSolving } from "@/components/daily/now-solving";
 import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -55,7 +55,7 @@ async function SessionsContent() {
     getSessions(user.id, 100),
     getProfile(user.id),
     getActiveFocus(user.id),
-    getStudyHistory(user.id, 8),
+    getStudyHistory(user.id, 80, requestNow() - 7 * 86_400_000),
   ]);
   const focus = await getFocusSummary(user.id, profile?.timezone ?? "Asia/Kolkata", requestNow());
   const { solo, hint, solution } = stats.honest;
@@ -105,11 +105,15 @@ async function SessionsContent() {
     <Card className="h-full">
       <CardHeader>
         <CardTitle icon={<History size={14} />} tint="var(--violet)">
-          Study history
+          Recent study sessions
         </CardTitle>
-        <CardSub>what you did in each session</CardSub>
+        <CardSub>what you did in each</CardSub>
       </CardHeader>
-      <StudyHistory sessions={studies} timeZone={profile?.timezone ?? "Asia/Kolkata"} />
+      <RecentStudySessions
+        sessions={studies}
+        now={requestNow()}
+        timeZone={profile?.timezone ?? "Asia/Kolkata"}
+      />
     </Card>
   );
 

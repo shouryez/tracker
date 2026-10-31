@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { z } from "zod";
 import { suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
@@ -344,6 +344,69 @@ export async function getStudySummary(id: string): Promise<StudyContents | null>
   return getStudyContents(user.id, row.startedAt.getTime(), Date.now());
 }
 
+/**
+ * Pauses a running study session. The extension's totals so far (it stops tracking during
+ * the pause) are banked on the session; Stop later reports the whole session's totals.
+ */
+export async function pauseFocus(
+  id: string,
+  report: { focusMs: number; awayMs: number; switches: number } | null,
+): Promise<DailyResult> {
+  const user = await me();
+  if (!user || !Id.safeParse(id).success) return fail("Not found.");
+  const r = Report.safeParse(report);
+  if (!r.success) return fail("Bad report.");
+  const rows = await db()
+    .update(focusSessions)
+    .set({
+      pausedAt: new Date(),
+      ...(r.data
+        ? {
+            focusMs: sql`${focusSessions.focusMs} + ${r.data.focusMs}`,
+            awayMs: sql`${focusSessions.awayMs} + ${r.data.awayMs}`,
+            switches: sql`${focusSessions.switches} + ${r.data.switches}`,
+            tracked: true,
+          }
+        : {}),
+    })
+    .where(
+      and(
+        eq(focusSessions.id, id),
+        eq(focusSessions.userId, user.id),
+        isNull(focusSessions.endedAt),
+        isNull(focusSessions.pausedAt),
+      ),
+    )
+    .returning({ id: focusSessions.id });
+  if (rows.length === 0) return fail("This session isn't running.");
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
+
+/** Resumes a paused study session; the pause is added to its paused time. */
+export async function resumeFocus(id: string): Promise<DailyResult> {
+  const user = await me();
+  if (!user || !Id.safeParse(id).success) return fail("Not found.");
+  const rows = await db()
+    .update(focusSessions)
+    .set({
+      pausedMs: sql`${focusSessions.pausedMs} + (extract(epoch from (now() - ${focusSessions.pausedAt})) * 1000)::int`,
+      pausedAt: null,
+    })
+    .where(
+      and(
+        eq(focusSessions.id, id),
+        eq(focusSessions.userId, user.id),
+        isNull(focusSessions.endedAt),
+        isNotNull(focusSessions.pausedAt),
+      ),
+    )
+    .returning({ id: focusSessions.id });
+  if (rows.length === 0) return fail("This session isn't paused.");
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
+
 export async function stopFocus(
   id: string,
   report: { focusMs: number; awayMs: number; switches: number } | null,
@@ -358,11 +421,18 @@ export async function stopFocus(
     await db().delete(focusSessions).where(where);
   } else {
     const [row] = await db()
-      .select({ startedAt: focusSessions.startedAt })
+      .select({
+        startedAt: focusSessions.startedAt,
+        pausedAt: focusSessions.pausedAt,
+        pausedMs: focusSessions.pausedMs,
+      })
       .from(focusSessions)
       .where(where);
     if (!row) return fail("Not found.");
-    const wall = Math.min(Date.now() - row.startedAt.getTime(), DAY_MS);
+    // Paused time (earlier pauses, and a pause still open now) never counts.
+    const now = Date.now();
+    const paused = row.pausedMs + (row.pausedAt ? now - row.pausedAt.getTime() : 0);
+    const wall = Math.max(0, Math.min(now - row.startedAt.getTime() - paused, DAY_MS));
     const focusMs = r.data ? Math.min(r.data.focusMs, wall) : wall;
     await db()
       .update(focusSessions)
@@ -372,6 +442,8 @@ export async function stopFocus(
         awayMs: r.data ? Math.min(r.data.awayMs, wall) : 0,
         switches: r.data?.switches ?? 0,
         tracked: Boolean(r.data),
+        pausedAt: null,
+        pausedMs: paused,
       })
       .where(where);
   }

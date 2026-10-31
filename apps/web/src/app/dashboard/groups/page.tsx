@@ -143,6 +143,7 @@ async function GroupsContent() {
                 <UsersRound size={18} aria-hidden="true" />
               </span>
               {g.role === "owner" && <Tag tone="signal">owner</Tag>}
+              {g.role === "admin" && <Tag tone="info">admin</Tag>}
             </div>
             <div>
               <p className="truncate text-17 font-[600] tracking-[-0.02em]">{g.name}</p>
@@ -163,5 +164,3 @@ async function GroupsContent() {
     </>
   );
 }
-
-// DsaKaro

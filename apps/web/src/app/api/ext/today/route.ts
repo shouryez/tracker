@@ -47,7 +47,11 @@ export async function GET(request: Request) {
         url: c.url,
       })),
     nudges: nudges.map((n) => ({ id: n.id, from: n.from, group: n.group })),
-    focus: focus ? { id: focus.id, startedAt: focus.startedAt, label: focus.label } : null,
+    // A paused session isn't sent: the extension stops tracking until it's resumed.
+    focus:
+      focus && !focus.pausedAt
+        ? { id: focus.id, startedAt: focus.startedAt, label: focus.label }
+        : null,
     dashboardUrl: new URL("/dashboard", request.url).toString(),
   };
   return Response.json(body);

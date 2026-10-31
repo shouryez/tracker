@@ -134,6 +134,13 @@
       "when": 1793228683681,
       "tag": "0018_live_status",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793482974889,
+      "tag": "0019_unknown_hobgoblin",
+      "breakpoints": true
     }
   ]
 }

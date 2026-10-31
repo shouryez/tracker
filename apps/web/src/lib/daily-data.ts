@@ -24,19 +24,52 @@ const toMs = (v: unknown) => (v instanceof Date ? v.getTime() : Date.parse(Strin
 
 // ---------------------------------------------------------------- focus
 
-export type ActiveFocus = { id: string; startedAt: number; mode: string; label: string | null };
+export type ActiveFocus = {
+  id: string;
+  startedAt: number;
+  mode: string;
+  label: string | null;
+  /** When the current pause began; null while running. */
+  pausedAt: number | null;
+  /** Earlier pauses, in total. */
+  pausedMs: number;
+  /** Extension totals banked at earlier pauses (the extension restarts at each resume). */
+  banked: { focusMs: number; awayMs: number; switches: number; tracked: boolean };
+};
 
 export async function getActiveFocus(userId: string): Promise<ActiveFocus | null> {
   const [row] = (await db().execute(sql`
-    select id, started_at as "startedAt", mode, label from focus_sessions
+    select id, started_at as "startedAt", mode, label, paused_at as "pausedAt",
+           paused_ms as "pausedMs", focus_ms as "focusMs", away_ms as "awayMs", switches, tracked
+    from focus_sessions
     where user_id = ${userId} and ended_at is null and started_at > now() - interval '16 hours'
     order by started_at desc limit 1`)) as unknown as {
     id: string;
     startedAt: unknown;
     mode: string;
     label: string | null;
+    pausedAt: unknown;
+    pausedMs: number;
+    focusMs: number;
+    awayMs: number;
+    switches: number;
+    tracked: boolean;
   }[];
-  return row ? { ...row, startedAt: toMs(row.startedAt) } : null;
+  if (!row) return null;
+  return {
+    id: row.id,
+    startedAt: toMs(row.startedAt),
+    mode: row.mode,
+    label: row.label,
+    pausedAt: row.pausedAt ? toMs(row.pausedAt) : null,
+    pausedMs: Number(row.pausedMs),
+    banked: {
+      focusMs: Number(row.focusMs),
+      awayMs: Number(row.awayMs),
+      switches: Number(row.switches),
+      tracked: Boolean(row.tracked),
+    },
+  };
 }
 
 export type FocusSummary = {
