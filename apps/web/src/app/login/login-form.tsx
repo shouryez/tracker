@@ -53,7 +53,11 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
   const [email, setEmail] = useState(() => params.get("email") ?? "");
   const [status, setStatus] = useState<Status>(
     params.get("error")
-      ? { kind: "error", message: "That sign-in link didn't work. Try again." }
+      ? {
+          kind: "error",
+          message:
+            "That sign-in link didn't work in this browser. Send a new code and type it here instead.",
+        }
       : { kind: "idle" },
   );
 
@@ -133,6 +137,37 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
     window.location.assign(next);
   }
 
+  // The emailed code: works on any device or browser, unlike the link, which needs the
+  // browser that asked for it (and can be used up by an email scanner opening it first).
+  const [code, setCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [codeError, setCodeError] = useState<string | null>(null);
+
+  async function verifyCode(address: string, token: string) {
+    const clean = token.replace(/\D/g, "");
+    if (clean.length < 6) return;
+    setVerifying(true);
+    setCodeError(null);
+    const { error } = await (
+      await supabase()
+    ).auth.verifyOtp({
+      email: address,
+      token: clean,
+      type: "email",
+    });
+    if (error) {
+      setVerifying(false);
+      setCodeError(
+        /expired|invalid/i.test(error.message)
+          ? "That code didn't work. It may have expired: check it, or send a new one."
+          : friendlyError(error.message).text,
+      );
+      return;
+    }
+    // A full page load, so the server sees the new session cookies.
+    window.location.assign(next);
+  }
+
   async function sendLink(address: string) {
     if (!address || cooldownLeft() > 0) return;
     setStatus({ kind: "sending" });
@@ -171,10 +206,51 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
           Check your <em className="font-display font-normal">inbox.</em>
         </p>
         <p className="mt-1 text-sm text-ink-2">
-          We sent a {mode === "login" ? "sign-in" : "sign-up"} link to{" "}
-          <span className="text-ink">{status.email}</span>. Open it in this browser.
+          We sent a code to <span className="text-ink">{status.email}</span>. Type it here, or open
+          the link in the email.
         </p>
-        <p className="mt-2 text-12 text-ink-3">Not there? Check spam or Promotions.</p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void verifyCode(status.email, code);
+          }}
+          className="mt-5 flex w-full max-w-[300px] flex-col gap-2"
+        >
+          <label htmlFor="otp" className="sr-only">
+            Code from the email
+          </label>
+          <input
+            id="otp"
+            value={code}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, "").slice(0, 8);
+              setCode(v);
+              setCodeError(null);
+              // Pasted or autofilled a whole code: sign in straight away.
+              if (v.length >= 6 && e.target.value.length > 1 && v.length - code.length > 1)
+                void verifyCode(status.email, v);
+            }}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            autoFocus
+            placeholder="123456"
+            aria-invalid={codeError ? true : undefined}
+            aria-describedby={codeError ? "otp-error" : undefined}
+            className={inputClasses({
+              error: Boolean(codeError),
+              className: "h-[52px] text-center font-mono text-[24px] tracking-[.35em]",
+            })}
+          />
+          <Button type="submit" variant="primary" loading={verifying} disabled={code.length < 6}>
+            {mode === "login" ? "Sign in" : "Create account"} <ButtonArrow />
+          </Button>
+          {codeError && (
+            <p id="otp-error" role="alert" className="text-13 text-bad">
+              {codeError}
+            </p>
+          )}
+        </form>
+        <p className="mt-3 text-12 text-ink-3">Not there? Check spam or Promotions.</p>
         <div className="mt-4 flex items-center gap-4 text-sm">
           <button
             type="button"
@@ -182,11 +258,15 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
             onClick={() => void sendLink(status.email)}
             className="tnum font-[550] text-ink underline-offset-4 hover:underline disabled:font-normal disabled:text-ink-3 disabled:no-underline"
           >
-            {wait > 0 ? `Resend in ${wait}s` : "Resend link"}
+            {wait > 0 ? `Resend in ${wait}s` : "Send a new code"}
           </button>
           <button
             type="button"
-            onClick={() => setStatus({ kind: "idle" })}
+            onClick={() => {
+              setStatus({ kind: "idle" });
+              setCode("");
+              setCodeError(null);
+            }}
             className="text-ink-2 underline-offset-4 hover:text-ink hover:underline"
           >
             Use a different email
@@ -299,7 +379,7 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
             <span className="tnum">Link sent · send again in {wait}s</span>
           ) : (
             <>
-              {mode === "login" ? "Email me a sign-in link" : "Create account with email"}{" "}
+              {mode === "login" ? "Email me a sign-in code" : "Create account with email"}{" "}
               <ButtonArrow />
             </>
           )}
@@ -316,7 +396,7 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
             }}
             className="font-[550] text-ink-2 underline-offset-4 hover:text-ink hover:underline"
           >
-            {withPassword ? "Email me a link instead" : "Use a password instead"}
+            {withPassword ? "Email me a code instead" : "Use a password instead"}
           </button>
           {withPassword && (
             <button
@@ -373,5 +453,3 @@ function GoogleIcon() {
     </svg>
   );
 }
-
-// DsaKaro
