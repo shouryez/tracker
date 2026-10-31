@@ -252,6 +252,7 @@ async function SettingsContent() {
             best={best}
             initial={{
               remindersOn: profile.remindersOn,
+              dailyEmail: profile.dailyEmail,
               reminderHour: profile.reminderHour,
               contestReminders: profile.contestReminders,
             }}
@@ -367,5 +368,3 @@ function PrefRow({
     </div>
   );
 }
-
-// DsaKaro

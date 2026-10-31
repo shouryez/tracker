@@ -633,6 +633,7 @@ export async function markNudgesSeen(): Promise<DailyResult> {
 
 const Reminders = z.object({
   remindersOn: z.boolean(),
+  dailyEmail: z.boolean(),
   reminderHour: z.number().int().min(0).max(23).nullable(),
   contestReminders: z.boolean(),
 });

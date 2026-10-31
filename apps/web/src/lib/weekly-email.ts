@@ -114,24 +114,33 @@ function secret(): string | null {
   return process.env.CRON_SECRET || null;
 }
 
-export function unsubscribeSignature(userId: string): string | null {
+/** Which email an unsubscribe link turns off. */
+export type EmailKind = "weekly" | "daily";
+
+/** Weekly links sign just the user (as they always have); other kinds sign the kind too. */
+export function unsubscribeSignature(userId: string, kind: EmailKind = "weekly"): string | null {
   const key = secret();
-  return key ? createHmac("sha256", key).update(`unsubscribe:${userId}`).digest("base64url") : null;
+  const data = kind === "weekly" ? `unsubscribe:${userId}` : `unsubscribe:${userId}:${kind}`;
+  return key ? createHmac("sha256", key).update(data).digest("base64url") : null;
 }
 
-export function verifyUnsubscribe(userId: string, sig: string): boolean {
-  const expected = unsubscribeSignature(userId);
+export function verifyUnsubscribe(
+  userId: string,
+  sig: string,
+  kind: EmailKind = "weekly",
+): boolean {
+  const expected = unsubscribeSignature(userId, kind);
   if (!expected || expected.length !== sig.length) return false;
   return timingSafeEqual(Buffer.from(expected), Buffer.from(sig));
 }
 
-export function emailLinks(origin: string, userId: string) {
-  const sig = unsubscribeSignature(userId) ?? "";
+export function emailLinks(origin: string, userId: string, kind: EmailKind = "weekly") {
+  const sig = unsubscribeSignature(userId, kind) ?? "";
   return {
     revision: `${origin}/dashboard/revision`,
     dashboard: `${origin}/dashboard`,
     settings: `${origin}/dashboard/settings#learning`,
-    unsubscribe: `${origin}/api/email/unsubscribe?u=${userId}&s=${sig}`,
+    unsubscribe: `${origin}/api/email/unsubscribe?u=${userId}&s=${sig}${kind === "weekly" ? "" : `&t=${kind}`}`,
   };
 }
 
@@ -189,5 +198,3 @@ export async function sendWeeklyEmails(
   }
   return { sent, skipped, failed, dryRun: !apiKey };
 }
-
-// DsaKaro

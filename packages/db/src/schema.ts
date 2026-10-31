@@ -144,6 +144,10 @@ export const profiles = pgTable(
     reminderHour: integer("reminder_hour"),
     /** Remind 30 minutes before upcoming contests. */
     contestReminders: boolean("contest_reminders").notNull().default(true),
+    /** Daily reminder email at the reminder hour, only on days with revisions due or plan left. */
+    dailyEmail: boolean("daily_email").notNull().default(true),
+    /** Local date the last daily email went out, so it's sent at most once a day. */
+    dailyEmailSentOn: date("daily_email_sent_on"),
     onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
     /** An admin checked a college ID for the current college. Cleared when the college changes. */
     collegeVerifiedAt: timestamp("college_verified_at", { withTimezone: true }),

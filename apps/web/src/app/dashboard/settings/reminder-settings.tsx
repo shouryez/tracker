@@ -6,11 +6,19 @@ import { SwitchField } from "@upsolve/ui";
 import { saveReminderSettings } from "@/app/actions/daily";
 import { Select } from "@/components/fx/select";
 
-type Values = { remindersOn: boolean; reminderHour: number | null; contestReminders: boolean };
+type Values = {
+  remindersOn: boolean;
+  dailyEmail: boolean;
+  reminderHour: number | null;
+  contestReminders: boolean;
+};
 
 const hourLabel = (h: number) => `${h % 12 === 0 ? 12 : h % 12}:00 ${h < 12 ? "am" : "pm"}`;
 
-/** Extension reminders: a daily nudge at your best hour, and contest alerts. Saves on change. */
+/**
+ * Daily reminders (a browser notification from the extension, and an email) at one hour,
+ * plus contest alerts. Saves on change.
+ */
 export function ReminderSettings({ initial, best }: { initial: Values; best: number }) {
   const [pending, startTransition] = useTransition();
   const [values, setValues] = useOptimistic(initial);
@@ -25,13 +33,20 @@ export function ReminderSettings({ initial, best }: { initial: Values; best: num
   return (
     <div className="flex flex-col gap-5">
       <SwitchField
-        title="Daily reminder"
-        description="One browser notification a day, only when revisions are due or today's plan isn't done."
+        title="Daily reminder email"
+        description="One email a day with the revisions due and what's left on today's list. Skipped on days with nothing waiting."
+        checked={values.dailyEmail}
+        disabled={pending}
+        onCheckedChange={(dailyEmail) => save({ ...values, dailyEmail })}
+      />
+      <SwitchField
+        title="Daily browser notification"
+        description="The same reminder as a notification from the DsaKaro extension."
         checked={values.remindersOn}
         disabled={pending}
         onCheckedChange={(remindersOn) => save({ ...values, remindersOn })}
       />
-      {values.remindersOn && (
+      {(values.remindersOn || values.dailyEmail) && (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-14 font-[550]">Remind me at</p>
@@ -60,10 +75,9 @@ export function ReminderSettings({ initial, best }: { initial: Values; best: num
         onCheckedChange={(contestReminders) => save({ ...values, contestReminders })}
       />
       <p className="text-12 text-ink-3">
-        Reminders come from the DsaKaro extension, so they need it installed and connected.
+        Browser notifications and contest alerts come from the DsaKaro extension, so they need it
+        installed and connected. Emails go to the address you sign in with.
       </p>
     </div>
   );
 }
-
-// DsaKaro
