@@ -18,7 +18,7 @@ Open the panel to see when you last solved it, your best time, how you solved it
 After a wrong answer, a short pre-submit checklist appears, starting with the slips you've made before (edge cases, overflow, off-by-one).
 
 • Synced with Striver's sheet on takeUforward
-Tick a problem on Striver's A2Z or SDE sheet at takeuforward.org and it's ticked on your DsaKaro copy too. Open the sheet there once and all your past ticks come across.
+Your Striver A2Z and SDE sheets stay identical on both sites: tick a problem on takeuforward.org and it's ticked on DsaKaro, tick it on DsaKaro and it's ticked on takeuforward.org. Open the sheet there once and all your past ticks line up.
 
 • Your past history, imported
 When you connect, your existing LeetCode submissions are imported from your own logged-in session, so your dashboard starts full, not empty.
@@ -44,4 +44,3 @@ HOW TO START
 2. Click the DsaKaro icon and press Connect (sign in with Google on dsakaro.site).
 3. Open any LeetCode or GeeksforGeeks problem and start solving. That's it.
 
-# DsaKaro

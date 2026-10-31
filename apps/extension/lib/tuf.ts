@@ -98,4 +98,60 @@ export function tufTickFromBody(body: unknown): TufTick | null {
   return { sheet: o.key, problemId: o.problem_id, action: o.action };
 }
 
-// DsaKaro
+export const TUF_PROGRESS_URL = "https://backend-go.takeuforward.org/api/v2/progress";
+
+/**
+ * The request takeUforward's own page sends to tick or untick a sheet item. Sent from a
+ * takeuforward.org tab, it carries the user's TUF login cookie like the page's own request.
+ */
+export function tufTickRequest(sheet: string, problemId: number, action: "add" | "remove") {
+  let tz = "Asia/Kolkata";
+  try {
+    tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz;
+  } catch {
+    // Keep the default.
+  }
+  return {
+    url: TUF_PROGRESS_URL,
+    init: {
+      method: "POST",
+      credentials: "include" as const,
+      headers: { "Content-Type": "application/json", "x-extra-info-6": tz },
+      body: JSON.stringify({ type: "source", key: sheet, problem_id: problemId, action }),
+    },
+  };
+}
+
+/**
+ * What to change on takeUforward so it matches DsaKaro. Pending changes made in DsaKaro win
+ * (latest per item); with `full`, anything done in DsaKaro but not on TUF is ticked too.
+ * Returns the changes and the pending slugs that end up in step (to clear).
+ */
+export function planTufChanges(
+  tuf: TufSheet,
+  done: string[],
+  pending: { slug: string; done: boolean }[],
+  full: boolean,
+) {
+  const solved = new Set(tuf.items.filter((i) => i.solved).map((i) => i.slug));
+  const idOf = new Map<string, number>();
+  for (const i of tuf.items) if (!idOf.has(i.slug)) idOf.set(i.slug, i.id);
+  const latest = new Map<string, boolean>();
+  for (const p of pending) latest.set(p.slug, p.done);
+
+  const ops: { slug: string; id: number; action: "add" | "remove" }[] = [];
+  const settled: string[] = [];
+  for (const [slug, want] of latest) {
+    const id = idOf.get(slug);
+    if (id === undefined || solved.has(slug) === want) settled.push(slug);
+    else ops.push({ slug, id, action: want ? "add" : "remove" });
+  }
+  if (full) {
+    for (const slug of new Set(done)) {
+      const id = idOf.get(slug);
+      if (id !== undefined && !solved.has(slug) && !latest.has(slug))
+        ops.push({ slug, id, action: "add" });
+    }
+  }
+  return { ops, settled, pendingUnticks: [...latest].filter(([, d]) => !d).map(([s]) => s) };
+}

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { sheetItems, sheetMarks, sheetStars, sheets, userSheets } from "@upsolve/db";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { db, userTag } from "@/lib/db";
+import { queueTufPush } from "@/lib/tuf-sync";
 
 const Id = z.uuid();
 const ItemKey = z.string().min(1).max(200);
@@ -56,6 +57,8 @@ export async function setSheetItemDone(
         ),
       );
   }
+  // Mirror it on takeUforward (only for sheets that come from there).
+  await queueTufPush(user.id, [{ sheetId, itemKey }], done);
   updateTag(userTag(user.id));
 }
 
@@ -92,5 +95,3 @@ export async function setSheetItemStarred(
   }
   updateTag(userTag(user.id));
 }
-
-// DsaKaro

@@ -80,10 +80,12 @@ export default function PrivacyPage() {
               above (never code). Your LeetCode cookies never leave your browser.
             </Item>
             <Item label="takeUforward sheet sync (extension)">
-              When you open or tick a Striver sheet on takeuforward.org while signed in there, the
-              extension reads which items you&apos;ve ticked on that page and sends only those
-              items&apos; names (and any you just unticked), so your DsaKaro copy of the sheet
-              matches. Your takeUforward cookies and account details never leave your browser.
+              Your Striver sheets stay the same on both sites. When you open or tick a Striver sheet
+              on takeuforward.org while signed in there, the extension reads which items you&apos;ve
+              ticked and sends only those items&apos; names to DsaKaro. Items you tick or untick in
+              DsaKaro are ticked or unticked on takeUforward the same way, from a takeuforward.org
+              tab, as your own takeUforward page would. Your takeUforward cookies and account
+              details never leave your browser.
             </Item>
             <Item label="Lab mode (extension, only while you run a focus session)">
               The extension looks at the address and title of your active tab to decide whether
@@ -261,5 +263,3 @@ function Item({ label, children }: { label: string; children: ReactNode }) {
     </div>
   );
 }
-
-// DsaKaro

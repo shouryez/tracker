@@ -147,8 +147,32 @@ export const ExtSheetSyncRequest = z.object({
   sheet: slug,
   solved: z.array(tufSlug).max(1000),
   removed: z.array(tufSlug).max(50).default([]),
+  /** Items just ticked or unticked on takeUforward: newer than any pending DsaKaro change. */
+  changed: z.array(tufSlug).max(50).default([]),
 });
 export type ExtSheetSyncRequest = z.infer<typeof ExtSheetSyncRequest>;
+
+/** DsaKaro's side of each takeUforward sheet the user follows, for the reverse sync. */
+export type ExtSheetStateResponse = {
+  /** Server time of this answer: acks clear only changes made before it. */
+  at: number;
+  sheets: {
+    /** takeUforward sheet slug, e.g. "strivers-a2z-dsa-sheet". */
+    sheet: string;
+    /** Item slugs done in DsaKaro (ticked here, or solved on a judge). */
+    done: string[];
+    /** Changes made in DsaKaro still to apply on takeUforward, oldest first. */
+    pending: { slug: string; done: boolean }[];
+  }[];
+};
+
+/** Pending changes now applied on takeUforward (cleared unless changed again since). */
+export const ExtSheetAckRequest = z.object({
+  acks: z
+    .array(z.object({ sheet: slug, slugs: z.array(tufSlug).max(1000), before: epochMs }))
+    .max(10),
+});
+export type ExtSheetAckRequest = z.infer<typeof ExtSheetAckRequest>;
 
 /** Focus totals reported by the extension when a Lab session ends. */
 export const ExtFocusReport = z.object({
@@ -175,4 +199,3 @@ export type ExtMeResponse = {
 
 export type ExtSyncResponse = { ok: true; stored: number } | { ok: false; error: string };
 
-// DsaKaro

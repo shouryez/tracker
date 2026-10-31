@@ -23,6 +23,7 @@ import { getProfile } from "@/lib/data";
 import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/lib/learning";
 import { ON_LIST, ON_TODAY_LIST, SAME_SHEET_ITEM, getTodaySuggestions } from "@/lib/plan";
 import { getStudyContents, type StudyContents } from "@/lib/study-data";
+import { queueTufPush } from "@/lib/tuf-sync";
 import { localDate, requestNow } from "@/lib/time";
 
 // Writes for the daily-loop features. Every action resolves the user from the
@@ -86,21 +87,26 @@ export async function setPlanItemDone(id: string, done: boolean): Promise<DailyR
   // The same item on a sheet ticks along (the list and the sheet never disagree). Unticking
   // takes back only sheet ticks made since it was planned, never an older one.
   if (item.kind !== "contest") {
-    if (done) {
-      await db().execute(sql`
+    const changed = (done
+      ? await db().execute(sql`
         insert into sheet_marks (user_id, sheet_id, item_key)
         select ${user.id}, si.sheet_id, si.item_key
         from plan_items pi join sheet_items si on ${SAME_SHEET_ITEM}
         where pi.id = ${id} and pi.user_id = ${user.id}
-        on conflict do nothing`);
-    } else {
-      await db().execute(sql`
+        on conflict do nothing
+        returning sheet_id as "sheetId", item_key as "itemKey"`)
+      : await db().execute(sql`
         delete from sheet_marks sm
         using plan_items pi, sheet_items si
         where pi.id = ${id} and pi.user_id = ${user.id} and sm.user_id = ${user.id}
           and si.sheet_id = sm.sheet_id and si.item_key = sm.item_key
-          and sm.created_at >= pi.created_at and ${SAME_SHEET_ITEM}`);
-    }
+          and sm.created_at >= pi.created_at and ${SAME_SHEET_ITEM}
+        returning sm.sheet_id as "sheetId", sm.item_key as "itemKey"`)) as unknown as {
+      sheetId: string;
+      itemKey: string;
+    }[];
+    // The same items on takeUforward follow along.
+    await queueTufPush(user.id, changed, done);
   }
   updateTag(userTag(user.id));
   return { ok: true };
@@ -642,5 +648,3 @@ export async function saveReminderSettings(
   updateTag(userTag(user.id));
   return { ok: true };
 }
-
-// DsaKaro

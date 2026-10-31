@@ -141,6 +141,13 @@
       "when": 1793482974889,
       "tag": "0019_unknown_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1793484267808,
+      "tag": "0020_spotty_mathemanic",
+      "breakpoints": true
     }
   ]
 }

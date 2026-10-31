@@ -428,6 +428,25 @@ export const sheetMarks = pgTable(
   (t) => [primaryKey({ columns: [t.userId, t.sheetId, t.itemKey] }), ownerCanRead(t.userId)],
 ).enableRLS();
 
+/**
+ * Sheet ticks and unticks made in DsaKaro that still have to reach the same sheet on
+ * takeUforward. The extension applies them from a takeuforward.org tab, then clears them.
+ * One row per item: the latest change wins.
+ */
+export const tufPushQueue = pgTable(
+  "tuf_push_queue",
+  {
+    userId: userRef(),
+    sheetId: uuid("sheet_id")
+      .notNull()
+      .references(() => sheets.id, { onDelete: "cascade" }),
+    itemKey: text("item_key").notNull(),
+    done: boolean("done").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.sheetId, t.itemKey] }), ownerCanRead(t.userId)],
+).enableRLS();
+
 /** Items a user starred to come back to (the sheet's "bookmark"). */
 export const sheetStars = pgTable(
   "sheet_stars",

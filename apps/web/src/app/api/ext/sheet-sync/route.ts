@@ -42,8 +42,14 @@ export async function POST(request: Request) {
           and (${matches(body.removed)})`);
       changed += (removed as unknown as { count?: number }).count ?? 0;
     }
+    // A change just made on takeUforward is newer than anything queued here for it.
+    if (body.changed.length > 0) {
+      await db().execute(sql`
+        delete from tuf_push_queue q
+        where q.user_id = ${userId} and q.sheet_id = ${sheet.id}
+          and split_part(q.item_key, '~', 1) in ${body.changed}`);
+    }
     return changed;
   });
 }
 
-// DsaKaro

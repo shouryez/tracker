@@ -1,6 +1,11 @@
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
-import type { ExtHistoryItem, ExtMeResponse, ExtSession } from "@upsolve/contracts";
+import type {
+  ExtHistoryItem,
+  ExtMeResponse,
+  ExtSession,
+  ExtSheetStateResponse,
+} from "@upsolve/contracts";
 import { handleDaily, labStatusForPopup, setupDaily } from "../lib/daily.ts";
 import type { Message, PutResult, Status } from "../lib/messages.ts";
 import { SESSION_EXPIRES_MS, toWire, worthUploading } from "../lib/session.ts";
@@ -120,7 +125,7 @@ async function putHistory(items: ExtHistoryItem[]): Promise<PutResult> {
 }
 
 /** Mirrors takeUforward sheet ticks onto the same sheet in DsaKaro. */
-async function syncTuf(sheet: string, solved: string[], removed: string[]) {
+async function syncTuf(sheet: string, solved: string[], removed: string[], changed: string[]) {
   try {
     const res = await api("/api/ext/sheet-sync", {
       method: "POST",
@@ -128,7 +133,8 @@ async function syncTuf(sheet: string, solved: string[], removed: string[]) {
         source: "takeuforward",
         sheet,
         solved: solved.slice(0, 1000),
-        removed,
+        removed: removed.slice(0, 50),
+        changed: changed.slice(0, 50),
       }),
     });
     if (!res) return { ok: false, error: "Not connected" };
@@ -137,6 +143,39 @@ async function syncTuf(sheet: string, solved: string[], removed: string[]) {
   } catch {
     return { ok: false, error: "Offline" };
   }
+}
+
+/** DsaKaro's side of the user's takeUforward sheets; null when offline or not connected. */
+async function tufState(): Promise<ExtSheetStateResponse | null> {
+  try {
+    const res = await api("/api/ext/sheet-state");
+    if (!res || (await handleAuthFailure(res)) || !res.ok) return null;
+    return (await res.json()) as ExtSheetStateResponse;
+  } catch {
+    return null;
+  }
+}
+
+async function tufAck(sheet: string, slugs: string[], before: number) {
+  try {
+    const res = await api("/api/ext/sheet-state", {
+      method: "POST",
+      body: JSON.stringify({ acks: [{ sheet, slugs: slugs.slice(0, 1000), before }] }),
+    });
+    return { ok: Boolean(res?.ok) };
+  } catch {
+    return { ok: false };
+  }
+}
+
+/** Asks an open takeuforward.org tab to apply ticks made in DsaKaro (it has the TUF login). */
+async function nudgeTufTab() {
+  if (!(await store.token())) return;
+  const [tab] = await browser.tabs.query({ url: "https://takeuforward.org/*" });
+  if (tab?.id === undefined) return;
+  browser.tabs.sendMessage(tab.id, { type: "tuf:reconcile" }).catch(() => {
+    // Tab opened before the extension was installed or updated: nothing to nudge.
+  });
 }
 
 async function status(): Promise<Status> {
@@ -193,7 +232,11 @@ async function handle(msg: Message): Promise<unknown> {
       await flush();
       return { ok: true };
     case "tuf:sync":
-      return syncTuf(msg.sheet, msg.solved, msg.removed);
+      return syncTuf(msg.sheet, msg.solved, msg.removed, msg.changed);
+    case "tuf:state":
+      return tufState();
+    case "tuf:ack":
+      return tufAck(msg.sheet, msg.slugs, msg.before);
     default:
       return handleDaily(api, msg);
   }
@@ -208,11 +251,12 @@ export default defineBackground(() => {
   browser.alarms.create("flush", { periodInMinutes: 1 });
   browser.alarms.create("sweep", { periodInMinutes: 5 });
   browser.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === "flush") void flush();
+    if (alarm.name === "flush") {
+      void flush();
+      void nudgeTufTab();
+    }
     if (alarm.name === "sweep") void sweep();
   });
 
   setupDaily(api);
 });
-
-// DsaKaro

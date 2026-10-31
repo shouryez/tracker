@@ -12,7 +12,13 @@ import {
   titleFromDocument,
 } from "./leetcode.ts";
 import { advance, categorize, newLab, totals } from "./lab.ts";
-import { isTufProgressUrl, parseTufSheet, tufTickFromBody } from "./tuf.ts";
+import {
+  isTufProgressUrl,
+  parseTufSheet,
+  planTufChanges,
+  tufTickFromBody,
+  tufTickRequest,
+} from "./tuf.ts";
 import { canResume, isReviewUrl, newSession, toWire, worthUploading } from "./session.ts";
 import {
   gfgProblemSlug,
@@ -370,4 +376,48 @@ test("takeUforward: sheet page ticks, and tick requests", () => {
   assert.equal(tufTickFromBody("not json"), null);
 });
 
-// DsaKaro
+test("takeUforward two-way: pending DsaKaro changes win, full match ticks the rest", () => {
+  const tuf = {
+    sheet: "strivers-a2z-dsa-sheet",
+    items: [
+      { id: 1, slug: "two-sum", solved: true },
+      { id: 2, slug: "kadane-algorithm", solved: false },
+      { id: 3, slug: "pattern-9", solved: true },
+      { id: 4, slug: "basic-hashing", solved: false },
+    ],
+  };
+  // Ticked kadane in DsaKaro; unticked pattern-9 (then re-ticked: the latest wins); two-sum
+  // unticked here; basic-hashing solved on LeetCode, so it's in "done".
+  const plan = planTufChanges(
+    tuf,
+    ["kadane-algorithm", "basic-hashing", "pattern-9"],
+    [
+      { slug: "kadane-algorithm", done: true },
+      { slug: "pattern-9", done: false },
+      { slug: "pattern-9", done: true },
+      { slug: "two-sum", done: false },
+      { slug: "not-on-tuf", done: true },
+    ],
+    true,
+  );
+  assert.deepEqual(plan.ops.map((o) => `${o.action}:${o.slug}:${o.id}`).sort(), [
+    "add:basic-hashing:4",
+    "add:kadane-algorithm:2",
+    "remove:two-sum:1",
+  ]);
+  // pattern-9 is already ticked there; an item TUF doesn't have is settled too.
+  assert.deepEqual(plan.settled.sort(), ["not-on-tuf", "pattern-9"]);
+  assert.deepEqual(plan.pendingUnticks, ["two-sum"]);
+  // Without full, only the pending changes are applied.
+  assert.equal(planTufChanges(tuf, ["basic-hashing"], [], false).ops.length, 0);
+
+  const req = tufTickRequest("strivers-a2z-dsa-sheet", 2, "add");
+  assert.equal(req.url, "https://backend-go.takeuforward.org/api/v2/progress");
+  assert.equal(req.init.credentials, "include");
+  assert.deepEqual(JSON.parse(req.init.body), {
+    type: "source",
+    key: "strivers-a2z-dsa-sheet",
+    problem_id: 2,
+    action: "add",
+  });
+});

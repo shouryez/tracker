@@ -58,7 +58,11 @@ export type Message =
   | { type: "lab:stop"; report: boolean }
   | { type: "save:tab" }
   /** Ticks read from the user's own takeUforward sheet page. */
-  | { type: "tuf:sync"; sheet: string; solved: string[]; removed: string[] };
+  | { type: "tuf:sync"; sheet: string; solved: string[]; removed: string[]; changed: string[] }
+  /** DsaKaro's side of the user's takeUforward sheets (done items, changes to apply there). */
+  | { type: "tuf:state" }
+  /** Pending changes now applied on takeUforward. */
+  | { type: "tuf:ack"; sheet: string; slugs: string[]; before: number };
 
 export type PutResult = { ok: true; stored: number } | { ok: false; error: string; auth?: boolean };
 
@@ -70,5 +74,3 @@ export const HOOK_SOURCE = "upsolve-hook";
 
 /** Background → YouTube content script: the playing video's position, in seconds. */
 export type YoutubeTimeRequest = { type: "yt:time" };
-
-// DsaKaro
