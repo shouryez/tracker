@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Button, ButtonArrow, inputClasses } from "@upsolve/ui";
+import { OtpInput } from "@/components/otp-input";
 import { safeNextPath } from "@/lib/safe-next";
 
 // The Supabase client is ~67 KB gzipped and only needed once a button is pressed: it loads
@@ -140,12 +141,13 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
   // The emailed code: works on any device or browser, unlike the link, which needs the
   // browser that asked for it (and can be used up by an email scanner opening it first).
   const [code, setCode] = useState("");
+  const [codeLength, setCodeLength] = useState(6);
   const [verifying, setVerifying] = useState(false);
   const [codeError, setCodeError] = useState<string | null>(null);
 
   async function verifyCode(address: string, token: string) {
     const clean = token.replace(/\D/g, "");
-    if (clean.length < 6) return;
+    if (clean.length < codeLength) return;
     setVerifying(true);
     setCodeError(null);
     const auth = (await supabase()).auth;
@@ -179,6 +181,7 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
       noAccount?: boolean;
       error?: string;
       wait?: number;
+      length?: number;
     } | null;
     if (body?.noAccount) {
       setStatus({ kind: "no-account", email: address });
@@ -192,6 +195,9 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
       });
       return;
     }
+    if (body.length && body.length >= 4 && body.length <= 10) setCodeLength(body.length);
+    setCode("");
+    setCodeError(null);
     startCooldown();
     setStatus({ kind: "sent", email: address });
   }
@@ -218,34 +224,26 @@ export function LoginForm({ mode, disabled }: { mode: "login" | "signup"; disabl
             e.preventDefault();
             void verifyCode(status.email, code);
           }}
-          className="mt-5 flex w-full max-w-[300px] flex-col gap-2"
+          className="mt-6 flex w-full max-w-[360px] flex-col gap-3"
         >
-          <label htmlFor="otp" className="sr-only">
-            Code from the email
-          </label>
-          <input
-            id="otp"
+          <OtpInput
+            length={codeLength}
             value={code}
-            onChange={(e) => {
-              const v = e.target.value.replace(/\D/g, "").slice(0, 8);
+            onChange={(v) => {
               setCode(v);
               setCodeError(null);
-              // Pasted or autofilled a whole code: sign in straight away.
-              if (v.length >= 6 && e.target.value.length > 1 && v.length - code.length > 1)
-                void verifyCode(status.email, v);
             }}
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            autoFocus
-            placeholder="123456"
-            aria-invalid={codeError ? true : undefined}
-            aria-describedby={codeError ? "otp-error" : undefined}
-            className={inputClasses({
-              error: Boolean(codeError),
-              className: "h-[52px] text-center font-mono text-[24px] tracking-[.35em]",
-            })}
+            // Last digit typed, pasted or autofilled: sign in straight away.
+            onComplete={(v) => void verifyCode(status.email, v)}
+            error={Boolean(codeError)}
+            describedBy={codeError ? "otp-error" : undefined}
           />
-          <Button type="submit" variant="primary" loading={verifying} disabled={code.length < 6}>
+          <Button
+            type="submit"
+            variant="primary"
+            loading={verifying}
+            disabled={code.length < codeLength}
+          >
             {mode === "login" ? "Sign in" : "Create account"} <ButtonArrow />
           </Button>
           {codeError && (

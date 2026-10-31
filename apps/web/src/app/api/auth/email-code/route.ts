@@ -26,7 +26,10 @@ function tooMany(ip: string) {
 }
 
 const esc = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+  s.replace(
+    /[&<>"']/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!,
+  );
 
 function render(code: string, link: string, signup: boolean) {
   const what = signup ? "create your account" : "sign in";
@@ -56,19 +59,26 @@ function render(code: string, link: string, signup: boolean) {
 
 export async function POST(request: Request) {
   const parsed = Body.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return Response.json({ ok: false, error: "Enter a valid email." }, { status: 400 });
+  if (!parsed.success)
+    return Response.json({ ok: false, error: "Enter a valid email." }, { status: 400 });
   const email = parsed.data.email.trim().toLowerCase();
   const signup = parsed.data.mode === "signup";
   const next = safeNextPath(parsed.data.next ?? null);
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (tooMany(ip))
-    return Response.json({ ok: false, error: "Too many codes requested. Try again in a few minutes." }, { status: 429 });
+    return Response.json(
+      { ok: false, error: "Too many codes requested. Try again in a few minutes." },
+      { status: 429 },
+    );
 
   const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   const apiKey = process.env.RESEND_API_KEY;
   if (!serviceKey || !apiKey || !supabaseUrl)
-    return Response.json({ ok: false, error: "Email sign-in isn't set up yet. Use Google." }, { status: 503 });
+    return Response.json(
+      { ok: false, error: "Email sign-in isn't set up yet. Use Google." },
+      { status: 503 },
+    );
 
   const [user] = (await db().execute(sql`
     select id,
@@ -81,7 +91,10 @@ export async function POST(request: Request) {
   // Signing in never creates an account; that's what sign-up is for.
   if (!user && !signup) return Response.json({ ok: false, noAccount: true }, { status: 404 });
   if (user?.recent)
-    return Response.json({ ok: false, error: "A code was just sent. Check your inbox.", wait: 55 }, { status: 429 });
+    return Response.json(
+      { ok: false, error: "A code was just sent. Check your inbox.", wait: 55 },
+      { status: 429 },
+    );
 
   const admin = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -90,7 +103,10 @@ export async function POST(request: Request) {
   const props = data?.properties;
   if (error || !props?.email_otp || !props.hashed_token) {
     console.error("[email-code] generateLink failed", error?.message);
-    return Response.json({ ok: false, error: "Couldn't create a code. Try again, or use Google." }, { status: 502 });
+    return Response.json(
+      { ok: false, error: "Couldn't create a code. Try again, or use Google." },
+      { status: 502 },
+    );
   }
 
   const origin = new URL(request.url).origin;
@@ -109,7 +125,11 @@ export async function POST(request: Request) {
   });
   if (!res.ok) {
     console.error("[email-code] send failed", res.status, await res.text().catch(() => ""));
-    return Response.json({ ok: false, error: "Couldn't send the email. Try again, or use Google." }, { status: 502 });
+    return Response.json(
+      { ok: false, error: "Couldn't send the email. Try again, or use Google." },
+      { status: 502 },
+    );
   }
-  return Response.json({ ok: true });
+  // The code's length is a Supabase setting (Email OTP length); the boxes follow it.
+  return Response.json({ ok: true, length: props.email_otp.length });
 }

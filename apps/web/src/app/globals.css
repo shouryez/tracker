@@ -507,3 +507,20 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
 }
 
 /* DsaKaro */
+
+/* Sign-in code boxes (components/otp-input.tsx). */
+@keyframes otp-caret {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes otp-shake {
+  20%,
+  60% {
+    translate: -6px 0;
+  }
+  40%,
+  80% {
+    translate: 6px 0;
+  }
+}
