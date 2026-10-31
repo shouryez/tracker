@@ -289,6 +289,15 @@
   ) {
   will-change: transform, opacity;
 }
+/* iOS: same scene, but only the camera and page-level layers are promoted. WebKit already
+   gives every part of the preserve-3d tree its own layer; extra will-change layers on top
+   ran the tab out of GPU memory ("A problem repeatedly occurred"). */
+html[data-ios] [data-hero-stage][data-active] :is([data-part], [data-hero-copy], [data-glance]) {
+  will-change: auto;
+}
+html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-part="page-bg"]) {
+  will-change: transform, opacity;
+}
 /* Screen UI is designed at desktop scale; phones get it larger, in less space. */
 .lt-ui {
   zoom: 1.12;

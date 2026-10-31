@@ -20,10 +20,12 @@ export function HeroSceneLoader() {
   useEffect(() => {
     const html = document.documentElement;
     if (html.dataset.scene !== "on" && sceneAllowed()) html.dataset.scene = "on";
+    const u = navigator.userAgent;
+    if (/iP(hone|ad|od)/.test(u) || (/Mac/.test(u) && navigator.maxTouchPoints > 1))
+      html.dataset.ios = "";
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the DOM once on mount
     setOn(html.dataset.scene === "on");
   }, []);
   return on ? <HeroScene /> : null;
 }
 
-// DsaKaro
