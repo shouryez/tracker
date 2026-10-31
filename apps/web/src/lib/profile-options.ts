@@ -60,7 +60,7 @@ export const LANGUAGES = [
 
 export const DAILY_GOALS = [30, 60, 90, 120] as const;
 /** Choices for the daily revision cap (Settings). */
-export const REVIEW_CAPS = [3, 5, 8, 10, 15, 20] as const;
+export const REVIEW_CAPS = [1, 3, 5, 8, 10, 15, 20] as const;
 
 export const CURRENT_YEARS = [
   { value: 1, label: "1st year" },
