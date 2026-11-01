@@ -9,7 +9,7 @@ import { hallTimes, hm } from "@/components/study-hall";
 import { buddyLevel } from "@/lib/buddies";
 import type { ActiveFocus, HallMember } from "@/lib/daily-data";
 import type { LabLive } from "@/lib/ext-bridge";
-import { focusClock, focusElapsed, focusPhase } from "@/lib/focus";
+import { breakState, focusClock, focusElapsed, focusPhase } from "@/lib/focus";
 import { ActivityLine } from "./focus-live";
 
 /**
@@ -96,31 +96,38 @@ export function FocusPopout({
 
   // Tick while running, or while the group shows (their timers run on).
   useEffect(() => {
-    if (paused && !groupOn) return;
+    if (paused && !groupOn && active.mode === "stopwatch") return;
     const first = window.setTimeout(() => setNow(Date.now()), 0);
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => {
       clearTimeout(first);
       clearInterval(id);
     };
-  }, [paused, groupOn]);
+  }, [paused, groupOn, active.mode]);
 
   const elapsed = focusElapsed(active, paused ? active.pausedAt! : now);
   const p = focusPhase(active.mode, elapsed);
-  const span = p ? p.length : 60 * 60_000;
-  const progress = Math.min(1, (p ? p.length - p.left : elapsed % span) / span);
-  const onBreak = Boolean(p && !p.working);
-  const tone = paused ? "var(--medium)" : onBreak ? "var(--info)" : "var(--signal)";
-  const status = paused
-    ? live?.autoPaused
-      ? "Auto-paused"
-      : "Paused"
-    : p
-      ? p.working
+  // A paused pomodoro is a break you took (never counted, never resumed by itself).
+  const brk = breakState(active, now);
+  const span = brk ? brk.length : p ? p.length : 60 * 60_000;
+  const progress = Math.min(
+    1,
+    (brk ? brk.length - brk.left : p ? p.length - p.left : elapsed % span) / span,
+  );
+  const onBreak = Boolean(brk);
+  const tone = onBreak ? "var(--info)" : paused ? "var(--medium)" : "var(--signal)";
+  const status = brk
+    ? brk.left > 0
+      ? "Break"
+      : "Break over"
+    : paused
+      ? live?.autoPaused
+        ? "Auto-paused"
+        : "Paused"
+      : p
         ? `Focus · round ${p.round}`
-        : "Break"
-      : "Studying";
-  const time = focusClock(p ? p.left : elapsed);
+        : "Studying";
+  const time = brk ? focusClock(Math.max(0, brk.left)) : focusClock(p ? p.left : elapsed);
 
   const tall = !groupOn && size.h >= 260 && size.w >= 240;
   const showRing = tall || size.w >= 330;
@@ -171,7 +178,7 @@ export function FocusPopout({
 
   const statusRow = (
     <span className="flex min-w-0 items-center gap-1.5 font-mono text-[10px] tracking-[.16em] whitespace-nowrap text-white/55 uppercase">
-      {onBreak && !paused ? (
+      {onBreak ? (
         <Coffee size={11} aria-hidden="true" />
       ) : (
         <span

@@ -25,16 +25,32 @@ export const POMODORO: Record<Exclude<FocusMode, "stopwatch">, { work: number; r
   "pomodoro-50": { work: 50, rest: 10 },
 };
 
-/** Where in a pomodoro cycle we are (null for the stopwatch). Pure. */
+/**
+ * Where in a pomodoro we are (null for the stopwatch). Only focus blocks run on the clock:
+ * a break never starts by itself. When a block ends you're asked to take one, and taking it
+ * pauses the session, so break time never counts as focus. Pure.
+ */
 export function focusPhase(mode: string, elapsedMs: number) {
   if (!(mode in POMODORO)) return null;
   const { work, rest } = POMODORO[mode as keyof typeof POMODORO];
-  const cycle = (work + rest) * 60_000;
-  const into = elapsedMs % cycle;
-  const working = into < work * 60_000;
-  const left = working ? work * 60_000 - into : cycle - into;
-  const length = (working ? work : rest) * 60_000;
-  return { working, left, length, round: Math.floor(elapsedMs / cycle) + 1 };
+  const block = work * 60_000;
+  const into = elapsedMs % block;
+  return {
+    left: block - into,
+    length: block,
+    round: Math.floor(elapsedMs / block) + 1,
+    restMs: rest * 60_000,
+  };
+}
+
+/**
+ * A pomodoro session that's paused is on a break: the suggested break's length and what's
+ * left of it (negative once it's over; it never resumes by itself). Null otherwise. Pure.
+ */
+export function breakState(f: ActiveFocus, now: number) {
+  if (!f.pausedAt || !(f.mode in POMODORO)) return null;
+  const length = POMODORO[f.mode as keyof typeof POMODORO].rest * 60_000;
+  return { length, left: length - (now - f.pausedAt) };
 }
 
 /** "mm:ss", or "h:mm:ss" from an hour. */

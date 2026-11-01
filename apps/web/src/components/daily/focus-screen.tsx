@@ -6,7 +6,7 @@ import { Coffee, Minimize2, Pause, PictureInPicture2, Play, Square } from "lucid
 import { cn } from "@upsolve/ui";
 import type { LabLive } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
-import { focusClock, focusElapsed, focusPhase, focusTotals } from "@/lib/focus";
+import { breakState, focusClock, focusElapsed, focusPhase, focusTotals } from "@/lib/focus";
 import { ActivityLine } from "./focus-live";
 
 const mins = (ms: number) => `${Math.round(ms / 60_000)}m`;
@@ -75,9 +75,10 @@ export function FocusScreen({
     onCloseRef.current();
   }, []);
 
-  // Tick while running.
+  // Tick while running, and on a pomodoro break (its countdown).
+  const pomodoro = active.mode !== "stopwatch";
   useEffect(() => {
-    if (paused) return;
+    if (paused && !pomodoro) return;
     // Catch up right away after a resume, then once a second.
     const first = window.setTimeout(() => setNow(Date.now()), 0);
     const id = window.setInterval(() => setNow(Date.now()), 1000);
@@ -85,7 +86,7 @@ export function FocusScreen({
       clearTimeout(first);
       clearInterval(id);
     };
-  }, [paused]);
+  }, [paused, pomodoro]);
 
   // Keep the screen awake, lock page scroll, leave when the browser leaves fullscreen.
   useEffect(() => {
@@ -145,23 +146,31 @@ export function FocusScreen({
   const p = focusPhase(active.mode, elapsed);
   const shown = focusTotals(active, paused || !live?.tracking ? null : live);
   const wall = new Date(now).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-  const onBreak = Boolean(p && !p.working);
-  // Wheel: the pomodoro block, or the current hour for the stopwatch.
-  const span = p ? p.length : 60 * 60_000;
-  const done = p ? p.length - p.left : elapsed % (60 * 60_000);
+  // A paused pomodoro is a break you took: its countdown on the wheel; it never resumes itself.
+  const brk = breakState(active, now);
+  const onBreak = Boolean(brk);
+  // Wheel: the break, the pomodoro block, or the current hour for the stopwatch.
+  const span = brk ? brk.length : p ? p.length : 60 * 60_000;
+  const done = brk
+    ? Math.min(brk.length, brk.length - brk.left)
+    : p
+      ? p.length - p.left
+      : elapsed % (60 * 60_000);
   const progress = Math.min(1, done / span);
   const lit = Math.floor(progress * TICKS);
   const seconds = Math.floor(elapsed / 1000);
-  const tone = paused ? "var(--medium)" : onBreak ? "var(--info)" : "var(--signal)";
-  const status = paused
-    ? live?.autoPaused
-      ? "Auto-paused"
-      : "Paused"
-    : p
-      ? p.working
+  const tone = onBreak ? "var(--info)" : paused ? "var(--medium)" : "var(--signal)";
+  const status = brk
+    ? brk.left > 0
+      ? "Break · stretch, drink water"
+      : "Break over · resume when ready"
+    : paused
+      ? live?.autoPaused
+        ? "Auto-paused"
+        : "Paused"
+      : p
         ? `Focus · round ${p.round}`
-        : "Break · stretch, drink water"
-      : "Deep focus";
+        : "Deep focus";
 
   return createPortal(
     <div
@@ -327,7 +336,7 @@ export function FocusScreen({
               )}
               suppressHydrationWarning
             >
-              {focusClock(p ? p.left : elapsed)}
+              {brk ? focusClock(Math.max(0, brk.left)) : focusClock(p ? p.left : elapsed)}
             </span>
             <span className="mt-3 text-13 text-white/45">
               {p ? `${focusClock(elapsed)} total` : `${Math.round(progress * 100)}% of this hour`}

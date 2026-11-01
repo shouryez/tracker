@@ -11,7 +11,14 @@ import { StudyBuddy } from "@/components/study-buddy";
 import { buddyLevel, LEVEL_LABEL } from "@/lib/buddies";
 import { labStart } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
-import { focusClock, focusElapsed, focusPhase, focusTotals, type FocusMode } from "@/lib/focus";
+import {
+  breakState,
+  focusClock,
+  focusElapsed,
+  focusPhase,
+  focusTotals,
+  type FocusMode,
+} from "@/lib/focus";
 import {
   closePopout,
   maybeAutoPopout,
@@ -59,7 +66,8 @@ export function LabTimer({
   const [full, setFull] = useState(false);
   const pip = useSharedPip();
   const [pending, start] = useTransition();
-  const lastPhase = useRef<boolean | null>(null);
+  const lastRound = useRef<number | null>(null);
+  const breakNow = useRef<() => void>(() => {});
   const canPopout = useCanPopout();
   const autoPopout = useAutoPopout();
   const router = useRouter();
@@ -71,12 +79,18 @@ export function LabTimer({
     setRunning(active);
   }
 
-  // Tick once a second while running (not while paused).
+  // Tick once a second while running, and on a pomodoro break (its countdown).
   useEffect(() => {
-    if (!running || running.pausedAt) return;
+    if (!running) return;
+    const onBreak = running.pausedAt && running.mode !== "stopwatch";
+    if (running.pausedAt && !onBreak) return;
+    if (!running.pausedAt) void labStart(running.id, running.startedAt); // re-attach after a reload
+    const first = window.setTimeout(() => setNow(Date.now()), 0);
     const id = window.setInterval(() => setNow(Date.now()), 1000);
-    void labStart(running.id, running.startedAt); // re-attach after a reload
-    return () => clearInterval(id);
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
   }, [running]);
 
   const paused = Boolean(running?.pausedAt);
@@ -96,18 +110,24 @@ export function LabTimer({
   }
 
   const elapsed = running ? focusElapsed(running, now || running.startedAt) : 0;
+  const brk = running ? breakState(running, now || running.pausedAt || running.startedAt) : null;
   const shown = running ? focusTotals(running, totals) : null;
   const p = running ? phase((running.mode as Mode) ?? "stopwatch", elapsed) : null;
 
-  // A small chime of confetti when a work block ends.
+  // A focus block ended: confetti, and an offer to take a break (it never starts by itself).
+  const round = p && !paused ? p.round : null;
   useEffect(() => {
-    if (!p) return;
-    if (lastPhase.current === true && !p.working) {
+    if (round === null) return;
+    if (lastRound.current !== null && round > lastRound.current) {
       void burst({ small: true });
-      toast("Break time", { description: "Stand up, drink water. The timer keeps running." });
+      toast("Focus block done", {
+        description: "Take a break? The timer keeps counting focus until you do.",
+        action: { label: "Take a break", onClick: () => breakNow.current() },
+        duration: 15_000,
+      });
     }
-    lastPhase.current = p.working;
-  }, [p?.working, p]);
+    lastRound.current = round;
+  }, [round]);
 
   function begin() {
     start(async () => {
@@ -174,6 +194,13 @@ export function LabTimer({
     });
   }
 
+  // The toast's button pauses (a break) with whatever state is current.
+  useEffect(() => {
+    breakNow.current = () => {
+      if (running && !running.pausedAt) togglePause();
+    };
+  });
+
   function save(discard: boolean) {
     if (!running || !summary) return;
     start(async () => {
@@ -233,13 +260,15 @@ export function LabTimer({
     );
   }
 
-  const ring = p
+  const ring = brk
     ? {
-        total: p.length,
-        value: p.length - p.left,
-        color: p.working ? "var(--signal-mark)" : "var(--info)",
+        total: brk.length,
+        value: Math.min(brk.length, brk.length - brk.left),
+        color: "var(--info)",
       }
-    : { total: 60 * 60_000, value: elapsed % (60 * 60_000), color: "var(--signal-mark)" };
+    : p
+      ? { total: p.length, value: p.length - p.left, color: "var(--signal-mark)" }
+      : { total: 60 * 60_000, value: elapsed % (60 * 60_000), color: "var(--signal-mark)" };
 
   const level = buddyLevel(paused ? "paused" : "studying", elapsed);
 
@@ -256,14 +285,26 @@ export function LabTimer({
         segments={[{ label: "Progress", value: ring.value, color: ring.color }]}
         aria-label={`Focus timer ${clock(elapsed)}`}
       >
-        <span className="tnum num text-36">{clock(p ? p.left : elapsed)}</span>
+        <span className="tnum num text-36">
+          {brk ? clock(Math.max(0, brk.left)) : clock(p ? p.left : elapsed)}
+        </span>
         <span className="mt-1 text-11 text-ink-3">
-          {p ? (p.working ? `focus · round ${p.round}` : "break") : "elapsed"}
+          {brk
+            ? brk.left > 0
+              ? "break left"
+              : "break over · resume"
+            : p
+              ? `focus · round ${p.round}`
+              : "elapsed"}
         </span>
       </ProgressRing>
       <div className="flex min-w-[220px] flex-1 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2">
-          {paused ? (
+          {brk ? (
+            <Tag tone="info">
+              <Coffee size={11} aria-hidden="true" /> On a break
+            </Tag>
+          ) : paused ? (
             <span className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-medium-soft px-2.5 py-1 text-12 font-[600] text-medium">
               <Pause size={11} className="fill-current" aria-hidden="true" /> Paused
             </span>
@@ -273,11 +314,6 @@ export function LabTimer({
             </span>
           )}
           {running.label && <Tag>{running.label}</Tag>}
-          {p && !p.working && (
-            <Tag tone="info">
-              <Coffee size={11} aria-hidden="true" /> Break
-            </Tag>
-          )}
         </div>
         <p className="num text-30">
           {clock(elapsed)}
@@ -293,9 +329,11 @@ export function LabTimer({
           </div>
         ) : (
           <p className="text-12 text-ink-3">
-            {paused
-              ? "Paused: nothing counts until you resume."
-              : "Counting wall-clock time (extension not detected)."}
+            {brk
+              ? "On a break: it doesn't count as focus, and the timer waits for you to resume."
+              : paused
+                ? "Paused: nothing counts until you resume."
+                : "Counting wall-clock time (extension not detected)."}
           </p>
         )}
         <div className="flex flex-wrap gap-2">
@@ -305,7 +343,7 @@ export function LabTimer({
             ) : (
               <Pause size={14} className="fill-current" aria-hidden="true" />
             )}
-            {paused ? "Resume" : "Pause"}
+            {paused ? (brk ? "End break" : "Resume") : p ? "Take a break" : "Pause"}
           </Button>
           <Button variant="danger" disabled={pending} onClick={end}>
             <Square size={14} className="fill-current" aria-hidden="true" /> Stop
