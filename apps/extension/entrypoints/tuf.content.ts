@@ -1,4 +1,5 @@
 import { browser } from "wxt/browser";
+import { toWorker } from "../lib/runtime.ts";
 import { defineContentScript } from "wxt/utils/define-content-script";
 import type { ExtSheetStateResponse } from "@upsolve/contracts";
 import { HOOK_SOURCE, type Message } from "../lib/messages.ts";
@@ -26,8 +27,7 @@ export default defineContentScript({
   matches: ["https://takeuforward.org/*"],
   runAt: "document_idle",
   main(ctx) {
-    const ask = <T>(msg: Message) =>
-      (browser.runtime.sendMessage(msg) as Promise<T>).catch(() => null as T | null);
+    const ask = <T>(msg: Message) => toWorker<T>(msg);
 
     const send = (
       sheet: TufSheet,

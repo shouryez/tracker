@@ -2,6 +2,7 @@
 // prompt, persistence and upload. Each site's content script supplies how to
 // read the current problem and feeds submissions in via recordSubmission().
 import { browser } from "wxt/browser";
+import { toWorker } from "./runtime.ts";
 import type { ExtProblemContext, ExtSubmission } from "@upsolve/contracts";
 import type { ContentScriptContext } from "wxt/utils/content-script-context";
 import type { Message } from "./messages.ts";
@@ -79,9 +80,8 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
   const send = (s: LocalSession, flush: boolean) => {
     if (!worthUploading(s)) return;
     const msg: Message = { type: "session:put", session: toWire(s), flush };
-    browser.runtime.sendMessage(msg).catch(() => {
-      // Worker asleep or extension reloading: the session is in storage and the sweep will send it.
-    });
+    // Worker asleep or extension reloading: the session is in storage and the sweep sends it.
+    void toWorker(msg);
   };
 
   /**
@@ -301,5 +301,3 @@ export async function startTracker(ctx: ContentScriptContext, site: Site): Promi
 
   return { recordSubmission, current: () => session };
 }
-
-// DsaKaro

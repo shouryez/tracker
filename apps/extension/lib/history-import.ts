@@ -2,6 +2,7 @@
 // Runs inside the leetcode.com content script so requests are same-origin; cookies
 // never leave the browser and only verdict metadata (never code) is uploaded.
 import { browser } from "wxt/browser";
+import { toWorker } from "./runtime.ts";
 import type { ExtHistoryItem } from "@upsolve/contracts";
 import { historyItem, newerId, type HistoryRow } from "./leetcode.ts";
 import type { HistoryState, PutResult } from "./messages.ts";
@@ -30,7 +31,12 @@ const initial = (): HistoryState => ({
 });
 
 async function upload(items: ExtHistoryItem[]): Promise<PutResult> {
-  return browser.runtime.sendMessage({ type: "history:put", items });
+  return (
+    (await toWorker<PutResult>({ type: "history:put", items })) ?? {
+      ok: false,
+      error: "Extension unavailable",
+    }
+  );
 }
 
 /** Starts or resumes the import if it's due. Safe to call from several tabs. */
@@ -134,5 +140,3 @@ export async function maybeImportHistory(): Promise<void> {
     });
   }
 }
-
-// DsaKaro

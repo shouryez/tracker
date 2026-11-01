@@ -1,6 +1,7 @@
 import { browser } from "wxt/browser";
 import { defineContentScript } from "wxt/utils/define-content-script";
 import { EXT_SOURCE, WEB_SOURCE, type Message } from "../lib/messages.ts";
+import { extensionAlive, toWorker } from "../lib/runtime.ts";
 
 /**
  * Lets the DsaKaro website hand this extension its API token
@@ -14,10 +15,16 @@ export default defineContentScript({
   main() {
     const reply = (type: string, data: object = {}) =>
       window.postMessage({ source: EXT_SOURCE, type, ...data }, window.location.origin);
-    const ask = (msg: Message) => browser.runtime.sendMessage(msg) as Promise<object | undefined>;
+    const ask = (msg: Message) => toWorker<object>(msg);
 
-    window.addEventListener("message", async (e: MessageEvent) => {
+    const onMessage = async (e: MessageEvent) => {
       if (e.source !== window || e.origin !== window.location.origin) return;
+      // Orphaned by an extension update: go quiet; the page treats it as no extension
+      // (the new version's script takes over after a reload).
+      if (!extensionAlive()) {
+        window.removeEventListener("message", onMessage);
+        return;
+      }
       const d = e.data as {
         source?: string;
         type?: string;
@@ -55,11 +62,10 @@ export default defineContentScript({
         /^ups_[A-Za-z0-9_-]{43}$/.test(d.token)
       ) {
         const msg: Message = { type: "auth:set", token: d.token };
-        const res = (await browser.runtime.sendMessage(msg)) as { ok?: boolean } | undefined;
+        const res = await toWorker<{ ok?: boolean }>(msg);
         if (res?.ok) reply("connected");
       }
-    });
+    };
+    window.addEventListener("message", onMessage);
   },
 });
-
-// DsaKaro
