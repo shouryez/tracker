@@ -239,6 +239,13 @@ export function StudyHallCard({
     start(async () => {
       const res = await startFocus("stopwatch", null);
       if (!res.ok) return void toast.error(res.error);
+      if (res.existing) {
+        toast("You already have a study session", {
+          description: "Picked it up here instead of starting a second one.",
+        });
+        router.refresh();
+        return;
+      }
       await labStart(res.id, res.startedAt);
       maybeAutoPopout();
       router.refresh();

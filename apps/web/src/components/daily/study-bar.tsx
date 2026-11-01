@@ -126,9 +126,14 @@ export async function endStudy(active: ActiveFocus): Promise<StudyEnd> {
     getStudySummary(active.id),
   ]);
   const totals = focusTotals(active, t);
+  const wall = focusElapsed(active, Date.now());
+  // The extension only reports what it saw. Running time it didn't see (another app such as
+  // notes or an IDE, or the extension asleep or reconnecting) is study time too: only what
+  // it saw as an off-task tab counts as away.
+  const unseen = Math.max(0, wall - totals.focusMs - totals.awayMs);
   return {
-    wall: focusElapsed(active, Date.now()),
-    totals: totals.tracking ? totals : null,
+    wall,
+    totals: totals.tracking ? { ...totals, focusMs: totals.focusMs + unseen } : null,
     contents,
   };
 }
@@ -200,6 +205,13 @@ export function StartStudyButton({
         start(async () => {
           const res = await startFocus("stopwatch", label);
           if (!res.ok) return void toast.error(res.error);
+          if (res.existing) {
+            toast("You already have a study session", {
+              description: "Picked it up here instead of starting a second one.",
+            });
+            router.refresh();
+            return;
+          }
           const ext = await labStart(res.id, res.startedAt);
           maybeAutoPopout();
           toast.success("Study session started", {

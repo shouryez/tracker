@@ -133,6 +133,13 @@ export function LabTimer({
     start(async () => {
       const res = await startFocus(mode, label || null);
       if (!res.ok) return void toast.error(res.error);
+      if (res.existing) {
+        toast("You already have a study session", {
+          description: "Picked it up here instead of starting a second one.",
+        });
+        router.refresh();
+        return;
+      }
       const f: ActiveFocus = {
         id: res.id,
         startedAt: res.startedAt,

@@ -70,7 +70,7 @@ export function ActivityLine({
     return (
       <p className={cn("flex items-center gap-2 text-white/50", className)}>
         <Monitor size={14} aria-hidden="true" className="shrink-0" />
-        <span className="truncate">Away from the browser</span>
+        <span className="truncate">In another app · counts as study</span>
       </p>
     );
   if (now.cat === "away")

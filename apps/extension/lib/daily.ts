@@ -58,7 +58,11 @@ const videoKey = (url: string | undefined) => {
   }
 };
 
-const UNKNOWN: LabActivity = { cat: "away", known: false, kind: null, label: null };
+/**
+ * No browser window in front: you're in another app (notes, a PDF, an IDE). That counts as
+ * study time, and it never auto-pauses.
+ */
+const UNKNOWN: LabActivity = { cat: "focus", known: false, kind: null, label: null };
 
 /** What the active tab is. Nothing about it is stored; it's only shown live and classified. */
 async function activeTab(): Promise<LabActivity> {

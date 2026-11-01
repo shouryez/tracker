@@ -306,17 +306,37 @@ const DAY_MS = 86_400_000;
 export async function startFocus(
   mode: string,
   label: string | null,
-): Promise<{ ok: true; id: string; startedAt: number } | { ok: false; error: string }> {
+): Promise<
+  { ok: true; id: string; startedAt: number; existing?: boolean } | { ok: false; error: string }
+> {
   const user = await me();
   if (!user) return { ok: false, error: "Sign in first." };
   const m = FocusMode.safeParse(mode);
   if (!m.success) return { ok: false, error: "Unknown mode." };
-  // Close anything still running (counted as wall-clock time).
+  // One session at a time: if one is already running (another tab, the study room), carry on
+  // with it instead of quietly closing it. A second session also cut the extension off the
+  // first, so its time went unmeasured.
+  const [running] = await db()
+    .select({ id: focusSessions.id, startedAt: focusSessions.startedAt })
+    .from(focusSessions)
+    .where(
+      and(
+        eq(focusSessions.userId, user.id),
+        isNull(focusSessions.endedAt),
+        sql`${focusSessions.startedAt} > now() - interval '16 hours'`,
+      ),
+    )
+    .orderBy(sql`${focusSessions.startedAt} desc`)
+    .limit(1);
+  if (running)
+    return { ok: true, id: running.id, startedAt: running.startedAt.getTime(), existing: true };
+  // Leftovers from more than 16 hours ago: close them at their running time (pauses excluded).
   await db()
     .update(focusSessions)
     .set({
-      endedAt: sql`least(now(), ${focusSessions.startedAt} + interval '6 hours')`,
-      focusMs: sql`least(extract(epoch from (now() - ${focusSessions.startedAt}))::int * 1000, 6 * 3600000)`,
+      endedAt: sql`least(coalesce(${focusSessions.pausedAt}, now()), ${focusSessions.startedAt} + interval '6 hours')`,
+      focusMs: sql`greatest(0, least(extract(epoch from (coalesce(${focusSessions.pausedAt}, now()) - ${focusSessions.startedAt}))::int * 1000 - ${focusSessions.pausedMs}, 6 * 3600000))`,
+      pausedAt: null,
     })
     .where(and(eq(focusSessions.userId, user.id), isNull(focusSessions.endedAt)));
   const [row] = await db()
@@ -434,8 +454,8 @@ export async function stopFocus(
         pausedMs: focusSessions.pausedMs,
       })
       .from(focusSessions)
-      .where(where);
-    if (!row) return fail("Not found.");
+      .where(and(where, isNull(focusSessions.endedAt)));
+    if (!row) return fail("This session already ended. Refresh to see your current one.");
     // Paused time (earlier pauses, and a pause still open now) never counts.
     const now = Date.now();
     const paused = row.pausedMs + (row.pausedAt ? now - row.pausedAt.getTime() : 0);
