@@ -61,7 +61,7 @@ export function ActivityLine({
     return (
       <p className={cn("flex items-center gap-2 text-medium", className)}>
         <TriangleAlert size={14} aria-hidden="true" className="shrink-0" />
-        <span className="truncate">Auto-paused · open a study tab to pick it up again</span>
+        <span className="truncate">Auto-paused · open a study tab to resume</span>
       </p>
     );
   const now = live.now;
@@ -78,8 +78,8 @@ export function ActivityLine({
       <p className={cn("flex items-center gap-2 text-medium", className)}>
         <TriangleAlert size={14} aria-hidden="true" className="shrink-0" />
         <span className="truncate">
-          Off-task{now.label ? ` · ${now.label}` : ""}
-          {live.autoPauseOn ? " · pauses in 30 s" : ""}
+          {now.label ?? "Off-task tab"}
+          {live.autoPauseOn ? " · pausing in 30s" : " · off-task"}
         </span>
       </p>
     );
@@ -123,7 +123,8 @@ export async function openPopout(): Promise<Window | null> {
   if (!api) return null;
   let win: Window;
   try {
-    win = await api.requestWindow({ width: 320, height: 400 });
+    // A slim widget that covers little of the screen; resize it for the stacked layout.
+    win = await api.requestWindow({ width: 380, height: 148 });
   } catch {
     return null;
   }

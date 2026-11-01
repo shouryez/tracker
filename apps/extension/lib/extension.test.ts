@@ -15,6 +15,7 @@ import {
   AUTO_PAUSE_MS,
   advance,
   categorize,
+  classify,
   describe,
   newLab,
   shouldAutoPause,
@@ -461,4 +462,29 @@ test("lab: auto-pause waits out the grace period", () => {
   assert.equal(shouldAutoPause(null, T0), false);
   assert.equal(shouldAutoPause(T0, T0 + AUTO_PAUSE_MS - 1), false);
   assert.equal(shouldAutoPause(T0, T0 + AUTO_PAUSE_MS), true);
+});
+
+test("lab: Striver videos count as study even with plain titles", () => {
+  const v = "https://www.youtube.com/watch?v=4";
+  for (const t of [
+    "G-10. Rotten Oranges | C++ | Java - YouTube",
+    "L-32. Dijkstra's Algorithm - YouTube",
+    "DP 12. Minimum/Maximum Falling Path Sum - YouTube",
+    "Kadane's Algorithm | Maximum Subarray Sum - YouTube",
+  ])
+    assert.equal(classify(v, t, WEB).cat, "focus", t);
+  assert.deepEqual(
+    classify(v, "Episode 3 - YouTube", WEB, { channel: "take U forward", title: null }),
+    { cat: "focus", sure: true },
+  );
+  assert.equal(classify("https://www.youtube.com/@takeUforward/videos", "", WEB).cat, "focus");
+});
+
+test("lab: a video whose channel can't be read yet never auto-pauses", () => {
+  const v = "https://www.youtube.com/watch?v=5";
+  assert.deepEqual(classify(v, "YouTube", WEB, null), { cat: "away", sure: false });
+  assert.deepEqual(classify(v, "Funny cats - YouTube", WEB, { channel: "Cat TV", title: null }), {
+    cat: "away",
+    sure: true,
+  });
 });

@@ -59,4 +59,3 @@ export const store = {
 export type Notified = { at: number; url: string };
 
 export const WEB_URL = __WEB_URL__;
-

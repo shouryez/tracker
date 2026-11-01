@@ -5,7 +5,7 @@ import type { ExtProblemContext, ExtTodayResponse } from "@upsolve/contracts";
 import {
   AUTO_PAUSE_MS,
   advance,
-  categorize,
+  classify,
   describe,
   newLab,
   shouldAutoPause,
@@ -14,12 +14,13 @@ import {
   type LabActivity,
   type LabState,
   type LabTotals,
+  type YoutubeInfo,
 } from "./lab.ts";
 import type {
   LabLive,
   Message,
   Status,
-  YoutubeChannelRequest,
+  YoutubeInfoRequest,
   YoutubeTimeRequest,
 } from "./messages.ts";
 import { WEB_URL, store, type Notified } from "./storage.ts";
@@ -34,33 +35,54 @@ const NOTIFIED_KEEP_MS = 3 * 86_400_000;
 
 const AWAY_ALARM = "lab-away";
 
-async function youtubeChannel(tabId: number | undefined, url: string | undefined) {
-  if (
-    tabId === undefined ||
-    !url ||
-    !/^https:\/\/(www\.|m\.)?youtube\.com\/(watch|shorts)/.test(url)
-  )
-    return null;
+const YT_TAB = /^https:\/\/(www\.|m\.)?youtube\.com\//;
+
+async function youtubeInfo(tabId: number | undefined, url: string | undefined) {
+  if (tabId === undefined || !url || !YT_TAB.test(url)) return null;
   try {
-    const req: YoutubeChannelRequest = { type: "yt:channel" };
-    return ((await browser.tabs.sendMessage(tabId, req)) as string | null) ?? null;
+    const req: YoutubeInfoRequest = { type: "yt:info" };
+    return ((await browser.tabs.sendMessage(tabId, req)) as YoutubeInfo | null) ?? null;
   } catch {
-    return null; // Content script not there (tab opened before install).
+    return null; // Content script not in this tab (yet).
   }
 }
+
+/** Videos already seen to be study ones: a slow page or a missed read never flips them back. */
+const studyVideos = new Set<string>();
+const videoKey = (url: string | undefined) => {
+  try {
+    const u = new URL(url ?? "");
+    return u.searchParams.get("v") ?? (u.pathname.match(/^\/(shorts|live)\/([^/]+)/)?.[2] || null);
+  } catch {
+    return null;
+  }
+};
+
+const UNKNOWN: LabActivity = { cat: "away", known: false, kind: null, label: null };
 
 /** What the active tab is. Nothing about it is stored; it's only shown live and classified. */
 async function activeTab(): Promise<LabActivity> {
   try {
     const win = await browser.windows.getLastFocused();
-    if (!win.focused || win.id === undefined)
-      return { cat: "away", known: false, kind: null, label: null };
-    const [tab] = await browser.tabs.query({ active: true, windowId: win.id });
-    const channel = await youtubeChannel(tab?.id, tab?.url);
-    const cat = categorize(tab?.url, tab?.title, WEB_ORIGIN, channel);
-    return { cat, known: true, ...describe(tab?.url, tab?.title, cat, WEB_ORIGIN) };
+    if (!win.focused || win.id === undefined) return UNKNOWN;
+    let [tab] = await browser.tabs.query({ active: true, windowId: win.id });
+    // The pop-out timer (or another non-page window) has focus: use the browser window behind it.
+    if (win.type !== "normal" || !tab?.url || !/^https?:/.test(tab.url)) {
+      const normal = await browser.windows.getLastFocused({ windowTypes: ["normal"] });
+      if (normal.id !== undefined && normal.id !== win.id)
+        [tab] = await browser.tabs.query({ active: true, windowId: normal.id });
+      else if (win.type !== "normal") return UNKNOWN;
+    }
+    const key = YT_TAB.test(tab?.url ?? "") ? videoKey(tab?.url) : null;
+    let { cat, sure } =
+      key && studyVideos.has(key)
+        ? { cat: "focus" as const, sure: true }
+        : classify(tab?.url, tab?.title, WEB_ORIGIN, await youtubeInfo(tab?.id, tab?.url));
+    if (key && cat === "focus") studyVideos.add(key);
+    if (studyVideos.size > 200) studyVideos.clear();
+    return { cat, known: sure, ...describe(tab?.url, tab?.title, cat, WEB_ORIGIN) };
   } catch {
-    return { cat: "away", known: false, kind: null, label: null };
+    return UNKNOWN;
   }
 }
 
@@ -410,6 +432,17 @@ export function setupDaily(apiFn: Api) {
   browser.notifications.onClicked.addListener((id) => void onNotificationClick(id));
 
   browser.runtime.onInstalled.addListener(() => {
+    // YouTube tabs opened before this install or update have no content script, so their
+    // channel can't be read (and Lab mode would guess). Add it to them now.
+    void browser.tabs
+      .query({ url: ["https://www.youtube.com/*", "https://m.youtube.com/*"] })
+      .then((tabs) => {
+        for (const t of tabs)
+          if (t.id !== undefined)
+            void browser.scripting
+              .executeScript({ target: { tabId: t.id }, files: ["/content-scripts/youtube.js"] })
+              .catch(() => {});
+      });
     browser.contextMenus.removeAll(() => {
       browser.contextMenus.create({
         id: "upsolve-save",

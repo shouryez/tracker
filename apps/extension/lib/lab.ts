@@ -51,47 +51,52 @@ const CODING_HOSTS = [
   "stackoverflow.com",
 ];
 
-/** YouTube channels whose videos count as studying, whatever the title says. */
+/**
+ * YouTube channels whose videos count as studying, whatever the title says. Matched as a
+ * part of the channel name or @handle, spaces ignored ("take U forward", "@takeUforward").
+ */
 const STUDY_CHANNELS = [
-  "take u forward",
+  "takeuforward",
   "striver",
   "neetcode",
-  "neetcodeio",
-  "aditya verma",
-  "abdul bari",
-  "codehelp - by babbar",
+  "adityaverma",
+  "abdulbari",
   "codehelp",
-  "apna college",
-  "kunal kushwaha",
+  "lovebabbar",
+  "apnacollege",
+  "kunalkushwaha",
   "errichto",
-  "errichto algorithms",
-  "william fiset",
-  "tushar roy - coding made simple",
-  "back to back swe",
+  "williamfiset",
+  "tusharroy",
+  "backtobackswe",
   "pepcoding",
   "codencode",
-  "luv",
-  "colin galen",
-  "algorithms live!",
+  "colingalen",
   "techdose",
-  "nick white",
-  "kevin naughton jr.",
-  "fraz",
-  "love babbar",
-  "anuj bhaiya",
-  "code with alisha",
+  "nickwhite",
+  "kevinnaughton",
+  "anujbhaiya",
   "codestorywithmik",
-  "coding decoded",
+  "codingdecoded",
   "mycodeschool",
-  "freecodecamp.org",
+  "freecodecamp",
+  "algorithmslive",
+  "abdulbaricodes",
+  "jennyslectures",
+  "gatesmashers",
+  "codewithalisha",
+  "hello world",
+  "helloworld",
 ];
+/** Short names only match exactly (as a part they'd catch unrelated channels). */
+const STUDY_CHANNELS_EXACT = ["luv", "fraz", "cp with sahil", "priyansh agarwal"];
 
 /** Pausing waits this long on a non-study tab, so a quick look elsewhere doesn't pause. */
 export const AUTO_PAUSE_MS = 30_000;
 
 /** Video titles that count as studying when the tab is YouTube. */
 const DSA_WORDS =
-  /\b(dsa|leetcode|algorithm|data structure|array|string|linked list|tree|graph|dp|dynamic programming|recursion|backtracking|binary search|sliding window|two pointer|heap|stack|queue|trie|greedy|bit manipulation|striver|neetcode|codeforces|coding interview|placement|competitive programming)\b/i;
+  /\b(dsa|leetcode|gfg|potd|algorithms?|data structures?|arrays?|strings?|substrings?|subarrays?|subsequences?|subsets?|linked ?lists?|trees?|binary trees?|bst|graphs?|bfs|dfs|dp|dynamic programming|memoi[sz]ation|tabulation|recursion|backtracking|binary search|sliding window|two pointers?|heaps?|priority queue|stacks?|queues?|tries?|greedy|bit manipulation|bitmask(ing)?|hashing|hash ?maps?|prefix sums?|matrix|sorting|kadane|dijkstra|bellman|floyd|topo(logical)? sort|union find|disjoint set|dsu|segment trees?|fenwick|kruskal|prims?|mst|knapsack|lis|lcs|time complexity|big o|striver|neetcode|codeforces|codechef|coding interview|interview questions?|placements?|competitive programming|sde sheet|a2z|blind 75|g-\d+|dp-?\s?\d+|l-?\d+\.)(?=\W|$)/i;
 
 /** A single gap longer than this (the worker slept, the laptop closed) is not counted. */
 const MAX_STEP_MS = 3 * 60_000;
@@ -101,8 +106,52 @@ function hostMatches(host: string, domain: string) {
 }
 
 export function isStudyChannel(channel: string | null | undefined) {
-  const c = channel?.trim().toLowerCase();
-  return Boolean(c && STUDY_CHANNELS.includes(c));
+  const c = channel?.trim().toLowerCase().replace(/^@/, "");
+  if (!c) return false;
+  const squashed = c.replace(/[\s._-]+/g, "");
+  return STUDY_CHANNELS.some((s) => squashed.includes(s)) || STUDY_CHANNELS_EXACT.includes(c);
+}
+
+/** What the YouTube page itself says: the open video's channel and title. */
+export type YoutubeInfo = { channel: string | null; title: string | null };
+
+/**
+ * Classifies a tab. `sure` is false when it can't tell (no browser window has focus, or a
+ * YouTube video whose channel couldn't be read yet): time then counts as away, but it never
+ * auto-pauses.
+ */
+export function classify(
+  url: string | null | undefined,
+  title: string | null | undefined,
+  webOrigin: string,
+  yt?: YoutubeInfo | null,
+): { cat: LabCategory; sure: boolean } {
+  if (!url) return { cat: "away", sure: false };
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return { cat: "away", sure: true };
+  }
+  const host = u.hostname.replace(/^www\./, "");
+  if (!hostMatches(host, "youtube.com"))
+    return { cat: categorize(url, title, webOrigin), sure: true };
+  const path = u.pathname;
+  if (path === "/watch" || path.startsWith("/shorts/") || path.startsWith("/live/")) {
+    const words = `${title ?? ""} ${yt?.title ?? ""}`;
+    if (DSA_WORDS.test(words) || isStudyChannel(yt?.channel)) return { cat: "focus", sure: true };
+    // Channel not known (page still loading, or the script isn't in this tab): don't pause.
+    return { cat: "away", sure: Boolean(yt?.channel) };
+  }
+  if (path === "/results")
+    return {
+      cat: DSA_WORDS.test(u.searchParams.get("search_query") ?? "") ? "focus" : "away",
+      sure: true,
+    };
+  // A study channel's own page (/@takeUforward, /c/..., /channel/...).
+  const handle = path.split("/")[1] ?? "";
+  if (handle.startsWith("@") && isStudyChannel(handle)) return { cat: "focus", sure: true };
+  return { cat: "away", sure: true };
 }
 
 /** Classifies a tab. `null` url means no browser window has focus. */
@@ -128,6 +177,8 @@ export function categorize(
     // Searching for a DSA video is part of studying.
     if (u.pathname === "/results")
       return DSA_WORDS.test(u.searchParams.get("search_query") ?? "") ? "focus" : "away";
+    const handle = u.pathname.split("/")[1] ?? "";
+    if (handle.startsWith("@") && isStudyChannel(handle)) return "focus";
   }
   return "away";
 }

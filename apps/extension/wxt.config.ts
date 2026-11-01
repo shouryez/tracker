@@ -22,8 +22,15 @@ export default defineConfig({
     description:
       "Times every LeetCode and GFG problem you open, catches every verdict and syncs it all to your DsaKaro dashboard.",
     // tabs: Lab mode reads the active tab's address to tell coding from not (never stored).
-    permissions: ["storage", "alarms", "tabs", "notifications", "contextMenus"],
-    host_permissions: ["https://leetcode.com/*", WEB_MATCH],
+    // scripting + YouTube: re-add the YouTube script to tabs open before an update (the
+    // content script already runs there, so this asks for nothing new).
+    permissions: ["storage", "alarms", "tabs", "notifications", "contextMenus", "scripting"],
+    host_permissions: [
+      "https://leetcode.com/*",
+      "https://www.youtube.com/*",
+      "https://m.youtube.com/*",
+      WEB_MATCH,
+    ],
     action: { default_title: "DsaKaro" },
   },
   vite: () => ({
@@ -37,5 +44,3 @@ export default defineConfig({
     },
   },
 });
-
-// DsaKaro
