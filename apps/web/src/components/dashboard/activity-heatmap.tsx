@@ -60,9 +60,9 @@ export function ActivityHeatmap({ days }: { days: { date: string; count: number 
 
   return (
     <div>
-      <div ref={scroller} className="overflow-x-auto pb-1 [contain:inline-size]">
+      <div ref={scroller} className="pb-1 [contain:inline-size] max-sm:overflow-x-auto">
         {/* One grid for labels and cells, so the cells stretch to the card's width (min 12px,
-            then it scrolls) and the month and weekday labels stay lined up at any size. */}
+            then it scrolls on phones) and the month and weekday labels stay lined up at any size. */}
         <div
           className="grid w-full min-w-fit gap-[3px] sm:gap-1"
           style={{ gridTemplateColumns: `auto repeat(${weeks}, minmax(12px, 1fr))` }}
@@ -78,7 +78,15 @@ export function ActivityHeatmap({ days }: { days: { date: string; count: number 
                 className="relative h-4 font-mono text-[10px] text-ink-3 sm:text-11"
               >
                 {m && (
-                  <span className="absolute bottom-0.5 left-0 whitespace-nowrap">{m.label}</span>
+                  <span
+                    // A month starting in the last columns hangs left, not past the edge.
+                    className={cn(
+                      "absolute bottom-0.5 whitespace-nowrap",
+                      c >= weeks - 2 ? "right-0" : "left-0",
+                    )}
+                  >
+                    {m.label}
+                  </span>
                 )}
               </span>
             );
