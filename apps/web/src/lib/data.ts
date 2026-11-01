@@ -10,10 +10,13 @@ import {
   currentStreak,
   dayKey,
   heatmapLevels,
+  localCalendar,
   mergeCalendars,
   sumSolved,
   topTopics,
+  type LocalActivity,
 } from "@/lib/stats";
+import { localDate, studyDay } from "@/lib/time";
 import { getStreakFreezes } from "@/lib/social-data";
 import { STALE_AFTER_MS } from "@/lib/sync";
 
@@ -89,14 +92,27 @@ export function needsSync(accounts: AccountView[], now = Date.now()) {
 
 export type ContestSeries = { platform: Platform; points: { at: Date; rating: number }[] };
 
-/** Builds every number the overview and public profile show, from stored snapshots. */
+/**
+ * Builds every number the overview and public profile show, from stored snapshots. With
+ * `local`, days follow the person's own clock (timezone and day reset) instead of UTC.
+ */
 export function buildStats(
   accounts: AccountView[],
-  today = new Date(),
+  now = new Date(),
   frozen: ReadonlySet<string> = new Set(),
+  local?: LocalActivity,
 ) {
   const snapshots = accounts.flatMap((a) => (a.snapshot ? [a.snapshot] : []));
-  const calendar = mergeCalendars(snapshots.map((s) => s.calendar));
+  const calendar = local
+    ? localCalendar(
+        accounts.flatMap((a) =>
+          a.snapshot ? [{ platform: a.platform, calendar: a.snapshot.calendar }] : [],
+        ),
+        local,
+      )
+    : mergeCalendars(snapshots.map((s) => s.calendar));
+  // Day arithmetic runs on UTC dates, so "today" is noon UTC of the local study date.
+  const today = local ? new Date(`${local.todayKey}T12:00:00Z`) : now;
   const rated = accounts
     .filter((a) => a.snapshot?.rating != null)
     .sort((a, b) => (b.snapshot!.rating ?? 0) - (a.snapshot!.rating ?? 0));
@@ -107,7 +123,7 @@ export function buildStats(
     streak: currentStreak(calendar, today, frozen),
     activeDays: activeDays(calendar, today),
     heatmap26: heatmapLevels(calendar, today, 26 * 7),
-    /** Submissions per UTC day for the last 26 weeks, oldest first (heatmap tooltips, sparklines). */
+    /** Submissions per day (local with `local`, else UTC) for the last 26 weeks, oldest first. */
     days182: Array.from({ length: 26 * 7 }, (_, i) => {
       const date = dayKey(new Date(today.getTime() - (26 * 7 - 1 - i) * 86_400_000));
       return { date, count: calendar[date] ?? 0 };
@@ -118,6 +134,34 @@ export function buildStats(
       ? { platform: best.platform, rating: best.snapshot!.rating!, label: best.snapshot!.rankLabel }
       : null,
   };
+}
+
+/**
+ * Stored submissions per platform per local study day (timezone + day reset) for the last
+ * ~400 days, for buildStats.
+ */
+export async function getLocalActivity(
+  userId: string,
+  tz: string,
+  resetHour: number,
+  now: number,
+): Promise<LocalActivity> {
+  const todayKey = localDate(tz, studyDay(tz, now, resetHour).start);
+  const since = now - 400 * 86_400_000;
+  const sinceKey = localDate(tz, studyDay(tz, since, resetHour).start);
+  const rows = (await db().execute(sql`
+    select platform::text as platform,
+      to_char((submitted_at at time zone ${tz}) - make_interval(hours => ${resetHour}), 'YYYY-MM-DD') as day,
+      count(*)::int as n
+    from submissions
+    where user_id = ${userId} and submitted_at >= ${new Date(since).toISOString()}::timestamptz
+    group by 1, 2`)) as unknown as { platform: string; day: string; n: number }[];
+  const byPlatform: LocalActivity["byPlatform"] = {};
+  for (const r of rows) {
+    if (r.day < sinceKey) continue;
+    (byPlatform[r.platform] ??= {})[r.day] = r.n;
+  }
+  return { byPlatform, sinceKey, todayKey };
 }
 
 export async function getContestSeries(userId: string): Promise<ContestSeries[]> {
@@ -247,5 +291,3 @@ export async function getPublicProfile(handle: string): Promise<PublicProfile | 
 export const CONNECTABLE = (["leetcode", "codeforces", "geeksforgeeks"] as const).filter(
   (p) => ADAPTERS[p],
 );
-
-// DsaKaro

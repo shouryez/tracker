@@ -68,6 +68,7 @@ import {
   getRecentSolves,
   needsSync,
   type RecentSolve,
+  getLocalActivity,
 } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
 import {
@@ -148,9 +149,10 @@ async function Overview() {
     getStreakFreezes(user.id),
   ]);
   const now = requestNow();
-  const [plan, nudges] = await Promise.all([
+  const [plan, nudges, localActivity] = await Promise.all([
     getTodayPlan(user.id, profile.timezone, profile.reviewCap, now),
     getUnseenNudges(user.id),
+    getLocalActivity(user.id, profile.timezone, profile.dayResetHour, now),
   ]);
   const mastery = masteryOf(learning, targets, now);
   const queue = revisionQueue(learning, mastery, {
@@ -172,7 +174,7 @@ async function Overview() {
   const hasExtension = tokens.length > 0;
   const answered =
     sessionStats.honest.solo + sessionStats.honest.hint + sessionStats.honest.solution;
-  const stats = buildStats(accounts, new Date(now), frozenDays(freezes));
+  const stats = buildStats(accounts, new Date(now), frozenDays(freezes), localActivity);
   const todayLocal = localDate(profile.timezone, now);
   const activeFreeze = freezes.find((f) => f.start <= todayLocal && f.end >= todayLocal);
   const firstName = profile.name?.split(" ")[0] ?? "there";
@@ -184,12 +186,12 @@ async function Overview() {
   ).length;
   const days = stats.days182;
   const spark30 = days.slice(-30).map((d) => d.count);
-  // Mon–Sun of the current (UTC) week, matching the heatmap's UTC days.
-  const todayUtc = new Date(now);
-  const sinceMonday = (todayUtc.getUTCDay() + 6) % 7;
+  // Mon–Sun of this week on your own days (timezone and day reset), like the heatmap.
+  const todayNoon = Date.parse(`${localActivity.todayKey}T12:00:00Z`);
+  const sinceMonday = (new Date(todayNoon).getUTCDay() + 6) % 7;
   const week = Array.from({ length: 7 }, (_, i) => {
     const offset = i - sinceMonday; // 0 = today
-    const date = new Date(now + offset * DAY_MS).toISOString().slice(0, 10);
+    const date = new Date(todayNoon + offset * DAY_MS).toISOString().slice(0, 10);
     return {
       label: ["M", "T", "W", "T", "F", "S", "S"][i]!,
       count: days.find((d) => d.date === date)?.count ?? 0,
@@ -638,7 +640,7 @@ async function Overview() {
             <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
               This week
             </CardTitle>
-            <CardSub>{weekTotal} solved · UTC days</CardSub>
+            <CardSub>{weekTotal} solved this week</CardSub>
           </CardHeader>
           <WeekCapsules days={week} todayIndex={sinceMonday} />
         </Card>

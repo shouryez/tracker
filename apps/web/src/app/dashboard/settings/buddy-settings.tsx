@@ -98,8 +98,9 @@ export function BuddySettings({ initial }: { initial: Values }) {
         <div>
           <p className="text-14 font-[550]">Day resets at</p>
           <p className="max-w-[440px] text-13 text-ink-3">
-            Today&apos;s focus total starts over at this time. Study late? Pick 4 am, and a 1 am
-            session still counts for today.
+            Your day starts here: today&apos;s focus total, the activity calendar, this week and
+            your streak all follow it. Study late? Pick 4 am, and a 1 am session still counts for
+            today.
           </p>
         </div>
         <Select

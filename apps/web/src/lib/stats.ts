@@ -5,6 +5,49 @@ const DAY_MS = 86_400_000;
 
 export const dayKey = (d: Date) => d.toISOString().slice(0, 10);
 
+/**
+ * Submissions per day on the person's own clock (their timezone, and the day starting at
+ * their reset hour), per platform, from the submissions we store with exact times.
+ */
+export type LocalActivity = {
+  byPlatform: Record<string, Record<string, number>>;
+  /** First local day the counts cover ("YYYY-MM-DD"). */
+  sinceKey: string;
+  /** Today's local study date: the heatmap, week and streak end here. */
+  todayKey: string;
+};
+
+const total = (cal: Record<string, number>, from = "") =>
+  Object.entries(cal).reduce((n, [d, v]) => (d >= from ? n + v : n), 0);
+
+/**
+ * One calendar for the stats: per platform, the stored submissions counted on the person's
+ * own days when they cover that platform's activity (at least half of what its calendar
+ * shows in the same window), else the platform's own calendar (UTC days). Days before the
+ * stored window always come from the platform calendar. Pure.
+ */
+export function localCalendar(
+  calendars: { platform: string; calendar: Record<string, number> }[],
+  local: LocalActivity,
+): Record<string, number> {
+  const out: Record<string, number>[] = [];
+  const seen = new Set<string>();
+  for (const { platform, calendar } of calendars) {
+    seen.add(platform);
+    const loc = local.byPlatform[platform];
+    if (!loc || total(loc) < total(calendar, local.sinceKey) * 0.5) {
+      out.push(calendar);
+      continue;
+    }
+    const older = Object.fromEntries(Object.entries(calendar).filter(([d]) => d < local.sinceKey));
+    out.push(older, loc);
+  }
+  // Platforms only the extension reports (no synced calendar).
+  for (const [platform, loc] of Object.entries(local.byPlatform))
+    if (!seen.has(platform)) out.push(loc);
+  return mergeCalendars(out);
+}
+
 /** Adds per-day counts from several calendars together. */
 export function mergeCalendars(calendars: Record<string, number>[]): Record<string, number> {
   const out: Record<string, number> = {};
@@ -73,5 +116,3 @@ export function topTopics(
     .sort((a, b) => b.solved - a.solved)
     .slice(0, limit);
 }
-
-// DsaKaro
