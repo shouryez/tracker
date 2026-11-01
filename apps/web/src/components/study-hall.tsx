@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Maximize2, Minimize2, Timer } from "lucide-react";
+import { Expand, Maximize2, Minimize2, Timer } from "lucide-react";
 import { Card, CardHeader, CardSub, CardTitle, cn } from "@upsolve/ui";
 import { enterFullscreen } from "@/components/daily/focus-screen";
 import { StudyBuddy } from "@/components/study-buddy";
@@ -10,13 +10,13 @@ import { buddyLevel, LEVEL_LABEL } from "@/lib/buddies";
 import type { HallMember } from "@/lib/daily-data";
 import { focusClock } from "@/lib/focus";
 
-const hm = (ms: number) => {
+export const hm = (ms: number) => {
   const m = Math.floor(ms / 60_000);
   return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
 };
 
 /** Running session time and today's total for one member at `now`. Pure. */
-function times(m: HallMember, now: number) {
+export function hallTimes(m: HallMember, now: number) {
   if (!m.live) return { session: 0, today: m.doneMs, state: "idle" as const };
   const { startedAt, pausedAt, pausedMs } = m.live;
   const session = Math.max(0, (pausedAt ?? now) - startedAt - pausedMs);
@@ -56,7 +56,7 @@ export function StudyHall({
   }, [serverNow]);
 
   const rows = members
-    .map((m) => ({ m, ...times(m, now) }))
+    .map((m) => ({ m, ...hallTimes(m, now) }))
     .sort(
       (a, b) =>
         Number(b.state === "studying") - Number(a.state === "studying") ||
@@ -229,6 +229,17 @@ export function StudyHallCard({
                 {studying} studying · live
               </span>
             </CardSub>
+            {/* Full view fills the browser window (other tabs stay one click away); full
+                screen takes the whole display. */}
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Open the study hall in full view"
+              title="Full view (fills this window; other tabs still work)"
+              className="grid size-8 place-items-center rounded-full border border-line bg-surface-2 text-ink-2 transition-colors hover:border-line-3 hover:text-ink"
+            >
+              <Expand size={14} aria-hidden="true" />
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -272,6 +283,7 @@ function StudyRoom({
   onClose: () => void;
 }) {
   const [clock, setClock] = useState("");
+  const [isFull, setIsFull] = useState(false);
   const onCloseRef = useRef(onClose);
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -284,20 +296,18 @@ function StudyRoom({
     const id = window.setInterval(tick, 15_000);
     const overflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
-    let wasFull = Boolean(fsElement());
-    const onFs = () => {
-      const full = Boolean(fsElement());
-      if (wasFull && !full) onCloseRef.current();
-      wasFull = full;
-    };
+    // Leaving full screen (Esc) drops back to full view; Esc again, or Exit, closes.
+    const onFs = () => setIsFull(Boolean(fsElement()));
+    const firstFs = window.setTimeout(onFs, 0);
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape" && !fsElement()) close();
     };
     document.addEventListener("fullscreenchange", onFs);
     document.addEventListener("webkitfullscreenchange", onFs);
     window.addEventListener("keydown", onKey);
     return () => {
       clearTimeout(first);
+      clearTimeout(firstFs);
       clearInterval(id);
       document.documentElement.style.overflow = overflow;
       document.removeEventListener("fullscreenchange", onFs);
@@ -348,6 +358,26 @@ function StudyRoom({
           <span className="hidden font-mono text-13 tracking-[.12em] text-white/50 uppercase sm:inline">
             {clock}
           </span>
+          <button
+            type="button"
+            onClick={() => {
+              if (isFull) {
+                try {
+                  if (document.exitFullscreen) void document.exitFullscreen().catch(() => {});
+                  else (document as Doc).webkitExitFullscreen?.();
+                } catch {}
+              } else enterFullscreen();
+            }}
+            title={isFull ? "Back to full view (other tabs work)" : "Full screen"}
+            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-2 text-13 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            {isFull ? (
+              <Expand size={14} aria-hidden="true" />
+            ) : (
+              <Maximize2 size={14} aria-hidden="true" />
+            )}
+            <span className="max-sm:hidden">{isFull ? "Full view" : "Full screen"}</span>
+          </button>
           <button
             type="button"
             onClick={close}

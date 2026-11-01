@@ -2,9 +2,12 @@
 
 import { useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Coffee, Pause, Play, Square } from "lucide-react";
+import { Coffee, Pause, Play, Square, UsersRound } from "lucide-react";
 import { cn } from "@upsolve/ui";
-import type { ActiveFocus } from "@/lib/daily-data";
+import { StudyBuddy } from "@/components/study-buddy";
+import { hallTimes, hm } from "@/components/study-hall";
+import { buddyLevel } from "@/lib/buddies";
+import type { ActiveFocus, HallMember } from "@/lib/daily-data";
 import type { LabLive } from "@/lib/ext-bridge";
 import { focusClock, focusElapsed, focusPhase } from "@/lib/focus";
 import { ActivityLine } from "./focus-live";
@@ -33,15 +36,46 @@ export function FocusPopout({
   const [size, setSize] = useState(() => ({ w: win.innerWidth, h: win.innerHeight }));
   const paused = active.pausedAt !== null;
 
+  // Group view: a group's members and their live timers under yours (remembered).
+  const [groupId, setGroupId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(GROUP_KEY);
+    } catch {
+      return null;
+    }
+  });
+  const [hall, setHall] = useState<Hall | null>(null);
+  const groupOn = groupId !== null;
   useEffect(() => {
-    if (paused) return;
-    const first = window.setTimeout(() => setNow(Date.now()), 0);
-    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    if (groupId === null) return;
+    let alive = true;
+    const load = async () => {
+      try {
+        const q = groupId ? `?group=${encodeURIComponent(groupId)}` : "";
+        const res = await fetch(`/api/study-hall${q}`, { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as Hall;
+        if (alive) setHall({ ...data, skew: data.serverNow - Date.now() });
+      } catch {}
+    };
+    void load();
+    const id = window.setInterval(load, 15_000);
     return () => {
-      clearTimeout(first);
+      alive = false;
       clearInterval(id);
     };
-  }, [paused]);
+  }, [groupId]);
+  const pickGroup = (id: string | null) => {
+    setGroupId(id);
+    try {
+      if (id === null) localStorage.removeItem(GROUP_KEY);
+      else localStorage.setItem(GROUP_KEY, id);
+    } catch {}
+    // Make room for the list (or give it back); the click allows resizing the window.
+    try {
+      win.resizeTo(Math.max(win.outerWidth, 380), id === null ? 180 : 420);
+    } catch {}
+  };
 
   useEffect(() => {
     const onResize = () => setSize({ w: win.innerWidth, h: win.innerHeight });
@@ -60,6 +94,17 @@ export function FocusPopout({
     return () => win.removeEventListener("keydown", onKey);
   }, [win, pending, onTogglePause]);
 
+  // Tick while running, or while the group shows (their timers run on).
+  useEffect(() => {
+    if (paused && !groupOn) return;
+    const first = window.setTimeout(() => setNow(Date.now()), 0);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
+  }, [paused, groupOn]);
+
   const elapsed = focusElapsed(active, paused ? active.pausedAt! : now);
   const p = focusPhase(active.mode, elapsed);
   const span = p ? p.length : 60 * 60_000;
@@ -77,7 +122,7 @@ export function FocusPopout({
       : "Studying";
   const time = focusClock(p ? p.left : elapsed);
 
-  const tall = size.h >= 260 && size.w >= 240;
+  const tall = !groupOn && size.h >= 260 && size.w >= 240;
   const showRing = tall || size.w >= 330;
   const ringPx = tall
     ? Math.min(size.w * 0.6, size.h * 0.42, 240)
@@ -138,6 +183,24 @@ export function FocusPopout({
       )}
       {status}
     </span>
+  );
+
+  const groupBtn = (
+    <button
+      type="button"
+      onClick={() => pickGroup(groupOn ? null : "")}
+      aria-pressed={groupOn}
+      aria-label={groupOn ? "Hide your group" : "Show your group"}
+      title={groupOn ? "Hide your group" : "Show your group"}
+      className={cn(
+        "grid size-7 shrink-0 place-items-center rounded-full border transition-colors",
+        groupOn
+          ? "border-[var(--tone)]/50 bg-[var(--tone)]/15 text-[var(--tone)]"
+          : "border-white/10 bg-white/[.04] text-white/55 hover:text-white",
+      )}
+    >
+      <UsersRound size={12} aria-hidden="true" />
+    </button>
   );
 
   const stopBtn = (
@@ -203,52 +266,165 @@ export function FocusPopout({
           )}
           <div className="flex max-w-full items-center gap-3">
             {activity}
+            {groupBtn}
             {stopBtn}
           </div>
         </div>
       ) : (
-        <div className="relative flex h-full items-center gap-3.5 px-4">
-          {showRing && ring}
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <div className="flex items-center justify-between gap-2">
-              {statusRow}
-              {stopBtn}
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "font-mono text-[clamp(26px,9vw,36px)] leading-none font-[600] tracking-[-.04em] tabular-nums",
-                  paused && "animate-[focus-blink_2s_ease-in-out_infinite]",
-                )}
-              >
-                {time}
-              </span>
-              {p && (
-                <span className="truncate font-mono text-[11px] text-white/35">
-                  / {focusClock(elapsed)}
+        <div className="relative flex h-full flex-col">
+          <div
+            className={cn(
+              "flex items-center gap-3.5 px-4",
+              groupOn ? "h-[132px] shrink-0" : "h-full",
+            )}
+          >
+            {showRing && ring}
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                {statusRow}
+                <span className="flex items-center gap-1.5">
+                  {groupBtn}
+                  {stopBtn}
                 </span>
-              )}
-              {!showRing && (
-                <button
-                  type="button"
-                  onClick={onTogglePause}
-                  disabled={pending}
-                  aria-label={paused ? "Resume" : "Pause"}
-                  className="ml-auto grid size-8 shrink-0 place-items-center rounded-full bg-[var(--tone)] text-[#0b0b0f]"
-                >
-                  {paused ? (
-                    <Play size={13} className="fill-current" aria-hidden="true" />
-                  ) : (
-                    <Pause size={13} className="fill-current" aria-hidden="true" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "font-mono text-[clamp(26px,9vw,36px)] leading-none font-[600] tracking-[-.04em] tabular-nums",
+                    paused && "animate-[focus-blink_2s_ease-in-out_infinite]",
                   )}
-                </button>
-              )}
+                >
+                  {time}
+                </span>
+                {p && (
+                  <span className="truncate font-mono text-[11px] text-white/35">
+                    / {focusClock(elapsed)}
+                  </span>
+                )}
+                {!showRing && (
+                  <button
+                    type="button"
+                    onClick={onTogglePause}
+                    disabled={pending}
+                    aria-label={paused ? "Resume" : "Pause"}
+                    className="ml-auto grid size-8 shrink-0 place-items-center rounded-full bg-[var(--tone)] text-[#0b0b0f]"
+                  >
+                    {paused ? (
+                      <Play size={13} className="fill-current" aria-hidden="true" />
+                    ) : (
+                      <Pause size={13} className="fill-current" aria-hidden="true" />
+                    )}
+                  </button>
+                )}
+              </div>
+              {activity}
             </div>
-            {activity}
           </div>
+          {groupOn && <GroupPanel hall={hall} now={now} onPick={(id) => pickGroup(id)} />}
         </div>
       )}
     </div>,
     win.document.body,
+  );
+}
+
+const GROUP_KEY = "dsakaro:popout-group";
+
+type Hall = {
+  groups: { id: string; name: string }[];
+  group: { id: string; name: string } | null;
+  members: HallMember[];
+  serverNow: number;
+  viewerId: string;
+  /** Server clock minus this device's, so timers tick on the server's time. */
+  skew: number;
+};
+
+/** The group under the timer: who's studying, their live timers, today's totals. */
+function GroupPanel({
+  hall,
+  now,
+  onPick,
+}: {
+  hall: Hall | null;
+  now: number;
+  onPick: (id: string) => void;
+}) {
+  if (!hall) return <p className="px-4 py-3 text-12 text-white/45">Loading your group…</p>;
+  if (!hall.group)
+    return (
+      <p className="px-4 py-3 text-12 text-white/45">
+        Join or create a group to see friends studying here.
+      </p>
+    );
+  const t = now + hall.skew;
+  const rows = hall.members
+    .map((m) => ({ m, ...hallTimes(m, t) }))
+    .sort(
+      (a, b) =>
+        Number(b.state === "studying") - Number(a.state === "studying") ||
+        Number(b.state === "paused") - Number(a.state === "paused") ||
+        b.today - a.today,
+    );
+  const studying = rows.filter((r) => r.state === "studying").length;
+  return (
+    <div className="flex min-h-0 flex-1 flex-col border-t border-white/[.06]">
+      <div className="flex items-center justify-between gap-2 px-4 pt-2.5 pb-1.5">
+        {hall.groups.length > 1 ? (
+          <select
+            value={hall.group.id}
+            onChange={(e) => onPick(e.target.value)}
+            aria-label="Group"
+            className="max-w-[60%] truncate rounded-md border border-white/10 bg-white/[.04] px-1.5 py-0.5 text-12 font-[600] text-white outline-none"
+          >
+            {hall.groups.map((g) => (
+              <option key={g.id} value={g.id} className="bg-[#16161b]">
+                {g.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="truncate text-12 font-[600] text-white">{hall.group.name}</span>
+        )}
+        <span className="flex items-center gap-1.5 font-mono text-[10px] tracking-[.12em] text-white/50 uppercase">
+          <span className="pulse-ring size-1.5 rounded-full bg-success text-success" />
+          {studying} studying
+        </span>
+      </div>
+      <ul className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        {rows.map(({ m, session, today, state }) => (
+          <li
+            key={m.userId}
+            className={cn(
+              "flex items-center gap-2.5 rounded-[12px] px-2 py-1.5",
+              state === "studying" && "bg-white/[.035]",
+            )}
+          >
+            <StudyBuddy buddy={m.avatar} level={buddyLevel(state, session)} size={34} />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[12.5px] font-[600] text-white">
+                {m.name}
+                {m.userId === hall.viewerId && (
+                  <span className="ml-1 text-[10.5px] font-normal text-white/40">you</span>
+                )}
+              </span>
+              <span className="block text-[10.5px] text-white/45">today {hm(today)}</span>
+            </span>
+            <span
+              className={cn(
+                "font-mono text-[13px] font-[600] tabular-nums",
+                state === "studying"
+                  ? "text-white"
+                  : state === "paused"
+                    ? "text-[#f5b544]"
+                    : "text-white/25",
+              )}
+            >
+              {state === "idle" ? "idle" : focusClock(session)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

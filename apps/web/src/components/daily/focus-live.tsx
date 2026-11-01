@@ -114,6 +114,79 @@ export function useCanPopout() {
   );
 }
 
+// ---------------------------------------------------------------- the one pop-out
+
+/** The pop-out window, shared by every timer on the page (the study bar renders into it). */
+let sharedPip: Window | null = null;
+const pipSubs = new Set<() => void>();
+function setSharedPip(w: Window | null) {
+  sharedPip = w;
+  pipSubs.forEach((f) => f());
+}
+export function useSharedPip() {
+  return useSyncExternalStore(
+    (cb) => {
+      pipSubs.add(cb);
+      return () => pipSubs.delete(cb);
+    },
+    () => sharedPip,
+    () => null,
+  );
+}
+export function closePopout() {
+  sharedPip?.close();
+  setSharedPip(null);
+}
+
+/**
+ * Floats the study timer over other tabs (or brings it forward if it's open). Must run from
+ * a click, or within a few seconds of one: browsers only open it on a user action.
+ */
+export async function popoutTimer() {
+  if (sharedPip && !sharedPip.closed) {
+    sharedPip.focus();
+    return sharedPip;
+  }
+  const win = await openPopout();
+  if (!win) return null;
+  win.addEventListener("pagehide", () => {
+    if (sharedPip === win) setSharedPip(null);
+  });
+  setSharedPip(win);
+  return win;
+}
+
+/** "Pop out automatically" (on unless turned off): open it when a session starts or resumes. */
+const AUTO_KEY = "dsakaro:auto-popout";
+const autoSubs = new Set<() => void>();
+export function autoPopoutOn() {
+  try {
+    return localStorage.getItem(AUTO_KEY) !== "off";
+  } catch {
+    return true;
+  }
+}
+export function setAutoPopout(on: boolean) {
+  try {
+    localStorage.setItem(AUTO_KEY, on ? "on" : "off");
+  } catch {}
+  autoSubs.forEach((f) => f());
+}
+export function useAutoPopout() {
+  return useSyncExternalStore(
+    (cb) => {
+      autoSubs.add(cb);
+      return () => autoSubs.delete(cb);
+    },
+    autoPopoutOn,
+    () => true,
+  );
+}
+/** After a start/resume click: pop out if the browser can and the person wants it. */
+export function maybeAutoPopout() {
+  if (pipApi() && autoPopoutOn()) void popoutTimer();
+}
+
 /**
  * Opens an always-on-top mini window (Document Picture-in-Picture) styled like the page.
  * Must run in a click handler. Null when the browser can't.

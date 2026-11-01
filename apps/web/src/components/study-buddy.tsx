@@ -1,7 +1,8 @@
-/* eslint-disable @next/next/no-img-element -- small static PNGs; no optimisation needed */
+/* eslint-disable @next/next/no-img-element -- small static badge PNGs */
 import type { CSSProperties } from "react";
 import { cn } from "@upsolve/ui";
-import { buddyById, buddyImage, type BuddyLevel } from "@/lib/buddies";
+import { buddyById, type BuddyLevel } from "@/lib/buddies";
+import { BuddyArt } from "./buddy-art";
 
 /** The level's colour: the glow behind the character and its ring. */
 const TONE: Record<string, string> = {
@@ -21,7 +22,7 @@ const BADGE: Partial<Record<string, string>> = {
 };
 
 /**
- * A study buddy: a 3D character in a glowing disc. Idle naps (Zzz), a break gets a coffee,
+ * A study buddy: a chibi character in a glowing disc. Idle naps (Zzz), a break gets a coffee,
  * and a running session builds up: at the laptop, a bolt from 1 h, fire from 2 h, a blaze
  * with a spinning ring from 3 h. Animation is CSS and respects reduced motion.
  */
@@ -82,24 +83,24 @@ export function StudyBuddy({
           />
         </>
       )}
-      {/* Inside the disc, the laptop pose is zoomed so the character, not the laptop, fills it. */}
-      <span
+      {/* The character, clipped to the disc. */}
+      <svg
         aria-hidden="true"
-        className={cn("absolute inset-0 overflow-hidden rounded-full", studying && "buddy-bob")}
+        viewBox="4 6 112 112"
+        className={cn(
+          "absolute inset-0 size-full overflow-hidden rounded-full",
+          studying && "buddy-bob",
+        )}
       >
-        <img
-          src={buddyImage(b, studying)}
-          alt=""
-          width={size}
-          height={size}
-          draggable={false}
-          className={cn(
-            "absolute left-1/2 max-w-none -translate-x-1/2 drop-shadow-[0_4px_6px_rgba(0,0,0,.28)] select-none",
-            studying ? "top-[6%] w-[118%]" : "top-[8%] w-[86%]",
-            level === "idle" && "opacity-85 saturate-[.7]",
-          )}
+        <BuddyArt
+          id={b.id}
+          pose={{
+            asleep: level === "idle",
+            atDesk: studying,
+            intensity: lv >= 3 ? 2 : lv >= 2 ? 1 : 0,
+          }}
         />
-      </span>
+      </svg>
       {badge && (
         <img
           src={`/buddies/badge-${badge}.png`}

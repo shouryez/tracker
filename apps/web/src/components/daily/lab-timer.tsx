@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Coffee, Maximize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
 import { toast } from "sonner";
@@ -11,8 +12,17 @@ import { buddyLevel, LEVEL_LABEL } from "@/lib/buddies";
 import { labStart } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
 import { focusClock, focusElapsed, focusPhase, focusTotals, type FocusMode } from "@/lib/focus";
-import { openPopout, useAutoPauseSync, useCanPopout, useLabLive } from "./focus-live";
-import { FocusPopout } from "./focus-popout";
+import {
+  closePopout,
+  maybeAutoPopout,
+  popoutTimer,
+  setAutoPopout,
+  useAutoPauseSync,
+  useAutoPopout,
+  useCanPopout,
+  useLabLive,
+  useSharedPip,
+} from "./focus-live";
 import { FocusScreen, enterFullscreen } from "./focus-screen";
 import {
   StudySummaryModal,
@@ -47,10 +57,12 @@ export function LabTimer({
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [summary, setSummary] = useState<StudyEnd | null>(null);
   const [full, setFull] = useState(false);
-  const [pip, setPip] = useState<Window | null>(null);
+  const pip = useSharedPip();
   const [pending, start] = useTransition();
   const lastPhase = useRef<boolean | null>(null);
   const canPopout = useCanPopout();
+  const autoPopout = useAutoPopout();
+  const router = useRouter();
 
   // The server's copy changed (a refresh after the extension paused or resumed it): use it.
   const [seenActive, setSeenActive] = useState(active);
@@ -74,15 +86,13 @@ export function LabTimer({
 
   // The session ended: close the floating window with it.
   useEffect(() => {
-    if (!running && pip) pip.close();
+    if (!running && pip) closePopout();
   }, [running, pip]);
 
+  // The pop-out itself is drawn by the study bar (in the layout), shared by every page.
   async function popout() {
     setFull(false);
-    const win = await openPopout();
-    if (!win) return;
-    win.addEventListener("pagehide", () => setPip((w) => (w === win ? null : w)));
-    setPip(win);
+    await popoutTimer();
   }
 
   const elapsed = running ? focusElapsed(running, now || running.startedAt) : 0;
@@ -115,6 +125,9 @@ export function LabTimer({
       setNow(Date.now());
       setRunning(f);
       const t = await labStart(res.id, res.startedAt);
+      maybeAutoPopout();
+      // The study bar (which draws the pop-out) learns about the session from the server.
+      router.refresh();
       if (!t)
         toast("Timer started", {
           description: "Install the extension to separate focus from other tabs.",
@@ -133,6 +146,7 @@ export function LabTimer({
     start(async () => {
       if (running.pausedAt) {
         if (!(await resumeStudy(running))) return;
+        maybeAutoPopout();
         const t = Date.now();
         setRunning({
           ...running,
@@ -200,6 +214,17 @@ export function LabTimer({
             <Play size={16} className="fill-current" aria-hidden="true" /> Start focus
           </Button>
         </div>
+        {canPopout && (
+          <label className="flex w-fit cursor-pointer items-center gap-2 text-13 text-ink-2">
+            <input
+              type="checkbox"
+              checked={autoPopout}
+              onChange={(e) => setAutoPopout(e.target.checked)}
+              className="size-4 accent-[var(--signal)]"
+            />
+            Pop out the timer when I start or resume, so it floats over other tabs
+          </label>
+        )}
         <p className="text-12 text-ink-3">
           With the extension, time on LeetCode, GFG, Codeforces, takeUforward and DSA videos counts
           as focus; any other tab counts as away. Only totals are saved, never which sites.
@@ -273,7 +298,7 @@ export function LabTimer({
               : "Counting wall-clock time (extension not detected)."}
           </p>
         )}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="secondary" disabled={pending} onClick={togglePause}>
             {paused ? (
               <Play size={14} className="fill-current" aria-hidden="true" />
@@ -314,20 +339,6 @@ export function LabTimer({
             end();
           }}
           onClose={() => setFull(false)}
-        />
-      )}
-      {pip && (
-        <FocusPopout
-          win={pip}
-          active={running}
-          live={live}
-          pending={pending}
-          onTogglePause={togglePause}
-          onStop={() => {
-            pip.close();
-            window.focus();
-            end();
-          }}
         />
       )}
       <StudySummaryModal

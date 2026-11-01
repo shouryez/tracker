@@ -18,7 +18,15 @@ import type { ActiveFocus } from "@/lib/daily-data";
 import { focusElapsed, focusTotals } from "@/lib/focus";
 import { labStart, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { StudyContents } from "@/lib/study-data";
-import { openPopout, useAutoPauseSync, useCanPopout, useLabLive } from "./focus-live";
+import {
+  closePopout,
+  maybeAutoPopout,
+  popoutTimer,
+  useAutoPauseSync,
+  useCanPopout,
+  useLabLive,
+  useSharedPip,
+} from "./focus-live";
 import { FocusPopout } from "./focus-popout";
 import { FocusScreen, enterFullscreen } from "./focus-screen";
 import { StudyContentsList, studyCounts } from "./study-session";
@@ -193,6 +201,7 @@ export function StartStudyButton({
           const res = await startFocus("stopwatch", label);
           if (!res.ok) return void toast.error(res.error);
           const ext = await labStart(res.id, res.startedAt);
+          maybeAutoPopout();
           toast.success("Study session started", {
             description: ext
               ? "Videos you watch here, problems you solve and items you tick are logged."
@@ -217,12 +226,12 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [end, setEnd] = useState<StudyEnd | null>(null);
   const [full, setFull] = useState(false);
-  const [pip, setPip] = useState<Window | null>(null);
+  const pip = useSharedPip();
   const [pending, start] = useTransition();
   const canPopout = useCanPopout();
-  // Sessions has its own timer (and its own polling).
+  // Sessions has its own timer (and its own polling), but the pop-out is drawn from here.
   const onSessions = pathname === "/dashboard/sessions";
-  const live = useLabLive(active && !onSessions ? active.id : null);
+  const live = useLabLive(active && (!onSessions || pip) ? active.id : null);
   useAutoPauseSync(active && !onSessions ? active.pausedAt !== null : null, live);
 
   useEffect(() => {
@@ -234,15 +243,29 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
 
   // The session ended: close the floating window with it.
   useEffect(() => {
-    if (!active && pip) pip.close();
+    if (!active && pip) closePopout();
   }, [active, pip]);
+
+  // Chrome can float the timer by itself when you switch tabs (automatic picture-in-picture),
+  // where it allows it for the page. Harmless elsewhere.
+  const activeId = active?.id;
+  useEffect(() => {
+    if (!activeId) return;
+    const ms = navigator.mediaSession as
+      (MediaSession & { setActionHandler(a: string, h: (() => void) | null): void }) | undefined;
+    try {
+      ms?.setActionHandler("enterpictureinpicture", () => void popoutTimer());
+    } catch {}
+    return () => {
+      try {
+        ms?.setActionHandler("enterpictureinpicture", null);
+      } catch {}
+    };
+  }, [activeId]);
 
   const popout = async () => {
     setFull(false);
-    const win = await openPopout();
-    if (!win) return;
-    win.addEventListener("pagehide", () => setPip((w) => (w === win ? null : w)));
-    setPip(win);
+    await popoutTimer();
   };
 
   if (!active) return null;
@@ -250,7 +273,10 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const elapsed = focusElapsed(active, now || active.startedAt);
   const togglePause = () =>
     start(async () => {
-      if ((await (paused ? resumeStudy(active) : pauseStudy(active))) !== false) router.refresh();
+      const resuming = paused;
+      if ((await (paused ? resumeStudy(active) : pauseStudy(active))) === false) return;
+      if (resuming) maybeAutoPopout();
+      router.refresh();
     });
   const stop = () => start(async () => setEnd(await endStudy(active)));
 
@@ -262,7 +288,7 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
       pending={pending}
       onTogglePause={togglePause}
       onStop={() => {
-        pip.close();
+        closePopout();
         window.focus();
         stop();
       }}

@@ -1,36 +1,49 @@
 /**
- * Study buddies: the 3D character each person picks in Settings, shown in groups and the
- * timer. Art: Microsoft Fluent Emoji 3D (MIT, public/buddies/LICENSE.txt).
+ * Study buddies: the character each person picks in Settings, shown in groups and the
+ * timer. Original chibi art (components/buddy-art.tsx): one skin tone for everyone, told
+ * apart by vibe (hair, outfit, accessories).
  */
 
 export type Buddy = {
   id: string;
-  group: "boys" | "girls" | "anyone";
+  group: "boys" | "girls";
   /** For screen readers only; buddies have no names. */
   label: string;
 };
 
 export const BUDDIES: readonly Buddy[] = [
-  { id: "man-light", group: "boys", label: "Boy, light skin" },
-  { id: "man-medium", group: "boys", label: "Boy, medium skin" },
-  { id: "man-dark", group: "boys", label: "Boy, dark skin" },
-  { id: "woman-light", group: "girls", label: "Girl, light skin" },
-  { id: "woman-medium", group: "girls", label: "Girl, medium skin" },
-  { id: "woman-dark", group: "girls", label: "Girl, dark skin" },
-  { id: "person-medium-light", group: "anyone", label: "Person, medium-light skin" },
-  { id: "person-medium-dark", group: "anyone", label: "Person, medium-dark skin" },
+  { id: "b-scout", group: "boys", label: "Fluffy hair, blue tee and scarf" },
+  { id: "b-prep", group: "boys", label: "Side fringe, vest and tie" },
+  { id: "b-soft", group: "boys", label: "Middle part, pink open shirt" },
+  { id: "b-beanie", group: "boys", label: "Beanie and green sweater" },
+  { id: "b-denim", group: "boys", label: "Messy black hair, denim jacket" },
+  { id: "b-cap", group: "boys", label: "Cap and overalls" },
+  { id: "g-bun", group: "girls", label: "Top bun and pink cardigan" },
+  { id: "g-waves", group: "girls", label: "Long waves and heart clip" },
+  { id: "g-braids", group: "girls", label: "Braids and beret" },
+  { id: "g-bow", group: "girls", label: "Long hair and yellow bow" },
+  { id: "g-cap", group: "girls", label: "Pink cap and hoodie" },
+  { id: "g-pony", group: "girls", label: "Ponytail and heart sunglasses" },
 ];
 
-export const DEFAULT_BUDDY = "person-medium-light";
+export const DEFAULT_BUDDY = "b-scout";
 
-/** Picks saved before the 3D buddies, mapped to the closest new one. */
+/** Picks saved before these buddies, mapped to a similar one. */
 const LEGACY: Record<string, string> = {
-  aarav: "man-medium",
-  kabir: "man-dark",
-  rehan: "man-light",
-  ananya: "woman-medium",
-  meera: "woman-dark",
-  zoya: "woman-light",
+  aarav: "b-scout",
+  kabir: "b-prep",
+  rehan: "b-denim",
+  ananya: "g-waves",
+  meera: "g-bun",
+  zoya: "g-pony",
+  "man-light": "b-scout",
+  "man-medium": "b-soft",
+  "man-dark": "b-denim",
+  "woman-light": "g-bow",
+  "woman-medium": "g-waves",
+  "woman-dark": "g-braids",
+  "person-medium-light": "b-beanie",
+  "person-medium-dark": "g-cap",
 };
 
 export const buddyById = (id: string | null | undefined): Buddy => {
@@ -39,10 +52,6 @@ export const buddyById = (id: string | null | undefined): Buddy => {
 };
 export const isBuddyId = (id: unknown): id is string =>
   typeof id === "string" && BUDDIES.some((b) => b.id === id);
-
-/** At the laptop while studying, otherwise the plain portrait. */
-export const buddyImage = (b: Buddy, atDesk: boolean) =>
-  `/buddies/${b.id}-${atDesk ? "study" : "idle"}.png`;
 
 /**
  * How a buddy looks: idle (not studying), on a break (paused), then four levels that build

@@ -38,7 +38,7 @@ export function BuddySettings({ initial }: { initial: Values }) {
             lightning bolt at 1 hour and catches fire at 2.
           </p>
         </div>
-        {(["boys", "girls", "anyone"] as const).map((group) => (
+        {(["boys", "girls"] as const).map((group) => (
           <div key={group} className="flex flex-col gap-2">
             <p className="label-mono">{group}</p>
             <div
