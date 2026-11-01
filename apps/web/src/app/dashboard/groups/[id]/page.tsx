@@ -26,7 +26,7 @@ import {
 } from "@/components/social";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
-import { getGroupShares, getNudgedToday, getStudyHall } from "@/lib/daily-data";
+import { getActiveFocus, getGroupShares, getNudgedToday, getStudyHall } from "@/lib/daily-data";
 import { StudyHallCard } from "@/components/study-hall";
 import { getProfile } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
@@ -91,13 +91,14 @@ async function GroupContent({
   const now = requestNow();
   const profile = await getProfile(user.id);
   const dayStart = studyDay(profile?.timezone ?? BOARD_TZ, now, profile?.dayResetHour ?? 0).start;
-  const [board, room, h, hall, shares, nudged] = await Promise.all([
+  const [board, room, h, hall, shares, nudged, active] = await Promise.all([
     getGroupBoard(group.id, localWeekStart(BOARD_TZ, now)),
     getRoom(group.id, dayStart),
     headers(),
     getStudyHall(group.id),
     getGroupShares(group.id),
     getNudgedToday(user.id, group.id, localDate(profile?.timezone ?? BOARD_TZ, now)),
+    getActiveFocus(user.id),
   ]);
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3005";
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
@@ -163,7 +164,14 @@ async function GroupContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
-          <StudyHallCard groupName={group.name} members={hall} viewerId={user.id} serverNow={now} />
+          <StudyHallCard
+            groupName={group.name}
+            members={hall}
+            viewerId={user.id}
+            serverNow={now}
+            active={active}
+            buddy={profile?.avatar ?? null}
+          />
 
           {shares.length > 0 && (
             <Card>

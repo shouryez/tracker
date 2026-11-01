@@ -1,14 +1,27 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Expand, Maximize2, Minimize2, Timer } from "lucide-react";
+import { Expand, Maximize2, Minimize2, Pause, Play, Square, Timer } from "lucide-react";
+import { toast } from "sonner";
 import { Card, CardHeader, CardSub, CardTitle, cn } from "@upsolve/ui";
+import { startFocus } from "@/app/actions/daily";
+import { maybeAutoPopout } from "@/components/daily/focus-live";
 import { enterFullscreen } from "@/components/daily/focus-screen";
+import {
+  StudySummaryModal,
+  endStudy,
+  pauseStudy,
+  resumeStudy,
+  saveStudy,
+  type StudyEnd,
+} from "@/components/daily/study-bar";
 import { StudyBuddy } from "@/components/study-buddy";
 import { buddyLevel, LEVEL_LABEL } from "@/lib/buddies";
-import type { HallMember } from "@/lib/daily-data";
-import { focusClock } from "@/lib/focus";
+import type { ActiveFocus, HallMember } from "@/lib/daily-data";
+import { labStart } from "@/lib/ext-bridge";
+import { focusClock, focusElapsed } from "@/lib/focus";
 
 export const hm = (ms: number) => {
   const m = Math.floor(ms / 60_000);
@@ -206,13 +219,45 @@ export function StudyHallCard({
   members,
   viewerId,
   serverNow,
+  active,
+  buddy,
 }: {
   groupName: string;
   members: HallMember[];
   viewerId: string;
   serverNow: number;
+  /** The viewer's own running session, for the controls in the room. */
+  active: ActiveFocus | null;
+  buddy: string | null;
 }) {
   const [open, setOpen] = useState(false);
+  const [end, setEnd] = useState<StudyEnd | null>(null);
+  const [pending, start] = useTransition();
+  const router = useRouter();
+
+  const begin = () =>
+    start(async () => {
+      const res = await startFocus("stopwatch", null);
+      if (!res.ok) return void toast.error(res.error);
+      await labStart(res.id, res.startedAt);
+      maybeAutoPopout();
+      router.refresh();
+    });
+  const togglePause = () =>
+    start(async () => {
+      if (!active) return;
+      const resuming = active.pausedAt !== null;
+      if ((await (resuming ? resumeStudy(active) : pauseStudy(active))) === false) return;
+      if (resuming) maybeAutoPopout();
+      router.refresh();
+    });
+  // Stop leaves the room first: the summary (save or discard) opens on the page.
+  const stop = () => {
+    if (!active) return;
+    leaveFullscreen();
+    setOpen(false);
+    start(async () => setEnd(await endStudy(active)));
+  };
   const studying = members.filter((m) => m.live && !m.live.pausedAt).length;
 
   return (
@@ -263,9 +308,138 @@ export function StudyHallCard({
           viewerId={viewerId}
           serverNow={serverNow}
           onClose={() => setOpen(false)}
+          controls={
+            <RoomControls
+              active={active}
+              buddy={buddy}
+              pending={pending}
+              onStart={begin}
+              onTogglePause={togglePause}
+              onStop={stop}
+            />
+          }
         />
       )}
+      <StudySummaryModal
+        summary={end}
+        pending={pending}
+        onClose={() => setEnd(null)}
+        onSave={(discard) =>
+          start(async () => {
+            if (active && end && (await saveStudy(active, end, discard))) {
+              setEnd(null);
+              router.refresh();
+            }
+          })
+        }
+      />
     </>
+  );
+}
+
+function leaveFullscreen() {
+  if (!fsElement()) return;
+  try {
+    if (document.exitFullscreen) void document.exitFullscreen().catch(() => {});
+    else (document as Doc).webkitExitFullscreen?.();
+  } catch {}
+}
+
+/** Your own session in the room: buddy, live timer, Start / Pause / Resume / Stop. */
+function RoomControls({
+  active,
+  buddy,
+  pending,
+  onStart,
+  onTogglePause,
+  onStop,
+}: {
+  active: ActiveFocus | null;
+  buddy: string | null;
+  pending: boolean;
+  onStart: () => void;
+  onTogglePause: () => void;
+  onStop: () => void;
+}) {
+  const [now, setNow] = useState(() => active?.startedAt ?? 0);
+  const paused = active?.pausedAt != null;
+  useEffect(() => {
+    if (!active || paused) return;
+    const first = window.setTimeout(() => setNow(Date.now()), 0);
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(id);
+    };
+  }, [active, paused]);
+
+  const btn =
+    "grid place-items-center rounded-full transition-[transform,background-color] duration-200 hover:scale-105 active:scale-95 disabled:opacity-50";
+
+  if (!active)
+    return (
+      <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[.06] py-2 pr-2 pl-3 backdrop-blur-md">
+        <StudyBuddy buddy={buddy} level="idle" size={40} />
+        <span className="text-13 text-white/70">You&apos;re not studying</span>
+        <button
+          type="button"
+          onClick={onStart}
+          disabled={pending}
+          className="flex h-10 items-center gap-2 rounded-full bg-[#a3e635] px-4 text-13 font-[600] text-[#0b0b0f] transition-transform hover:scale-[1.03] active:scale-95 disabled:opacity-50"
+        >
+          <Play size={14} className="fill-current" aria-hidden="true" /> Start studying
+        </button>
+      </div>
+    );
+
+  const elapsed = focusElapsed(active, paused ? active.pausedAt! : now || active.startedAt);
+  const level = buddyLevel(paused ? "paused" : "studying", elapsed);
+  return (
+    <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/[.06] py-2 pr-2 pl-3 backdrop-blur-md">
+      <StudyBuddy buddy={buddy} level={level} size={40} />
+      <span className="flex flex-col leading-tight">
+        <span className="label-mono text-white/45">{paused ? "Paused" : LEVEL_LABEL[level]}</span>
+        <span
+          className={cn(
+            "font-mono text-[22px] font-[600] tabular-nums",
+            paused ? "text-[#f5b544]" : "text-white",
+          )}
+          suppressHydrationWarning
+        >
+          {focusClock(elapsed)}
+        </span>
+      </span>
+      <button
+        type="button"
+        onClick={onTogglePause}
+        disabled={pending}
+        aria-label={paused ? "Resume" : "Pause"}
+        className={cn(
+          btn,
+          "ml-1 size-11",
+          paused ? "bg-[#f5b544]" : "bg-[#a3e635]",
+          "text-[#0b0b0f]",
+        )}
+      >
+        {paused ? (
+          <Play size={16} className="translate-x-px fill-current" aria-hidden="true" />
+        ) : (
+          <Pause size={16} className="fill-current" aria-hidden="true" />
+        )}
+      </button>
+      <button
+        type="button"
+        onClick={onStop}
+        disabled={pending}
+        aria-label="Stop and save"
+        className={cn(
+          btn,
+          "size-11 border border-white/10 bg-white/[.06] text-white/70 hover:bg-[#ef4444]/20 hover:text-[#ff8a8a]",
+        )}
+      >
+        <Square size={14} className="fill-current" aria-hidden="true" />
+      </button>
+    </div>
   );
 }
 
@@ -275,12 +449,15 @@ function StudyRoom({
   viewerId,
   serverNow,
   onClose,
+  controls,
 }: {
   groupName: string;
   members: HallMember[];
   viewerId: string;
   serverNow: number;
   onClose: () => void;
+  /** Your own session controls, docked at the bottom. */
+  controls: ReactNode;
 }) {
   const [clock, setClock] = useState("");
   const [isFull, setIsFull] = useState(false);
@@ -389,10 +566,13 @@ function StudyRoom({
         </div>
       </header>
 
-      <div className="relative flex-1 overflow-y-auto px-5 pt-6 pb-[max(28px,env(safe-area-inset-bottom))] sm:px-8">
+      <div className="relative flex-1 overflow-y-auto px-5 pt-6 pb-4 sm:px-8">
         <div className="mx-auto w-full max-w-[1280px]">
           <StudyHall members={members} viewerId={viewerId} serverNow={serverNow} room />
         </div>
+      </div>
+      <div className="relative flex justify-center px-4 pt-2 pb-[max(20px,env(safe-area-inset-bottom))]">
+        {controls}
       </div>
     </div>,
     document.body,
