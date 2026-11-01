@@ -4,13 +4,14 @@ import {
   HandleNotFoundError,
   PlatformError,
   getAdapter,
+  type Platform,
   type PlatformSnapshot,
 } from "@upsolve/adapters";
 import { linkCatalog, platformAccounts, saveContests, saveSubmissions } from "@upsolve/db";
 import { db } from "@/lib/db";
 
-/** Data older than this is refreshed automatically when the dashboard opens. */
-export const STALE_AFTER_MS = 6 * 60 * 60 * 1000;
+/** Data older than this is refreshed automatically when the dashboard opens (or comes back into view). */
+export const STALE_AFTER_MS = 20 * 60 * 1000;
 /** A sync that started longer ago than this is assumed dead and may be retried. */
 const LOCK_TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -24,11 +25,11 @@ export type SyncOutcome = { ok: true } | { ok: false; error: string };
 export async function syncAccount(
   accountId: string,
   userId: string,
-  opts: { onlyIfStale?: boolean; snapshot?: PlatformSnapshot } = {},
+  opts: { onlyIfStale?: boolean; staleMs?: number; snapshot?: PlatformSnapshot } = {},
 ): Promise<SyncOutcome> {
   const now = new Date();
   const lockExpired = new Date(now.getTime() - LOCK_TIMEOUT_MS);
-  const staleBefore = new Date(now.getTime() - STALE_AFTER_MS);
+  const staleBefore = new Date(now.getTime() - (opts.staleMs ?? STALE_AFTER_MS));
 
   const [account] = await db()
     .update(platformAccounts)
@@ -98,4 +99,15 @@ export async function syncAccount(
   }
 }
 
-// DsaKaro
+/**
+ * Right after the extension reports an accepted solve: refresh that platform's numbers
+ * (solved count, calendar) unless it synced in the last couple of minutes.
+ */
+export async function syncAfterSolve(userId: string, platform: Platform) {
+  const accounts = await db()
+    .select({ id: platformAccounts.id })
+    .from(platformAccounts)
+    .where(and(eq(platformAccounts.userId, userId), eq(platformAccounts.platform, platform)));
+  for (const a of accounts)
+    await syncAccount(a.id, userId, { onlyIfStale: true, staleMs: 2 * 60_000 }).catch(() => {});
+}

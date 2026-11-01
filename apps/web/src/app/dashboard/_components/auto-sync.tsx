@@ -1,25 +1,42 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { LiveDot } from "@upsolve/ui";
 import { syncStaleAccounts } from "@/app/actions/platforms";
 
 /**
- * Refreshes platform data older than 6 hours once per dashboard visit.
- * The server action invalidates the cache, so the page re-renders with new numbers.
+ * Refreshes platform data older than 20 minutes when the dashboard opens, and again when you
+ * come back to the tab (the server skips accounts synced recently). Then re-renders with
+ * the new numbers.
  */
 export function AutoSync({ stale }: { stale: boolean }) {
+  const router = useRouter();
   const [running, setRunning] = useState(false);
-  const started = useRef(false);
+  const lastRun = useRef(0);
 
   useEffect(() => {
-    if (!stale || started.current) return;
-    started.current = true;
-    setRunning(true);
-    syncStaleAccounts()
-      .catch(() => {})
-      .finally(() => setRunning(false));
-  }, [stale]);
+    const run = (show: boolean) => {
+      if (Date.now() - lastRun.current < 5 * 60_000) return;
+      lastRun.current = Date.now();
+      if (show) setRunning(true);
+      syncStaleAccounts()
+        .then((r) => {
+          if (r.synced > 0) router.refresh();
+        })
+        .catch(() => {})
+        .finally(() => setRunning(false));
+    };
+    const first = stale ? window.setTimeout(() => run(true), 0) : 0;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") run(false);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      clearTimeout(first);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [stale, router]);
 
   if (!running) return null;
   return (
@@ -31,5 +48,3 @@ export function AutoSync({ stale }: { stale: boolean }) {
     </span>
   );
 }
-
-// DsaKaro

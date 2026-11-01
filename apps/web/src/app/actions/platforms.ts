@@ -104,13 +104,12 @@ export async function syncStaleAccounts(): Promise<{ synced: number }> {
     .select({ id: platformAccounts.id })
     .from(platformAccounts)
     .where(eq(platformAccounts.userId, user.id));
-  let synced = 0;
-  for (const a of accounts) {
-    const r = await syncAccount(a.id, user.id, { onlyIfStale: true });
-    if (r.ok) synced++;
-  }
+  // In parallel: each platform is a separate site.
+  const results = await Promise.all(
+    accounts.map((a) => syncAccount(a.id, user.id, { onlyIfStale: true })),
+  );
   await invalidate(user.id);
-  return { synced };
+  return { synced: results.filter((r) => r.ok).length };
 }
 
 export async function startVerification(accountId: string): Promise<ActionResult> {
