@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { BookOpenCheck, Pause, Play, Square } from "lucide-react";
+import { BookOpenCheck, Maximize2, Pause, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import {
@@ -18,6 +18,7 @@ import type { ActiveFocus } from "@/lib/daily-data";
 import { focusElapsed, focusTotals } from "@/lib/focus";
 import { labStart, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { StudyContents } from "@/lib/study-data";
+import { FocusScreen, enterFullscreen } from "./focus-screen";
 import { StudyContentsList, studyCounts } from "./study-session";
 
 const mins = (ms: number) => `${Math.round(ms / 60_000)}m`;
@@ -213,6 +214,7 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const pathname = usePathname();
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [end, setEnd] = useState<StudyEnd | null>(null);
+  const [full, setFull] = useState(false);
   const [pending, start] = useTransition();
 
   useEffect(() => {
@@ -225,6 +227,11 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   if (!active || pathname === "/dashboard/sessions") return null;
   const paused = active.pausedAt !== null;
   const elapsed = focusElapsed(active, now || active.startedAt);
+  const togglePause = () =>
+    start(async () => {
+      if ((await (paused ? resumeStudy(active) : pauseStudy(active))) !== false) router.refresh();
+    });
+  const stop = () => start(async () => setEnd(await endStudy(active)));
 
   return (
     <>
@@ -247,16 +254,23 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
             {clock(elapsed)}
           </span>
           <Button
+            variant="ghost"
+            size="sm"
+            aria-label="Focus mode (full screen)"
+            title="Focus mode"
+            onClick={() => {
+              enterFullscreen();
+              setFull(true);
+            }}
+          >
+            <Maximize2 size={13} aria-hidden="true" />
+          </Button>
+          <Button
             variant="secondary"
             size="sm"
             disabled={pending}
             aria-label={paused ? "Resume study session" : "Pause study session"}
-            onClick={() =>
-              start(async () => {
-                if ((await (paused ? resumeStudy(active) : pauseStudy(active))) !== false)
-                  router.refresh();
-              })
-            }
+            onClick={togglePause}
           >
             {paused ? (
               <Play size={12} className="fill-current" aria-hidden="true" />
@@ -265,16 +279,23 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
             )}
             {paused ? "Resume" : "Pause"}
           </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            loading={pending && !end}
-            onClick={() => start(async () => setEnd(await endStudy(active)))}
-          >
+          <Button variant="danger" size="sm" loading={pending && !end} onClick={stop}>
             <Square size={12} className="fill-current" aria-hidden="true" /> Stop
           </Button>
         </div>
       </div>
+      {full && (
+        <FocusScreen
+          active={active}
+          pending={pending}
+          onTogglePause={togglePause}
+          onStop={() => {
+            setFull(false);
+            stop();
+          }}
+          onClose={() => setFull(false)}
+        />
+      )}
       <StudySummaryModal
         summary={end}
         pending={pending}

@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Coffee, Pause, Play, Square } from "lucide-react";
+import { Coffee, Maximize2, Pause, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, ProgressRing, SegmentedControl, Tag, inputClasses } from "@upsolve/ui";
 import { startFocus } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
 import { labStart, labStatus, type LabTotals } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
-import { focusElapsed, focusTotals } from "@/lib/focus";
+import { focusClock, focusElapsed, focusPhase, focusTotals, type FocusMode } from "@/lib/focus";
+import { FocusScreen, enterFullscreen } from "./focus-screen";
 import {
   StudySummaryModal,
   endStudy,
@@ -18,34 +19,10 @@ import {
   type StudyEnd,
 } from "./study-bar";
 
-type Mode = "stopwatch" | "pomodoro-25" | "pomodoro-50";
-const CYCLE: Record<Exclude<Mode, "stopwatch">, { work: number; rest: number }> = {
-  "pomodoro-25": { work: 25, rest: 5 },
-  "pomodoro-50": { work: 50, rest: 10 },
-};
-
-const clock = (ms: number) => {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  const mm = String(m).padStart(2, "0");
-  const ss = String(sec).padStart(2, "0");
-  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
-};
+type Mode = FocusMode;
+const clock = focusClock;
 const mins = (ms: number) => `${Math.round(ms / 60_000)}m`;
-
-/** Where in a pomodoro cycle we are. Pure. */
-function phase(mode: Mode, elapsedMs: number) {
-  if (mode === "stopwatch") return null;
-  const { work, rest } = CYCLE[mode];
-  const cycle = (work + rest) * 60_000;
-  const into = elapsedMs % cycle;
-  const working = into < work * 60_000;
-  const left = working ? work * 60_000 - into : cycle - into;
-  const length = (working ? work : rest) * 60_000;
-  return { working, left, length, round: Math.floor(elapsedMs / cycle) + 1 };
-}
+const phase = focusPhase;
 
 /**
  * Lab mode: a YPT-style study timer. With the extension, time on coding sites counts as
@@ -59,6 +36,7 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [totals, setTotals] = useState<LabTotals | null>(null);
   const [summary, setSummary] = useState<StudyEnd | null>(null);
+  const [full, setFull] = useState(false);
   const [pending, start] = useTransition();
   const lastPhase = useRef<boolean | null>(null);
 
@@ -278,9 +256,30 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
           <Button variant="danger" disabled={pending} onClick={end}>
             <Square size={14} className="fill-current" aria-hidden="true" /> Stop
           </Button>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              enterFullscreen();
+              setFull(true);
+            }}
+          >
+            <Maximize2 size={14} aria-hidden="true" /> Focus mode
+          </Button>
         </div>
       </div>
 
+      {full && (
+        <FocusScreen
+          active={running}
+          pending={pending}
+          onTogglePause={togglePause}
+          onStop={() => {
+            setFull(false);
+            end();
+          }}
+          onClose={() => setFull(false)}
+        />
+      )}
       <StudySummaryModal
         summary={summary}
         pending={pending}

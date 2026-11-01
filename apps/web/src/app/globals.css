@@ -524,3 +524,34 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
     translate: 6px 0;
   }
 }
+
+/* Focus mode (components/daily/focus-screen.tsx). */
+@keyframes focus-in {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
+@keyframes focus-blink {
+  50% {
+    opacity: 0.45;
+  }
+}
+@keyframes focus-drift {
+  to {
+    transform: translate(8vmax, 6vmax) scale(1.12);
+  }
+}
+.focus-field {
+  animation: focus-drift 22s ease-in-out infinite alternate;
+}
+.focus-field-b {
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .focus-field {
+    animation: none;
+  }
+}
+
