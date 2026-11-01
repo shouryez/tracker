@@ -432,17 +432,22 @@ export function setupDaily(apiFn: Api) {
   browser.notifications.onClicked.addListener((id) => void onNotificationClick(id));
 
   browser.runtime.onInstalled.addListener(() => {
-    // YouTube tabs opened before this install or update have no content script, so their
-    // channel can't be read (and Lab mode would guess). Add it to them now.
-    void browser.tabs
-      .query({ url: ["https://www.youtube.com/*", "https://m.youtube.com/*"] })
-      .then((tabs) => {
+    // Tabs opened before this install or update still run the old scripts, cut off from the
+    // extension: YouTube couldn't report its channel, and DsaKaro's timer couldn't reach Lab
+    // mode until a reload. Give them the new scripts now.
+    const inject = (
+      url: string[],
+      file: "/content-scripts/youtube.js" | "/content-scripts/web-bridge.js",
+    ) =>
+      void browser.tabs.query({ url }).then((tabs) => {
         for (const t of tabs)
           if (t.id !== undefined)
             void browser.scripting
-              .executeScript({ target: { tabId: t.id }, files: ["/content-scripts/youtube.js"] })
+              .executeScript({ target: { tabId: t.id }, files: [file] })
               .catch(() => {});
       });
+    inject(["https://www.youtube.com/*", "https://m.youtube.com/*"], "/content-scripts/youtube.js");
+    inject([`${WEB_ORIGIN}/*`], "/content-scripts/web-bridge.js");
     browser.contextMenus.removeAll(() => {
       browser.contextMenus.create({
         id: "upsolve-save",
