@@ -57,7 +57,12 @@ async function SessionsContent() {
     getActiveFocus(user.id),
     getStudyHistory(user.id, 80, requestNow() - 7 * 86_400_000),
   ]);
-  const focus = await getFocusSummary(user.id, profile?.timezone ?? "Asia/Kolkata", requestNow());
+  const focus = await getFocusSummary(
+    user.id,
+    profile?.timezone ?? "Asia/Kolkata",
+    requestNow(),
+    profile?.dayResetHour ?? 0,
+  );
   const { solo, hint, solution } = stats.honest;
   const goalMin = profile?.dailyGoalMin ?? 60;
 
@@ -71,7 +76,7 @@ async function SessionsContent() {
           {formatDuration(focus.todayMs)} today · {formatDuration(focus.weekMs)} this week
         </CardSub>
       </CardHeader>
-      <LabTimer active={active} />
+      <LabTimer active={active} buddy={profile?.avatar ?? null} />
       {focus.recent.length > 0 && (
         <ul className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4">
           {focus.recent.slice(0, 6).map((f) => (

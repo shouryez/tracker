@@ -13,7 +13,7 @@ import {
 } from "@upsolve/core";
 import { db } from "@/lib/db";
 import { getLearning } from "@/lib/learning";
-import { localDate, localDay, localWeekStart } from "@/lib/time";
+import { localDate, localWeekStart, studyDay } from "@/lib/time";
 
 // Reads for the daily-loop features: focus timer, save-for-later, weekly review,
 // recall quiz, notebook + mistake journal, shared problems and nudges.
@@ -92,8 +92,10 @@ export async function getFocusSummary(
   userId: string,
   tz: string,
   now: number,
+  /** Settings → "Day resets at": today's total starts at this local hour. */
+  resetHour = 0,
 ): Promise<FocusSummary> {
-  const { start } = localDay(tz, now);
+  const { start } = studyDay(tz, now, resetHour);
   const week = localWeekStart(tz, now);
   const rows = (await db().execute(sql`
     select id, started_at as "startedAt", focus_ms as "focusMs", away_ms as "awayMs", switches,
@@ -120,27 +122,68 @@ export async function getFocusSummary(
   };
 }
 
-/** Who in a group is in Lab mode right now, and today's focus totals. */
-export async function getLabBoard(
-  groupId: string,
-  dayStart: number,
-): Promise<{ userId: string; name: string; liveSince: number | null; todayMs: number }[]> {
+export type HallMember = {
+  userId: string;
+  name: string;
+  avatar: string | null;
+  /** Start of this member's own study day (their timezone and reset hour), ms. */
+  dayStart: number;
+  /** Focus from sessions ended since dayStart. */
+  doneMs: number;
+  /** The running session, if any: the client ticks it. */
+  live: { startedAt: number; pausedAt: number | null; pausedMs: number } | null;
+};
+
+/**
+ * The group's study hall: who's studying right now (with what the client needs to tick their
+ * timer live) and each member's focus today, by their own day boundary. Members who turned
+ * off "share live status" aren't listed.
+ */
+export async function getStudyHall(groupId: string): Promise<HallMember[]> {
   const rows = (await db().execute(sql`
-    select m.user_id as "userId", coalesce(p.name, p.handle, 'Someone') as name,
-      (select f.started_at from focus_sessions f where f.user_id = m.user_id and f.ended_at is null
-         and f.started_at > now() - interval '16 hours' order by f.started_at desc limit 1) as "liveSince",
+    select m.user_id as "userId", coalesce(p.name, p.handle, 'Someone') as name, p.avatar,
+      extract(epoch from ds.start)::float8 * 1000 as "dayStart",
       coalesce((select sum(f.focus_ms) from focus_sessions f where f.user_id = m.user_id
-         and f.ended_at is not null and f.started_at >= ${new Date(dayStart).toISOString()}::timestamptz), 0)::int as "todayMs"
-    from group_members m left join profiles p on p.user_id = m.user_id
+         and f.ended_at is not null and f.started_at >= ds.start), 0)::float8 as "doneMs",
+      live.started_at as "startedAt", live.paused_at as "pausedAt", live.paused_ms as "pausedMs"
+    from group_members m
+    left join profiles p on p.user_id = m.user_id
+    cross join lateral (
+      select ((date_trunc('day', (now() at time zone coalesce(p.timezone, 'Asia/Kolkata'))
+                 - make_interval(hours => coalesce(p.day_reset_hour, 0)))
+               + make_interval(hours => coalesce(p.day_reset_hour, 0)))
+             at time zone coalesce(p.timezone, 'Asia/Kolkata')) as start
+    ) ds
+    left join lateral (
+      select f.started_at, f.paused_at, f.paused_ms from focus_sessions f
+      where f.user_id = m.user_id and f.ended_at is null
+        and f.started_at > now() - interval '16 hours'
+      order by f.started_at desc limit 1
+    ) live on true
     where m.group_id = ${groupId} and coalesce(p.share_live, true)`)) as unknown as {
     userId: string;
     name: string;
-    liveSince: unknown;
-    todayMs: number;
+    avatar: string | null;
+    dayStart: number;
+    doneMs: number;
+    startedAt: unknown;
+    pausedAt: unknown;
+    pausedMs: number | null;
   }[];
-  return rows
-    .map((r) => ({ ...r, liveSince: r.liveSince ? toMs(r.liveSince) : null }))
-    .sort((a, b) => b.todayMs - a.todayMs);
+  return rows.map((r) => ({
+    userId: r.userId,
+    name: r.name,
+    avatar: r.avatar,
+    dayStart: Number(r.dayStart),
+    doneMs: Number(r.doneMs),
+    live: r.startedAt
+      ? {
+          startedAt: toMs(r.startedAt),
+          pausedAt: r.pausedAt ? toMs(r.pausedAt) : null,
+          pausedMs: r.pausedMs ?? 0,
+        }
+      : null,
+  }));
 }
 
 // ---------------------------------------------------------------- save for later
@@ -652,5 +695,3 @@ export async function bestHour(userId: string, tz: string): Promise<number> {
     group by 1 order by count(*) desc limit 1`)) as unknown as { hour: number }[];
   return row?.hour ?? 20;
 }
-
-// DsaKaro

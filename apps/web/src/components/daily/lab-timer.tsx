@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Button, ProgressRing, SegmentedControl, Tag, inputClasses } from "@upsolve/ui";
 import { startFocus } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
+import { StudyBuddy } from "@/components/study-buddy";
+import { buddyLevel, LEVEL_LABEL } from "@/lib/buddies";
 import { labStart } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
 import { focusClock, focusElapsed, focusPhase, focusTotals, type FocusMode } from "@/lib/focus";
@@ -31,7 +33,14 @@ const phase = focusPhase;
  * focus and other tabs as away (only totals are stored, never which sites). Without it,
  * the wall-clock time counts.
  */
-export function LabTimer({ active }: { active: ActiveFocus | null }) {
+export function LabTimer({
+  active,
+  buddy = null,
+}: {
+  active: ActiveFocus | null;
+  /** Your study buddy (Settings); it levels up as the session runs. */
+  buddy?: string | null;
+}) {
   const [running, setRunning] = useState<ActiveFocus | null>(active);
   const [mode, setMode] = useState<Mode>((active?.mode as Mode) ?? "pomodoro-25");
   const [label, setLabel] = useState("");
@@ -207,8 +216,14 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
       }
     : { total: 60 * 60_000, value: elapsed % (60 * 60_000), color: "var(--signal-mark)" };
 
+  const level = buddyLevel(paused ? "paused" : "studying", elapsed);
+
   return (
     <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-col items-center gap-1.5">
+        <StudyBuddy buddy={buddy} level={level} size={112} />
+        <span className="text-11 text-ink-3">{LEVEL_LABEL[level]}</span>
+      </div>
       <ProgressRing
         total={ring.total}
         size={176}

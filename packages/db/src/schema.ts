@@ -148,6 +148,10 @@ export const profiles = pgTable(
     dailyEmail: boolean("daily_email").notNull().default(true),
     /** Local date the last daily email went out, so it's sent at most once a day. */
     dailyEmailSentOn: date("daily_email_sent_on"),
+    /** Study buddy character shown in groups and the timer (lib/buddies.ts); null = default. */
+    avatar: text("avatar"),
+    /** Local hour (0-23) the study day ends: today's focus total resets then. 0 = midnight. */
+    dayResetHour: integer("day_reset_hour").notNull().default(0),
     onboardedAt: timestamp("onboarded_at", { withTimezone: true }),
     /** An admin checked a college ID for the current college. Cleared when the college changes. */
     collegeVerifiedAt: timestamp("college_verified_at", { withTimezone: true }),

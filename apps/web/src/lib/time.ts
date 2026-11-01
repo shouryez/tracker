@@ -19,6 +19,16 @@ export function localDay(tz: string, now: number): { start: number; end: number 
   return { start, end: start + DAY_MS };
 }
 
+/**
+ * The study day around `now`: like localDay, but it ends at `resetHour` local time instead of
+ * midnight (Settings → "Day resets at"), so a 1 am session can still count for "today".
+ */
+export function studyDay(tz: string, now: number, resetHour = 0): { start: number; end: number } {
+  const shift = resetHour * 3_600_000;
+  const d = localDay(tz, now - shift);
+  return { start: d.start + shift, end: d.end + shift };
+}
+
 /** "YYYY-MM-DD" of `at` in `tz`. */
 export function localDate(tz: string, at: number): string {
   return new Intl.DateTimeFormat("en-CA", {
@@ -45,5 +55,3 @@ export function localWeekStart(tz: string, now: number): number {
   const sinceMonday = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(weekday);
   return start - Math.max(0, sinceMonday) * DAY_MS;
 }
-
-// DsaKaro

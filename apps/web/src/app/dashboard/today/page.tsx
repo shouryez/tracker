@@ -63,7 +63,7 @@ async function TodayContent() {
     getTodayPlan(user.id, tz, cap, now),
     getTodaySuggestions(user.id, tz, cap, now),
     getSheetPicks(user.id, tz, now),
-    getFocusSummary(user.id, tz, now),
+    getFocusSummary(user.id, tz, now, profile?.dayResetHour ?? 0),
     getActiveFocus(user.id),
     getWeekReview(user.id, tz, now),
     getFollowedSheets(user.id),

@@ -26,7 +26,8 @@ import {
 } from "@/components/social";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
-import { getGroupShares, getLabBoard, getNudgedToday } from "@/lib/daily-data";
+import { getGroupShares, getNudgedToday, getStudyHall } from "@/lib/daily-data";
+import { StudyHall } from "@/components/study-hall";
 import { getProfile } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
 import {
@@ -37,7 +38,7 @@ import {
   getRoom,
   type BoardMetric,
 } from "@/lib/social-data";
-import { localDate, localDay, localWeekStart, requestNow } from "@/lib/time";
+import { localDate, localWeekStart, requestNow, studyDay } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Group" };
 
@@ -89,12 +90,12 @@ async function GroupContent({
   if (!group) notFound();
   const now = requestNow();
   const profile = await getProfile(user.id);
-  const dayStart = localDay(profile?.timezone ?? BOARD_TZ, now).start;
-  const [board, room, h, lab, shares, nudged] = await Promise.all([
+  const dayStart = studyDay(profile?.timezone ?? BOARD_TZ, now, profile?.dayResetHour ?? 0).start;
+  const [board, room, h, hall, shares, nudged] = await Promise.all([
     getGroupBoard(group.id, localWeekStart(BOARD_TZ, now)),
     getRoom(group.id, dayStart),
     headers(),
-    getLabBoard(group.id, dayStart),
+    getStudyHall(group.id),
     getGroupShares(group.id),
     getNudgedToday(user.id, group.id, localDate(profile?.timezone ?? BOARD_TZ, now)),
   ]);
@@ -107,7 +108,7 @@ async function GroupContent({
 
   return (
     <>
-      <AutoRefresh seconds={20} />
+      <AutoRefresh seconds={15} />
       <PageHeader
         eyebrow="Group"
         glow={PAGE_GLOW.groups}
@@ -162,38 +163,21 @@ async function GroupContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
-          <Card glow={lab.some((l) => l.liveSince) ? "var(--signal-mark)" : undefined}>
+          <Card
+            glow={hall.some((m) => m.live && !m.live.pausedAt) ? "var(--signal-mark)" : undefined}
+          >
             <CardHeader>
               <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
-                Lab · focus today
+                Study hall
               </CardTitle>
-              <CardSub>{lab.filter((l) => l.liveSince).length} focusing now</CardSub>
+              <CardSub>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="pulse-ring size-1.5 rounded-full bg-success text-success" />
+                  {hall.filter((m) => m.live && !m.live.pausedAt).length} studying · live
+                </span>
+              </CardSub>
             </CardHeader>
-            {lab.every((l) => !l.liveSince && l.todayMs === 0) ? (
-              <p className="text-13 text-ink-3">
-                Nobody has started a focus timer today. Start one from Sessions and the group sees
-                it here.
-              </p>
-            ) : (
-              <ol className="flex flex-col gap-1">
-                {lab.map((l, i) => (
-                  <li key={l.userId} className="flex items-center gap-3 rounded-[10px] px-2 py-1.5">
-                    <span className="tnum w-5 text-12 text-ink-3">{i + 1}</span>
-                    <span
-                      className={`size-2 rounded-full ${l.liveSince ? "pulse-ring bg-success text-success" : "bg-line-3"}`}
-                    />
-                    <span className="min-w-0 flex-1 truncate text-13 font-[550]">
-                      {l.name}
-                      {l.userId === user.id && (
-                        <span className="ml-1.5 text-11 text-ink-3">you</span>
-                      )}
-                    </span>
-                    {l.liveSince && <span className="text-11 text-success">in Lab</span>}
-                    <span className="tnum font-mono text-12">{formatDuration(l.todayMs)}</span>
-                  </li>
-                ))}
-              </ol>
-            )}
+            <StudyHall members={hall} viewerId={user.id} serverNow={now} />
           </Card>
 
           {shares.length > 0 && (

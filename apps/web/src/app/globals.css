@@ -555,3 +555,74 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
   }
 }
 
+/* Study buddies (components/study-buddy.tsx). */
+.buddy-bob {
+  animation: buddy-bob 2.6s ease-in-out infinite;
+}
+@keyframes buddy-bob {
+  50% {
+    transform: translateY(1.2px);
+  }
+}
+.buddy-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: buddy-flame 0.9s ease-in-out infinite alternate;
+}
+@keyframes buddy-flame {
+  0% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  50% {
+    transform: scale(0.92, 1.08) skewX(3deg);
+  }
+  100% {
+    transform: scale(1.05, 0.94) skewX(-3deg);
+  }
+}
+.buddy-glow {
+  animation: buddy-glow 2.2s ease-in-out infinite;
+}
+@keyframes buddy-glow {
+  50% {
+    opacity: 0.45;
+  }
+}
+.buddy-steam {
+  animation: buddy-steam 2.4s ease-in-out infinite;
+}
+@keyframes buddy-steam {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+.buddy-zz {
+  animation: buddy-zz 3s ease-in-out infinite;
+}
+@keyframes buddy-zz {
+  50% {
+    transform: translateY(-2px);
+    opacity: 0.6;
+  }
+}
+.buddy-aura {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--buddy-tone) 55%, transparent));
+}
+@media (prefers-reduced-motion: reduce) {
+  .buddy-bob,
+  .buddy-flame,
+  .buddy-glow,
+  .buddy-steam,
+  .buddy-zz {
+    animation: none;
+  }
+}
+

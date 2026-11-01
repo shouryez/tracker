@@ -17,6 +17,7 @@ import {
   weeklyGoals,
 } from "@upsolve/db";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
+import { isBuddyId } from "@/lib/buddies";
 import { classifySaved } from "@/lib/daily-data";
 import { db, userTag } from "@/lib/db";
 import { getProfile } from "@/lib/data";
@@ -637,6 +638,25 @@ const Reminders = z.object({
   reminderHour: z.number().int().min(0).max(23).nullable(),
   contestReminders: z.boolean(),
 });
+
+const StudyPrefs = z.object({
+  avatar: z
+    .string()
+    .refine((v) => isBuddyId(v))
+    .nullable(),
+  dayResetHour: z.number().int().min(0).max(23),
+});
+
+/** Study buddy character and the hour the study day ends. */
+export async function saveStudyPrefs(values: z.input<typeof StudyPrefs>): Promise<DailyResult> {
+  const user = await me();
+  if (!user) return fail("Sign in first.");
+  const v = StudyPrefs.safeParse(values);
+  if (!v.success) return fail("Invalid settings.");
+  await db().update(profiles).set(v.data).where(eq(profiles.userId, user.id));
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
 
 export async function saveReminderSettings(
   values: z.input<typeof Reminders>,

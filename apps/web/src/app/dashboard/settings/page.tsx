@@ -17,6 +17,7 @@ import {
   Puzzle,
   RotateCcw,
   ShieldCheck,
+  Smile,
   Target,
   Timer,
   UserRound,
@@ -38,6 +39,7 @@ import { bestHour } from "@/lib/daily-data";
 import { getMyVerification } from "@/lib/verification";
 import { CollegeVerification } from "@/components/college-verification";
 import { localDate, requestNow } from "@/lib/time";
+import { BuddySettings } from "./buddy-settings";
 import { ExtensionTokens } from "./extension-tokens";
 import { LearningSettings } from "./learning-settings";
 import { PasswordSettings } from "./password-settings";
@@ -55,6 +57,7 @@ const SECTIONS = [
   { id: "platforms", label: "Platforms" },
   { id: "extension", label: "Extension" },
   { id: "learning", label: "Revision & email" },
+  { id: "buddy", label: "Study buddy" },
   { id: "reminders", label: "Reminders" },
   { id: "social", label: "Social & privacy" },
   { id: "streak", label: "Streak freeze" },
@@ -258,6 +261,17 @@ async function SettingsContent() {
           <LearningSettings
             initial={{ reviewCap: profile.reviewCap, weeklyEmail: profile.weeklyEmail }}
           />
+        </Card>
+      )}
+
+      {profile && (
+        <Card id="buddy" className="scroll-mt-24">
+          <CardHeader>
+            <CardTitle icon={icon(Smile)} tint="var(--signal-mark)">
+              Study buddy &amp; day
+            </CardTitle>
+          </CardHeader>
+          <BuddySettings initial={{ avatar: profile.avatar, dayResetHour: profile.dayResetHour }} />
         </Card>
       )}
 
