@@ -9,7 +9,7 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 const utc = (d: string) => new Date(`${d}T12:00:00Z`);
 
 /**
- * Pixel calendar: 12px cells on a 5-step violet → lime ramp, month labels on top, Mon/Wed/Fri
+ * Pixel calendar: cells that fill the card's width (12px minimum) on a 5-step violet → lime ramp, month labels on top, Mon/Wed/Fri
  * on the side, today outlined in lime. Cells fade in diagonally; hover or focus shows the day.
  * `days` is oldest first. On narrow screens it scrolls, starting at today.
  */
@@ -60,56 +60,69 @@ export function ActivityHeatmap({ days }: { days: { date: string; count: number 
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div ref={scroller} className="overflow-x-auto pb-1 [contain:inline-size]">
+        {/* One grid for labels and cells, so the cells stretch to the card's width (min 12px,
+            then it scrolls) and the month and weekday labels stay lined up at any size. */}
         <div
-          aria-hidden="true"
-          className="mt-[18px] grid shrink-0 grid-rows-7 gap-[3px] font-mono text-[10px] text-ink-3"
+          className="grid w-full min-w-fit gap-[3px] sm:gap-1"
+          style={{ gridTemplateColumns: `auto repeat(${weeks}, minmax(12px, 1fr))` }}
+          onMouseLeave={() => setHover(null)}
         >
-          {Array.from({ length: 7 }, (_, r) => (
-            <span key={r} className="h-3 leading-3">
-              {rowLabel(r)}
-            </span>
-          ))}
-        </div>
-        <div ref={scroller} className="min-w-0 flex-1 overflow-x-auto pb-1">
-          <div className="relative w-max">
-            <div
-              aria-hidden="true"
-              className="relative mb-1.5 h-3 font-mono text-[10px] text-ink-3"
-            >
-              {monthCols.map((m) => (
-                <span key={m.col} className="absolute top-0" style={{ left: m.col * 15 }}>
-                  {m.label}
-                </span>
-              ))}
-            </div>
-            <div
-              role="img"
-              aria-label={`Activity: ${active} active days and ${total} solves in the last ${weeks} weeks; longest run ${longest} days`}
-              className="grid grid-flow-col grid-rows-[repeat(7,12px)] gap-[3px]"
-              style={{ gridTemplateColumns: `repeat(${weeks}, 12px)` }}
-              onMouseLeave={() => setHover(null)}
-            >
-              {days.map((d, i) => {
-                const today = i === days.length - 1;
-                const col = Math.floor(i / 7);
-                const row = i % 7;
-                return (
-                  <span
-                    key={d.date}
-                    onMouseEnter={() => setHover(i)}
-                    className={cn(
-                      "size-3 animate-[fade-in-pop_500ms_var(--ease-out)_backwards] rounded-[3px] transition-transform duration-[var(--dur-fast)] hover:scale-[1.35] motion-reduce:animate-none",
-                      LEVEL[level(d.count)],
-                      today && "ring-2 ring-signal ring-offset-1 ring-offset-surface",
-                      level(d.count) === 4 && "shadow-[0_0_8px_-1px_var(--heat-4)]",
-                      hover === i && !today && "ring-1 ring-ink/70",
-                    )}
-                    style={{ animationDelay: `${(col + row) * 12}ms` }}
-                  />
-                );
-              })}
-            </div>
+          <span aria-hidden="true" className="z-10 max-sm:sticky max-sm:left-0 max-sm:bg-surface" />
+          {Array.from({ length: weeks }, (_, c) => {
+            const m = monthCols.find((x) => x.col === c);
+            return (
+              <span
+                key={`m${c}`}
+                aria-hidden="true"
+                className="relative h-4 font-mono text-[10px] text-ink-3 sm:text-11"
+              >
+                {m && (
+                  <span className="absolute bottom-0.5 left-0 whitespace-nowrap">{m.label}</span>
+                )}
+              </span>
+            );
+          })}
+          <div
+            aria-hidden="true"
+            className="z-10 grid grid-rows-7 gap-[3px] pr-1.5 max-sm:sticky max-sm:left-0 max-sm:bg-surface font-mono text-[10px] text-ink-3 sm:gap-1 sm:text-11"
+            style={{ gridRow: "2 / span 7" }}
+          >
+            {Array.from({ length: 7 }, (_, r) => (
+              <span key={r} className="flex items-center">
+                {rowLabel(r)}
+              </span>
+            ))}
+          </div>
+          <div
+            role="img"
+            aria-label={`Activity: ${active} active days and ${total} solves in the last ${weeks} weeks; longest run ${longest} days`}
+            className="grid grid-flow-col grid-rows-7 gap-[3px] sm:gap-1"
+            style={{
+              gridColumn: `2 / span ${weeks}`,
+              gridRow: "2 / span 7",
+              gridTemplateColumns: "subgrid",
+            }}
+          >
+            {days.map((d, i) => {
+              const today = i === days.length - 1;
+              const col = Math.floor(i / 7);
+              const row = i % 7;
+              return (
+                <span
+                  key={d.date}
+                  onMouseEnter={() => setHover(i)}
+                  className={cn(
+                    "aspect-square w-full animate-[fade-in-pop_500ms_var(--ease-out)_backwards] rounded-[3px] transition-transform duration-[var(--dur-fast)] hover:scale-[1.25] motion-reduce:animate-none sm:rounded-[5px]",
+                    LEVEL[level(d.count)],
+                    today && "ring-2 ring-signal ring-offset-1 ring-offset-surface",
+                    level(d.count) === 4 && "shadow-[0_0_8px_-1px_var(--heat-4)]",
+                    hover === i && !today && "ring-1 ring-ink/70",
+                  )}
+                  style={{ animationDelay: `${(col + row) * 12}ms` }}
+                />
+              );
+            })}
           </div>
         </div>
       </div>
@@ -137,5 +150,3 @@ export function ActivityHeatmap({ days }: { days: { date: string; count: number 
     </div>
   );
 }
-
-// DsaKaro
