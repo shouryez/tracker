@@ -3,7 +3,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, Link2, Radio, Send, Settings2, Timer, Trophy, UsersRound } from "lucide-react";
+import { ArrowLeft, Link2, Radio, Send, Settings2, Trophy, UsersRound } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -27,7 +27,7 @@ import {
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getGroupShares, getNudgedToday, getStudyHall } from "@/lib/daily-data";
-import { StudyHall } from "@/components/study-hall";
+import { StudyHallCard } from "@/components/study-hall";
 import { getProfile } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
 import {
@@ -163,22 +163,7 @@ async function GroupContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
-          <Card
-            glow={hall.some((m) => m.live && !m.live.pausedAt) ? "var(--signal-mark)" : undefined}
-          >
-            <CardHeader>
-              <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
-                Study hall
-              </CardTitle>
-              <CardSub>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="pulse-ring size-1.5 rounded-full bg-success text-success" />
-                  {hall.filter((m) => m.live && !m.live.pausedAt).length} studying · live
-                </span>
-              </CardSub>
-            </CardHeader>
-            <StudyHall members={hall} viewerId={user.id} serverNow={now} />
-          </Card>
+          <StudyHallCard groupName={group.name} members={hall} viewerId={user.id} serverNow={now} />
 
           {shares.length > 0 && (
             <Card>
