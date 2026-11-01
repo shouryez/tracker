@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { MonitorSmartphone, Puzzle } from "lucide-react";
 import { Button, ButtonArrow, Card, CheckDraw, LogoMark, buttonClasses, cn } from "@upsolve/ui";
 import { createExtensionToken } from "@/app/actions/extension";
+import { EXTENSION_STORE_URL } from "@/lib/extension-link";
 import { CelebrateOnce } from "@/components/dashboard/celebrate";
 
 // Must match apps/extension/entrypoints/web-bridge.content.ts.
@@ -120,22 +121,32 @@ export function ConnectExtension() {
         </p>
         <ol className="flex flex-col gap-2.5 text-[13.5px] text-ink-2 [counter-reset:step] [&>li]:surface-inset [&>li]:relative [&>li]:rounded-[12px] [&>li]:py-2.5 [&>li]:pr-3 [&>li]:pl-11 [&>li]:[counter-increment:step] [&>li]:before:absolute [&>li]:before:top-2.5 [&>li]:before:left-3 [&>li]:before:grid [&>li]:before:size-5 [&>li]:before:place-items-center [&>li]:before:rounded-full [&>li]:before:bg-violet-soft [&>li]:before:font-mono [&>li]:before:text-11 [&>li]:before:text-violet [&>li]:before:content-[counter(step)]">
           <li>
-            Build it:{" "}
-            <code className="font-mono text-ink">pnpm --filter @upsolve/extension build</code>
-          </li>
-          <li>
-            Open <code className="font-mono text-ink">chrome://extensions</code> and turn on
-            Developer mode.
-          </li>
-          <li>
-            Click <b>Load unpacked</b> and pick{" "}
-            <code className="font-mono text-ink">apps/extension/.output/chrome-mv3</code>.
+            Open{" "}
+            <a
+              href={EXTENSION_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="font-[600] text-ink underline underline-offset-4"
+            >
+              DsaKaro on the Chrome Web Store
+            </a>{" "}
+            and click <b>Add to Chrome</b>.
           </li>
           <li>Come back and reload this page.</li>
         </ol>
-        <Button variant="secondary" className="self-start" onClick={() => window.location.reload()}>
-          I&apos;ve installed it, check again
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={EXTENSION_STORE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={buttonClasses({ variant: "signal" })}
+          >
+            Add to Chrome <ButtonArrow />
+          </a>
+          <Button variant="secondary" onClick={() => window.location.reload()}>
+            I&apos;ve installed it, check again
+          </Button>
+        </div>
       </Card>
     );
   }
@@ -201,5 +212,3 @@ function Link2({ state }: { state: "searching" | "found" | "connected" }) {
     </div>
   );
 }
-
-// DsaKaro

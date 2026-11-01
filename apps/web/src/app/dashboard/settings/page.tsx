@@ -6,6 +6,7 @@ import {
   BellRing,
   BookOpen,
   CalendarClock,
+  Download,
   Code2,
   Flame,
   Globe,
@@ -30,6 +31,7 @@ import { getHasPassword } from "@/lib/account";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { CURRENT_YEARS, GOALS } from "@/lib/profile-options";
+import { EXTENSION_STORE_URL } from "@/lib/extension-link";
 import { getExtensionTokens } from "@/lib/sessions-data";
 import { getStreakFreezes } from "@/lib/social-data";
 import { bestHour } from "@/lib/daily-data";
@@ -217,6 +219,24 @@ async function SettingsContent() {
             Connect a browser <ButtonArrow />
           </Link>
         </CardHeader>
+        <div className="mb-4 flex flex-wrap items-center gap-3 rounded-[14px] border border-signal-2/30 bg-signal/[.06] px-4 py-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-signal text-signal-ink">
+            <Download size={16} aria-hidden="true" />
+          </span>
+          <p className="min-w-[200px] flex-1 text-13 text-ink-2">
+            <span className="block font-[600] text-ink">Get the DsaKaro extension</span>
+            Times every LeetCode and GFG problem, catches verdicts and keeps your study timer
+            honest. Free on the Chrome Web Store (works in Edge, Brave and Arc too).
+          </p>
+          <a
+            href={EXTENSION_STORE_URL}
+            target="_blank"
+            rel="noreferrer"
+            className={buttonClasses({ variant: "signal", size: "sm" })}
+          >
+            Add to Chrome <ButtonArrow />
+          </a>
+        </div>
         <ExtensionTokens
           now={now}
           tokens={tokens.map((t) => ({
