@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Coffee, Minimize2, Pause, Play, Square } from "lucide-react";
+import { Coffee, Minimize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
 import { cn } from "@upsolve/ui";
-import { labStatus, type LabTotals } from "@/lib/ext-bridge";
+import type { LabLive } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
 import { focusClock, focusElapsed, focusPhase, focusTotals } from "@/lib/focus";
+import { ActivityLine } from "./focus-live";
 
 const mins = (ms: number) => `${Math.round(ms / 60_000)}m`;
 const TICKS = 60;
@@ -42,19 +43,24 @@ function exitFullscreen() {
  */
 export function FocusScreen({
   active,
+  live,
   pending,
   onTogglePause,
   onStop,
   onClose,
+  onPopout,
 }: {
   active: ActiveFocus;
+  /** From useLabLive in the parent: totals and the active tab. */
+  live: LabLive | null;
   pending: boolean;
   onTogglePause: () => void;
   onStop: () => void;
   onClose: () => void;
+  /** Float the timer over other tabs instead (when the browser can). */
+  onPopout?: () => void;
 }) {
   const [now, setNow] = useState(() => Date.now());
-  const [totals, setTotals] = useState<LabTotals | null>(null);
   const [idle, setIdle] = useState(false);
   const idleTimer = useRef(0);
   const paused = active.pausedAt !== null;
@@ -69,26 +75,17 @@ export function FocusScreen({
     onCloseRef.current();
   }, []);
 
-  // Tick (and poll the extension) while running.
+  // Tick while running.
   useEffect(() => {
     if (paused) return;
     // Catch up right away after a resume, then once a second.
     const first = window.setTimeout(() => setNow(Date.now()), 0);
     const id = window.setInterval(() => setNow(Date.now()), 1000);
-    let alive = true;
-    const poll = async () => {
-      const t = await labStatus(active.id);
-      if (alive) setTotals(t?.tracking ? t : null);
-    };
-    void poll();
-    const pollId = window.setInterval(poll, 5000);
     return () => {
-      alive = false;
       clearTimeout(first);
       clearInterval(id);
-      clearInterval(pollId);
     };
-  }, [active.id, paused]);
+  }, [paused]);
 
   // Keep the screen awake, lock page scroll, leave when the browser leaves fullscreen.
   useEffect(() => {
@@ -146,7 +143,7 @@ export function FocusScreen({
 
   const elapsed = focusElapsed(active, paused ? active.pausedAt! : now);
   const p = focusPhase(active.mode, elapsed);
-  const shown = focusTotals(active, paused ? null : totals);
+  const shown = focusTotals(active, paused || !live?.tracking ? null : live);
   const wall = new Date(now).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const onBreak = Boolean(p && !p.working);
   // Wheel: the pomodoro block, or the current hour for the stopwatch.
@@ -157,7 +154,9 @@ export function FocusScreen({
   const seconds = Math.floor(elapsed / 1000);
   const tone = paused ? "var(--medium)" : onBreak ? "var(--info)" : "var(--signal)";
   const status = paused
-    ? "Paused"
+    ? live?.autoPaused
+      ? "Auto-paused"
+      : "Paused"
     : p
       ? p.working
         ? `Focus · round ${p.round}`
@@ -212,13 +211,29 @@ export function FocusScreen({
         )}
       >
         <span className="font-mono text-12 tracking-[.12em] text-white/50 uppercase">{wall}</span>
-        <button
-          type="button"
-          onClick={close}
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-2 text-13 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <Minimize2 size={14} aria-hidden="true" /> Exit focus mode
-        </button>
+        <div className="flex items-center gap-2">
+          {onPopout && (
+            <button
+              type="button"
+              onClick={() => {
+                exitFullscreen();
+                onPopout();
+              }}
+              title="Float the timer over other tabs"
+              className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-2 text-13 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <PictureInPicture2 size={14} aria-hidden="true" />
+              <span className="max-sm:hidden">Pop out</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={close}
+            className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-2 text-13 text-white/75 transition-colors hover:bg-white/10 hover:text-white"
+          >
+            <Minimize2 size={14} aria-hidden="true" /> Exit focus mode
+          </button>
+        </div>
       </div>
 
       {/* The wheel */}
@@ -325,6 +340,11 @@ export function FocusScreen({
             {active.label}
           </p>
         )}
+        <ActivityLine
+          live={live}
+          paused={paused}
+          className="-mt-2 max-w-[min(90vw,560px)] justify-center text-14"
+        />
 
         {/* Pomodoro rounds, or what the extension saw. */}
         <div

@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Coffee, Maximize2, Pause, Play, Square } from "lucide-react";
+import { Coffee, Maximize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, ProgressRing, SegmentedControl, Tag, inputClasses } from "@upsolve/ui";
 import { startFocus } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
-import { labStart, labStatus, type LabTotals } from "@/lib/ext-bridge";
+import { labStart } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
 import { focusClock, focusElapsed, focusPhase, focusTotals, type FocusMode } from "@/lib/focus";
+import { openPopout, useAutoPauseSync, useCanPopout, useLabLive } from "./focus-live";
+import { FocusPopout } from "./focus-popout";
 import { FocusScreen, enterFullscreen } from "./focus-screen";
 import {
   StudySummaryModal,
@@ -34,32 +36,46 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
   const [mode, setMode] = useState<Mode>((active?.mode as Mode) ?? "pomodoro-25");
   const [label, setLabel] = useState("");
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
-  const [totals, setTotals] = useState<LabTotals | null>(null);
   const [summary, setSummary] = useState<StudyEnd | null>(null);
   const [full, setFull] = useState(false);
+  const [pip, setPip] = useState<Window | null>(null);
   const [pending, start] = useTransition();
   const lastPhase = useRef<boolean | null>(null);
+  const canPopout = useCanPopout();
 
-  // Tick once a second while running (not while paused); poll the extension every 5 s.
+  // The server's copy changed (a refresh after the extension paused or resumed it): use it.
+  const [seenActive, setSeenActive] = useState(active);
+  if (active !== seenActive) {
+    setSeenActive(active);
+    setRunning(active);
+  }
+
+  // Tick once a second while running (not while paused).
   useEffect(() => {
     if (!running || running.pausedAt) return;
     const id = window.setInterval(() => setNow(Date.now()), 1000);
-    let alive = true;
-    const poll = async () => {
-      const t = await labStatus(running.id);
-      if (alive) setTotals(t?.tracking ? t : null);
-    };
     void labStart(running.id, running.startedAt); // re-attach after a reload
-    void poll();
-    const pollId = window.setInterval(poll, 5000);
-    return () => {
-      alive = false;
-      clearInterval(id);
-      clearInterval(pollId);
-    };
+    return () => clearInterval(id);
   }, [running]);
 
   const paused = Boolean(running?.pausedAt);
+  const live = useLabLive(running?.id ?? null);
+  useAutoPauseSync(running ? paused : null, live);
+  const totals = !paused && live?.tracking ? live : null;
+
+  // The session ended: close the floating window with it.
+  useEffect(() => {
+    if (!running && pip) pip.close();
+  }, [running, pip]);
+
+  async function popout() {
+    setFull(false);
+    const win = await openPopout();
+    if (!win) return;
+    win.addEventListener("pagehide", () => setPip((w) => (w === win ? null : w)));
+    setPip(win);
+  }
+
   const elapsed = running ? focusElapsed(running, now || running.startedAt) : 0;
   const shown = running ? focusTotals(running, totals) : null;
   const p = running ? phase((running.mode as Mode) ?? "stopwatch", elapsed) : null;
@@ -119,7 +135,6 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
         const res = await pauseStudy(running);
         if (res === false) return;
         const b = running.banked;
-        setTotals(null);
         setRunning({
           ...running,
           pausedAt: Date.now(),
@@ -141,7 +156,6 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
     start(async () => {
       if (!(await saveStudy(running, summary, discard))) return;
       setRunning(null);
-      setTotals(null);
       setSummary(null);
     });
   }
@@ -265,12 +279,19 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
           >
             <Maximize2 size={14} aria-hidden="true" /> Focus mode
           </Button>
+          {canPopout && (
+            <Button variant="ghost" onClick={() => void popout()}>
+              <PictureInPicture2 size={14} aria-hidden="true" /> Pop out
+            </Button>
+          )}
         </div>
       </div>
 
       {full && (
         <FocusScreen
           active={running}
+          live={live}
+          onPopout={canPopout ? () => void popout() : undefined}
           pending={pending}
           onTogglePause={togglePause}
           onStop={() => {
@@ -278,6 +299,20 @@ export function LabTimer({ active }: { active: ActiveFocus | null }) {
             end();
           }}
           onClose={() => setFull(false)}
+        />
+      )}
+      {pip && (
+        <FocusPopout
+          win={pip}
+          active={running}
+          live={live}
+          pending={pending}
+          onTogglePause={togglePause}
+          onStop={() => {
+            pip.close();
+            window.focus();
+            end();
+          }}
         />
       )}
       <StudySummaryModal

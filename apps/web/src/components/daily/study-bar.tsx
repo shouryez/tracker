@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { BookOpenCheck, Maximize2, Pause, Play, Square } from "lucide-react";
+import { BookOpenCheck, Maximize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import {
@@ -18,6 +18,8 @@ import type { ActiveFocus } from "@/lib/daily-data";
 import { focusElapsed, focusTotals } from "@/lib/focus";
 import { labStart, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { StudyContents } from "@/lib/study-data";
+import { openPopout, useAutoPauseSync, useCanPopout, useLabLive } from "./focus-live";
+import { FocusPopout } from "./focus-popout";
 import { FocusScreen, enterFullscreen } from "./focus-screen";
 import { StudyContentsList, studyCounts } from "./study-session";
 
@@ -215,7 +217,13 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [end, setEnd] = useState<StudyEnd | null>(null);
   const [full, setFull] = useState(false);
+  const [pip, setPip] = useState<Window | null>(null);
   const [pending, start] = useTransition();
+  const canPopout = useCanPopout();
+  // Sessions has its own timer (and its own polling).
+  const onSessions = pathname === "/dashboard/sessions";
+  const live = useLabLive(active && !onSessions ? active.id : null);
+  useAutoPauseSync(active && !onSessions ? active.pausedAt !== null : null, live);
 
   useEffect(() => {
     if (!active || active.pausedAt) return;
@@ -224,7 +232,20 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
     return () => clearInterval(id);
   }, [active]);
 
-  if (!active || pathname === "/dashboard/sessions") return null;
+  // The session ended: close the floating window with it.
+  useEffect(() => {
+    if (!active && pip) pip.close();
+  }, [active, pip]);
+
+  const popout = async () => {
+    setFull(false);
+    const win = await openPopout();
+    if (!win) return;
+    win.addEventListener("pagehide", () => setPip((w) => (w === win ? null : w)));
+    setPip(win);
+  };
+
+  if (!active) return null;
   const paused = active.pausedAt !== null;
   const elapsed = focusElapsed(active, now || active.startedAt);
   const togglePause = () =>
@@ -233,8 +254,25 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
     });
   const stop = () => start(async () => setEnd(await endStudy(active)));
 
+  const floating = pip && (
+    <FocusPopout
+      win={pip}
+      active={active}
+      live={live}
+      pending={pending}
+      onTogglePause={togglePause}
+      onStop={() => {
+        pip.close();
+        window.focus();
+        stop();
+      }}
+    />
+  );
+  if (onSessions) return floating || null;
+
   return (
     <>
+      {floating}
       <div className="fixed inset-x-0 bottom-24 z-40 flex justify-center px-4 lg:bottom-6">
         <div className="flex max-w-full items-center gap-3 rounded-full border border-line-2 bg-surface-3/95 py-1.5 pr-1.5 pl-4 shadow-e2 backdrop-blur-xl">
           <span
@@ -265,6 +303,17 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
           >
             <Maximize2 size={13} aria-hidden="true" />
           </Button>
+          {canPopout && (
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label="Pop out: float the timer over other tabs"
+              title="Pop out over other tabs"
+              onClick={() => void popout()}
+            >
+              <PictureInPicture2 size={13} aria-hidden="true" />
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
@@ -287,6 +336,8 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
       {full && (
         <FocusScreen
           active={active}
+          live={live}
+          onPopout={canPopout ? () => void popout() : undefined}
           pending={pending}
           onTogglePause={togglePause}
           onStop={() => {

@@ -1,6 +1,6 @@
 import { browser } from "wxt/browser";
 import type { ExtSession } from "@upsolve/contracts";
-import type { LabState } from "./lab.ts";
+import type { AutoPaused, LabState } from "./lab.ts";
 import type { CurrentSession, HistoryState } from "./messages.ts";
 import type { LocalSession, SessionPlatform } from "./session.ts";
 
@@ -44,6 +44,12 @@ export const store = {
 
   lab: () => get<LabState>("lab"),
   setLab: (l: LabState | null) => (l ? set("lab", l) : local().remove("lab")),
+  autoPaused: () => get<AutoPaused>("autoPaused"),
+  setAutoPaused: (a: AutoPaused | null) =>
+    a ? set("autoPaused", a) : local().remove("autoPaused"),
+  /** Auto-pause on non-study tabs (on unless turned off in the popup). */
+  autoPauseOn: async () => (await get<boolean>("autoPauseOn")) !== false,
+  setAutoPauseOn: (on: boolean) => set("autoPauseOn", on),
 
   /** Notifications already shown (id → shown at, plus the URL a click opens). */
   notified: async () => (await get<Record<string, Notified>>("notified")) ?? {},
@@ -54,4 +60,3 @@ export type Notified = { at: number; url: string };
 
 export const WEB_URL = __WEB_URL__;
 
-// DsaKaro

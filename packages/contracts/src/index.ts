@@ -191,6 +191,10 @@ export const ExtFocusReport = z.object({
 });
 export type ExtFocusReport = z.infer<typeof ExtFocusReport>;
 
+/** Auto-pause from the extension: the totals so far are banked on the session. */
+export const ExtFocusPause = ExtFocusReport;
+export const ExtFocusResume = z.object({ focusId: z.uuid() });
+
 export type ExtMeResponse = {
   user: { name: string | null; handle: string | null };
   today: { sessions: number; solved: number; activeMs: number };

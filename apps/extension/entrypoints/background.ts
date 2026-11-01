@@ -206,7 +206,7 @@ async function status(): Promise<Status> {
     pending: Object.keys(outbox).length,
     history: history ?? null,
     current: current ?? null,
-    lab,
+    ...lab,
   };
 }
 

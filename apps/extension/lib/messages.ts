@@ -5,7 +5,7 @@ import type {
   ExtProblemContext,
   ExtSession,
 } from "@upsolve/contracts";
-import type { LabTotals } from "./lab.ts";
+import type { LabActivity, LabTotals } from "./lab.ts";
 
 export type { ExtProblemContext };
 
@@ -42,6 +42,16 @@ export type Status = {
   current: CurrentSession | null;
   /** Running Lab focus session, if any. */
   lab: (LabTotals & { focusId: string; startedAt: number }) | null;
+  /** A session the extension auto-paused, waiting for a study tab. */
+  autoPaused: { host: string | null; at: number } | null;
+  autoPauseOn: boolean;
+};
+
+/** lab:status / lab:start reply: totals plus the live view (shown, never stored). */
+export type LabLive = LabTotals & {
+  now: LabActivity | null;
+  autoPaused: boolean;
+  autoPauseOn: boolean;
 };
 
 export type Message =
@@ -57,6 +67,7 @@ export type Message =
   /** `report` uploads the totals (stopping from the popup); the web page reports its own. */
   | { type: "lab:stop"; report: boolean }
   | { type: "save:tab" }
+  | { type: "lab:auto"; on: boolean }
   /** Ticks read from the user's own takeUforward sheet page. */
   | { type: "tuf:sync"; sheet: string; solved: string[]; removed: string[]; changed: string[] }
   /** DsaKaro's side of the user's takeUforward sheets (done items, changes to apply there). */
@@ -74,3 +85,5 @@ export const HOOK_SOURCE = "upsolve-hook";
 
 /** Background → YouTube content script: the playing video's position, in seconds. */
 export type YoutubeTimeRequest = { type: "yt:time" };
+/** Background → YouTube content script: the open video's channel name. */
+export type YoutubeChannelRequest = { type: "yt:channel" };

@@ -11,7 +11,15 @@ import {
   submissionIdFromPath,
   titleFromDocument,
 } from "./leetcode.ts";
-import { advance, categorize, newLab, totals } from "./lab.ts";
+import {
+  AUTO_PAUSE_MS,
+  advance,
+  categorize,
+  describe,
+  newLab,
+  shouldAutoPause,
+  totals,
+} from "./lab.ts";
 import {
   isTufProgressUrl,
   parseTufSheet,
@@ -420,4 +428,37 @@ test("takeUforward two-way: pending DsaKaro changes win, full match ticks the re
     problem_id: 2,
     action: "add",
   });
+});
+
+test("lab: study channels and DSA searches count as focus on YouTube", () => {
+  const v = "https://www.youtube.com/watch?v=3";
+  assert.equal(categorize(v, "Episode 12 - YouTube", WEB, "take U forward"), "focus");
+  assert.equal(categorize(v, "Episode 12 - YouTube", WEB, "Some Vlogger"), "away");
+  assert.equal(
+    categorize("https://www.youtube.com/results?search_query=striver+graph+series", "", WEB),
+    "focus",
+  );
+  assert.equal(categorize("https://www.youtube.com/results?search_query=cats", "", WEB), "away");
+});
+
+test("lab: live labels show study titles, but only the site for off-task tabs", () => {
+  assert.deepEqual(
+    describe(
+      "https://www.youtube.com/watch?v=1",
+      "(3) Binary Search | Striver - YouTube",
+      "focus",
+      WEB,
+    ),
+    { kind: "video", label: "Binary Search | Striver" },
+  );
+  assert.deepEqual(describe("https://www.instagram.com/reels/x", "My secret DMs", "away", WEB), {
+    kind: "page",
+    label: "instagram.com",
+  });
+});
+
+test("lab: auto-pause waits out the grace period", () => {
+  assert.equal(shouldAutoPause(null, T0), false);
+  assert.equal(shouldAutoPause(T0, T0 + AUTO_PAUSE_MS - 1), false);
+  assert.equal(shouldAutoPause(T0, T0 + AUTO_PAUSE_MS), true);
 });
