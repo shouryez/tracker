@@ -1,85 +1,48 @@
-/** Study buddies: the character each person picks in Settings, shown in groups and the timer. */
+/**
+ * Study buddies: the 3D character each person picks in Settings, shown in groups and the
+ * timer. Art: Microsoft Fluent Emoji 3D (MIT, public/buddies/LICENSE.txt).
+ */
 
-export type HairStyle = "short" | "curly" | "spiky" | "long" | "bun" | "bob";
 export type Buddy = {
   id: string;
-  name: string;
-  group: "boys" | "girls";
-  skin: string;
-  hair: string;
-  hairStyle: HairStyle;
-  shirt: string;
-  accessory: "glasses" | "headphones" | null;
+  group: "boys" | "girls" | "anyone";
+  /** For screen readers only; buddies have no names. */
+  label: string;
 };
 
 export const BUDDIES: readonly Buddy[] = [
-  {
-    id: "aarav",
-    name: "Aarav",
-    group: "boys",
-    skin: "#f1c27d",
-    hair: "#1c1a1f",
-    hairStyle: "short",
-    shirt: "#5b7cfa",
-    accessory: null,
-  },
-  {
-    id: "kabir",
-    name: "Kabir",
-    group: "boys",
-    skin: "#c68642",
-    hair: "#2a1c14",
-    hairStyle: "curly",
-    shirt: "#22a06b",
-    accessory: "glasses",
-  },
-  {
-    id: "rehan",
-    name: "Rehan",
-    group: "boys",
-    skin: "#e0ac69",
-    hair: "#3b2a1f",
-    hairStyle: "spiky",
-    shirt: "#f97316",
-    accessory: "headphones",
-  },
-  {
-    id: "ananya",
-    name: "Ananya",
-    group: "girls",
-    skin: "#f1c27d",
-    hair: "#1c1a1f",
-    hairStyle: "long",
-    shirt: "#e1528f",
-    accessory: null,
-  },
-  {
-    id: "meera",
-    name: "Meera",
-    group: "girls",
-    skin: "#c68642",
-    hair: "#2a1c14",
-    hairStyle: "bun",
-    shirt: "#8b5cf6",
-    accessory: "glasses",
-  },
-  {
-    id: "zoya",
-    name: "Zoya",
-    group: "girls",
-    skin: "#ffdbac",
-    hair: "#6b3e26",
-    hairStyle: "bob",
-    shirt: "#0ea5a4",
-    accessory: "headphones",
-  },
+  { id: "man-light", group: "boys", label: "Boy, light skin" },
+  { id: "man-medium", group: "boys", label: "Boy, medium skin" },
+  { id: "man-dark", group: "boys", label: "Boy, dark skin" },
+  { id: "woman-light", group: "girls", label: "Girl, light skin" },
+  { id: "woman-medium", group: "girls", label: "Girl, medium skin" },
+  { id: "woman-dark", group: "girls", label: "Girl, dark skin" },
+  { id: "person-medium-light", group: "anyone", label: "Person, medium-light skin" },
+  { id: "person-medium-dark", group: "anyone", label: "Person, medium-dark skin" },
 ];
 
-export const DEFAULT_BUDDY = "aarav";
-export const buddyById = (id: string | null | undefined) =>
-  BUDDIES.find((b) => b.id === id) ?? BUDDIES.find((b) => b.id === DEFAULT_BUDDY)!;
+export const DEFAULT_BUDDY = "person-medium-light";
+
+/** Picks saved before the 3D buddies, mapped to the closest new one. */
+const LEGACY: Record<string, string> = {
+  aarav: "man-medium",
+  kabir: "man-dark",
+  rehan: "man-light",
+  ananya: "woman-medium",
+  meera: "woman-dark",
+  zoya: "woman-light",
+};
+
+export const buddyById = (id: string | null | undefined): Buddy => {
+  const key = id ? (LEGACY[id] ?? id) : DEFAULT_BUDDY;
+  return BUDDIES.find((b) => b.id === key) ?? BUDDIES.find((b) => b.id === DEFAULT_BUDDY)!;
+};
 export const isBuddyId = (id: unknown): id is string =>
   typeof id === "string" && BUDDIES.some((b) => b.id === id);
+
+/** At the laptop while studying, otherwise the plain portrait. */
+export const buddyImage = (b: Buddy, atDesk: boolean) =>
+  `/buddies/${b.id}-${atDesk ? "study" : "idle"}.png`;
 
 /**
  * How a buddy looks: idle (not studying), on a break (paused), then four levels that build

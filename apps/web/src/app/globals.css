@@ -561,47 +561,22 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
 }
 @keyframes buddy-bob {
   50% {
-    transform: translateY(1.2px);
+    transform: translateY(-2%);
   }
 }
 .buddy-flame {
-  transform-box: fill-box;
   transform-origin: 50% 100%;
   animation: buddy-flame 0.9s ease-in-out infinite alternate;
 }
 @keyframes buddy-flame {
   0% {
-    transform: scale(1, 1) skewX(0deg);
+    transform: scale(1, 1) rotate(0deg);
   }
   50% {
-    transform: scale(0.92, 1.08) skewX(3deg);
+    transform: scale(0.94, 1.08) rotate(3deg);
   }
   100% {
-    transform: scale(1.05, 0.94) skewX(-3deg);
-  }
-}
-.buddy-glow {
-  animation: buddy-glow 2.2s ease-in-out infinite;
-}
-@keyframes buddy-glow {
-  50% {
-    opacity: 0.45;
-  }
-}
-.buddy-steam {
-  animation: buddy-steam 2.4s ease-in-out infinite;
-}
-@keyframes buddy-steam {
-  0% {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-3px);
+    transform: scale(1.04, 0.95) rotate(-3deg);
   }
 }
 .buddy-zz {
@@ -609,20 +584,31 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
 }
 @keyframes buddy-zz {
   50% {
-    transform: translateY(-2px);
-    opacity: 0.6;
+    transform: translateY(-8%);
+    opacity: 0.7;
   }
 }
-.buddy-aura {
-  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--buddy-tone) 55%, transparent));
+/* Inferno: a ring of fire colours turning around the disc. */
+.buddy-ring::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: conic-gradient(#ef4444, #fb923c, #facc15, #fb923c, #ef4444);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.5px));
+  animation: buddy-spin 2.4s linear infinite;
+}
+@keyframes buddy-spin {
+  to {
+    transform: rotate(1turn);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .buddy-bob,
   .buddy-flame,
-  .buddy-glow,
-  .buddy-steam,
-  .buddy-zz {
+  .buddy-zz,
+  .buddy-ring::before {
     animation: none;
   }
 }
-

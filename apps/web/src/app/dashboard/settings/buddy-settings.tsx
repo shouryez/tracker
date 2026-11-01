@@ -34,11 +34,11 @@ export function BuddySettings({ initial }: { initial: Values }) {
         <div>
           <p className="text-14 font-[550]">Your study buddy</p>
           <p className="text-13 text-ink-3">
-            Your groups see it in the study hall. It sits down when you start a session, puts on a
-            headband at 1 hour and catches fire at 2.
+            Your groups see it in the study hall. It sits down when you start a session, gets a
+            lightning bolt at 1 hour and catches fire at 2.
           </p>
         </div>
-        {(["boys", "girls"] as const).map((group) => (
+        {(["boys", "girls", "anyone"] as const).map((group) => (
           <div key={group} className="flex flex-col gap-2">
             <p className="label-mono">{group}</p>
             <div
@@ -54,19 +54,17 @@ export function BuddySettings({ initial }: { initial: Values }) {
                     type="button"
                     role="radio"
                     aria-checked={on}
+                    aria-label={b.label}
                     disabled={pending}
                     onClick={() => save({ ...values, avatar: b.id })}
                     className={cn(
-                      "flex w-[104px] flex-col items-center gap-1.5 rounded-[16px] border px-2 pt-3 pb-2 transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5",
+                      "grid size-[96px] place-items-center rounded-[18px] border transition-[border-color,background-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5",
                       on
                         ? "border-signal-2 bg-signal/[.07] shadow-[0_0_0_3px_color-mix(in_srgb,var(--signal)_14%,transparent)]"
                         : "border-line bg-surface-2/50 hover:border-line-3",
                     )}
                   >
-                    <StudyBuddy buddy={b.id} level={on ? preview : 1} size={68} />
-                    <span className={cn("text-13", on ? "font-[600] text-ink" : "text-ink-2")}>
-                      {b.name}
-                    </span>
+                    <StudyBuddy buddy={b.id} level={on ? preview : 1} size={72} />
                   </button>
                 );
               })}

@@ -90,7 +90,7 @@ export function StudyHall({
                   : "border-line bg-surface-2/40",
             )}
           >
-            <StudyBuddy buddy={m.avatar} level={level} size={72} />
+            <StudyBuddy buddy={m.avatar} level={level} size={84} />
             <p className="mt-0.5 w-full truncate text-13 font-[600]">
               {m.name}
               {m.userId === viewerId && (
