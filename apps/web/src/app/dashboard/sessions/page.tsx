@@ -23,7 +23,8 @@ import { NowSolving } from "@/components/daily/now-solving";
 import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { getStudyHistory } from "@/lib/study-data";
-import { requestNow } from "@/lib/time";
+import { requestNow, studyDay } from "@/lib/time";
+import { WeekHours, type WeekHoursDay } from "@/components/dashboard/lamplight";
 import { formatDuration, getSessionStats, getSessions } from "@/lib/sessions-data";
 
 export const metadata: Metadata = { title: "Sessions" };
@@ -65,6 +66,31 @@ async function SessionsContent() {
   );
   const { solo, hint, solution } = stats.honest;
   const goalMin = profile?.dailyGoalMin ?? 60;
+
+  const tz = profile?.timezone ?? "Asia/Kolkata";
+  const resetHour = profile?.dayResetHour ?? 0;
+  const nowMs = requestNow();
+  const weekHours = Array.from({ length: 7 }, (_, i): WeekHoursDay => {
+    const { start, end } = studyDay(tz, nowMs - (6 - i) * 86_400_000, resetHour);
+    const inDay = studies.filter((s) => s.startedAt >= start && s.startedAt < end);
+    return {
+      label:
+        i === 6
+          ? "Today"
+          : new Date(start + 12 * 3_600_000).toLocaleDateString("en-IN", {
+              weekday: "short",
+              day: "numeric",
+              timeZone: tz,
+            }),
+      today: i === 6,
+      dayStart: start,
+      totalMs: inDay.reduce((n, s) => n + s.focusMs, 0),
+      sessions: inDay.map((s) => ({ start: s.startedAt, end: s.endedAt, focusMs: s.focusMs })),
+      solves: inDay.flatMap((s) =>
+        s.problems.filter((p) => p.outcome === "solved" || p.outcome === "synced").map((p) => p.at),
+      ),
+    };
+  });
 
   const lab = (
     <Card id="lab" glow="var(--signal-mark)" className="scroll-mt-24">
@@ -197,6 +223,13 @@ async function SessionsContent() {
     <>
       {header}
       <NowSolving />
+      <Card className="p-[22px]">
+        <CardHeader>
+          <CardTitle>Your week, hour by hour</CardTitle>
+          <CardSub>study day starts {String(resetHour).padStart(2, "0")}:00</CardSub>
+        </CardHeader>
+        <WeekHours days={weekHours} resetHour={resetHour} />
+      </Card>
       <div className="grid grid-cols-12 gap-3.5">
         <div className="col-span-12 xl:col-span-6">{lab}</div>
         <div className="col-span-12 xl:col-span-6">{history}</div>
@@ -262,5 +295,3 @@ function Mini({ label, value, tone }: { label: string; value: number; tone?: str
     </Card>
   );
 }
-
-// DsaKaro

@@ -310,3 +310,186 @@ export function Rekha({ value, className }: { value: number; className?: string 
     </div>
   );
 }
+
+const RUNGS = ["1 day", "3 days", "7 days", "16 days", "35 days", "90 days"];
+
+/**
+ * The revision ladder drawn as a staircase: one step per interval, taller as the gap grows,
+ * with a little card stack on each (amber = due within 3 days, rose = failed last time).
+ * The last column is problems you've graduated.
+ */
+export function LadderStairs({
+  items,
+  now,
+}: {
+  items: { step: number; dueAt: number; failed: boolean; retired: boolean }[];
+  now: number;
+}) {
+  const cols = RUNGS.map((label, i) => {
+    const here = items.filter((p) => !p.retired && Math.min(5, Math.max(0, p.step)) === i);
+    return {
+      label,
+      sub: `rung ${i + 1}`,
+      n: here.length,
+      cards: here
+        .slice(0, 8)
+        .map((p) =>
+          p.failed ? "var(--rose)" : p.dueAt < now + 3 * DAY ? "var(--amber)" : "var(--line-3)",
+        ),
+      grad: false,
+    };
+  });
+  const retired = items.filter((p) => p.retired).length;
+  cols.push({ label: "Graduated", sub: "passed at 90 days", n: retired, cards: [], grad: true });
+  return (
+    <div className="overflow-x-auto">
+      <div className="grid h-[300px] min-w-[700px] grid-cols-7 items-end gap-2.5 pt-2.5">
+        {cols.map((c, i) => (
+          <div key={c.label} className="flex h-full flex-col justify-end gap-2.5">
+            <div className="flex flex-col-reverse gap-1 px-1.5" aria-hidden="true">
+              {c.cards.map((color, k) => (
+                <span key={k} className="h-2 rounded-[3px]" style={{ background: color }} />
+              ))}
+            </div>
+            <div
+              className="flex origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] flex-col justify-between rounded-[12px_12px_6px_6px] p-3 shadow-[inset_0_0_0_1px_var(--line),inset_0_1px_0_rgba(255,255,255,.05)]"
+              style={{
+                height: `${96 + i * 26}px`,
+                background: c.grad
+                  ? "linear-gradient(180deg, var(--color-signal-soft), var(--surface-2))"
+                  : "var(--surface-2)",
+                animationDelay: `${i * 50}ms`,
+              }}
+            >
+              <span className={cn("num font-mono text-[22px]", c.n ? "text-ink" : "text-ink-3")}>
+                {c.n}
+              </span>
+              <span className="flex flex-col gap-0.5">
+                <span className="text-13 font-[600]">{c.label}</span>
+                <span className="text-11 text-ink-3">{c.sub}</span>
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export type WeekHoursDay = {
+  label: string;
+  today: boolean;
+  dayStart: number;
+  totalMs: number;
+  /** Study sessions: wall-clock start/end; focusMs of that was study, the rest auto-paused. */
+  sessions: { start: number; end: number; focusMs: number }[];
+  /** Accepted problems during sessions. */
+  solves: number[];
+};
+
+const hhmm = (ms: number) => {
+  const m = Math.round(ms / 60_000);
+  return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m` : m ? `${m}m` : "—";
+};
+
+/** A week of study days, hour by hour: focus in amber, auto-paused time hatched, solves as dots. */
+export function WeekHours({ days, resetHour }: { days: WeekHoursDay[]; resetHour: number }) {
+  const pct = (t: number, d: WeekHoursDay) =>
+    `${(Math.min(1, Math.max(0, (t - d.dayStart) / DAY)) * 100).toFixed(2)}%`;
+  const ticks = [0, 4, 8, 12, 16, 20, 24].map((h) => ({
+    x: `${(h / 24) * 100}%`,
+    l: `${String((resetHour + h) % 24).padStart(2, "0")}:00`,
+  }));
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex min-w-[760px] flex-col gap-2">
+        <div className="grid grid-cols-[56px_minmax(0,1fr)_64px] gap-3">
+          <span />
+          <div className="relative h-3.5 font-mono text-11 text-ink-3">
+            {ticks.map((t, i) => (
+              <span
+                key={i}
+                className="absolute -translate-x-1/2 first:translate-x-0 last:-translate-x-full"
+                style={{ left: t.x }}
+              >
+                {t.l}
+              </span>
+            ))}
+          </div>
+          <span />
+        </div>
+        {days.map((d) => (
+          <div
+            key={d.dayStart}
+            className="grid grid-cols-[56px_minmax(0,1fr)_64px] items-center gap-3"
+          >
+            <span className={cn("text-[12.5px]", d.today ? "font-[600] text-ink" : "text-ink-2")}>
+              {d.label}
+            </span>
+            <div
+              className="relative h-[26px] rounded-[8px] bg-surface-2"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px calc(100% / 12))",
+              }}
+            >
+              {d.sessions.map((s, i) => {
+                const span = Math.max(1, s.end - s.start);
+                const focusShare = Math.min(1, s.focusMs / span);
+                return (
+                  <span
+                    key={i}
+                    title={`${hhmm(s.focusMs)} focus`}
+                    className="absolute top-1 bottom-1 flex overflow-hidden rounded-[5px]"
+                    style={{
+                      left: pct(s.start, d),
+                      width: `max(3px, calc(${pct(s.end, d)} - ${pct(s.start, d)}))`,
+                    }}
+                  >
+                    <i
+                      className="block h-full bg-[var(--amber)]"
+                      style={{ width: `${focusShare * 100}%` }}
+                    />
+                    <i
+                      className="block h-full flex-1"
+                      style={{
+                        background:
+                          "repeating-linear-gradient(135deg, var(--surface-4) 0 3px, var(--line-3) 3px 5px)",
+                      }}
+                    />
+                  </span>
+                );
+              })}
+              {d.solves.map((t, i) => (
+                <span
+                  key={i}
+                  className="absolute top-[9px] -ml-1 size-2 rounded-full bg-signal shadow-[0_0_0_2px_var(--surface-2)]"
+                  style={{ left: pct(t, d) }}
+                />
+              ))}
+            </div>
+            <span className="text-right font-mono text-12 text-ink-2">{hhmm(d.totalMs)}</span>
+          </div>
+        ))}
+        <div className="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-12 text-ink-3">
+          <span className="flex items-center gap-1.5">
+            <i className="h-2 w-3.5 rounded-[3px] bg-[var(--amber)]" /> focus
+          </span>
+          <span className="flex items-center gap-1.5">
+            <i
+              className="h-2 w-3.5 rounded-[3px]"
+              style={{
+                background:
+                  "repeating-linear-gradient(135deg, var(--surface-4) 0 3px, var(--line-3) 3px 5px)",
+              }}
+            />{" "}
+            auto-paused
+          </span>
+          <span className="flex items-center gap-1.5">
+            <i className="size-2 rounded-full bg-signal" /> accepted
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

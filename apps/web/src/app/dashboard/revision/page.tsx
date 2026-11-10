@@ -24,6 +24,7 @@ import { CelebrateOnce } from "@/components/dashboard/celebrate";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { dueLabel, ResultTag, reviewUrl, UpcomingStrip } from "@/components/learning";
 import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { LadderStairs } from "@/components/dashboard/lamplight";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton } from "@/components/review-actions";
 import { TimeAgo } from "@/components/time-ago";
@@ -251,6 +252,34 @@ async function RevisionContent() {
               unit={retired.length ? `${retired.length} retired` : "problems"}
             />
           </div>
+
+          {/* The ladder as a staircase */}
+          <Card className="lamp col-span-12 p-[22px]">
+            <CardHeader>
+              <CardTitle>The ladder</CardTitle>
+              <CardSub>each pass waits longer before asking again</CardSub>
+            </CardHeader>
+            <LadderStairs
+              now={now}
+              items={problems.map((p) => ({
+                step: p.state.step,
+                dueAt: p.state.dueAt,
+                failed: p.state.lastResult === "fail",
+                retired: p.state.retired,
+              }))}
+            />
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-12 text-ink-3">
+              <span className="flex items-center gap-1.5">
+                <i className="h-1.5 w-3.5 rounded-[3px] bg-[var(--amber)]" /> due within 3 days
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="h-1.5 w-3.5 rounded-[3px] bg-line-3" /> waiting
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="h-1.5 w-3.5 rounded-[3px] bg-[var(--rose)]" /> missed last time
+              </span>
+            </div>
+          </Card>
 
           {/* Due today */}
           <Card className="col-span-12 xl:col-span-8">
@@ -522,5 +551,3 @@ function RevisionSkeleton() {
     </div>
   );
 }
-
-// DsaKaro
