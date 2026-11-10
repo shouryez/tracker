@@ -18,13 +18,13 @@
       transparent 20%
     ),
     radial-gradient(circle at 70% 70%, rgba(198, 241, 107, 0.55), transparent 42%),
-    radial-gradient(circle at 34% 66%, rgba(124, 183, 255, 0.85), transparent 55%),
+    radial-gradient(circle at 34% 66%, rgba(243, 180, 92, 0.85), transparent 55%),
     radial-gradient(circle at 64% 30%, rgba(255, 168, 82, 0.75), transparent 48%),
     radial-gradient(circle at 50% 50%, #18181d, #060608 72%);
   box-shadow:
     inset -40px -60px 120px rgba(0, 0, 0, 0.75),
     inset 30px 30px 80px rgba(255, 255, 255, 0.1),
-    0 0 140px 30px rgba(124, 183, 255, 0.24),
+    0 0 140px 30px rgba(243, 180, 92, 0.24),
     0 0 60px 4px rgba(255, 168, 82, 0.18);
 }
 /* Bright rim along the top edge. */
@@ -164,7 +164,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(75% 60% at 50% 0%, rgba(190, 215, 255, 0.24), transparent 72%);
+  background: radial-gradient(75% 60% at 50% 0%, rgba(255, 226, 180, 0.24), transparent 72%);
 }
 .lt-edge {
   position: absolute;
@@ -256,7 +256,7 @@
   background: radial-gradient(
     60% 60% at 50% 45%,
     rgba(225, 238, 255, 0.55),
-    rgba(124, 183, 255, 0.12) 60%,
+    rgba(243, 180, 92, 0.12) 60%,
     transparent
   );
 }

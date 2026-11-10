@@ -67,7 +67,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               remembered.
               <span
                 aria-hidden="true"
-                className="absolute top-[.06em] right-[4%] left-0 h-[.07em] rounded-full bg-[#c6f16b] shadow-[0_0_24px_rgba(198,241,107,.5)]"
+                className="absolute right-[4%] -bottom-[.02em] left-0 h-[.07em] rounded-full bg-[#c6f16b] shadow-[0_0_24px_rgba(198,241,107,.5)]"
               />
             </span>
           </h2>
