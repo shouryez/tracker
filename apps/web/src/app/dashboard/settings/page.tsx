@@ -24,7 +24,15 @@ import {
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { ButtonArrow, Card, CardHeader, CardTitle, SkeletonCard, buttonClasses } from "@upsolve/ui";
+import {
+  ButtonArrow,
+  Card,
+  CardHeader,
+  CardTitle,
+  SkeletonCard,
+  ThemeToggle,
+  buttonClasses,
+} from "@upsolve/ui";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { PlatformConnections } from "@/components/platform-connections";
 import { PrefSwitch } from "@/components/social";
@@ -62,6 +70,7 @@ const SECTIONS = [
   { id: "social", label: "Social & privacy" },
   { id: "streak", label: "Streak freeze" },
   { id: "public", label: "Public profile" },
+  { id: "account", label: "Account" },
 ];
 
 export default function SettingsPage() {
@@ -70,11 +79,7 @@ export default function SettingsPage() {
       <PageHeader
         eyebrow="Settings"
         glow={PAGE_GLOW.settings}
-        title={
-          <>
-            Settings, <em>make it yours.</em>
-          </>
-        }
+        title="Settings"
         subtitle="Profile, platforms, revision and privacy. Everything saves as you change it."
       />
       <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
@@ -358,6 +363,26 @@ async function SettingsContent() {
             )}
           </div>
         )}
+      </Card>
+
+      <Card id="account" className="scroll-mt-24">
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+        </CardHeader>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-[220px] flex-1">
+            <p className="text-12 text-ink-3">Signed in as</p>
+            <p className="font-[550]">{user.email ?? "—"}</p>
+          </div>
+          <span className="flex items-center gap-2 text-13 text-ink-2">
+            Theme <ThemeToggle />
+          </span>
+          <form action="/auth/signout" method="post">
+            <button type="submit" className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              Sign out
+            </button>
+          </form>
+        </div>
       </Card>
     </>
   );
