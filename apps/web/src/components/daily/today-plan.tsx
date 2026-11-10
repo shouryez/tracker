@@ -113,7 +113,7 @@ export function TodayPlanList({
   return (
     <div className="flex flex-col gap-4">
       {items.length > 0 && done === items.length && <CelebrateOnce id={`plan-${plan.day}`} />}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+      <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-3", compact && "hidden")}>
         <ProgressRing
           total={Math.max(1, items.length)}
           size={compact ? 64 : 84}
@@ -152,10 +152,18 @@ export function TodayPlanList({
           <li
             key={item.id}
             className={cn(
-              "group/item flex items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
-              item.done && "opacity-70",
+              "group/item relative isolate flex items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
+              "first:[&>.rail]:top-1/2 last:[&>.rail]:bottom-1/2",
             )}
           >
+            {/* The day as a path: a rail joins the checkboxes, lime where it's done. */}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "rail absolute top-0 bottom-0 left-[20px] -z-10 w-[2px]",
+                item.done ? "bg-signal/70" : "bg-line-2",
+              )}
+            />
             <AnimatedCheckbox
               checked={item.done}
               disabled={item.auto || pending}
@@ -285,5 +293,3 @@ export function TodayPlanList({
     </div>
   );
 }
-
-// DsaKaro
