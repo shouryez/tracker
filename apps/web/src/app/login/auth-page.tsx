@@ -1,11 +1,19 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { Check } from "lucide-react";
-import { Aurora, LiveDot, Logo, Starfield, ThemeToggle } from "@upsolve/ui";
+import { LiveDot, Logo, ThemeToggle } from "@upsolve/ui";
 import { isSupabaseConfigured } from "@/lib/env";
 import { LoginForm } from "./login-form";
 
 export type AuthMode = "login" | "signup";
+
+// 34 weeks of made-up activity for the art panel (deterministic, so server and client agree).
+const HEAT = Array.from({ length: 34 * 7 }, (_, i) => {
+  const r = (Math.abs(Math.sin(i * 3.77) * 9999) % 1) as number;
+  const p = 0.25 + (Math.floor(i / 7) / 34) * 0.5;
+  return r > p ? 0 : 1 + Math.min(3, Math.floor((r / p) * 4));
+});
+const HEAT_COLORS = ["#1a1d23", "#2f3d1f", "#4f6d26", "#86b23a", "#c6f16b"];
 
 const POINTS: Record<AuthMode, string[]> = {
   login: [
@@ -21,28 +29,47 @@ const POINTS: Record<AuthMode, string[]> = {
 };
 
 /**
- * Split layout: a dark brand panel (orb + starfield) beside the sign-in or sign-up card.
+ * Split layout: a lamp-lit panel with a tilted year of practice beside the sign-in card.
  * Both use Google or an emailed link; sign-in won't create an account, sign-up will.
  */
 export function AuthPage({ mode }: { mode: AuthMode }) {
   const points = POINTS[mode];
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-[1.05fr_1fr]">
-      <aside className="relative m-3 hidden overflow-hidden rounded-[28px] bg-[#08080d] text-[#f4f4f6] ring-1 ring-white/10 lg:flex lg:flex-col">
-        <Starfield className="opacity-70" />
-        <Aurora className="opacity-80" />
-        <div aria-hidden="true" className="absolute -bottom-[38%] left-1/2 -translate-x-1/2">
-          <div className="orb size-[520px] animate-[blob_14s_var(--ease-in-out)_infinite_alternate]" />
+      <aside className="relative m-3 hidden overflow-hidden rounded-[24px] bg-[radial-gradient(700px_500px_at_20%_0%,rgba(243,180,92,.18),transparent_65%),#111318] text-[#eceef2] ring-1 ring-white/10 lg:flex lg:flex-col">
+        {/* A year of practice, one square a day, tilted across the panel. */}
+        <div
+          aria-hidden="true"
+          className="absolute top-1/2 -right-16 left-10 grid -translate-y-1/2 -rotate-[8deg] grid-flow-col grid-rows-7 gap-[5px] opacity-90"
+        >
+          {HEAT.map((l, i) => (
+            <i
+              key={i}
+              className="aspect-square rounded-[4px]"
+              style={{
+                background: HEAT_COLORS[l],
+                boxShadow: l === 4 ? "0 0 8px rgba(198,241,107,.25)" : undefined,
+              }}
+            />
+          ))}
         </div>
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-[linear-gradient(180deg,#111318_8%,transparent_40%,transparent_62%,#111318_92%)]"
+        />
         <div className="relative z-10 p-10">
           <Link href="/" aria-label="DsaKaro home" className="inline-block text-white">
             <Logo />
           </Link>
-          <h2 className="mt-16 max-w-[13ch] font-display text-[56px] leading-[.98] tracking-[-0.02em]">
+          <h2 className="mt-16 max-w-[13ch] text-[52px] leading-[.98] font-[640] tracking-[-0.045em]">
             Every problem you solve,{" "}
-            <em className="bg-[linear-gradient(100deg,#fff_20%,#c6f16b_110%)] bg-clip-text text-transparent">
+            <span className="relative whitespace-nowrap">
               remembered.
-            </em>
+              <span
+                aria-hidden="true"
+                className="absolute top-[.06em] right-[4%] left-0 h-[.07em] rounded-full bg-[#c6f16b] shadow-[0_0_24px_rgba(198,241,107,.5)]"
+              />
+            </span>
           </h2>
           <ul className="mt-8 flex flex-col gap-2.5 text-[14px] text-white/80">
             {points.map((t, i) => (
@@ -82,11 +109,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           <h1 className="mb-2 font-display text-[44px] leading-none tracking-[-0.02em]">
             {mode === "login" ? (
               <>
-                Welcome back. <em className="text-violet">Chalo,&nbsp;DSA&nbsp;karo.</em>
+                Welcome back. <em>Chalo,&nbsp;DSA&nbsp;karo.</em>
               </>
             ) : (
               <>
-                Start free. <em className="text-violet">Chalo,&nbsp;DSA&nbsp;karo.</em>
+                Start free. <em>Chalo,&nbsp;DSA&nbsp;karo.</em>
               </>
             )}
           </h1>
@@ -104,7 +131,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             </p>
           )}
 
-          <div className="surface-card border-beam relative overflow-hidden rounded-[24px] p-6 shadow-e3">
+          <div className="surface-card relative overflow-hidden rounded-[20px] p-6 shadow-e3">
             <Suspense>
               <LoginForm mode={mode} disabled={!isSupabaseConfigured} />
             </Suspense>
