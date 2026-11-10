@@ -1,19 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
-import { CalendarRange, NotebookPen, Target, Trophy } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardSub,
-  CardTitle,
-  DifficultyTag,
-  ProgressRing,
-  SkeletonCard,
-  cn,
-} from "@upsolve/ui";
+import type React from "react";
+import { Card, CardHeader, CardSub, CardTitle, DifficultyTag, SkeletonCard, cn } from "@upsolve/ui";
 import { GoalsForm } from "@/components/daily/goals-form";
-import { NumberTicker } from "@/components/fx/number-ticker";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getWeekReview } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -61,146 +52,212 @@ async function ReviewContent() {
   const delta = (a: number, b: number) =>
     a === b ? "same as last week" : a > b ? `+${a - b} vs last week` : `${a - b} vs last week`;
 
+  const compare = [
+    {
+      label: "New problems",
+      now: week.progress.solved,
+      prev: week.lastWeek.solved,
+      color: "var(--signal)",
+    },
+    {
+      label: "Mediums",
+      now: week.progress.mediums,
+      prev: week.lastWeek.mediums,
+      color: "var(--medium)",
+    },
+    {
+      label: "Revisions",
+      now: week.progress.revisions,
+      prev: week.lastWeek.revisions,
+      color: "var(--amber)",
+    },
+  ];
+  const notes: { color: string; text: React.ReactNode; href?: string; cta?: string }[] = [];
+  if (week.bestDay)
+    notes.push({
+      color: "var(--signal)",
+      text: `Best day: ${fmtDay(week.bestDay.date, { weekday: "long" })}, ${week.bestDay.solved} solved.`,
+    });
+  if (week.hardest)
+    notes.push({
+      color: "var(--amber)",
+      text: (
+        <>
+          Hardest solve: <span className="font-[600]">{week.hardest.title}</span>
+          {week.hardest.difficulty && (
+            <span className="ml-2 inline-block align-middle">
+              <DifficultyTag difficulty={week.hardest.difficulty} />
+            </span>
+          )}
+        </>
+      ),
+    });
+  if (weakest)
+    notes.push({
+      color: "var(--rose)",
+      text: `${weakest.label} is your weakest topic (${weakest.score}/100). Worth a stretch problem this week.`,
+      href: "/dashboard/today",
+      cta: "Practice",
+    });
+  notes.push({
+    color: "var(--sky)",
+    text: `${focusH} hours of focus this week against a target of ${week.goals.focusHours}.`,
+    href: "/dashboard/sessions",
+    cta: "Sessions",
+  });
+  // Steps 1 and 2 are read-only; step 3 is where you act.
+  const step = 3;
+
   return (
-    <>
+    <div className="mx-auto flex w-full max-w-[920px] flex-col gap-5">
       <PageHeader
-        eyebrow={`Week of ${fmtDay(week.weekStart, { day: "numeric", month: "long" })}`}
+        eyebrow={`Weekly review · week of ${fmtDay(week.weekStart, { day: "numeric", month: "short" })}`}
         glow={PAGE_GLOW.revision}
         title={
           <>
-            Your week, <em>in five minutes.</em>
+            Your week, <em>in five minutes</em>
           </>
         }
-        subtitle={
-          <>
-            <span>{week.progress.solved} new problems</span>
-            <Dot />
-            <span>{week.progress.revisions} revisions</span>
-            <Dot />
-            <span>{focusH}h focus</span>
-          </>
-        }
+        subtitle="Look back, then set this week's targets. Targets reset every Monday and show as rings on Today."
       />
 
-      <div className="stagger-in grid grid-cols-12 gap-3.5">
-        <Card tier="hero" beam className="col-span-12 xl:col-span-7">
-          <CardHeader>
-            <CardTitle icon={<Target size={14} />} className="text-white">
-              Targets
-            </CardTitle>
-            <span className="text-12 text-white/60">resets every Monday</span>
-          </CardHeader>
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              [
-                "Mediums",
-                week.progress.mediums,
-                week.goals.mediums,
-                "var(--medium)",
-                delta(week.progress.mediums, week.lastWeek.mediums),
-              ],
-              ["Focus hours", focusH, week.goals.focusHours, "var(--signal)", ""],
-              [
-                "Revisions",
-                week.progress.revisions,
-                week.goals.revisions,
-                "var(--sky)",
-                delta(week.progress.revisions, week.lastWeek.revisions),
-              ],
-            ].map(([label, value, goal, color, sub]) => (
-              <div key={label as string} className="flex flex-col items-center gap-2 text-center">
-                <ProgressRing
-                  total={Math.max(1, goal as number)}
-                  size={104}
-                  stroke={10}
-                  className="[&_circle:first-of-type]:stroke-white/12"
-                  segments={[
-                    {
-                      label: label as string,
-                      value: Math.min(value as number, goal as number),
-                      color: color as string,
-                    },
-                  ]}
-                >
-                  <span className="num text-24">
-                    <NumberTicker
-                      value={value as number}
-                      decimals={label === "Focus hours" ? 1 : 0}
-                    />
-                  </span>
-                  <span className="text-[10px] text-white/55">of {goal as number}</span>
-                </ProgressRing>
-                <span className="text-13 font-[600]">{label as string}</span>
-                {sub && <span className="text-11 text-white/55">{sub as string}</span>}
-              </div>
-            ))}
-          </div>
-        </Card>
+      <ol className="flex gap-1.5" aria-label="Steps">
+        {["Look back", "What stood out", "This week's targets"].map((t, i) => (
+          <li key={t} className="flex flex-1 flex-col gap-1.5">
+            <span
+              className="h-[3px] rounded-full"
+              style={{ background: i + 1 < step ? "var(--signal)" : "var(--ink)" }}
+            />
+            <span className="text-12 text-ink">
+              {i + 1} · {t}
+            </span>
+          </li>
+        ))}
+      </ol>
 
-        <Card className="col-span-12 xl:col-span-5">
-          <CardHeader>
-            <CardTitle icon={<CalendarRange size={14} />} tint="var(--violet)">
-              Day by day
-            </CardTitle>
-            <CardSub>new problems</CardSub>
-          </CardHeader>
-          <div className="grid h-[140px] grid-cols-7 items-end gap-2">
-            {week.days.map((d) => (
-              <div key={d.date} className="flex h-full flex-col items-center justify-end gap-1.5">
-                <span className="tnum text-11 text-ink-3">{d.solved || ""}</span>
-                <span
-                  className={cn(
-                    "w-full max-w-9 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[8px]",
-                    d.solved ? "bg-violet" : "h-1.5 bg-surface-3",
-                    week.bestDay?.date === d.date &&
-                      "bg-signal-mark shadow-[0_0_16px_-4px_var(--signal)]",
-                  )}
-                  style={
-                    d.solved ? { height: `${Math.max(10, (d.solved / max) * 100)}%` } : undefined
-                  }
-                />
-                <span className="font-mono text-11 text-ink-3">
-                  {fmtDay(d.date, { weekday: "narrow" })}
+      <Card className="p-[22px]">
+        <CardHeader>
+          <CardTitle>1 · Look back</CardTitle>
+          <CardSub>vs the week before</CardSub>
+        </CardHeader>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {compare.map((c) => {
+            const top = Math.max(1, c.now, c.prev);
+            const d = c.now - c.prev;
+            return (
+              <div
+                key={c.label}
+                className="surface-inset flex flex-col gap-2.5 rounded-[12px] p-3.5"
+              >
+                <span className="text-12 text-ink-2">{c.label}</span>
+                <span className="flex items-baseline gap-2">
+                  <span className="num text-[26px]">{c.now}</span>
+                  <span
+                    className={cn(
+                      "font-mono text-11",
+                      d > 0 ? "text-signal-text" : d < 0 ? "text-bad" : "text-ink-3",
+                    )}
+                  >
+                    {d === 0 ? "same" : d > 0 ? `+${d}` : d}
+                  </span>
+                </span>
+                <span className="flex flex-col gap-1">
+                  <span className="flex items-center gap-2">
+                    <span className="w-8 font-mono text-[10.5px] text-ink-3">this</span>
+                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-surface-4">
+                      <span
+                        className="block h-full rounded-full"
+                        style={{ width: `${(c.now / top) * 100}%`, background: c.color }}
+                      />
+                    </span>
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-8 font-mono text-[10.5px] text-ink-3">prev</span>
+                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-surface-4">
+                      <span
+                        className="block h-full rounded-full bg-line-3"
+                        style={{ width: `${(c.prev / top) * 100}%` }}
+                      />
+                    </span>
+                  </span>
                 </span>
               </div>
-            ))}
+            );
+          })}
+          <div className="surface-inset flex flex-col gap-2.5 rounded-[12px] p-3.5">
+            <span className="text-12 text-ink-2">Focus</span>
+            <span className="num text-[26px]">
+              {focusH}
+              <small className="ml-0.5 text-[.5em] text-ink-3">h</small>
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="w-8 font-mono text-[10.5px] text-ink-3">goal</span>
+              <span className="h-1 flex-1 overflow-hidden rounded-full bg-surface-4">
+                <span
+                  className="block h-full rounded-full bg-[var(--amber)]"
+                  style={{
+                    width: `${Math.min(100, (focusH / Math.max(1, week.goals.focusHours)) * 100)}%`,
+                  }}
+                />
+              </span>
+            </span>
           </div>
-          <ul className="mt-4 flex flex-col gap-2 border-t border-line pt-3 text-13">
-            {week.bestDay && (
-              <li className="flex items-center gap-2">
-                <Trophy size={14} className="text-signal-text" aria-hidden="true" />
-                Best day: {fmtDay(week.bestDay.date, { weekday: "long" })} ({week.bestDay.solved}{" "}
-                solved)
-              </li>
-            )}
-            {week.hardest && (
-              <li className="flex flex-wrap items-center gap-2">
-                Hardest solve: <span className="font-[600]">{week.hardest.title}</span>
-                {week.hardest.difficulty && <DifficultyTag difficulty={week.hardest.difficulty} />}
-              </li>
-            )}
-            {weakest && (
-              <li className="text-ink-2">
-                Weakest topic: <span className="font-[600] text-ink">{weakest.label}</span> (
-                {weakest.score}
-                /100). Worth a stretch problem this week.
-              </li>
-            )}
-          </ul>
-        </Card>
+        </div>
+        <div className="mt-4 grid h-[110px] grid-cols-7 items-end gap-2 border-t border-line pt-4">
+          {week.days.map((d) => (
+            <div key={d.date} className="flex h-full flex-col items-center justify-end gap-1.5">
+              <span className="tnum text-11 text-ink-3">{d.solved || ""}</span>
+              <span
+                className={cn(
+                  "w-full max-w-9 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[6px]",
+                  !d.solved && "h-1",
+                )}
+                style={{
+                  height: d.solved ? `${Math.max(10, (d.solved / max) * 100)}%` : undefined,
+                  background: d.solved
+                    ? week.bestDay?.date === d.date
+                      ? "var(--signal)"
+                      : "color-mix(in srgb, var(--signal) 45%, transparent)"
+                    : "var(--surface-4)",
+                }}
+              />
+              <span className="font-mono text-11 text-ink-3">
+                {fmtDay(d.date, { weekday: "narrow" })}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Card>
 
-        <Card className="col-span-12">
-          <CardHeader>
-            <CardTitle icon={<NotebookPen size={14} />} tint="var(--signal-mark)">
-              {week.saved ? "This week's targets" : "Set this week's targets"}
-            </CardTitle>
-            <CardSub>they show as rings on Today</CardSub>
-          </CardHeader>
-          <GoalsForm weekStart={week.weekStart} initial={week.goals} />
-        </Card>
-      </div>
-    </>
+      <Card className="p-[22px]">
+        <CardHeader>
+          <CardTitle>2 · What stood out</CardTitle>
+        </CardHeader>
+        <ul className="flex flex-col">
+          {notes.map((n, i) => (
+            <li
+              key={i}
+              className="flex items-center gap-3 border-t border-line py-3 text-14 first:border-t-0"
+            >
+              <i className="size-2 shrink-0 rounded-[2px]" style={{ background: n.color }} />
+              <span className="flex-1">{n.text}</span>
+              {n.href && (
+                <Link href={n.href} className="text-12 text-ink-2 hover:text-ink">
+                  {n.cta}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      <Card className="lamp p-[22px]">
+        <CardHeader>
+          <CardTitle>3 · This week&apos;s targets</CardTitle>
+          <CardSub>they show as rings on Today</CardSub>
+        </CardHeader>
+        <GoalsForm weekStart={week.weekStart} initial={week.goals} />
+      </Card>
+    </div>
   );
 }
-
-// DsaKaro
