@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import { Suspense, type ReactNode } from "react";
-import { Brain, Bug, CalendarCheck, Clock, Gauge, Info, Layers, Target, Timer } from "lucide-react";
-import { Card, CardHeader, CardSub, CardTitle, LinearProgress, SkeletonCard } from "@upsolve/ui";
+import { Suspense } from "react";
+import { Brain, Clock, Info } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardSub,
+  CardTitle,
+  DifficultyTag,
+  SkeletonCard,
+} from "@upsolve/ui";
 import { TopicBar } from "@/components/charts";
 import { TopicRadar } from "@/components/charts/insights";
-import { NumberTicker } from "@/components/fx/number-ticker";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { RangeControl } from "@/components/range-control";
-import { DifficultyTime, HourBars, VerdictMix } from "@/components/analytics-charts";
 import { MasteryBars } from "@/components/learning";
-import { SkillMap } from "@/components/dashboard/lamplight";
+import { KpiStrip, SkillMap } from "@/components/dashboard/lamplight";
 import { HonestSplit } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getAnalytics, RANGES, type RangeKey } from "@/lib/analytics-data";
 import { getProfile } from "@/lib/data";
 import { getLearning, getTopicTargets, masteryOf } from "@/lib/learning";
-import { formatDuration } from "@/lib/sessions-data";
 import { requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Analytics" };
@@ -79,6 +83,43 @@ async function AnalyticsContent({
     ? Math.round((a.firstTry.ac / a.firstTry.total) * 100)
     : null;
   const topicMax = a.byTopic[0]?.activeMs ?? 1;
+  const subs = a.verdicts.reduce((n, v) => n + v.n, 0);
+  const honestTotal = a.independence.solo + a.independence.hint + a.independence.solution;
+  const timed = a.byDifficulty.filter((r) => r.medianMs && r.solved);
+  const overallMedian = timed.length
+    ? timed.reduce((n, r) => n + r.medianMs! * r.solved, 0) /
+      timed.reduce((n, r) => n + r.solved, 0)
+    : null;
+  const dayMax = Math.max(3, ...a.daily.map((d) => d.ac + d.wa + d.other));
+  const hourMax = Math.max(1, ...a.byHour);
+  const bestHour = a.byHour.some((n) => n > 0)
+    ? a.byHour.reduce((best, _n, h, arr) => {
+        const pair = (x: number) => (arr[x] ?? 0) + (arr[(x + 1) % 24] ?? 0);
+        return pair(h) > pair(best) ? h : best;
+      }, 0)
+    : null;
+  const SPAN_MS = 60 * 60_000;
+  const VC = 2 * Math.PI * 46;
+  const ac = a.verdicts.find((v) => v.verdict === "AC")?.n ?? 0;
+  const wa = a.verdicts.find((v) => v.verdict === "WA")?.n ?? 0;
+  const tle = a.verdicts
+    .filter((v) => ["TLE", "MLE", "RE"].includes(v.verdict))
+    .reduce((n, v) => n + v.n, 0);
+  const other = Math.max(0, subs - ac - wa - tle);
+  let rot = -90;
+  const vmix = [
+    { label: "Accepted", n: ac, color: "var(--signal)" },
+    { label: "Wrong answer", n: wa, color: "var(--rose)" },
+    { label: "TLE / runtime", n: tle, color: "var(--amber)" },
+    { label: "Other", n: other, color: "var(--line-3)" },
+  ]
+    .filter((v) => v.n > 0)
+    .map((v) => {
+      const frac = subs ? v.n / subs : 0;
+      const out = { ...v, frac, rot };
+      rot += frac * 360;
+      return out;
+    });
 
   const sortedMastery = [...shownMastery].sort((x, y) => y.score - x.score);
   const radarTopics = [...shownMastery].sort((x, y) => y.solved - x.solved).slice(0, 8);
@@ -90,7 +131,7 @@ async function AnalyticsContent({
         glow={PAGE_GLOW.analytics}
         title={
           <>
-            Analytics, <em>how you practise.</em>
+            Analytics <em>· {RANGE_LABEL[range].toLowerCase()}</em>
           </>
         }
         subtitle={`Times in ${tz}`}
@@ -107,76 +148,276 @@ async function AnalyticsContent({
       />
 
       <div key={range} className="stagger-in grid grid-cols-12 gap-3.5">
-        <Kpi
-          icon={icon(CalendarCheck)}
-          tint="var(--easy)"
-          title="Active days"
-          value={a.activeDays}
-          unit={`of ${days}`}
-          progress={a.activeDays / days}
-          foot={`${Math.round((a.activeDays / days) * 100)}% of days · ${
-            a.activeDays ? (a.solved / a.activeDays).toFixed(1) : "0"
-          } solved per active day`}
-        />
-        <Kpi
-          icon={icon(Layers)}
-          tint="var(--violet)"
-          title="Solved"
-          value={a.solved}
-          unit="problems"
-          foot={`${RANGE_LABEL[range].toLowerCase()} · all platforms`}
-        />
-        <Kpi
-          icon={icon(Target)}
-          tint="var(--success)"
-          title="First-try AC"
-          value={firstTryRate ?? 0}
-          unit={firstTryRate === null ? "no data" : "%"}
-          progress={firstTryRate === null ? undefined : firstTryRate / 100}
-          foot={
-            a.firstTry.total
-              ? `${a.firstTry.ac} of ${a.firstTry.total} new problems accepted on the first submit`
-              : "Needs the extension (or Codeforces) to see every verdict"
-          }
-        />
-        <Kpi
-          icon={icon(Timer)}
-          tint="var(--signal-mark)"
-          title="Focus"
-          value={Math.round((a.focusMs / 3_600_000) * 10) / 10}
-          decimals={1}
-          unit="hours"
-          foot={`timed by the extension · ${formatDuration(a.focusMs / days)} a day`}
+        <KpiStrip
+          className="col-span-12 xl:grid-cols-none"
+          items={[
+            { label: "Solved", value: a.solved, note: RANGE_LABEL[range].toLowerCase() },
+            {
+              label: "Submissions",
+              value: subs,
+              note: a.solved ? `${(subs / Math.max(1, a.solved)).toFixed(1)} per problem` : "—",
+            },
+            {
+              label: "First-try accepted",
+              value: firstTryRate ?? "—",
+              unit: firstTryRate === null ? undefined : "%",
+              note: a.firstTry.total
+                ? `${a.firstTry.ac} of ${a.firstTry.total} new problems`
+                : "needs the extension",
+            },
+            {
+              label: "Solved without help",
+              value: honestTotal ? Math.round((a.independence.solo / honestTotal) * 100) : "—",
+              unit: honestTotal ? "%" : undefined,
+              note: honestTotal
+                ? `${a.independence.hint + a.independence.solution} used hints or solutions`
+                : "answer after each Accepted",
+            },
+            {
+              label: "Median time",
+              value: overallMedian ? Math.round(overallMedian / 60_000) : "—",
+              unit: overallMedian ? "min" : undefined,
+              note: "timed solves",
+            },
+            {
+              label: "Active days",
+              value: a.activeDays,
+              unit: `/${days}`,
+              note: `${Math.round((a.activeDays / days) * 100)}% of days`,
+            },
+          ]}
         />
 
-        <Card spotlight className="col-span-12 md:col-span-6 xl:col-span-4">
+        <Card className="col-span-12 p-[22px]">
           <CardHeader>
-            <CardTitle icon={icon(Clock)} tint="var(--violet)">
-              Best hours
-            </CardTitle>
-            <CardSub>accepted, by hour</CardSub>
+            <CardTitle>Submissions per day</CardTitle>
+            <span className="flex gap-3 text-12 text-ink-3">
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-[2px] bg-signal" /> accepted
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-[2px] bg-[var(--rose)]" /> wrong
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-[2px] bg-line-3" /> other
+              </span>
+            </span>
           </CardHeader>
-          <HourBars byHour={a.byHour} />
-        </Card>
-
-        <Card spotlight className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle icon={icon(Gauge)} tint="var(--success)">
-              Verdict mix
-            </CardTitle>
-            <CardSub>all submissions</CardSub>
-          </CardHeader>
-          <VerdictMix verdicts={a.verdicts} />
-          <p className="mt-4 text-11 text-ink-3">
-            LeetCode and GFG sync only report Accepted; the extension sees the rest.
+          <div className="grid grid-cols-[24px_minmax(0,1fr)] gap-2">
+            <div className="flex h-40 flex-col justify-between text-right font-mono text-11 text-ink-3">
+              <span>{dayMax}</span>
+              <span>{Math.round(dayMax / 2)}</span>
+              <span>0</span>
+            </div>
+            <div className="flex h-40 items-end gap-1 border-b border-line-2 bg-[linear-gradient(var(--line)_1px,transparent_1px)] bg-[length:100%_50%]">
+              {a.daily.map((d, i) => (
+                <div
+                  key={d.date}
+                  title={`${d.date}: ${d.ac} accepted, ${d.wa} wrong, ${d.other} other`}
+                  className="flex h-full flex-1 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] flex-col-reverse gap-0.5"
+                  style={{ animationDelay: `${i * 15}ms` }}
+                >
+                  {d.ac > 0 && (
+                    <span
+                      className="rounded-[2px] bg-signal"
+                      style={{ height: `${(d.ac / dayMax) * 100}%` }}
+                    />
+                  )}
+                  {d.wa > 0 && (
+                    <span
+                      className="rounded-[2px] bg-[var(--rose)]"
+                      style={{ height: `${(d.wa / dayMax) * 100}%` }}
+                    />
+                  )}
+                  {d.other > 0 && (
+                    <span
+                      className="rounded-[2px] bg-line-3"
+                      style={{ height: `${(d.other / dayMax) * 100}%` }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-2 flex justify-between pl-8 font-mono text-11 text-ink-3">
+            {[0, 7, 14, 21, 29].map((i) => (
+              <span key={i}>
+                {i === 29
+                  ? "Today"
+                  : new Date(`${a.daily[i]!.date}T12:00:00Z`).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      timeZone: "UTC",
+                    })}
+              </span>
+            ))}
+          </div>
+          <p className="mt-2 text-12 text-ink-3">
+            Last 30 days. LeetCode and GFG sync only report Accepted; the extension sees the rest.
           </p>
         </Card>
 
-        <Card spotlight className="col-span-12 xl:col-span-4">
+        <Card className="lamp col-span-12 p-[22px]">
           <CardHeader>
-            <CardTitle icon={icon(Target)} tint="var(--medium)">
-              How you solved
-            </CardTitle>
+            <CardTitle>Skill map</CardTitle>
+            <CardSub>size = solved · fill = mastery · lines = what unlocks what</CardSub>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
+              <SkillMap topics={mastery} weakest={weakestTopic} />
+            </div>
+          </div>
+        </Card>
+
+        <Card className="col-span-12 md:col-span-6 xl:col-span-4">
+          <CardHeader>
+            <CardTitle>Verdicts</CardTitle>
+            <CardSub className="font-mono">{subs} submissions</CardSub>
+          </CardHeader>
+          <div className="flex items-center gap-5">
+            <svg
+              viewBox="0 0 120 120"
+              width="128"
+              height="128"
+              role="img"
+              aria-label={vmix.map((v) => `${v.label} ${v.n}`).join(", ")}
+            >
+              <circle
+                cx="60"
+                cy="60"
+                r="46"
+                fill="none"
+                stroke="var(--surface-4)"
+                strokeWidth="12"
+              />
+              {vmix.map((v) => (
+                <circle
+                  key={v.label}
+                  cx="60"
+                  cy="60"
+                  r="46"
+                  fill="none"
+                  stroke={v.color}
+                  strokeWidth="12"
+                  strokeDasharray={`${(v.frac * VC).toFixed(1)} ${VC.toFixed(1)}`}
+                  transform={`rotate(${v.rot.toFixed(1)} 60 60)`}
+                />
+              ))}
+              <text
+                x="60"
+                y="65"
+                textAnchor="middle"
+                fontSize="22"
+                fontWeight="600"
+                fill="var(--ink)"
+              >
+                {subs ? Math.round(((vmix[0]?.n ?? 0) / subs) * 100) : 0}%
+              </text>
+            </svg>
+            <ul className="flex flex-col gap-2.5 text-13">
+              {vmix.map((v) => (
+                <li key={v.label} className="flex items-center gap-2">
+                  <i className="size-2 rounded-[2px]" style={{ background: v.color }} />
+                  {v.label} <span className="font-mono text-ink-3">{v.n}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+
+        <Card className="col-span-12 md:col-span-6 xl:col-span-4">
+          <CardHeader>
+            <CardTitle>Time to solve</CardTitle>
+            <CardSub>median and middle half</CardSub>
+          </CardHeader>
+          <div className="flex flex-col gap-4 pt-1.5">
+            {(["easy", "medium", "hard"] as const).map((d) => {
+              const row = a.byDifficulty.find((r) => r.difficulty === d);
+              const sp = a.spread[d];
+              const pos = (ms: number) => `${Math.min(100, (ms / SPAN_MS) * 100).toFixed(1)}%`;
+              return (
+                <div
+                  key={d}
+                  className="grid grid-cols-[72px_minmax(0,1fr)_48px] items-center gap-3"
+                >
+                  <DifficultyTag difficulty={d} />
+                  <div className="relative h-[18px]">
+                    <span className="absolute inset-x-0 top-2 h-0.5 rounded-full bg-surface-4" />
+                    {sp && (
+                      <span
+                        className="absolute top-1 h-2.5 rounded-full"
+                        style={{
+                          left: pos(sp.p25),
+                          width: `calc(${pos(sp.p75)} - ${pos(sp.p25)})`,
+                          background: `color-mix(in srgb, var(--${d}) 25%, transparent)`,
+                        }}
+                      />
+                    )}
+                    {row?.medianMs ? (
+                      <span
+                        className="absolute top-0 -ml-[1.5px] h-[18px] w-[3px] rounded-full bg-ink"
+                        style={{ left: pos(row.medianMs) }}
+                      />
+                    ) : null}
+                  </div>
+                  <span className="tnum text-right font-mono text-13">
+                    {row?.medianMs ? `${Math.round(row.medianMs / 60_000)}m` : "—"}
+                  </span>
+                </div>
+              );
+            })}
+            <div className="grid grid-cols-[72px_minmax(0,1fr)_48px] gap-3">
+              <span />
+              <div className="flex justify-between font-mono text-11 text-ink-3">
+                <span>0</span>
+                <span>15</span>
+                <span>30</span>
+                <span>45</span>
+                <span>60 min</span>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="col-span-12 xl:col-span-4">
+          <CardHeader>
+            <CardTitle>When you get accepted</CardTitle>
+            <CardSub>
+              {bestHour !== null
+                ? `best: ${String(bestHour).padStart(2, "0")}:00–${String((bestHour + 2) % 24).padStart(2, "0")}:00`
+                : "by hour"}
+            </CardSub>
+          </CardHeader>
+          <div className="flex h-[110px] items-end gap-[3px] border-b border-line-2">
+            {a.byHour.map((n, h) => (
+              <span
+                key={h}
+                title={`${String(h).padStart(2, "0")}:00 · ${n} accepted`}
+                className="flex-1 rounded-[3px_3px_1px_1px]"
+                style={{
+                  height: n ? `${(n / hourMax) * 100}%` : "2px",
+                  background:
+                    n >= hourMax * 0.8
+                      ? "var(--signal)"
+                      : n
+                        ? "color-mix(in srgb, var(--signal) 45%, transparent)"
+                        : "var(--surface-4)",
+                }}
+              />
+            ))}
+          </div>
+          <div className="mt-2 flex justify-between font-mono text-11 text-ink-3">
+            <span>00</span>
+            <span>06</span>
+            <span>12</span>
+            <span>18</span>
+            <span>24</span>
+          </div>
+        </Card>
+
+        <Card className="col-span-12 md:col-span-6">
+          <CardHeader>
+            <CardTitle>How you solved</CardTitle>
             <CardSub>after Accepted</CardSub>
           </CardHeader>
           <HonestSplit {...a.independence} />
@@ -184,19 +425,7 @@ async function AnalyticsContent({
 
         <Card className="col-span-12 md:col-span-6">
           <CardHeader>
-            <CardTitle icon={icon(Timer)} tint="var(--medium)">
-              Time per difficulty
-            </CardTitle>
-            <CardSub>timed sessions</CardSub>
-          </CardHeader>
-          <DifficultyTime rows={a.byDifficulty} />
-        </Card>
-
-        <Card className="col-span-12 md:col-span-6">
-          <CardHeader>
-            <CardTitle icon={icon(Layers)} tint="var(--violet)">
-              Time per topic
-            </CardTitle>
+            <CardTitle>Time per topic</CardTitle>
             <CardSub>minutes · a session counts for each topic</CardSub>
           </CardHeader>
           {a.byTopic.length === 0 ? (
@@ -218,9 +447,7 @@ async function AnalyticsContent({
 
         <Card className="col-span-12">
           <CardHeader>
-            <CardTitle icon={icon(Bug)} tint="var(--hard)">
-              Mistakes you tagged
-            </CardTitle>
+            <CardTitle>Mistakes you tagged</CardTitle>
             <CardSub>after a wrong answer</CardSub>
           </CardHeader>
           {a.mistakes.length === 0 ? (
@@ -230,32 +457,17 @@ async function AnalyticsContent({
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {a.mistakes.map((m, i) => (
+              {a.mistakes.map((m) => (
                 <span
                   key={m.tag}
-                  className="inline-flex items-center gap-2 rounded-full border border-v-wa/30 bg-v-wa/10 px-3 py-1"
-                  style={{ fontSize: `${Math.max(12, 16 - i * 0.6)}px` }}
+                  className="inline-flex items-center gap-2 rounded-full bg-hard-soft px-3 py-1 text-13"
                 >
-                  {m.tag}
-                  <span className="tnum rounded-full bg-v-wa/20 px-1.5 font-mono text-11 text-v-wa">
-                    ×{m.n}
-                  </span>
+                  {m.tag.replace(/-/g, " ")}
+                  <span className="tnum font-mono text-11 text-hard">×{m.n}</span>
                 </span>
               ))}
             </div>
           )}
-        </Card>
-
-        <Card className="lamp col-span-12 p-[22px]">
-          <CardHeader>
-            <CardTitle>Skill map</CardTitle>
-            <CardSub>size = solved · fill = mastery · lines = what unlocks what</CardSub>
-          </CardHeader>
-          <div className="overflow-x-auto">
-            <div className="min-w-[640px]">
-              <SkillMap topics={mastery} weakest={weakestTopic} />
-            </div>
-          </div>
         </Card>
 
         <Card id="mastery" className="col-span-12 scroll-mt-24">
@@ -306,49 +518,5 @@ async function AnalyticsContent({
         </Card>
       </div>
     </>
-  );
-}
-
-function Kpi({
-  icon,
-  tint,
-  title,
-  value,
-  decimals,
-  unit,
-  foot,
-  progress,
-}: {
-  icon: ReactNode;
-  tint: string;
-  title: string;
-  value: number;
-  decimals?: number;
-  unit?: string;
-  foot: string;
-  progress?: number;
-}) {
-  return (
-    <Card
-      spotlight
-      glow={tint}
-      className="col-span-12 flex flex-col gap-2.5 sm:col-span-6 xl:col-span-3"
-    >
-      <CardTitle icon={icon} tint={tint}>
-        {title}
-      </CardTitle>
-      <p className="num text-[40px]">
-        <NumberTicker value={value} decimals={decimals} />
-        {unit && (
-          <small className="ml-1.5 font-display text-[.45em] font-normal tracking-normal text-ink-3 italic">
-            {unit}
-          </small>
-        )}
-      </p>
-      {progress !== undefined && (
-        <LinearProgress value={progress} max={1} height={5} color={tint} aria-label={title} />
-      )}
-      <p className="text-12 text-ink-3">{foot}</p>
-    </Card>
   );
 }
