@@ -200,6 +200,7 @@ async function Overview() {
     solved: d.count,
     today: i === 6,
   }));
+  const week7Ms = last7.reduce((n, d) => n + d.focusMs, 0);
   const activeDays30 = spark30.filter((n) => n > 0).length;
   const base30 = stats.solved.total - spark30.reduce((n, v) => n + v, 0);
   const cumulative30 = spark30.map(
@@ -330,7 +331,7 @@ async function Overview() {
               </span>
             </span>
           </CardHeader>
-          <WeekStrip days={last7} />
+          <WeekStrip days={last7} goalMs={profile.dailyGoalMin * 60_000} />
           <div className="mt-auto grid grid-cols-3 gap-3 border-t border-line pt-3.5">
             <div>
               <p className="text-12 text-ink-3">Streak</p>
@@ -349,8 +350,12 @@ async function Overview() {
             <div>
               <p className="text-12 text-ink-3">Focus</p>
               <p className="num mt-1 text-24">
-                {(last7.reduce((n, d) => n + d.focusMs, 0) / 3_600_000).toFixed(1)}
-                <small className="ml-0.5 text-[.5em] font-[500] text-ink-3">h</small>
+                {week7Ms >= 3_600_000
+                  ? (week7Ms / 3_600_000).toFixed(1)
+                  : Math.round(week7Ms / 60_000)}
+                <small className="ml-0.5 text-[.5em] font-[500] text-ink-3">
+                  {week7Ms >= 3_600_000 ? "h" : "min"}
+                </small>
               </p>
             </div>
             <div>
@@ -406,8 +411,9 @@ async function Overview() {
             },
             {
               label: "Focus this week",
-              value: (focus / 3_600_000).toFixed(1),
-              unit: "h",
+              value:
+                focus >= 3_600_000 ? (focus / 3_600_000).toFixed(1) : Math.round(focus / 60_000),
+              unit: focus >= 3_600_000 ? "h" : "min",
               note: hasExtension
                 ? `${focusPct}% of ${formatDuration(goalWeekMs)} goal`
                 : "install the extension",

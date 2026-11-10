@@ -165,10 +165,13 @@ export function DayDial({
 /** Seven study days: an amber focus bar per day and a lime dot per accepted problem. */
 export function WeekStrip({
   days,
+  goalMs = 0,
 }: {
   days: { label: string; focusMs: number; solved: number; today: boolean }[];
+  /** Bars are scaled to at least your daily goal, so two minutes doesn't look like a full day. */
+  goalMs?: number;
 }) {
-  const max = Math.max(1, ...days.map((d) => d.focusMs));
+  const max = Math.max(1, goalMs, ...days.map((d) => d.focusMs));
   return (
     <div className="grid h-[176px] grid-cols-7 items-end gap-2.5 pt-2">
       {days.map((d, i) => (
@@ -182,7 +185,7 @@ export function WeekStrip({
             title={`${Math.round(d.focusMs / 60_000)} min focus · ${d.solved} accepted`}
             className="w-full max-w-[34px] origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[8px_8px_4px_4px]"
             style={{
-              height: d.focusMs ? `${Math.max(10, (d.focusMs / max) * 120)}px` : "4px",
+              height: d.focusMs ? `${Math.max(6, (d.focusMs / max) * 120)}px` : "4px",
               background: d.focusMs
                 ? d.today
                   ? "var(--amber)"
