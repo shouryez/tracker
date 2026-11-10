@@ -55,7 +55,9 @@ export function DayDial({
       const len = Math.max(0.004, frac(s.start + s.ms) - a);
       return { rot: a * 360 - 90, da: `${(len * circ).toFixed(1)} ${circ.toFixed(1)}` };
     });
+  // A short hand on the rim, so it never crosses the numbers in the middle.
   const hand = polar(frac(now), 80);
+  const handIn = polar(frac(now), 60);
   const label = (h: number) => String((resetHour + h) % 24).padStart(2, "0");
   const t = hm(focusMs);
   const goalLeft = Math.max(0, goalMs - focusMs);
@@ -116,14 +118,14 @@ export function DayDial({
           );
         })}
         <line
-          x1={C}
-          y1={C}
+          x1={handIn.x}
+          y1={handIn.y}
           x2={hand.x}
           y2={hand.y}
           stroke="var(--ink)"
-          strokeWidth={1.5}
+          strokeWidth={2}
           strokeLinecap="round"
-          opacity={0.55}
+          opacity={0.7}
         />
         <circle cx={hand.x} cy={hand.y} r={3.5} fill="var(--ink)" />
         {[
@@ -147,7 +149,7 @@ export function DayDial({
       </svg>
       <figcaption className="pointer-events-none absolute inset-0 grid place-content-center gap-0.5 text-center">
         <span className="label-mono">Focused today</span>
-        <span className="num text-[32px]">
+        <span className="num text-[28px]">
           {t.big}
           <small className="ml-0.5 text-[15px] font-[500] text-ink-3">{t.small}</small>
         </span>
@@ -491,5 +493,144 @@ export function WeekHours({ days, resetHour }: { days: WeekHoursDay[]; resetHour
         </div>
       </div>
     </div>
+  );
+}
+
+const MAP: Record<string, [number, number]> = {
+  arrays: [140, 190],
+  strings: [300, 70],
+  hashing: [300, 190],
+  sorting: [300, 310],
+  "two-pointers": [460, 110],
+  "binary-search": [460, 260],
+  "sliding-window": [620, 60],
+  "linked-list": [620, 185],
+  recursion: [620, 310],
+  "stack-queue": [770, 120],
+  trees: [770, 250],
+  heap: [910, 80],
+  graphs: [910, 200],
+  dp: [910, 320],
+};
+const FALLBACK_LABEL: Record<string, string> = {
+  arrays: "Arrays",
+  strings: "Strings",
+  hashing: "Hashing",
+  sorting: "Sorting",
+  "two-pointers": "Two pointers",
+  "binary-search": "Binary search",
+  "sliding-window": "Sliding window",
+  "linked-list": "Linked list",
+  recursion: "Recursion",
+  "stack-queue": "Stack and queue",
+  trees: "Trees",
+  heap: "Heaps",
+  graphs: "Graphs",
+  dp: "DP",
+};
+const UNLOCKS: [string, string][] = [
+  ["arrays", "strings"],
+  ["arrays", "hashing"],
+  ["arrays", "sorting"],
+  ["arrays", "two-pointers"],
+  ["sorting", "binary-search"],
+  ["two-pointers", "sliding-window"],
+  ["strings", "sliding-window"],
+  ["hashing", "linked-list"],
+  ["sorting", "recursion"],
+  ["linked-list", "stack-queue"],
+  ["stack-queue", "trees"],
+  ["recursion", "trees"],
+  ["trees", "heap"],
+  ["trees", "graphs"],
+  ["recursion", "dp"],
+];
+
+/**
+ * Topics as a map of what unlocks what. Node size = problems solved, lime fill = mastery,
+ * rose = your weakest, dashed and grey = not started yet.
+ */
+export function SkillMap({
+  topics,
+  weakest,
+}: {
+  topics: { topic: string; label: string; solved: number; score: number }[];
+  weakest: string | null;
+}) {
+  const by = new Map(topics.map((t) => [t.topic, t]));
+  const nodes = Object.entries(MAP).map(([id, [x, y]]) => {
+    const t = by.get(id);
+    const n = t?.solved ?? 0;
+    const r = 14 + Math.min(26, Math.sqrt(n) * 5);
+    return { id, x, y, r, n, t, weak: id === weakest };
+  });
+  const pos = new Map(nodes.map((n) => [n.id, n]));
+  return (
+    <svg
+      viewBox="0 0 1040 400"
+      className="h-auto w-full"
+      role="img"
+      aria-label={`Topic map. ${topics
+        .filter((t) => t.solved > 0)
+        .map((t) => `${t.label} ${t.solved} solved, mastery ${t.score}`)
+        .join("; ")}`}
+    >
+      {UNLOCKS.map(([a, b]) => {
+        const A = pos.get(a)!;
+        const B = pos.get(b)!;
+        const on = A.n > 0 && B.n > 0;
+        return (
+          <path
+            key={`${a}-${b}`}
+            d={`M${A.x} ${A.y} Q${(A.x + B.x) / 2} ${(A.y + B.y) / 2 - 22} ${B.x} ${B.y}`}
+            fill="none"
+            stroke={on ? "var(--line-3)" : "var(--line-2)"}
+            strokeWidth={1.5}
+            strokeDasharray={on ? undefined : "4 5"}
+          />
+        );
+      })}
+      {nodes.map((n) => {
+        const label = n.t?.label ?? FALLBACK_LABEL[n.id] ?? n.id;
+        const fill = !n.n
+          ? "var(--surface-2)"
+          : n.weak
+            ? "color-mix(in srgb, var(--rose) 22%, transparent)"
+            : `color-mix(in srgb, var(--signal) ${Math.round(10 + (n.t!.score / 100) * 45)}%, transparent)`;
+        return (
+          <g key={n.id}>
+            {n.n > 0 && <circle cx={n.x} cy={n.y} r={n.r + 8} fill="none" stroke="var(--line)" />}
+            <circle
+              cx={n.x}
+              cy={n.y}
+              r={n.r}
+              fill={fill}
+              stroke={!n.n ? "var(--line-2)" : n.weak ? "var(--rose)" : "var(--signal)"}
+              strokeWidth={1.5}
+            />
+            <text
+              x={n.x}
+              y={n.y + n.r + 17}
+              textAnchor="middle"
+              fontSize={13}
+              fontWeight={600}
+              fill={n.n ? "var(--ink)" : "var(--ink-3)"}
+            >
+              {label}
+            </text>
+            <text
+              x={n.x}
+              y={n.y + n.r + 31}
+              textAnchor="middle"
+              fontSize={11}
+              fill="var(--ink-3)"
+              fontFamily="var(--font-mono)"
+            >
+              {n.n ? `${n.n} · ${n.t!.score}%` : "not started"}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
   );
 }

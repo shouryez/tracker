@@ -9,6 +9,7 @@ import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { RangeControl } from "@/components/range-control";
 import { DifficultyTime, HourBars, VerdictMix } from "@/components/analytics-charts";
 import { MasteryBars } from "@/components/learning";
+import { SkillMap } from "@/components/dashboard/lamplight";
 import { HonestSplit } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getAnalytics, RANGES, type RangeKey } from "@/lib/analytics-data";
@@ -245,6 +246,18 @@ async function AnalyticsContent({
           )}
         </Card>
 
+        <Card className="lamp col-span-12 p-[22px]">
+          <CardHeader>
+            <CardTitle>Skill map</CardTitle>
+            <CardSub>size = solved · fill = mastery · lines = what unlocks what</CardSub>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
+              <SkillMap topics={mastery} weakest={weakestTopic} />
+            </div>
+          </div>
+        </Card>
+
         <Card id="mastery" className="col-span-12 scroll-mt-24">
           <CardHeader>
             <CardTitle icon={icon(Brain)} tint="var(--easy)">
@@ -339,5 +352,3 @@ function Kpi({
     </Card>
   );
 }
-
-// DsaKaro
