@@ -159,7 +159,8 @@ export function FocusScreen({
   const progress = Math.min(1, done / span);
   const lit = Math.floor(progress * TICKS);
   const seconds = Math.floor(elapsed / 1000);
-  const tone = onBreak ? "var(--info)" : paused ? "var(--medium)" : "var(--signal)";
+  // Lamplight: focus is the lamp (amber), a break is mint, paused dims to grey.
+  const tone = onBreak ? "#5fd6b2" : paused ? "#9aa0ab" : "#f3b45c";
   const status = brk
     ? brk.left > 0
       ? "Break · stretch, drink water"
@@ -180,7 +181,7 @@ export function FocusScreen({
       onPointerMove={wake}
       onPointerDown={wake}
       className={cn(
-        "fixed inset-0 z-[90] flex flex-col overflow-hidden bg-[#060607] text-[#f4f4f6] select-none",
+        "fixed inset-0 z-[90] flex flex-col overflow-hidden bg-[#0b0c0f] text-[#eceef2] select-none",
         "animate-[focus-in_500ms_var(--ease-out)]",
         idle && "cursor-none",
       )}
@@ -204,10 +205,11 @@ export function FocusScreen({
             paused ? "opacity-20" : "opacity-90",
           )}
           style={{
-            background:
-              "radial-gradient(closest-side, color-mix(in srgb, var(--violet) 26%, transparent), transparent)",
+            background: "radial-gradient(closest-side, rgba(120, 150, 255, 0.12), transparent)",
           }}
         />
+        {/* Dot field, clear in the middle so the wheel sits on a dark desk. */}
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,.05)_1px,transparent_1.4px)] [mask-image:radial-gradient(closest-side,transparent_45%,#000_100%)] bg-[length:26px_26px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,.65))]" />
         <div className="grain absolute inset-0 [--grain-opacity:.12]" />
       </div>
@@ -303,6 +305,17 @@ export function FocusScreen({
                 filter: "drop-shadow(0 0 10px color-mix(in srgb, var(--tone) 60%, transparent))",
               }}
             />
+            {/* A bright knob where the arc has reached. */}
+            {progress > 0.005 && (
+              <circle
+                cx={200 + Math.cos(progress * Math.PI * 2 - Math.PI / 2) * 158}
+                cy={200 + Math.sin(progress * Math.PI * 2 - Math.PI / 2) * 158}
+                r="10"
+                fill="#fff7ea"
+                stroke="var(--tone)"
+                strokeWidth="4"
+              />
+            )}
             {/* Seconds: a small dot orbiting just inside the arc. */}
             <g
               className={cn(
@@ -345,7 +358,7 @@ export function FocusScreen({
         </div>
 
         {active.label && (
-          <p className="max-w-[min(90vw,560px)] truncate text-center font-display text-[clamp(18px,2.4vw,26px)] text-white/80 italic">
+          <p className="max-w-[min(90vw,560px)] truncate text-center text-[clamp(16px,2vw,22px)] font-[550] tracking-[-0.02em] text-white/85">
             {active.label}
           </p>
         )}
@@ -369,7 +382,7 @@ export function FocusScreen({
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-500",
                   i < p.round - 1
-                    ? "w-6 bg-[var(--signal)]"
+                    ? "w-6 bg-[#f3b45c]"
                     : i === p.round - 1
                       ? "w-10 bg-white/70"
                       : "w-6 bg-white/12",
@@ -379,7 +392,7 @@ export function FocusScreen({
           {shown.tracking && (
             <span className="ml-2 flex gap-3 font-mono text-12 text-white/55">
               <span>
-                <span className="text-success">●</span> focus {mins(shown.focusMs)}
+                <span className="text-[#f3b45c]">●</span> focus {mins(shown.focusMs)}
               </span>
               <span>
                 <span className="text-medium">●</span> away {mins(shown.awayMs)}

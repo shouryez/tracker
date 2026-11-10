@@ -115,7 +115,8 @@ export function FocusPopout({
     (brk ? brk.length - brk.left : p ? p.length - p.left : elapsed % span) / span,
   );
   const onBreak = Boolean(brk);
-  const tone = onBreak ? "var(--info)" : paused ? "var(--medium)" : "var(--signal)";
+  // Lamplight: focus is the lamp (amber), a break is mint, paused dims to grey.
+  const tone = onBreak ? "#5fd6b2" : paused ? "#9aa0ab" : "#f3b45c";
   const status = brk
     ? brk.left > 0
       ? "Break"
@@ -233,7 +234,7 @@ export function FocusPopout({
 
   return createPortal(
     <div
-      className="relative h-dvh w-full overflow-hidden bg-[#09090c] text-[#f4f4f6] select-none"
+      className="relative h-dvh w-full overflow-hidden bg-[#0b0c0f] text-[#eceef2] select-none"
       style={{ "--tone": tone } as CSSProperties}
     >
       {/* Ambient: a soft glow of the state colour and a hairline of progress along the top. */}
@@ -267,7 +268,7 @@ export function FocusPopout({
             {p && <span className="mt-1.5 text-11 text-white/40">{focusClock(elapsed)} total</span>}
           </div>
           {active.label && (live?.now || live?.autoPaused) && (
-            <p className="max-w-full truncate font-display text-[15px] text-white/75 italic">
+            <p className="max-w-full truncate text-[14px] font-[550] text-white/80">
               {active.label}
             </p>
           )}
@@ -385,7 +386,7 @@ function GroupPanel({
             className="max-w-[60%] truncate rounded-md border border-white/10 bg-white/[.04] px-1.5 py-0.5 text-12 font-[600] text-white outline-none"
           >
             {hall.groups.map((g) => (
-              <option key={g.id} value={g.id} className="bg-[#16161b]">
+              <option key={g.id} value={g.id} className="bg-[#15171d]">
                 {g.name}
               </option>
             ))}
