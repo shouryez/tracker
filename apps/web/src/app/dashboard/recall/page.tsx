@@ -61,17 +61,26 @@ async function RecallContent({
           )
         }
       />
-      <Card glow="var(--violet)">
-        <CardHeader>
-          <CardTitle icon={<Zap size={14} />} tint="var(--violet)">
-            Round {round + 1}
-          </CardTitle>
-          <CardSub>from your solved problems</CardSub>
-        </CardHeader>
-        <RecallQuiz key={`${day}-${round}`} cards={cards} round={round} />
-      </Card>
+      {/* The deck: two cards peek out behind the one you're answering. */}
+      <div className="relative pt-3.5">
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-10 top-0 h-16 rounded-[16px] bg-surface-2 shadow-[inset_0_0_0_1px_var(--line)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-5 top-[7px] h-16 rounded-[16px] bg-surface-3 shadow-[inset_0_0_0_1px_var(--line)]"
+        />
+        <Card className="lamp relative p-6 sm:p-7">
+          <CardHeader>
+            <CardTitle icon={<Zap size={14} />} tint="var(--sky)">
+              Round {round + 1}
+            </CardTitle>
+            <CardSub>from your solved problems</CardSub>
+          </CardHeader>
+          <RecallQuiz key={`${day}-${round}`} cards={cards} round={round} />
+        </Card>
+      </div>
     </>
   );
 }
-
-// DsaKaro
