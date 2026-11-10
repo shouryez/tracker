@@ -112,17 +112,15 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement> & { icon?: ReactNode; tint?: string }) {
   return (
     <h3
-      className={cn("flex items-center gap-2.5 text-14 font-[600] tracking-[-0.01em]", className)}
+      className={cn("flex items-center gap-2 text-[14.5px] font-[600] tracking-[-0.01em]", className)}
       {...props}
     >
       {icon && (
         <span
           aria-hidden="true"
           className={cn(
-            "grid size-7 shrink-0 place-items-center rounded-[9px] border",
-            tint
-              ? "border-[color-mix(in_srgb,var(--tint)_30%,transparent)] bg-[color-mix(in_srgb,var(--tint)_14%,transparent)] text-[var(--tint)]"
-              : "border-line bg-surface-2 text-ink-2",
+            "grid shrink-0 place-items-center [&_svg]:size-[15px]",
+            tint ? "text-[var(--tint)]" : "text-ink-3",
           )}
           style={tint ? ({ "--tint": tint } as CSSProperties) : undefined}
         >
@@ -178,7 +176,7 @@ export function CornerArrow({ className }: { className?: string }) {
   );
 }
 
-/** Big number with the unit in serif italic. */
+/** Big number with a smaller, dimmer unit. */
 export function Stat({
   value,
   unit,
@@ -192,7 +190,7 @@ export function Stat({
     <div className={cn("num text-[40px]", className)}>
       {value}
       {unit && (
-        <small className="ml-1.5 font-display text-[.5em] font-normal tracking-normal text-ink-3 italic">
+        <small className="ml-1 text-[.5em] font-[500] tracking-[-0.01em] text-ink-3">
           {unit}
         </small>
       )}

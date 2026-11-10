@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../cn";
 
 /**
- * signal  = the one primary CTA per view (lime, glow + sheen)
+ * signal  = the one primary CTA per view (lime)
  * primary = strong neutral (ink), for secondary-but-important actions
  * indigo  = kept for older call sites; now a calm violet-tinted secondary, never a CTA
  */
@@ -19,7 +19,7 @@ export type ButtonVariant =
 export type ButtonSize = "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const base =
-  "group/btn relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-[550] tracking-[-0.005em] select-none " +
+  "group/btn relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] font-[550] tracking-[-0.005em] select-none " +
   "transition-[transform,background-color,box-shadow,border-color,color,opacity] duration-[var(--dur-base)] ease-[var(--ease-out)] " +
   "active:scale-[.97] active:duration-[var(--dur-instant)] " +
   "disabled:pointer-events-none disabled:opacity-40 aria-busy:pointer-events-none " +
@@ -29,24 +29,20 @@ const base =
   "[&_[data-nudge=plus]]:transition-transform [&_[data-nudge=plus]]:duration-[var(--dur-base)] hover:[&_[data-nudge=plus]]:rotate-90";
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-[34px] px-3.5 text-13",
-  md: "h-[42px] px-[18px] text-14",
-  lg: "h-[50px] px-6 text-15",
-  icon: "size-[42px] p-0",
-  "icon-sm": "size-[34px] p-0",
+  sm: "h-[32px] px-3 text-[12.5px] rounded-[8px]",
+  md: "h-[38px] px-3.5 text-[13.5px]",
+  lg: "h-[46px] px-5 text-[14.5px] rounded-[12px]",
+  icon: "size-[38px] p-0",
+  "icon-sm": "size-[32px] p-0 rounded-[8px]",
 };
 
-/** Solid variants lift 2px and rise to e2 on hover. */
-const lift = "hover:-translate-y-0.5";
+/** Lamplight buttons stay put on hover: only colour and shadow change. */
+const lift = "";
 
-const sheen =
-  "overflow-hidden before:absolute before:inset-y-0 before:-left-1/2 before:-z-10 before:w-1/3 before:-skew-x-12 before:bg-white/45 before:opacity-0 before:blur-[2px] " +
-  "before:transition-[transform,opacity] before:duration-[var(--dur-slower)] hover:before:translate-x-[420%] hover:before:opacity-100";
 
 const variants: Record<ButtonVariant, string> = {
   signal: cn(
-    "bg-signal text-signal-ink shadow-[0_0_0_1px_rgba(0,0,0,.06),0_8px_24px_-12px_var(--signal)] hover:shadow-glow-signal",
-    sheen,
+    "bg-signal text-signal-ink shadow-[inset_0_0_0_1px_rgba(0,0,0,.15),0_8px_22px_-10px_color-mix(in_srgb,var(--signal)_60%,transparent)] hover:bg-signal-2",
     lift,
   ),
   primary: cn("bg-ink text-bg hover:shadow-e2", lift),
@@ -55,7 +51,7 @@ const variants: Record<ButtonVariant, string> = {
     lift,
   ),
   secondary: cn(
-    "border border-line-2 bg-surface-2/80 text-ink shadow-xs pointer-fine:backdrop-blur-sm hover:border-line-3 hover:bg-surface-3 hover:shadow-e2",
+    "border border-line-2 bg-surface-3 text-ink hover:border-line-3 hover:bg-[color-mix(in_srgb,var(--surface-3)_70%,var(--ink)_6%)]",
     lift,
   ),
   outline: "border border-line-2 bg-transparent text-ink hover:border-ink-3 hover:bg-surface-2",

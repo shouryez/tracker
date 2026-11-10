@@ -56,7 +56,7 @@ export function ChartEmpty({
         {ghost}
       </div>
       <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
-        <p className="text-14 font-[600] [&_em]:font-display [&_em]:text-[1.12em] [&_em]:font-normal">
+        <p className="text-14 font-[600] [&_em]:text-ink-3 [&_em]:not-italic">
           {title}
         </p>
         {children && <p className="mt-1 max-w-[40ch] text-12 text-ink-3">{children}</p>}

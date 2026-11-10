@@ -66,6 +66,9 @@
   --color-chart-7: var(--chart-7);
   --color-chart-8: var(--chart-8);
   --color-chart-grid: var(--chart-grid);
+  --color-mint: var(--mint);
+  --color-mint-soft: color-mix(in srgb, var(--mint) 13%, transparent);
+  --color-lamp: var(--lamp);
 
   /* Tints and borders for badges and charts (difficulty + status). */
   --color-easy-soft: color-mix(in srgb, var(--easy) 13%, transparent);
@@ -169,7 +172,7 @@
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Consolas, monospace;
-  --font-display: var(--font-instrument-serif), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -367,7 +370,7 @@
 
 /* Big numbers: tight, tabular, slashed zero. */
 @utility num {
-  font-weight: 550;
+  font-weight: 600;
   letter-spacing: -0.04em;
   line-height: 1;
   font-variant-numeric: tabular-nums slashed-zero;
@@ -383,7 +386,7 @@
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.4;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-3);
 }
@@ -1215,6 +1218,70 @@
     transform: translateY(0);
     opacity: 0;
   }
+}
+
+/* ---------- Lamplight ---------- */
+
+/* App ground: ink with one warm lamp up and to the left, and a faint cool fill on the right. */
+@utility desk {
+  background:
+    radial-gradient(1100px 640px at 16% -14%, var(--lamp), transparent 62%),
+    radial-gradient(900px 620px at 104% -6%, var(--lamp-2), transparent 60%), var(--bg);
+  background-attachment: fixed;
+}
+
+/* Dot field that fades downward; sits behind page headers. */
+@utility dotfield {
+  background-image: radial-gradient(var(--dots) 1px, transparent 1.4px);
+  background-size: 20px 20px;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+}
+
+/* The shirorekha: the headline bar of करो, used as a progress line under headings.
+   <div class="rekha"><i style="width: 40%"></i></div> */
+@utility rekha {
+  position: relative;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line-2);
+  overflow: hidden;
+  & > i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 2px;
+    background: var(--signal);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--signal) 40%, transparent);
+    transition: width var(--dur-slow) var(--ease-out);
+  }
+}
+
+/* A warm lamp spot in a card's top-right corner. */
+@utility lamp {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    right: -160px;
+    top: -220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--color-primary-soft), transparent 65%);
+    pointer-events: none;
+  }
+}
+
+/* Headlines are Geist now; old serif accents read as a dimmed word, not italics. */
+.font-display {
+  font-weight: 640;
+  letter-spacing: -0.045em;
+}
+em.font-display,
+.font-display.italic,
+.font-display em {
+  font-style: normal;
+  color: var(--ink-3);
 }
 
 /* DsaKaro */

@@ -1,23 +1,27 @@
 import type { ReactNode } from "react";
 import { cn } from "@upsolve/ui";
 
-/** Ambient glow colour per section. */
+/**
+ * Lamplight has one light source: every page header sits under the same warm lamp.
+ * Kept as a map so callers can still say which section they are.
+ */
+const LAMP = "var(--amber)";
 export const PAGE_GLOW = {
-  overview: "var(--primary)",
-  revision: "var(--violet)",
-  sheets: "var(--primary)",
-  analytics: "var(--easy)",
-  sessions: "var(--signal)",
-  contests: "var(--medium)",
-  groups: "#ff6bb5",
-  college: "var(--info)",
-  settings: "var(--ink-3)",
+  overview: LAMP,
+  revision: LAMP,
+  sheets: LAMP,
+  analytics: LAMP,
+  sessions: LAMP,
+  contests: LAMP,
+  groups: LAMP,
+  college: LAMP,
+  settings: LAMP,
 } as const;
 
 /**
- * App page header: mono eyebrow → sans title with one serif-italic accent (pass it as <em>)
+ * App page header: mono eyebrow → title with one dimmed accent (pass it as <em>)
  * → a one-line subtitle with live numbers → actions on the right (one primary at most).
- * A soft ambient glow tinted per page sits behind it.
+ * A faint dot field and the lamp glow sit behind it.
  */
 export function PageHeader({
   eyebrow,
@@ -38,16 +42,22 @@ export function PageHeader({
     <header
       className={cn("relative isolate flex flex-wrap items-end justify-between gap-4", className)}
     >
+      <span aria-hidden="true" className="dotfield pointer-events-none absolute -inset-x-4 -top-8 -bottom-4 -z-10" />
       {glow && (
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] scale-[1.6] opacity-[.16]"
+          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] scale-[1.6] opacity-[.14]"
           style={{ background: `radial-gradient(closest-side, ${glow}, transparent)` }}
         />
       )}
       <div className="min-w-0">
-        {eyebrow && <p className="mb-2 label-mono">{eyebrow}</p>}
-        <h1 className="text-[clamp(28px,3.6vw,40px)] leading-[1.04] font-[600] tracking-[-0.04em] [&_em]:font-display [&_em]:text-[1.12em] [&_em]:font-normal [&_em]:tracking-[-0.01em]">
+        {eyebrow && (
+          <p className="mb-2 flex items-center gap-2 label-mono">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-signal shadow-[0_0_0_3px_var(--color-signal-soft)]" />
+            {eyebrow}
+          </p>
+        )}
+        <h1 className="text-[clamp(26px,3vw,34px)] leading-[1.05] font-[620] tracking-[-0.035em] [&_em]:font-[inherit] [&_em]:text-ink-3 [&_em]:not-italic">
           {title}
         </h1>
         {subtitle && (

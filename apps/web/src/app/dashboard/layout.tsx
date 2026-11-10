@@ -14,7 +14,7 @@ import { UserMenu, UserMenuSkeleton } from "./_components/user-menu";
 
 export default function DashboardLayout({ children }: LayoutProps<"/dashboard">) {
   return (
-    <div className="min-h-dvh bg-bg-2 lg:flex">
+    <div className="desk min-h-dvh lg:flex">
       <Suspense fallback={<SidebarView pathname={null} />}>
         <SidebarWithData />
       </Suspense>

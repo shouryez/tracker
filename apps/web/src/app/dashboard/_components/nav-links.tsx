@@ -131,7 +131,7 @@ export function SidebarView({
     <aside
       data-collapsed={collapsed || undefined}
       className={cn(
-        "group/side sticky top-0 hidden h-dvh flex-col gap-1 overflow-y-auto border-r border-line bg-[linear-gradient(180deg,var(--surface),var(--bg-2))] px-3 py-[18px] lg:flex",
+        "group/side sticky top-0 hidden h-dvh flex-col gap-1 overflow-y-auto border-r border-line bg-[linear-gradient(180deg,color-mix(in_srgb,var(--surface)_70%,transparent),transparent_40%)] px-3 py-[18px] lg:flex",
         "transition-[width] duration-[var(--dur-slow)] ease-[var(--ease-in-out)]",
         collapsed ? "w-[76px]" : "w-[236px]",
       )}
@@ -230,7 +230,7 @@ function Group({
               aria-current={active ? "page" : undefined}
               aria-label={collapsed ? label : undefined}
               className={cn(
-                "group/nav relative flex items-center gap-2.5 rounded-[11px] px-2.5 py-2 text-[13.5px] transition-colors duration-[var(--dur-base)]",
+                "group/nav relative flex items-center gap-2.5 rounded-[9px] px-2.5 py-[7px] text-[13.5px] transition-colors duration-[var(--dur-base)]",
                 collapsed && "justify-center px-0",
                 active ? "font-[550] text-ink" : "text-ink-2 hover:bg-surface-2/70 hover:text-ink",
               )}
@@ -240,11 +240,11 @@ function Group({
                 <motion.span
                   layoutId="nav-active"
                   transition={{ type: "spring", stiffness: 500, damping: 34 }}
-                  className="absolute inset-0 -z-10 rounded-[11px] border border-line-2 bg-surface-3 shadow-e1"
+                  className="absolute inset-0 -z-10 rounded-[9px] border border-line bg-surface-3"
                 >
                   <span
                     aria-hidden="true"
-                    className="absolute top-[9px] bottom-[9px] -left-3 w-[3px] rounded-r-[3px] bg-signal shadow-[0_0_12px_var(--signal)]"
+                    className="absolute top-[9px] bottom-[9px] -left-3 w-[3px] rounded-r-[3px] bg-signal shadow-[0_0_10px_color-mix(in_srgb,var(--signal)_50%,transparent)]"
                   />
                 </motion.span>
               )}
@@ -262,7 +262,7 @@ function Group({
                 <span
                   aria-label={`${badge} due`}
                   className={cn(
-                    "pulse-ring tnum rounded-full bg-signal px-1.5 font-mono [--pulse-color:var(--signal)] [--pulse-scale:1.45] text-[10px] leading-[18px] font-semibold text-signal-ink",
+                    "tnum min-w-[18px] rounded-full bg-primary-soft px-1.5 text-center font-mono text-[10.5px] leading-[18px] font-semibold text-primary",
                     collapsed ? "absolute top-0.5 right-1.5 h-[16px] leading-[16px]" : "ml-auto",
                   )}
                 >

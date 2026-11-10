@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { themeScript } from "@upsolve/ui";
 import { Toaster } from "@/components/toaster";
 import "./globals.css";
@@ -9,19 +9,12 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-// Mono is only used for small labels: not preloaded, so it doesn't compete with the
-// headline fonts for the first paint.
+// Mono is for timers, counts and small labels: not preloaded, so it doesn't compete with
+// the text font for the first paint.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   preload: false,
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -42,7 +35,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       data-theme="dark"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full`}
     >
       <head>
         {/* We ship our own dark theme; this stops Dark Reader rewriting SVGs (hydration mismatch). */}

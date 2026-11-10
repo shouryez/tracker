@@ -1,12 +1,13 @@
 /*
- * DsaKaro design tokens: "Midnight Lab". Source of truth: design/MIDNIGHT-LAB.md.
+ * DsaKaro design tokens: "Lamplight". A desk at night: ink surfaces, one warm lamp.
  * Components use these through Tailwind (see index.css), never raw hex.
  *
- * Four accents on neutral greys, nothing else:
- *   lime  = brand + the one primary action (signal, neon), progress, success, Easy
- *   sky   = data, focus, selection, revision (primary; "violet" is a legacy alias)
- *   amber = Medium, warnings, streaks
- *   rose  = Hard, errors, overdue
+ * Each colour has one job:
+ *   lime  = progress, accepted, the one primary action (signal)
+ *   amber = focus time, revision, streaks, the lamp glow (primary; "violet" is a legacy alias)
+ *   rose  = wrong answers, Hard, overdue
+ *   mint  = Easy
+ *   sky   = hints and solutions you looked at, info
  * Every role (difficulty, status, verdict, heatmap, charts) maps onto these.
  */
 
@@ -14,10 +15,10 @@
   /* Radius. Nested rule: inner = outer − padding. */
   --radius-xs: 6px;
   --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-  --radius-2xl: 28px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
 
   /* Motion. Animate transform / opacity / filter / clip-path only. Springs live in motion.ts. */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -31,55 +32,55 @@
   --dur-slower: 700ms;
 
   /* same in both themes */
-  --signal: #d7ff3a;
-  --signal-2: #c2f000;
-  --signal-ink: #0b0b0f;
+  --signal: #c6f16b;
+  --signal-2: #b2e04f;
+  --signal-ink: #10160a;
 }
 
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #08080a;
-  --bg-2: #0c0c0e;
-  --surface: #121214;
-  --surface-2: #18181b;
-  --surface-3: #202024;
-  --surface-4: #29292e;
-  --surface-inset: #0d0d0f;
-  --overlay: rgba(14, 14, 16, 0.72);
-  --line: rgba(255, 255, 255, 0.07);
+  --bg: #0b0c0f;
+  --bg-2: #0e1013;
+  --surface: #111318;
+  --surface-2: #15171d;
+  --surface-3: #1b1e25;
+  --surface-4: #232731;
+  --surface-inset: #0d0e12;
+  --overlay: rgba(11, 12, 15, 0.74);
+  --line: rgba(255, 255, 255, 0.068);
   --line-2: rgba(255, 255, 255, 0.12);
-  --line-3: rgba(255, 255, 255, 0.22);
-  --ink: #f4f4f5;
-  --ink-2: #b4b4bc;
+  --line-3: rgba(255, 255, 255, 0.2);
+  --ink: #eceef2;
+  --ink-2: #a7acb7;
   /* AA (≥4.5:1) on surface and surface-2. */
-  --ink-3: #8e8e98;
+  --ink-3: #838996;
   /* Decorative only (axis ticks, disabled). */
-  --ink-4: #5e5e66;
+  --ink-4: #5b606b;
 
   /* The four accents. Every role below maps onto one of them. */
-  --lime: #bfe85a;
-  --sky: #7cb7ff;
-  --amber: #f5b94d;
-  --rose: #f26d82;
+  --lime: #c6f16b;
+  --sky: #8ab9ff;
+  --amber: #f3b45c;
+  --rose: #f47d8c;
 
-  --primary: var(--sky);
-  --primary-2: #5a9ff5;
-  --primary-ink: #0b0b0f;
-  --primary-soft: rgba(124, 183, 255, 0.13);
+  --primary: var(--amber);
+  --primary-2: #e09c3c;
+  --primary-ink: #1d1306;
+  --primary-soft: rgba(243, 180, 92, 0.13);
   /* Legacy name: the old violet role is now sky. */
-  --violet: var(--sky);
-  --violet-2: #5a9ff5;
-  --signal-text: #d7ff3a;
+  --violet: var(--primary);
+  --violet-2: #e09c3c;
+  --signal-text: #c6f16b;
   /* Lime for chart marks (darker on paper so it reads). */
-  --signal-mark: #d7ff3a;
+  --signal-mark: #c6f16b;
 
-  --easy: var(--lime);
+  --easy: var(--mint);
   --medium: var(--amber);
   --hard: var(--rose);
   --success: var(--lime);
-  --revise: var(--sky);
+  --revise: var(--amber);
   --overdue: var(--rose);
   --attempted: var(--amber);
   --ok: var(--lime);
@@ -95,20 +96,20 @@
   --v-err: var(--rose);
 
   /* Heatmap: one lime ramp, each step clearly distinct. */
-  --heat-0: #1b1b1f;
-  --heat-1: #2f3b15;
-  --heat-2: #50691d;
-  --heat-3: #8fb52b;
-  --heat-4: #d7ff3a;
+  --heat-0: #1a1d23;
+  --heat-1: #2f3d1f;
+  --heat-2: #4f6d26;
+  --heat-3: #86b23a;
+  --heat-4: #c6f16b;
 
   /* Categorical charts: the four accents, then a deeper shade of each. */
-  --chart-1: var(--sky);
-  --chart-2: #d7ff3a;
-  --chart-3: var(--amber);
+  --chart-1: var(--amber);
+  --chart-2: #c6f16b;
+  --chart-3: var(--sky);
   --chart-4: var(--rose);
-  --chart-5: #4f86cc;
-  --chart-6: #87a832;
-  --chart-7: #b88838;
+  --chart-5: #b8873f;
+  --chart-6: #86b23a;
+  --chart-7: #5a86c4;
   --chart-8: var(--ink-3);
   --chart-grid: rgba(255, 255, 255, 0.06);
   --chart-axis: var(--ink-3);
@@ -116,11 +117,8 @@
   --hatch: rgba(255, 255, 255, 0.09);
   --pixel-off: rgba(255, 255, 255, 0.05);
   --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --card-fill: linear-gradient(180deg, #161619 0%, #121214 60%);
-  --hero-fill:
-    radial-gradient(110% 130% at 0% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
-    radial-gradient(80% 100% at 100% 100%, rgba(215, 255, 58, 0.06), transparent 60%),
-    linear-gradient(180deg, #19191c 0%, #101012 100%);
+  --card-fill: linear-gradient(180deg, #15171c 0%, #111318 120px);
+  --hero-fill: radial-gradient(110% 130% at 0% 0%, rgba(243, 180, 92, 0.09), transparent 55%), radial-gradient(80% 100% at 100% 100%, rgba(198, 241, 107, 0.05), transparent 60%), linear-gradient(180deg, #171a20 0%, #101216 100%);
   --grain-opacity: 0.05;
 
   /* Elevation e0–e4: highlight + layered shadow. */
@@ -144,68 +142,71 @@
   --shadow-lg: var(--e3);
   --shadow-xl: var(--e4);
 
-  --glow-primary: 0 0 0 1px rgba(124, 183, 255, 0.3), 0 12px 40px -10px rgba(124, 183, 255, 0.4);
+  --glow-primary: 0 0 0 1px rgba(243, 180, 92, 0.3), 0 12px 40px -10px rgba(243, 180, 92, 0.4);
   --glow-violet: var(--glow-primary);
-  --glow-signal: 0 0 0 4px rgba(215, 255, 58, 0.2), 0 12px 40px -8px rgba(215, 255, 58, 0.5);
+  --glow-signal: 0 0 0 4px rgba(198, 241, 107, 0.18), 0 12px 40px -8px rgba(198, 241, 107, 0.45);
   --glow-danger: 0 0 0 1px rgba(242, 109, 130, 0.35), 0 12px 36px -10px rgba(242, 109, 130, 0.45);
   --spotlight: rgba(255, 255, 255, 0.06);
-  --glow-a: rgba(124, 183, 255, 0.4);
-  --glow-b: rgba(245, 185, 77, 0.25);
-  --aurora-1: rgba(124, 183, 255, 0.32);
-  --aurora-2: rgba(124, 183, 255, 0.2);
-  --aurora-3: rgba(215, 255, 58, 0.14);
+  --glow-a: rgba(243, 180, 92, 0.35);
+  --glow-b: rgba(198, 241, 107, 0.18);
+  --aurora-1: rgba(243, 180, 92, 0.24);
+  --aurora-2: rgba(138, 185, 255, 0.14);
+  --aurora-3: rgba(198, 241, 107, 0.12);
   --scrollbar: rgba(255, 255, 255, 0.14);
 }
-
+  --mint: #5fd6b2;
+  --lamp: rgba(243, 180, 92, 0.085);
+  --lamp-2: rgba(120, 150, 255, 0.05);
+  --dots: rgba(255, 255, 255, 0.05);
 /* Light: warm paper, ink text, accents darkened to keep AA. Designed, not inverted. */
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #f4f2ec;
-  --bg-2: #ece9e1;
-  --surface: #fffdf9;
-  --surface-2: #f8f6f0;
-  --surface-3: #eeebe3;
+  --bg: #f5f5f2;
+  --bg-2: #ecece8;
+  --surface: #ffffff;
+  --surface-2: #fbfbf9;
+  --surface-3: #f0f0ec;
   --surface-4: #ffffff;
-  --surface-inset: #f0ede5;
-  --overlay: rgba(255, 253, 249, 0.78);
-  --line: rgba(32, 28, 18, 0.08);
-  --line-2: rgba(32, 28, 18, 0.14);
-  --line-3: rgba(32, 28, 18, 0.24);
-  --ink: #15140f;
-  --ink-2: #4c4940;
-  --ink-3: #6b675c;
-  --ink-4: #a29d90;
+  --surface-inset: #efefeb;
+  --overlay: rgba(255, 255, 255, 0.8);
+  --line: rgba(16, 18, 24, 0.075);
+  --line-2: rgba(16, 18, 24, 0.13);
+  --line-3: rgba(16, 18, 24, 0.24);
+  --ink: #15171c;
+  --ink-2: #4a4f59;
+  --ink-3: #646973;
+  --ink-4: #9da1aa;
 
-  --lime: #4f7a00;
-  --sky: #2b6cc4;
-  --amber: #a86400;
-  --rose: #cf2448;
+  --lime: #476a00;
+  --sky: #2f6fd6;
+  --amber: #94560a;
+  --rose: #b42c43;
 
-  --primary: var(--sky);
-  --primary-2: #1f5aa8;
+  --primary: var(--amber);
+  --primary-2: #7a4608;
   --primary-ink: #ffffff;
-  --primary-soft: rgba(43, 108, 196, 0.1);
-  --violet: var(--sky);
-  --violet-2: #1f5aa8;
-  --signal-text: #4a6400;
-  --signal-mark: #8fb800;
+  --primary-soft: rgba(233, 162, 62, 0.15);
+  --violet: var(--primary);
+  --violet-2: #7a4608;
+  --signal-text: #476a00;
+  --signal-mark: #7fb81f;
 
-  --heat-0: #e8e4da;
-  --heat-1: #dbe6b4;
-  --heat-2: #b5d064;
-  --heat-3: #86ad1f;
-  --heat-4: #5c7f00;
+  --heat-0: #e9e9e4;
+  --heat-1: #dcefb5;
+  --heat-2: #bde27a;
+  --heat-3: #93c93b;
+  --heat-4: #5f9a12;
 
-  --chart-2: #87ad00;
-  --chart-5: #6f9bd8;
-  --chart-6: #5c7f00;
-  --chart-7: #8a6a2e;
-  --chart-grid: rgba(32, 28, 18, 0.07);
+  --chart-2: #7fb81f;
+  --chart-5: #c79a55;
+  --chart-6: #5f9a12;
+  --chart-7: #6f9bd8;
+  --chart-grid: rgba(16, 18, 24, 0.07);
 
   --hatch: rgba(32, 28, 18, 0.1);
   --pixel-off: rgba(32, 28, 18, 0.06);
   --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --card-fill: linear-gradient(180deg, #fffefb 0%, #fbf9f4 100%);
+  --card-fill: linear-gradient(180deg, #ffffff 0%, #fdfdfb 100%);
   --hero-fill:
     radial-gradient(110% 130% at 0% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
     radial-gradient(80% 100% at 100% 100%, rgba(215, 255, 58, 0.07), transparent 60%),
@@ -220,17 +221,20 @@
   --e-inset: inset 0 1px 3px rgba(32, 28, 18, 0.08), inset 0 0 0 1px rgba(32, 28, 18, 0.04);
   --shadow-xs: 0 1px 2px rgba(32, 28, 18, 0.05);
 
-  --glow-primary: 0 0 0 1px rgba(43, 108, 196, 0.28), 0 12px 32px -12px rgba(43, 108, 196, 0.4);
+  --glow-primary: 0 0 0 1px rgba(148, 86, 10, 0.25), 0 12px 32px -12px rgba(148, 86, 10, 0.35);
   --glow-violet: var(--glow-primary);
   --glow-signal: 0 0 0 4px rgba(170, 214, 0, 0.25), 0 12px 32px -10px rgba(140, 180, 0, 0.45);
   --glow-danger: 0 0 0 1px rgba(207, 36, 72, 0.25), 0 12px 32px -12px rgba(207, 36, 72, 0.35);
   --spotlight: rgba(32, 28, 18, 0.04);
-  --glow-a: rgba(43, 108, 196, 0.25);
-  --glow-b: rgba(168, 100, 0, 0.16);
-  --aurora-1: rgba(43, 108, 196, 0.2);
-  --aurora-2: rgba(43, 108, 196, 0.14);
-  --aurora-3: rgba(170, 214, 0, 0.18);
+  --glow-a: rgba(233, 162, 62, 0.28);
+  --glow-b: rgba(127, 184, 31, 0.18);
+  --aurora-1: rgba(233, 162, 62, 0.2);
+  --aurora-2: rgba(47, 111, 214, 0.1);
+  --aurora-3: rgba(127, 184, 31, 0.16);
   --scrollbar: rgba(32, 28, 18, 0.18);
 }
-
+  --mint: #0c7556;
+  --lamp: rgba(243, 180, 92, 0.16);
+  --lamp-2: rgba(120, 150, 255, 0.08);
+  --dots: rgba(16, 18, 24, 0.07);
 /* DsaKaro */
