@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { Flame, Grid3x3, Plug, Shapes } from "lucide-react";
+import { Plug, Shapes } from "lucide-react";
 import {
   ButtonArrow,
   Card,
   CardHeader,
   CardSub,
   CardTitle,
-  Grain,
   Logo,
   PixelHeatmap,
   SkeletonCard,
@@ -20,12 +19,12 @@ import {
 import { SolvedSplit, TopicBar } from "@/components/charts";
 import { TopicRadar } from "@/components/charts/insights";
 import { StreakFlame } from "@/components/fx/decor";
-import { NumberTicker } from "@/components/fx/number-ticker";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL } from "@/components/platform-meta";
 import { ShareButton } from "@/components/share-button";
 import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { buildStats, getPublicProfile } from "@/lib/data";
 import { VerifiedBadge } from "@/components/verified-badge";
+import { KpiStrip } from "@/components/dashboard/lamplight";
 import type { SolvedCounts } from "@upsolve/adapters";
 
 export async function generateMetadata({ params }: PageProps<"/u/[handle]">): Promise<Metadata> {
@@ -82,9 +81,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
   return (
     <div className="flex flex-col gap-5">
       {/* Banner: avatar inside a ring split by difficulty (easy → medium → hard). */}
-      <div className="surface-hero border-beam relative mb-2 overflow-hidden rounded-[28px] p-6 sm:p-8">
-        <Grain />
-        <span aria-hidden="true" className="starfield absolute inset-0 opacity-40" />
+      <div className="surface-card lamp relative mb-2 overflow-hidden rounded-lg p-6 sm:p-8">
         <div className="absolute top-5 right-5 z-10">
           <ShareButton title={`@${profile.handle} on DsaKaro`} />
         </div>
@@ -95,22 +92,22 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
             solved={stats.solved}
           />
           <div className="min-w-0">
-            <p className="font-mono text-12 text-white/65">@{profile.handle}</p>
-            <h1 className="mt-2 font-display text-[clamp(40px,6.4vw,72px)] leading-[.98] tracking-[-0.02em]">
+            <p className="font-mono text-12 text-ink-3">@{profile.handle}</p>
+            <h1 className="mt-2 text-[clamp(32px,4.6vw,52px)] leading-[1] font-[640] tracking-[-0.045em]">
               {profile.name ?? profile.handle}
             </h1>
             {subtitle && (
-              <p className="mt-2 flex flex-wrap items-center gap-x-2 text-15 text-white/75 italic">
+              <p className="mt-2 flex flex-wrap items-center gap-x-2 text-14 text-ink-2">
                 {subtitle}
                 {profile.collegeVerified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white/12 px-2 py-0.5 text-12 font-[600] text-white not-italic">
-                    <VerifiedBadge size={13} className="text-white" /> Verified student
+                  <span className="inline-flex items-center gap-1 rounded-full bg-signal-soft px-2 py-0.5 text-12 font-[600] text-signal-text">
+                    <VerifiedBadge size={13} /> Verified student
                   </span>
                 )}
               </p>
             )}
             {stats.streak > 0 && (
-              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/12 py-1 pr-3 pl-1.5 text-13 font-[600]">
+              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary-soft py-1 pr-3 pl-1.5 text-13 font-[600]">
                 <StreakFlame streak={stats.streak} size={22} /> {stats.streak}-day streak
               </span>
             )}
@@ -118,29 +115,27 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
         </div>
       </div>
 
-      <div className="stagger-in grid grid-cols-2 gap-3.5 md:grid-cols-4">
-        <ProfileStat label="Solved" value={stats.solved.total} tint="var(--violet)" />
-        <ProfileStat
-          label="Active days"
-          value={stats.activeDays}
-          unit="this year"
-          tint="var(--easy)"
-        />
-        <ProfileStat label="Streak" value={stats.streak} unit="days" tint="var(--ember)" />
-        <ProfileStat
-          label="Best rating"
-          value={stats.bestRating?.rating ?? 0}
-          unit={stats.bestRating ? undefined : "unrated"}
-          tint="var(--medium)"
-        />
-      </div>
+      <KpiStrip
+        items={[
+          {
+            label: "Solved",
+            value: stats.solved.total,
+            note: `${stats.solved.easy} easy · ${stats.solved.medium} medium · ${stats.solved.hard} hard`,
+          },
+          { label: "Active days", value: stats.activeDays, note: "this year" },
+          { label: "Streak", value: stats.streak, unit: "days", note: "current" },
+          {
+            label: "Best rating",
+            value: stats.bestRating?.rating ?? "—",
+            note: stats.bestRating ? PLATFORM_LABEL[stats.bestRating.platform] : "unrated",
+          },
+        ]}
+      />
 
       <Card>
         <CardHeader>
-          <CardTitle icon={<Grid3x3 size={14} />} tint="var(--primary)">
-            Activity
-          </CardTitle>
-          <CardSub>last 52 weeks</CardSub>
+          <CardTitle>The last year</CardTitle>
+          <CardSub>one square per day</CardSub>
         </CardHeader>
         <PixelHeatmap levels={stats.heatmap52} weeks={52} className="gap-[2px]" />
       </Card>
@@ -210,35 +205,6 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
   );
 }
 
-function ProfileStat({
-  label,
-  value,
-  unit,
-  tint,
-}: {
-  label: string;
-  value: number;
-  unit?: string;
-  tint: string;
-}) {
-  return (
-    <Card spotlight glow={tint}>
-      <CardTitle icon={<Flame size={14} />} tint={tint}>
-        {label}
-      </CardTitle>
-      <p className="num mt-3 text-[38px]">
-        {value ? <NumberTicker value={value} /> : "—"}
-        {unit && (
-          <small className="ml-1.5 font-display text-[.42em] font-normal tracking-normal text-ink-3 italic">
-            {unit}
-          </small>
-        )}
-      </p>
-    </Card>
-  );
-}
-
-/** Avatar with a progress ring: the ring's arcs are the easy / medium / hard share of solves. */
 function AvatarRing({
   name,
   src,
@@ -278,5 +244,3 @@ function AvatarRing({
     </span>
   );
 }
-
-// DsaKaro
