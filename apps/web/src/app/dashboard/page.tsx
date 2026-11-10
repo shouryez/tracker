@@ -165,13 +165,6 @@ async function Overview() {
   }));
   const week7Ms = last7.reduce((n, d) => n + d.focusMs, 0);
   const activeDays30 = spark30.filter((n) => n > 0).length;
-  const bestRun30 = spark30.reduce(
-    (acc, v) => {
-      const run = v > 0 ? acc.run + 1 : 0;
-      return { run, best: Math.max(acc.best, run) };
-    },
-    { run: 0, best: 0 },
-  ).best;
   // Topics by solved, with the weakest (lowest mastery among those you've started).
   const topTopics = [...mastery]
     .filter((m) => m.solved > 0)

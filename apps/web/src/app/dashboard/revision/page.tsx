@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CalendarDays, CircleCheck, CircleX, History, Info, Play, RotateCcw } from "lucide-react";
-import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
+import { CircleCheck, CircleX, History, Play, RotateCcw } from "lucide-react";
+import { topicLabel, topicsOf } from "@upsolve/core";
 import {
   ButtonArrow,
   Card,
@@ -11,7 +11,6 @@ import {
   CardTitle,
   DifficultyTag,
   EmptyState,
-  ProgressRing,
   Skeleton,
   SkeletonCard,
   StatusBadge,
@@ -21,10 +20,10 @@ import {
   cn,
 } from "@upsolve/ui";
 import { CelebrateOnce } from "@/components/dashboard/celebrate";
-import { NumberTicker } from "@/components/fx/number-ticker";
-import { dueLabel, ResultTag, reviewUrl, UpcomingStrip } from "@/components/learning";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
-import { LadderStairs } from "@/components/dashboard/lamplight";
+import { dueLabel, ResultTag, reviewUrl } from "@/components/learning";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { KpiStrip, LadderStairs } from "@/components/dashboard/lamplight";
+import { Tabs } from "@/components/tabs";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton } from "@/components/review-actions";
 import { TimeAgo } from "@/components/time-ago";
@@ -43,19 +42,6 @@ import { localDate, localDay, requestNow } from "@/lib/time";
 export const metadata: Metadata = { title: "Revision" };
 
 const DAY_MS = 86_400_000;
-const WORDS = [
-  "zero",
-  "one",
-  "two",
-  "three",
-  "four",
-  "five",
-  "six",
-  "seven",
-  "eight",
-  "nine",
-  "ten",
-];
 const icon = (Icon: typeof RotateCcw) => <Icon size={14} strokeWidth={2} />;
 
 export default function RevisionPage() {
@@ -90,9 +76,24 @@ async function RevisionContent() {
     : null;
 
   const left = queue.today.length;
-  const todayTotal = left + queue.reviewedToday;
-  const countWord = (n: number) => WORDS[n] ?? String(n);
   const first = queue.today[0];
+  const { end: endToday } = localDay(tz, now);
+  const overdueCount = queue.today.filter((p) => now - p.state.dueAt >= DAY_MS).length;
+  const dueThisWeek = left + queue.upcoming.slice(0, 6).reduce((n, v) => n + v, 0);
+  const heaviestIdx = queue.upcoming
+    .slice(0, 6)
+    .reduce((best, v, i, arr) => (v > (arr[best] ?? 0) ? i : best), 0);
+  const heaviest = queue.upcoming.slice(0, 6).some((v) => v > 0)
+    ? new Date(endToday + heaviestIdx * DAY_MS + 3_600_000).toLocaleDateString("en-GB", {
+        weekday: "long",
+        timeZone: tz,
+      })
+    : null;
+  const scheduled = problems
+    .filter((p) => !p.state.retired)
+    .sort((a, b) => a.state.dueAt - b.state.dueAt);
+  const weekRows = scheduled.filter((p) => p.state.dueAt < now + 7 * DAY_MS);
+  const allRows = scheduled;
 
   // History grouped by week (display only).
   const groups: { label: string; items: typeof history }[] = [];
@@ -109,36 +110,26 @@ async function RevisionContent() {
       <PageHeader
         eyebrow="Revision · spaced repetition"
         glow={PAGE_GLOW.revision}
-        title={
-          problems.length === 0 ? (
+        title="Revision"
+        subtitle="Solve it again without notes to move it up a rung. Miss it and it goes back to rung 1."
+        actions={
+          problems.length > 0 && (
             <>
-              Revision, <em>soon.</em>
-            </>
-          ) : left > 0 ? (
-            <>
-              Revision, <em>{countWord(left)} today.</em>
-            </>
-          ) : (
-            <>
-              Revision, <em>all clear.</em>
-            </>
-          )
-        }
-        subtitle={
-          problems.length === 0 ? (
-            "Every problem you solve is scheduled here."
-          ) : (
-            <>
-              <span>
-                {queue.reviewedToday} of {Math.max(todayTotal, queue.cap)} done today
-              </span>
-              <Dot />
-              <span>{queue.reviewedWeek} this week</span>
-              {passRate !== null && (
-                <>
-                  <Dot />
-                  <span>{passRate}% passed</span>
-                </>
+              <Link
+                href="/dashboard/settings#learning"
+                className={buttonClasses({ variant: "ghost", size: "sm" })}
+              >
+                Schedule settings
+              </Link>
+              {first && (
+                <a
+                  href={reviewUrl(first.url)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonClasses({ variant: "signal", size: "sm" })}
+                >
+                  <Play size={13} aria-hidden="true" /> Revise {left} due now
+                </a>
               )}
             </>
           )
@@ -166,92 +157,45 @@ async function RevisionContent() {
         </Card>
       ) : (
         <div className="stagger-in grid grid-cols-12 gap-3.5">
-          {/* Hero: today's queue */}
-          <Card tier="hero" beam={left > 0} className="col-span-12 lg:col-span-5">
-            <div className="flex items-center gap-5">
-              <ProgressRing
-                total={Math.max(1, todayTotal)}
-                size={136}
-                stroke={12}
-                className="[&_circle:first-of-type]:stroke-white/15"
-                segments={[
-                  { label: "Done today", value: queue.reviewedToday, color: "var(--signal)" },
-                ]}
-                aria-label={`${queue.reviewedToday} of ${todayTotal} reviewed today`}
-              >
-                <span className="num text-36">
-                  <NumberTicker value={queue.reviewedToday} />
-                  <span className="text-[.55em] text-white/55">/{todayTotal}</span>
-                </span>
-                <span className="text-11 text-white/65">done today</span>
-              </ProgressRing>
-              <div className="min-w-0">
-                <p className="label-mono text-white/60">Today&apos;s queue</p>
-                <p className="mt-1 text-20 leading-tight font-[600]">
-                  {left > 0 ? (
-                    <>
-                      {left} left, <em className="font-display font-normal">keep going.</em>
-                    </>
-                  ) : queue.reviewedToday > 0 ? (
-                    <>
-                      All caught <em className="font-display font-normal">up.</em>
-                    </>
-                  ) : (
-                    <>
-                      Nothing <em className="font-display font-normal">due.</em>
-                    </>
-                  )}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1.5 text-12">
-                  {passRate !== null && (
-                    <span className="tnum rounded-full bg-white/15 px-2 py-0.5">
-                      {passRate}% pass rate
-                    </span>
-                  )}
-                  {queue.backlog > 0 && (
-                    <Link
-                      href="/dashboard/settings#learning"
-                      className="tnum rounded-full bg-white/10 px-2 py-0.5 text-white/80 hover:bg-white/20"
-                    >
-                      {queue.backlog} waiting over the cap · change
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-            {first && (
-              <a
-                href={reviewUrl(first.url)}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonClasses({ variant: "signal", className: "mt-5 w-full" })}
-              >
-                <Play size={14} aria-hidden="true" /> Start with {first.title} <ButtonArrow />
-              </a>
-            )}
-            {left === 0 && queue.reviewedToday > 0 && (
-              <CelebrateOnce id={`queue-${localDate(tz, now)}`} />
-            )}
-          </Card>
-
-          {/* Stats */}
-          <div className="col-span-12 grid grid-cols-2 gap-3.5 lg:col-span-7">
-            <MiniStat label="This week" value={queue.reviewedWeek} unit="reviews" />
-            <MiniStat
-              label="Pass rate"
-              value={passRate ?? 0}
-              unit={passRate === null ? "no reviews yet" : "% · 30 days"}
-              tone={
-                passRate === null ? undefined : passRate >= 70 ? "var(--success)" : "var(--medium)"
-              }
-            />
-            <MiniStat label="Waiting" value={queue.backlog} unit="over today's cap" />
-            <MiniStat
-              label="Scheduled"
-              value={problems.length - retired.length}
-              unit={retired.length ? `${retired.length} retired` : "problems"}
-            />
-          </div>
+          {left === 0 && queue.reviewedToday > 0 && (
+            <CelebrateOnce id={`queue-${localDate(tz, now)}`} />
+          )}
+          <KpiStrip
+            className="col-span-12"
+            items={[
+              {
+                label: "Due today",
+                value: left,
+                note: overdueCount
+                  ? `${overdueCount} overdue`
+                  : `${queue.reviewedToday} done today`,
+                tone: overdueCount ? "down" : undefined,
+              },
+              {
+                label: "This week",
+                value: dueThisWeek,
+                note: heaviest ? `heaviest on ${heaviest}` : "nothing scheduled",
+              },
+              {
+                label: "Scheduled",
+                value: problems.length - retired.length,
+                note: "across 6 rungs",
+              },
+              {
+                label: "Pass rate",
+                value: passRate ?? "—",
+                unit: passRate === null ? undefined : "%",
+                note: recent.length
+                  ? `${recent.filter((h) => h.result === "pass").length} of ${recent.length} · 30 days`
+                  : "no reviews yet",
+              },
+              {
+                label: "Graduated",
+                value: retired.length,
+                note: "passed at 90 days",
+              },
+            ]}
+          />
 
           {/* The ladder as a staircase */}
           <Card className="lamp col-span-12 p-[22px]">
@@ -281,12 +225,10 @@ async function RevisionContent() {
             </div>
           </Card>
 
-          {/* Due today */}
+          {/* The queue: due, this week, everything scheduled */}
           <Card className="col-span-12 xl:col-span-8">
             <CardHeader>
-              <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
-                Due today
-              </CardTitle>
+              <CardTitle>Queue</CardTitle>
               <Link
                 href="/dashboard/settings#learning"
                 className="tnum text-12 text-ink-3 hover:text-ink"
@@ -294,77 +236,133 @@ async function RevisionContent() {
                 {queue.cap} a day · change
               </Link>
             </CardHeader>
-            {left === 0 ? (
-              <EmptyState
-                mascot={queue.reviewedToday > 0 ? "accepted" : "sleepy"}
-                title={
-                  queue.reviewedToday > 0 ? (
-                    <>
-                      All caught <em>up.</em>
-                    </>
-                  ) : (
-                    <>
-                      Nothing due <em>today.</em>
-                    </>
-                  )
-                }
-              >
-                {queue.backlog > 0
-                  ? `${queue.backlog} more are waiting; they come back tomorrow, oldest and weakest first.`
-                  : `${queue.upcoming[0] ?? 0} due tomorrow. Come back then.`}
-              </EmptyState>
-            ) : (
-              <ul className="flex flex-col gap-2.5">
-                {queue.today.map((p, i) => (
-                  <ReviewRow key={p.problemId} p={p} now={now} endOfToday={endOfToday} index={i} />
-                ))}
-              </ul>
-            )}
+            <Tabs
+              items={[
+                {
+                  id: "due",
+                  label: `Due · ${left}`,
+                  content:
+                    left === 0 ? (
+                      <p className="py-4 text-13 text-ink-2">
+                        {queue.reviewedToday > 0
+                          ? "All caught up for today."
+                          : queue.backlog > 0
+                            ? `${queue.backlog} more are waiting; they come back tomorrow, oldest and weakest first.`
+                            : `Nothing due today. ${queue.upcoming[0] ?? 0} due tomorrow.`}
+                      </p>
+                    ) : (
+                      <ul className="flex flex-col gap-2.5">
+                        {queue.today.map((p, i) => (
+                          <ReviewRow
+                            key={p.problemId}
+                            p={p}
+                            now={now}
+                            endOfToday={endOfToday}
+                            index={i}
+                          />
+                        ))}
+                      </ul>
+                    ),
+                },
+                {
+                  id: "week",
+                  label: `This week · ${weekRows.length}`,
+                  content: <QueueTable rows={weekRows} now={now} endOfToday={endOfToday} />,
+                },
+                {
+                  id: "all",
+                  label: `All · ${allRows.length}`,
+                  content: <QueueTable rows={allRows} now={now} endOfToday={endOfToday} />,
+                },
+              ]}
+            />
           </Card>
 
           <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
             <Card>
               <CardHeader>
-                <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
-                  Coming up
-                </CardTitle>
-                <CardSub>next 14 days</CardSub>
+                <CardTitle>Next 14 days</CardTitle>
+                <CardSub className="font-mono">
+                  {queue.upcoming.slice(0, 14).reduce((n, v) => n + v, 0)} reviews
+                </CardSub>
               </CardHeader>
-              <UpcomingStrip upcoming={queue.upcoming} now={now} />
+              <div className="flex h-[110px] items-end gap-1 border-b border-line-2">
+                {queue.upcoming.slice(0, 14).map((n, i) => (
+                  <span
+                    key={i}
+                    title={`${n} due`}
+                    className="flex-1 origin-bottom animate-[grow-y_600ms_var(--ease-out)_backwards] rounded-[4px_4px_1px_1px]"
+                    style={{
+                      height: n
+                        ? `${(n / Math.max(1, ...queue.upcoming.slice(0, 14))) * 100}%`
+                        : "2px",
+                      background:
+                        i === 0
+                          ? "var(--amber)"
+                          : "color-mix(in srgb, var(--amber) 40%, transparent)",
+                      animationDelay: `${i * 30}ms`,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="mt-2 flex justify-between font-mono text-11 text-ink-3">
+                <span>Tomorrow</span>
+                <span>in a week</span>
+                <span>in 2 weeks</span>
+              </div>
             </Card>
 
-            <details className="surface-card group/how rounded-lg p-[18px]">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-14 font-[600] [&::-webkit-details-marker]:hidden">
-                <span className="flex items-center gap-2.5">
-                  <span className="grid size-7 place-items-center rounded-[9px] border border-line bg-surface-2 text-ink-2">
-                    <Info size={14} aria-hidden="true" />
-                  </span>
-                  How revision works
-                </span>
-                <span className="text-ink-3 transition-transform duration-[var(--dur-base)] group-open/how:rotate-45">
-                  +
-                </span>
-              </summary>
-              <div className="mt-4 flex flex-col gap-4">
-                <ol className="flex items-end justify-between gap-1">
-                  {INTERVAL_DAYS.map((d, i) => (
-                    <li key={d} className="flex flex-1 flex-col items-center gap-1.5">
-                      <span
-                        className="w-full rounded-[6px] bg-violet/70"
-                        style={{ height: 10 + i * 8, opacity: 0.35 + i * 0.13 }}
-                      />
-                      <span className="tnum font-mono text-11 text-ink-2">{d}d</span>
-                    </li>
-                  ))}
-                </ol>
-                <p className="text-13 leading-relaxed text-ink-2">
-                  <span className="font-[600] text-ink">Re-solve</span> opens the problem with the
-                  extension in review mode: a solo Accepted moves it a step out, a hint moves it
-                  back, seeing the solution resets it. No extension? Grade yourself; those reviews
-                  stop at 16 days.
-                </p>
-              </div>
-            </details>
+            <Card>
+              <CardHeader>
+                <CardTitle>Why the gaps grow</CardTitle>
+              </CardHeader>
+              <svg
+                viewBox="0 0 320 130"
+                className="h-auto w-full"
+                role="img"
+                aria-label="Memory drops after each solve and recovers at each review; each drop is slower than the last"
+              >
+                <line x1="0" y1="120" x2="320" y2="120" stroke="var(--line-2)" />
+                <path
+                  d="M8 18 C 26 60, 40 74, 52 78 L52 18 C 80 52, 100 64, 118 66 L118 18 C 160 44, 190 54, 214 56 L214 18 C 260 34, 290 40, 316 42"
+                  fill="none"
+                  stroke="var(--amber)"
+                  strokeWidth="2"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8 18 C 30 80, 60 105, 120 112 C 180 116, 260 118, 316 118"
+                  fill="none"
+                  stroke="var(--line-3)"
+                  strokeWidth="1.5"
+                  strokeDasharray="3 4"
+                />
+                {[
+                  [52, "1d"],
+                  [118, "3d"],
+                  [214, "7d"],
+                ].map(([x, l]) => (
+                  <g key={l as string}>
+                    <circle cx={x as number} cy="18" r="4" fill="var(--signal)" />
+                    <text
+                      x={x as number}
+                      y="10"
+                      textAnchor="middle"
+                      fontSize="9"
+                      fill="var(--ink-3)"
+                      fontFamily="var(--font-mono)"
+                    >
+                      {l as string}
+                    </text>
+                  </g>
+                ))}
+              </svg>
+              <p className="mt-2 text-12 leading-relaxed text-ink-3">
+                Dashed: what you&apos;d remember with no revision. Each review flattens the drop, so
+                the next one can wait longer. A solo re-solve moves it up a rung; a hint moves it
+                back; seeing the solution resets it.
+              </p>
+            </Card>
           </div>
 
           {/* History */}
@@ -444,27 +442,88 @@ async function RevisionContent() {
   );
 }
 
-function MiniStat({
-  label,
-  value,
-  unit,
-  tone,
+type Scheduled = Awaited<ReturnType<typeof getLearning>>[number];
+
+/** Scheduled problems as a table: the rung as six little bars, how the last try went, when it's due. */
+function QueueTable({
+  rows,
+  now,
+  endOfToday,
 }: {
-  label: string;
-  value: number;
-  unit: string;
-  tone?: string;
+  rows: Scheduled[];
+  now: number;
+  endOfToday: number;
 }) {
+  if (rows.length === 0) return <p className="py-4 text-13 text-ink-2">Nothing here.</p>;
   return (
-    <Card className="flex flex-col justify-between gap-3">
-      <p className="label-mono">{label}</p>
-      <p className="num text-36" style={tone ? { color: tone } : undefined}>
-        <NumberTicker value={value} />
-        <small className="ml-1.5 font-display text-[.45em] font-normal tracking-normal text-ink-3 italic">
-          {unit}
-        </small>
-      </p>
-    </Card>
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[600px] border-collapse text-[13.5px]">
+        <thead>
+          <tr className="text-left text-12 text-ink-3">
+            <th className="border-b border-line px-3 pb-2.5 font-[500]">Problem</th>
+            <th className="border-b border-line px-3 pb-2.5 font-[500]">Rung</th>
+            <th className="border-b border-line px-3 pb-2.5 font-[500]">Last time</th>
+            <th className="border-b border-line px-3 pb-2.5 font-[500]">Due</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((p) => {
+            const last = p.state.history.at(-1);
+            const failed = p.state.lastResult === "fail";
+            const step = Math.min(5, Math.max(0, p.state.step));
+            const overdue = now - p.state.dueAt >= DAY_MS;
+            return (
+              <tr key={p.problemId} className="border-b border-line last:border-b-0">
+                <td className="px-3 py-3">
+                  <Link
+                    href={`/dashboard/problems/${p.problemId}`}
+                    className="font-[550] hover:underline"
+                  >
+                    {p.title}
+                  </Link>
+                  <div className="text-12 text-ink-3">
+                    {topicsOf(p.topics).slice(0, 2).map(topicLabel).join(" · ") || "—"}
+                  </div>
+                </td>
+                <td className="px-3 py-3">
+                  <span className="flex gap-[3px]" aria-label={`Rung ${step + 1} of 6`}>
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <span
+                        key={i}
+                        className="h-1 w-3.5 rounded-full"
+                        style={{
+                          background:
+                            i < step + 1
+                              ? failed && i === step
+                                ? "var(--rose)"
+                                : "var(--amber)"
+                              : "var(--surface-4)",
+                        }}
+                      />
+                    ))}
+                  </span>
+                </td>
+                <td className="px-3 py-3">
+                  {last ? <ResultTag entry={last} /> : <Tag>first solve</Tag>}
+                </td>
+                <td
+                  className={cn(
+                    "px-3 py-3 font-mono text-12",
+                    overdue
+                      ? "text-bad"
+                      : p.state.dueAt <= endOfToday
+                        ? "text-[var(--amber)]"
+                        : "text-ink-2",
+                  )}
+                >
+                  {dueLabel(p.state.dueAt, now, endOfToday)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
