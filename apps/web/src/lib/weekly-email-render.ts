@@ -26,7 +26,7 @@ function hours(ms: number): string {
   return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}`;
 }
 
-const PIXEL = ["#26262f", "#4a5a12", "#7d9a17", "#b4dc22", "#d7ff3a"];
+const PIXEL = ["#26262f", "#4a5a12", "#7d9a17", "#b4dc22", "#c6f16b"];
 function level(n: number, max: number): number {
   if (n === 0) return 0;
   return Math.min(4, Math.max(1, Math.ceil((n / Math.max(1, max)) * 4)));
@@ -74,7 +74,7 @@ export function renderWeeklyEmail(
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;border-radius:18px;overflow:hidden;background:#ffffff">
   <tr><td style="background:#0b0b0f;padding:28px 28px 24px">
-    <div style="font:500 11px/1 ui-monospace,Consolas,monospace;color:#d7ff3a;letter-spacing:.1em;text-transform:uppercase">DsaKaro · ${esc(d.weekLabel)}</div>
+    <div style="font:500 11px/1 ui-monospace,Consolas,monospace;color:#c6f16b;letter-spacing:.1em;text-transform:uppercase">DsaKaro · ${esc(d.weekLabel)}</div>
     <div style="font:600 26px/1.15 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;letter-spacing:-.03em;color:#f4f4f6;padding:12px 0 22px">Hey ${esc(first)},<br><span style="color:#686876">${esc(deltaText)}.</span></div>
     <table role="presentation" cellpadding="0" cellspacing="0"><tr>
       ${stat(String(d.solved), "solved")}
@@ -85,10 +85,10 @@ export function renderWeeklyEmail(
     <div style="font:400 10.5px/1.4 ui-monospace,Consolas,monospace;color:#686876;padding-top:8px">last 30 days</div>
   </td></tr>
   <tr><td style="padding:24px 28px 8px;font:400 14.5px/1.55 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#2a2a33">
-    ${d.insights.map((i) => `<p style="margin:0 0 12px;padding-left:14px;border-left:3px solid #d7ff3a">${esc(i)}</p>`).join("")}
+    ${d.insights.map((i) => `<p style="margin:0 0 12px;padding-left:14px;border-left:3px solid #c6f16b">${esc(i)}</p>`).join("")}
   </td></tr>
   <tr><td style="padding:8px 28px 28px">
-    <a href="${esc(cta.href)}" style="display:inline-block;background:#d7ff3a;color:#0b0b0f;font:600 14px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:13px 20px;border-radius:999px;text-decoration:none">${esc(cta.label)} →</a>
+    <a href="${esc(cta.href)}" style="display:inline-block;background:#c6f16b;color:#0b0b0f;font:600 14px/1 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;padding:13px 20px;border-radius:999px;text-decoration:none">${esc(cta.label)} →</a>
   </td></tr>
   <tr><td style="padding:16px 28px;border-top:1px solid #ececf0;font:400 11.5px/1.5 ui-monospace,Consolas,monospace;color:#8a8a96">
     You get this every Monday. <a href="${esc(links.settings)}" style="color:#8a8a96">Settings</a> · <a href="${esc(links.unsubscribe)}" style="color:#8a8a96">Unsubscribe</a>
@@ -112,5 +112,3 @@ export function renderWeeklyEmail(
 
   return { subject, html, text };
 }
-
-// DsaKaro

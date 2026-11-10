@@ -12,7 +12,7 @@ export const BRAND = {
   name: "DsaKaro",
   /** What the wordmark spells, for screen readers. */
   label: "DSA करो",
-  lime: "#d7ff3a",
+  lime: "#c6f16b",
   ink: "#f4f4f6",
   night: "#0b0b10",
 } as const;
@@ -84,5 +84,3 @@ export function markSvg({
     `</svg>`
   );
 }
-
-// DsaKaro

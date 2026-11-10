@@ -17,7 +17,7 @@
       rgba(255, 255, 255, 0.25) 9%,
       transparent 20%
     ),
-    radial-gradient(circle at 70% 70%, rgba(215, 255, 58, 0.55), transparent 42%),
+    radial-gradient(circle at 70% 70%, rgba(198, 241, 107, 0.55), transparent 42%),
     radial-gradient(circle at 34% 66%, rgba(124, 183, 255, 0.85), transparent 55%),
     radial-gradient(circle at 64% 30%, rgba(255, 168, 82, 0.75), transparent 48%),
     radial-gradient(circle at 50% 50%, #18181d, #060608 72%);
@@ -505,8 +505,6 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
     break-inside: avoid;
   }
 }
-
-/* DsaKaro */
 
 /* Sign-in code boxes (components/otp-input.tsx). */
 @keyframes otp-caret {

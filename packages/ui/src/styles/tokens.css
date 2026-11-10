@@ -209,7 +209,7 @@
   --card-fill: linear-gradient(180deg, #ffffff 0%, #fdfdfb 100%);
   --hero-fill:
     radial-gradient(110% 130% at 0% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
-    radial-gradient(80% 100% at 100% 100%, rgba(215, 255, 58, 0.07), transparent 60%),
+    radial-gradient(80% 100% at 100% 100%, rgba(198, 241, 107, 0.07), transparent 60%),
     linear-gradient(180deg, #1b1b1e 0%, #111113 100%);
   --grain-opacity: 0.035;
 

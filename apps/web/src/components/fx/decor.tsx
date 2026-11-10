@@ -66,7 +66,7 @@ export function StreakFlame({ streak, size = 44 }: { streak: number; size?: numb
   const level = streak <= 0 ? 0 : streak < 7 ? 1 : streak < 30 ? 2 : 3;
   const scale = [0.62, 0.8, 0.92, 1][level]!;
   const outer = ["#5a3a2e", "#ff7a45", "#ff7a45", "#ff8a3d"][level]!;
-  const inner = ["#7a4a35", "#ffb938", "#ffd166", "#d7ff3a"][level]!;
+  const inner = ["#7a4a35", "#ffb938", "#ffd166", "#c6f16b"][level]!;
   return (
     <span
       aria-hidden="true"
@@ -184,5 +184,3 @@ export function AnimatedBeam({
     </div>
   );
 }
-
-// DsaKaro

@@ -19,10 +19,10 @@ export type ShareCardData = {
 
 const INK = "#f4f4f6";
 const MUTED = "#a3a3b5";
-const LIME = "#d7ff3a";
+const LIME = "#c6f16b";
 // Same 5-step ramp as the app heatmap (tokens.css heat-0..4): empty → violet → lime.
 const PIXELS = ["rgba(255,255,255,0.07)", "#2f3b15", "#50691d", "#8fb52b", LIME];
-const STAT_TINT = ["#7cb7ff", "#f5b94d", "#bfe85a"];
+const STAT_TINT = ["#7cb7ff", "#f5b94d", "#c6f16b"];
 
 /** Fetches a Google Font as TTF (older user agents get TTF, which next/og needs). */
 async function googleFont(family: string, weight: number): Promise<ArrayBuffer | null> {
@@ -105,7 +105,7 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
         padding: 64,
         backgroundColor: "#08080b",
         backgroundImage:
-          "radial-gradient(circle at 0% 0%, rgba(255,255,255,0.08) 0%, rgba(8,8,11,0) 45%), radial-gradient(circle at 100% 100%, rgba(215,255,58,0.18) 0%, rgba(8,8,11,0) 40%), radial-gradient(circle at 85% 10%, rgba(124,183,255,0.14) 0%, rgba(8,8,11,0) 40%)",
+          "radial-gradient(circle at 0% 0%, rgba(255,255,255,0.08) 0%, rgba(8,8,11,0) 45%), radial-gradient(circle at 100% 100%, rgba(198, 241, 107,0.18) 0%, rgba(8,8,11,0) 40%), radial-gradient(circle at 85% 10%, rgba(124,183,255,0.14) 0%, rgba(8,8,11,0) 40%)",
         color: INK,
         fontFamily: "Geist",
       }}
@@ -210,5 +210,3 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
     },
   );
 }
-
-// DsaKaro

@@ -72,13 +72,13 @@ export function renderDailyReminder(
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;border-radius:18px;overflow:hidden;background:#ffffff">
   <tr><td style="background:#0b0b0f;padding:26px 28px 24px">
-    <div style="font:500 11px/1 ${MONO};color:#d7ff3a;letter-spacing:.1em;text-transform:uppercase">DsaKaro · ${esc(d.dayLabel)}</div>
+    <div style="font:500 11px/1 ${MONO};color:#c6f16b;letter-spacing:.1em;text-transform:uppercase">DsaKaro · ${esc(d.dayLabel)}</div>
     <div style="font:600 25px/1.2 ${FONT};letter-spacing:-.03em;color:#f4f4f6;padding-top:12px">Hey ${esc(first)},<br><span style="color:#8a8a96">${esc(headline)}</span></div>
   </td></tr>
   ${section("Revise today", dueRows)}
   ${section("Still on today's list", planRows + more)}
   <tr><td style="padding:24px 28px 28px">
-    <a href="${esc(cta.href)}" style="display:inline-block;background:#d7ff3a;color:#0b0b0f;font:600 14px/1 ${FONT};padding:13px 20px;border-radius:999px;text-decoration:none">${esc(cta.label)} →</a>
+    <a href="${esc(cta.href)}" style="display:inline-block;background:#c6f16b;color:#0b0b0f;font:600 14px/1 ${FONT};padding:13px 20px;border-radius:999px;text-decoration:none">${esc(cta.label)} →</a>
   </td></tr>
   <tr><td style="padding:16px 28px;border-top:1px solid #ececf0;font:400 11.5px/1.5 ${MONO};color:#8a8a96">
     One email a day at your reminder hour, only when something is waiting. <a href="${esc(links.settings)}" style="color:#8a8a96">Change the time</a> · <a href="${esc(links.unsubscribe)}" style="color:#8a8a96">Unsubscribe</a>

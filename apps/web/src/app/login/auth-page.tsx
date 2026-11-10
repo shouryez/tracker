@@ -40,7 +40,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           </Link>
           <h2 className="mt-16 max-w-[13ch] font-display text-[56px] leading-[.98] tracking-[-0.02em]">
             Every problem you solve,{" "}
-            <em className="bg-[linear-gradient(100deg,#fff_20%,#d7ff3a_110%)] bg-clip-text text-transparent">
+            <em className="bg-[linear-gradient(100deg,#fff_20%,#c6f16b_110%)] bg-clip-text text-transparent">
               remembered.
             </em>
           </h2>
@@ -141,5 +141,3 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
     </div>
   );
 }
-
-// DsaKaro

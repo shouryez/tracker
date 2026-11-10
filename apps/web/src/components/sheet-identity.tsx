@@ -5,7 +5,7 @@ import { cn } from "@upsolve/ui";
 export const SHEET_IDENTITY: Record<string, { color: string; mono: string }> = {
   "striver-a2z": { color: "#7cb7ff", mono: "A2Z" },
   "striver-sde": { color: "#f5b94d", mono: "SDE" },
-  "neetcode-150": { color: "#bfe85a", mono: "150" },
+  "neetcode-150": { color: "#c6f16b", mono: "150" },
   "blind-75": { color: "#f26d82", mono: "B75" },
   "grind-75": { color: "#7cb7ff", mono: "G75" },
 };
@@ -76,8 +76,6 @@ export function SheetCover({
     </div>
   );
 }
-
-// DsaKaro
 
 /**
  * A sheet drawn as a book: deep cover in the sheet's colour, a spine line, faint

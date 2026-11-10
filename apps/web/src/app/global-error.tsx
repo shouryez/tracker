@@ -49,7 +49,7 @@ export default function GlobalError({
             Verdict: Runtime Error
           </span>
           <h1 style={{ fontFamily: "Georgia, serif", fontSize: 44, margin: "18px 0 8px" }}>
-            Wrong answer. <em style={{ color: "#d7ff3a" }}>Let&apos;s retry.</em>
+            Wrong answer. <em style={{ color: "#c6f16b" }}>Let&apos;s retry.</em>
           </h1>
           <p style={{ color: "rgba(255,255,255,.7)", margin: "0 0 24px" }}>
             Something broke on our side. Your data is safe.
@@ -63,7 +63,7 @@ export default function GlobalError({
               padding: "0 22px",
               borderRadius: 999,
               border: 0,
-              background: "#d7ff3a",
+              background: "#c6f16b",
               color: "#0b0b0f",
               fontWeight: 600,
               fontSize: 15,
@@ -77,5 +77,3 @@ export default function GlobalError({
     </html>
   );
 }
-
-// DsaKaro

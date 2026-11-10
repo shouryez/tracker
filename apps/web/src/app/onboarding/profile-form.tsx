@@ -459,7 +459,7 @@ function ProfilePreview({
               key={i}
               className="size-2.5 rounded-[2px]"
               style={{
-                background: i % 7 === 3 || i % 11 === 0 ? "#d7ff3a" : "rgba(255,255,255,.1)",
+                background: i % 7 === 3 || i % 11 === 0 ? "#c6f16b" : "rgba(255,255,255,.1)",
               }}
             />
           ))}
@@ -468,5 +468,3 @@ function ProfilePreview({
     </aside>
   );
 }
-
-// DsaKaro

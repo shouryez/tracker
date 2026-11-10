@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   return page(`<h1 style="font-size:22px;margin:0 0 8px">Stop the ${NAMES[p.kind]}?</h1>
 <p style="color:#a3a3b0;margin:0 0 20px">You can turn it back on in Settings any time.</p>
 <form method="post" action="/api/email/unsubscribe${p.query.replace(/"/g, "")}">
-<button style="background:#d7ff3a;color:#0b0b0f;border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:14px;cursor:pointer">Unsubscribe</button>
+<button style="background:#c6f16b;color:#0b0b0f;border:0;border-radius:999px;padding:12px 18px;font-weight:600;font-size:14px;cursor:pointer">Unsubscribe</button>
 </form>`);
 }
 

@@ -39,7 +39,7 @@ function render(code: string, link: string, signup: boolean) {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f2f2f4;padding:24px 12px"><tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;border-radius:18px;overflow:hidden;background:#ffffff">
   <tr><td style="background:#0b0b0f;padding:24px 28px">
-    <div style="font:500 11px/1 ui-monospace,Consolas,monospace;color:#d7ff3a;letter-spacing:.1em;text-transform:uppercase">DsaKaro</div>
+    <div style="font:500 11px/1 ui-monospace,Consolas,monospace;color:#c6f16b;letter-spacing:.1em;text-transform:uppercase">DsaKaro</div>
     <div style="font:600 22px/1.25 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#f4f4f6;padding-top:10px">Your code to ${what}</div>
   </td></tr>
   <tr><td style="padding:26px 28px 6px">
