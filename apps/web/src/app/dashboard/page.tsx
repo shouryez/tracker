@@ -4,14 +4,11 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import {
   Brain,
-  CalendarDays,
-  CircleCheck,
   Flame,
   Gauge,
   Grid3x3,
   History,
   ListChecks,
-  ListTodo,
   Play,
   Plug,
   Puzzle,
@@ -31,7 +28,6 @@ import {
   CounterChip,
   DifficultyTag,
   EmptyState,
-  ProgressRing,
   Skeleton,
   SkeletonCard,
   StatusBadge,
@@ -45,13 +41,12 @@ import { NextProblemButton } from "@/components/daily/next-problem";
 import { NudgeBanner } from "@/components/daily/nudge-banner";
 import { NowSolving } from "@/components/daily/now-solving";
 import { TodayPlanList } from "@/components/daily/today-plan";
-import { LiveClock } from "@/components/dashboard/live-clock";
 import { SolvedSplit, Sparkline } from "@/components/charts";
 import { FocusWeek, TopicRadar } from "@/components/charts/insights";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
-import { HalfGauge, KpiCard, WeekCapsules } from "@/components/dashboard/widgets";
-import { StreakFlame } from "@/components/fx/decor";
+import { HalfGauge } from "@/components/dashboard/widgets";
+import { DayDial, KpiStrip, Rekha, WeekStrip } from "@/components/dashboard/lamplight";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { dueLabel, MasteryBars, reviewUrl } from "@/components/learning";
 import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
@@ -81,9 +76,9 @@ import {
 import { getSheetSummaries } from "@/lib/sheets-data";
 import { getExtensionTokens, getSessionStats, getSessions } from "@/lib/sessions-data";
 import { getStreakFreezes } from "@/lib/social-data";
-import { getUnseenNudges } from "@/lib/daily-data";
+import { getFocusSummary, getUnseenNudges } from "@/lib/daily-data";
 import { getTodayPlan } from "@/lib/plan";
-import { localDate, localDay, requestNow } from "@/lib/time";
+import { localDate, localDay, requestNow, studyDay } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -149,10 +144,11 @@ async function Overview() {
     getStreakFreezes(user.id),
   ]);
   const now = requestNow();
-  const [plan, nudges, localActivity] = await Promise.all([
+  const [plan, nudges, localActivity, focusSummary] = await Promise.all([
     getTodayPlan(user.id, profile.timezone, profile.reviewCap, now),
     getUnseenNudges(user.id),
     getLocalActivity(user.id, profile.timezone, profile.dayResetHour, now),
+    getFocusSummary(user.id, profile.timezone, now, profile.dayResetHour),
   ]);
   const mastery = masteryOf(learning, targets, now);
   const queue = revisionQueue(learning, mastery, {
@@ -186,19 +182,29 @@ async function Overview() {
   ).length;
   const days = stats.days182;
   const spark30 = days.slice(-30).map((d) => d.count);
-  // Mon–Sun of this week on your own days (timezone and day reset), like the heatmap.
-  const todayNoon = Date.parse(`${localActivity.todayKey}T12:00:00Z`);
-  const sinceMonday = (new Date(todayNoon).getUTCDay() + 6) % 7;
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const offset = i - sinceMonday; // 0 = today
-    const date = new Date(todayNoon + offset * DAY_MS).toISOString().slice(0, 10);
-    return {
-      label: ["M", "T", "W", "T", "F", "S", "S"][i]!,
-      count: days.find((d) => d.date === date)?.count ?? 0,
-      future: offset > 0,
-    };
-  });
-  const weekTotal = week.reduce((n, d) => n + d.count, 0);
+  // The study day (timezone + day reset) for the clock face.
+  const day = studyDay(profile.timezone, now, profile.dayResetHour);
+  const todaySessions = focusSummary.recent
+    .filter((r) => r.startedAt >= day.start)
+    .map((r) => ({ start: r.startedAt, ms: r.focusMs + r.awayMs }));
+  const todaySolves = recent
+    .map((r) => new Date(r.submittedAt).getTime())
+    .filter((t) => t >= day.start && t < day.end);
+  // Last 7 study days: focus from the extension's sessions, accepted from the heatmap.
+  const last7 = days.slice(-7).map((d, i) => ({
+    label: new Date(`${d.date}T12:00:00Z`).toLocaleDateString("en-GB", {
+      weekday: "narrow",
+      timeZone: "UTC",
+    }),
+    focusMs: sessionStats.focusByDay[i]?.activeMs ?? 0,
+    solved: d.count,
+    today: i === 6,
+  }));
+  const activeDays30 = spark30.filter((n) => n > 0).length;
+  const base30 = stats.solved.total - spark30.reduce((n, v) => n + v, 0);
+  const cumulative30 = spark30.map(
+    (_, i) => base30 + spark30.slice(0, i + 1).reduce((n, v) => n + v, 0),
+  );
   const goalWeekMs = profile.dailyGoalMin * 7 * 60_000;
   const focusPct = Math.min(
     100,
@@ -284,233 +290,139 @@ async function Overview() {
       {accounts.length === 0 && <ConnectPrompt />}
 
       <div className="stagger-in grid grid-cols-12 gap-3.5">
-        {/* Row 0 · date and clock, and what you're solving right now */}
-        <LiveClock
-          now={now}
-          timeZone={profile.timezone}
-          className="col-span-12 md:col-span-6 xl:col-span-5"
-        />
-        <NowSolving className="col-span-12 md:col-span-6 xl:col-span-7" />
-
-        {/* Row 1 · Solved (half) + three compact tiles */}
-        <Card
-          tier="hero"
-          beam
-          interactive
-          className="col-span-12 flex flex-col gap-5 xl:col-span-6"
-        >
-          <Link
-            href="/dashboard/analytics"
-            aria-label="Open analytics"
-            className="absolute inset-0 z-[2] rounded-[inherit]"
+        {/* Tonight · the study day as a clock beside today's list */}
+        <Card className="lamp col-span-12 grid items-center gap-6 p-[22px] sm:grid-cols-[minmax(0,240px)_minmax(0,1fr)] xl:col-span-7">
+          <DayDial
+            dayStart={day.start}
+            now={now}
+            resetHour={profile.dayResetHour}
+            sessions={todaySessions}
+            solves={todaySolves}
+            focusMs={focusSummary.todayMs}
+            goalMs={profile.dailyGoalMin * 60_000}
+            solvedToday={todaySolves.length}
+            className="mx-auto w-full max-w-[240px]"
           />
-          <div className="flex items-center justify-between">
-            <span className="flex items-center gap-2.5 text-14 font-[600] text-white/90">
-              <span className="grid size-7 place-items-center rounded-[9px] border border-white/10 bg-white/[.06]">
-                {icon(CircleCheck)}
+          <div className="flex min-w-0 flex-col gap-3">
+            <CardHeader className="mb-0">
+              <CardTitle>Today&apos;s list</CardTitle>
+              <span className="flex items-center gap-2">
+                <CardSub className="font-mono">
+                  {plan.done} of {plan.total}
+                </CardSub>
+                <CardLink href="/dashboard/today" label="Open today's plan" />
               </span>
-              Solved
+            </CardHeader>
+            <Rekha value={plan.total ? plan.done / plan.total : 0} />
+            <TodayPlanList plan={plan} compact />
+          </div>
+        </Card>
+
+        <Card className="col-span-12 flex flex-col gap-3.5 p-[22px] xl:col-span-5">
+          <CardHeader className="mb-0">
+            <CardTitle>Last 7 days</CardTitle>
+            <span className="flex items-center gap-3 text-12 text-ink-3">
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-[2px] bg-[var(--amber)]" /> focus
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-full bg-signal" /> accepted
+              </span>
             </span>
-            {thisWeek > 0 ? (
-              <span
-                title={lastWeek ? `${lastWeek} the week before` : undefined}
-                className="tnum rounded-full border border-[rgba(215,255,58,.25)] bg-[rgba(215,255,58,.1)] px-2.5 py-0.5 text-11 font-[600] text-signal"
-              >
-                +{thisWeek} this week
-              </span>
-            ) : (
-              <span className="text-11 text-white/45">all platforms</span>
-            )}
-          </div>
-
-          <div className="grid items-end gap-6 sm:grid-cols-[auto_1fr]">
-            <div>
-              <p className="num text-[72px] leading-[.9] text-white">
-                <NumberTicker value={stats.solved.total} />
-              </p>
-              <p className="mt-2 font-display text-18 text-white/55 italic">problems solved</p>
-            </div>
-            {/* Difficulty breakdown: label, count, a thin bar scaled to the total. */}
-            <ul className="flex flex-col gap-2.5 sm:pl-4">
-              {(
-                [
-                  ["Easy", stats.solved.easy, "var(--easy)"],
-                  ["Medium", stats.solved.medium, "var(--medium)"],
-                  ["Hard", stats.solved.hard, "var(--hard)"],
-                ] as const
-              ).map(([label, n, color]) => (
-                <li key={label} className="grid grid-cols-[56px_1fr_28px] items-center gap-3">
-                  <span className="flex items-center gap-1.5 text-12 text-white/65">
-                    <i className="size-1.5 rounded-full" style={{ background: color }} />
-                    {label}
-                  </span>
-                  <span className="h-1.5 overflow-hidden rounded-full bg-white/[.08]">
-                    <span
-                      className="block h-full origin-left animate-[grow-x_900ms_var(--ease-out)_backwards] rounded-full"
-                      style={{
-                        width: `${stats.solved.total ? Math.max(n ? 4 : 0, (n / stats.solved.total) * 100) : 0}%`,
-                        background: color,
-                        opacity: 0.85,
-                      }}
-                    />
-                  </span>
-                  <span className="tnum text-right text-13 font-[600] text-white">{n}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Last 30 days, one bar per day; today in lime. */}
-          <div className="mt-auto">
-            <div aria-hidden="true" className="flex h-8 items-end gap-[3px]">
-              {spark30.map((v, i) => {
-                const max = Math.max(1, ...spark30);
-                const last = i === spark30.length - 1;
-                return (
-                  <span
-                    key={i}
-                    className="flex-1 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[2px]"
-                    style={{
-                      height: v ? `${Math.max(18, (v / max) * 100)}%` : "3px",
-                      background: last
-                        ? "var(--signal)"
-                        : v
-                          ? "rgba(255, 255, 255, 0.32)"
-                          : "rgba(255, 255, 255, 0.08)",
-                      animationDelay: `${i * 15}ms`,
-                    }}
-                  />
-                );
-              })}
-            </div>
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-12 text-white/55">
-              <span>Last 30 days</span>
-              <ul className="flex flex-wrap gap-1.5">
-                {accounts.filter((a) => a.snapshot).length === 0 ? (
-                  <li>Connect a platform to start</li>
-                ) : (
-                  accounts
-                    .filter((a) => a.snapshot)
-                    .map((a) => {
-                      const mark = platformMarkId(a.platform);
-                      return (
-                        <li
-                          key={a.id}
-                          className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[.05] px-2 py-0.5 text-white/75"
-                        >
-                          {mark && <PlatformMark site={mark} size={12} brand />}
-                          <span className="tnum font-[600] text-white">
-                            {a.snapshot!.solved.total}
-                          </span>
-                        </li>
-                      );
-                    })
-                )}
-              </ul>
-            </div>
-          </div>
-        </Card>
-
-        <div className="col-span-12 grid grid-cols-1 gap-3.5 sm:grid-cols-3 xl:col-span-6">
-          <KpiCard
-            title="Streak"
-            icon={icon(Flame)}
-            tint="var(--ember)"
-            value={stats.streak}
-            className="justify-between"
-            unit={stats.streak === 1 ? "day" : "days"}
-            href="/dashboard/settings#streak"
-            visual={<StreakFlame streak={stats.streak} size={46} />}
-            foot={
-              activeFreeze
-                ? `Frozen until ${fmtDay(activeFreeze.end)} · exam week`
-                : stats.streak === 0
-                  ? "Light it today →"
-                  : `${stats.activeDays} active days this year`
-            }
-          />
-          <KpiCard
-            title="To revise"
-            icon={icon(RotateCcw)}
-            tint="var(--violet)"
-            value={queue.today.length}
-            className="justify-between"
-            unit="today"
-            href="/dashboard/revision"
-            visual={
-              <ProgressRing
-                total={Math.max(1, queue.cap)}
-                size={46}
-                stroke={5}
-                segments={[
-                  {
-                    label: "Reviewed today",
-                    value: Math.min(queue.reviewedToday, queue.cap),
-                    color: "var(--violet)",
-                  },
-                ]}
-                aria-label={`${queue.reviewedToday} of ${queue.cap} reviewed today`}
-              >
-                <span className="tnum text-[10px] text-ink-3">
-                  {queue.reviewedToday}/{queue.cap}
-                </span>
-              </ProgressRing>
-            }
-            foot={
-              queue.backlog > 0
-                ? `${queue.backlog} more waiting · ${queue.reviewedWeek} this week`
-                : `${queue.reviewedWeek} reviewed this week`
-            }
-          />
-          <KpiCard
-            title="Focus"
-            icon={icon(Timer)}
-            tint="var(--signal-mark)"
-            value={focus / 3_600_000}
-            decimals={1}
-            className="justify-between"
-            unit="h week"
-            href="/dashboard/sessions"
-            visual={
-              hasExtension ? (
-                <ProgressRing
-                  total={100}
-                  size={46}
-                  stroke={5}
-                  segments={[{ label: "Goal", value: focusPct, color: "var(--signal-mark)" }]}
-                  aria-label={`${focusPct}% of weekly goal`}
-                >
-                  <span className="tnum text-[10px] text-ink-3">{focusPct}%</span>
-                </ProgressRing>
-              ) : undefined
-            }
-            foot={
-              hasExtension
-                ? `${focusPct}% of ${formatDuration(goalWeekMs)} weekly goal`
-                : "Install the extension to track time"
-            }
-          />
-        </div>
-
-        {/* Row 2 · what to do now: Today, next revision, solve next */}
-        <Card
-          spotlight
-          glow="var(--signal-mark)"
-          className="col-span-12 md:col-span-6 xl:col-span-4"
-        >
-          <CardHeader>
-            <CardTitle icon={icon(ListTodo)} tint="var(--signal-mark)">
-              Today
-            </CardTitle>
-            <CardLink href="/dashboard/today" label="Open today's plan" />
           </CardHeader>
-          <TodayPlanList plan={plan} compact />
+          <WeekStrip days={last7} />
+          <div className="mt-auto grid grid-cols-3 gap-3 border-t border-line pt-3.5">
+            <div>
+              <p className="text-12 text-ink-3">Streak</p>
+              <p className="num mt-1 flex items-center gap-1.5 text-24">
+                <Flame
+                  size={18}
+                  aria-hidden="true"
+                  className={stats.streak > 0 ? "text-[var(--amber)]" : "text-ink-4"}
+                />
+                {stats.streak}
+                <small className="text-[.5em] font-[500] text-ink-3">
+                  {stats.streak === 1 ? "day" : "days"}
+                </small>
+              </p>
+            </div>
+            <div>
+              <p className="text-12 text-ink-3">Focus</p>
+              <p className="num mt-1 text-24">
+                {(last7.reduce((n, d) => n + d.focusMs, 0) / 3_600_000).toFixed(1)}
+                <small className="ml-0.5 text-[.5em] font-[500] text-ink-3">h</small>
+              </p>
+            </div>
+            <div>
+              <p className="text-12 text-ink-3">Accepted</p>
+              <p className="num mt-1 text-24">{last7.reduce((n, d) => n + d.solved, 0)}</p>
+            </div>
+          </div>
         </Card>
 
+        <NowSolving className="col-span-12" />
+
+        <KpiStrip
+          className="col-span-12"
+          items={[
+            {
+              label: "Solved",
+              value: <NumberTicker value={stats.solved.total} />,
+              note: `${stats.solved.easy} easy · ${stats.solved.medium} med · ${stats.solved.hard} hard`,
+              spark: cumulative30,
+              href: "/dashboard/analytics",
+            },
+            {
+              label: "Active days",
+              value: activeDays30,
+              unit: "/30",
+              note:
+                thisWeek > 0
+                  ? `+${thisWeek} new this week`
+                  : lastWeek > 0
+                    ? `${lastWeek} new last week`
+                    : "last 30 days",
+              tone: thisWeek > lastWeek ? "up" : undefined,
+              spark: spark30,
+            },
+            {
+              label: "Streak",
+              value: stats.streak,
+              unit: stats.streak === 1 ? "day" : "days",
+              note: activeFreeze
+                ? `frozen until ${fmtDay(activeFreeze.end)}`
+                : `${stats.activeDays} active days this year`,
+              href: "/dashboard/settings#streak",
+            },
+            {
+              label: "To revise",
+              value: queue.today.length,
+              unit: "today",
+              note:
+                queue.backlog > 0
+                  ? `${queue.backlog} more waiting`
+                  : `${queue.reviewedWeek} reviewed this week`,
+              href: "/dashboard/revision",
+            },
+            {
+              label: "Focus this week",
+              value: (focus / 3_600_000).toFixed(1),
+              unit: "h",
+              note: hasExtension
+                ? `${focusPct}% of ${formatDuration(goalWeekMs)} goal`
+                : "install the extension",
+              spark: sessionStats.focusByDay.map((d) => d.activeMs),
+              sparkColor: "var(--amber)",
+              href: "/dashboard/sessions",
+            },
+          ]}
+        />
+
+        {/* What to do next: the next revision and picks from your sheets */}
         <Card
           spotlight
           glow={nextReview ? (overdueDays > 0 ? "var(--overdue)" : "var(--violet)") : undefined}
-          className="col-span-12 flex flex-col md:col-span-6 xl:col-span-4"
+          className="col-span-12 flex flex-col md:col-span-6"
         >
           <CardHeader>
             <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
@@ -578,7 +490,7 @@ async function Overview() {
           )}
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col xl:col-span-4">
+        <Card spotlight className="col-span-12 flex flex-col md:col-span-6">
           <CardHeader>
             <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
               Solve next
@@ -624,8 +536,8 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 3 · the two activity charts, similar heights */}
-        <Card className="col-span-12 xl:col-span-7">
+        {/* Activity, 26 weeks */}
+        <Card className="col-span-12">
           <CardHeader>
             <CardTitle icon={icon(Grid3x3)} tint="var(--primary)">
               Activity
@@ -633,16 +545,6 @@ async function Overview() {
             <CardSub>last 26 weeks · all platforms</CardSub>
           </CardHeader>
           <ActivityHeatmap days={days} />
-        </Card>
-
-        <Card spotlight className="col-span-12 xl:col-span-5">
-          <CardHeader>
-            <CardTitle icon={icon(CalendarDays)} tint="var(--violet)">
-              This week
-            </CardTitle>
-            <CardSub>{weekTotal} solved this week</CardSub>
-          </CardHeader>
-          <WeekCapsules days={week} todayIndex={sinceMonday} />
         </Card>
 
         {/* Row 4 · mastery (radar beside its bars) + sheets */}
@@ -708,9 +610,7 @@ async function Overview() {
             <div className="flex flex-1 flex-col justify-center">
               <span className="num mb-4 block text-[40px]">
                 <NumberTicker value={stats.solved.total} />
-                <small className="ml-1.5 font-display text-[.5em] font-normal text-ink-3 italic">
-                  solved
-                </small>
+                <small className="ml-1 text-[.5em] font-[500] text-ink-3">solved</small>
               </span>
               <SolvedSplit solved={stats.solved} />
               <Link
@@ -1004,5 +904,3 @@ function OverviewSkeleton() {
     </div>
   );
 }
-
-// DsaKaro

@@ -112,7 +112,10 @@ export function CardTitle({
 }: HTMLAttributes<HTMLHeadingElement> & { icon?: ReactNode; tint?: string }) {
   return (
     <h3
-      className={cn("flex items-center gap-2 text-[14.5px] font-[600] tracking-[-0.01em]", className)}
+      className={cn(
+        "flex items-center gap-2 text-[14.5px] font-[600] tracking-[-0.01em]",
+        className,
+      )}
       {...props}
     >
       {icon && (
@@ -190,12 +193,8 @@ export function Stat({
     <div className={cn("num text-[40px]", className)}>
       {value}
       {unit && (
-        <small className="ml-1 text-[.5em] font-[500] tracking-[-0.01em] text-ink-3">
-          {unit}
-        </small>
+        <small className="ml-1 text-[.5em] font-[500] tracking-[-0.01em] text-ink-3">{unit}</small>
       )}
     </div>
   );
 }
-
-// DsaKaro

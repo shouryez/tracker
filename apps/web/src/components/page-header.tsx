@@ -42,7 +42,10 @@ export function PageHeader({
     <header
       className={cn("relative isolate flex flex-wrap items-end justify-between gap-4", className)}
     >
-      <span aria-hidden="true" className="dotfield pointer-events-none absolute -inset-x-4 -top-8 -bottom-4 -z-10" />
+      <span
+        aria-hidden="true"
+        className="dotfield pointer-events-none absolute -inset-x-4 -top-8 -bottom-4 -z-10"
+      />
       {glow && (
         <span
           aria-hidden="true"
@@ -53,7 +56,10 @@ export function PageHeader({
       <div className="min-w-0">
         {eyebrow && (
           <p className="mb-2 flex items-center gap-2 label-mono">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-signal shadow-[0_0_0_3px_var(--color-signal-soft)]" />
+            <span
+              aria-hidden="true"
+              className="size-1.5 rounded-full bg-signal shadow-[0_0_0_3px_var(--color-signal-soft)]"
+            />
             {eyebrow}
           </p>
         )}
@@ -79,5 +85,3 @@ export function Dot() {
     </span>
   );
 }
-
-// DsaKaro

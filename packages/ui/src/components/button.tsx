@@ -39,7 +39,6 @@ const sizes: Record<ButtonSize, string> = {
 /** Lamplight buttons stay put on hover: only colour and shadow change. */
 const lift = "";
 
-
 const variants: Record<ButtonVariant, string> = {
   signal: cn(
     "bg-signal text-signal-ink shadow-[inset_0_0_0_1px_rgba(0,0,0,.15),0_8px_22px_-10px_color-mix(in_srgb,var(--signal)_60%,transparent)] hover:bg-signal-2",
@@ -184,5 +183,3 @@ export function ButtonArrow() {
     </span>
   );
 }
-
-// DsaKaro
