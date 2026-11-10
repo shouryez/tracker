@@ -24,6 +24,8 @@ export type SheetSummary = {
   following: boolean;
   /** Estimated finish date at the recent pace, or null when there's no recent progress. */
   eta: string | null;
+  /** Done items by the problem's difficulty (items with no known difficulty are left out). */
+  doneBy: { easy: number; medium: number; hard: number };
 };
 
 const solvedCte = (userId: string) => sql`
@@ -49,10 +51,11 @@ export async function getSheetSummaries(userId: string): Promise<SheetSummary[]>
   const rows = (await db().execute(sql`
     with ${solvedCte(userId)},
     item_state as (
-      select si.sheet_id, si.problem_id,
+      select si.sheet_id, si.problem_id, p.difficulty,
              coalesce(sv.first_at, sm.created_at) as done_at,
              (sv.problem_id is not null or sm.item_key is not null) as done
       from sheet_items si
+      left join problems p on p.id = si.problem_id
       left join solved sv on sv.problem_id = si.problem_id
       left join sheet_marks sm
         on sm.user_id = ${userId} and sm.sheet_id = si.sheet_id and sm.item_key = si.item_key
@@ -62,17 +65,52 @@ export async function getSheetSummaries(userId: string): Promise<SheetSummary[]>
            count(*) filter (where st.done)::int as done,
            count(st.problem_id)::int as "autoTracked",
            count(*) filter (where st.done and st.done_at > now() - interval '14 days')::int as "doneRecently",
+           count(*) filter (where st.done and st.difficulty = 'easy')::int as "doneEasy",
+           count(*) filter (where st.done and st.difficulty = 'medium')::int as "doneMedium",
+           count(*) filter (where st.done and st.difficulty = 'hard')::int as "doneHard",
            exists (select 1 from user_sheets us where us.user_id = ${userId} and us.sheet_id = sh.id) as following
     from sheets sh
     join item_state st on st.sheet_id = sh.id
     group by sh.id
     order by sh.position
-  `)) as unknown as Omit<SheetSummary, "eta">[];
+  `)) as unknown as (Omit<SheetSummary, "eta" | "doneBy"> & {
+    doneEasy: number;
+    doneMedium: number;
+    doneHard: number;
+  })[];
 
-  return rows.map((r) => ({
+  return rows.map(({ doneEasy, doneMedium, doneHard, ...r }) => ({
     ...r,
+    doneBy: { easy: doneEasy, medium: doneMedium, hard: doneHard },
     eta: r.following ? eta(r.total, r.done, r.doneRecently) : null,
   }));
+}
+
+/**
+ * Your most recent accepted problem that's on at least one sheet, and every sheet: whether
+ * that problem is on it. For "one solve, many ticks".
+ */
+export async function getLatestSolveAcrossSheets(
+  userId: string,
+): Promise<{ title: string; sheets: { name: string; has: boolean }[] } | null> {
+  "use cache";
+  cacheTag(userTag(userId), "sheets");
+  cacheLife("minutes");
+  const [latest] = (await db().execute(sql`
+    select p.id, p.title
+    from submissions s
+    join platform_problems pp on pp.id = s.platform_problem_id
+    join problems p on p.id = pp.problem_id
+    where s.user_id = ${userId} and s.verdict = 'AC'
+      and exists (select 1 from sheet_items si where si.problem_id = p.id)
+    order by s.submitted_at desc
+    limit 1`)) as unknown as { id: string; title: string }[];
+  if (!latest) return null;
+  const sheets = (await db().execute(sql`
+    select sh.name,
+           exists (select 1 from sheet_items si where si.sheet_id = sh.id and si.problem_id = ${latest.id}) as has
+    from sheets sh order by sh.position`)) as unknown as { name: string; has: boolean }[];
+  return { title: latest.title, sheets };
 }
 
 export type SheetItemView = {

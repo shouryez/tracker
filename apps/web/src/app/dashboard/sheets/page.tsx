@@ -8,17 +8,15 @@ import {
   CardHeader,
   CardSub,
   CardTitle,
-  ProgressRing,
   SkeletonCard,
   buttonClasses,
 } from "@upsolve/ui";
-import { NumberTicker } from "@/components/fx/number-ticker";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { formatEta } from "@/components/progress";
-import { BookCover, sheetIdentity } from "@/components/sheet-identity";
+import { BookCover } from "@/components/sheet-identity";
 import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
-import { getSheetSummaries, type SheetSummary } from "@/lib/sheets-data";
+import { getLatestSolveAcrossSheets, getSheetSummaries } from "@/lib/sheets-data";
 import { getExtensionTokens } from "@/lib/sessions-data";
 
 export const metadata: Metadata = { title: "Sheets" };
@@ -44,33 +42,31 @@ export default function SheetsPage() {
 async function SheetsContent() {
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to track sheets.</p>;
-  const [sheets, tokens] = await Promise.all([
+  const [sheets, tokens, latest] = await Promise.all([
     getSheetSummaries(user.id),
     getExtensionTokens(user.id),
+    getLatestSolveAcrossSheets(user.id),
   ]);
   const followed = sheets.filter((s) => s.following);
   const others = sheets.filter((s) => !s.following);
   const hero = followed[0];
-  const doneAll = sheets.reduce((n, s) => n + s.done, 0);
 
   return (
     <>
       <PageHeader
         eyebrow="Sheets · curated lists"
         glow={PAGE_GLOW.sheets}
-        title={
-          <>
-            Sheets, <em>ticked for you.</em>
-          </>
-        }
-        subtitle={
-          <>
-            <span>{followed.length} following</span>
-            <Dot />
-            <span>
-              {doneAll} ticks across {sheets.length} sheets
-            </span>
-          </>
+        title="Sheets"
+        subtitle="Solve a problem once and it's ticked on every sheet that has it."
+        actions={
+          hero && (
+            <Link
+              href={`/dashboard/sheets/${hero.slug}`}
+              className={buttonClasses({ variant: "signal", size: "sm" })}
+            >
+              <Play size={13} aria-hidden="true" /> Continue {hero.name.replace(/'s\b.*$/, "")}
+            </Link>
+          )
         }
       />
 
@@ -88,13 +84,6 @@ async function SheetsContent() {
             Import full history <ButtonArrow />
           </Link>
         </Card>
-      )}
-
-      {hero && <ContinueHero s={hero} />}
-      {!hero && (
-        <p className="text-14 text-ink-2">
-          Follow the sheets you&apos;re working through and their progress shows on your dashboard.
-        </p>
       )}
 
       <Card className="lamp p-6">
@@ -130,54 +119,153 @@ async function SheetsContent() {
           ))}
         </ul>
       </Card>
+
+      <div className="flex flex-wrap items-start gap-4">
+        <Card className="min-w-0 flex-[2_1_560px]">
+          <CardHeader>
+            <CardTitle>Progress</CardTitle>
+            <span className="flex gap-3 text-12 text-ink-3">
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-full bg-easy" /> easy
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-full bg-medium" /> medium
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-full bg-hard" /> hard
+              </span>
+            </span>
+          </CardHeader>
+          <ul className="flex flex-col">
+            {[...followed, ...others].map((s) => (
+              <li
+                key={s.id}
+                className="grid grid-cols-[minmax(0,160px)_minmax(0,1fr)_56px] items-center gap-4 border-t border-line py-3.5 first:border-t-0"
+              >
+                <Link href={`/dashboard/sheets/${s.slug}`} className="min-w-0">
+                  <span className="block truncate font-[550] hover:underline">{s.name}</span>
+                  <span className="block truncate text-12 text-ink-3">
+                    {s.following
+                      ? s.eta
+                        ? `done by ${formatEta(s.eta)} at this pace`
+                        : "following"
+                      : "not following"}
+                  </span>
+                </Link>
+                <span className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-surface-4">
+                  {(["easy", "medium", "hard"] as const).map((d) =>
+                    s.doneBy[d] ? (
+                      <i
+                        key={d}
+                        className="block h-full"
+                        style={{
+                          width: `${(s.doneBy[d] / Math.max(1, s.total)) * 100}%`,
+                          background: `var(--${d})`,
+                        }}
+                      />
+                    ) : null,
+                  )}
+                  {s.done - s.doneBy.easy - s.doneBy.medium - s.doneBy.hard > 0 && (
+                    <i
+                      className="block h-full bg-ink-3"
+                      style={{
+                        width: `${((s.done - s.doneBy.easy - s.doneBy.medium - s.doneBy.hard) / Math.max(1, s.total)) * 100}%`,
+                      }}
+                    />
+                  )}
+                </span>
+                <span className="tnum text-right font-mono text-13">
+                  {Math.round((s.done / Math.max(1, s.total)) * 100)}%
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+
+        {latest && (
+          <Card className="min-w-0 flex-[1_1_320px]">
+            <CardHeader>
+              <CardTitle>One solve, many ticks</CardTitle>
+            </CardHeader>
+            <SolveSpokes title={latest.title} sheets={latest.sheets} />
+            <p className="mt-2 text-12 text-ink-3">
+              Your last solve, {latest.title}, ticked {latest.sheets.filter((x) => x.has).length} of
+              your {latest.sheets.length} sheets.
+            </p>
+          </Card>
+        )}
+      </div>
     </>
   );
 }
 
-function ContinueHero({ s }: { s: SheetSummary }) {
-  const { color } = sheetIdentity(s.slug, s.name);
-  const pct = Math.round((s.done / Math.max(1, s.total)) * 100);
+/** The latest solve in the middle, every sheet around it; lit spokes for sheets that have it. */
+function SolveSpokes({
+  title,
+  sheets,
+}: {
+  title: string;
+  sheets: { name: string; has: boolean }[];
+}) {
+  const n = Math.max(1, sheets.length);
   return (
-    <Card tier="hero" beam className="grid items-center gap-6 p-6 md:grid-cols-[auto_1fr_auto]">
-      <ProgressRing
-        total={Math.max(1, s.total)}
-        size={150}
-        stroke={13}
-        className="[&_circle:first-of-type]:stroke-white/15"
-        segments={[{ label: "Done", value: s.done, color }]}
-        aria-label={`${s.done} of ${s.total} done`}
-      >
-        <span className="num text-36">
-          <NumberTicker value={pct} />
-          <span className="text-[.55em] text-white/60">%</span>
-        </span>
-        <span className="tnum text-11 text-white/65">
-          {s.done} / {s.total}
-        </span>
-      </ProgressRing>
-      <div className="min-w-0">
-        <p className="label-mono text-white/60">Continue where you left off</p>
-        <p className="mt-1 text-30 leading-tight font-[600] tracking-[-0.03em]">
-          {s.name.replace(/'s.*$/, "")}{" "}
-          <em className="font-display font-normal">
-            {s.name.match(/'s(.*)$/)?.[1]?.trim() ?? "sheet"}
-          </em>
-        </p>
-        <p className="mt-2 text-13 text-white/70">
-          {s.doneRecently > 0 ? `${s.doneRecently} ticked recently` : "No ticks yet this month"}
-          {s.eta ? ` · done by ${formatEta(s.eta)} at your pace` : ""} · {s.autoTracked} tick
-          automatically
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2 md:flex-col">
-        <Link
-          href={`/dashboard/sheets/${s.slug}`}
-          className={buttonClasses({ variant: "signal", size: "lg" })}
-        >
-          <Play size={15} aria-hidden="true" /> Continue <ButtonArrow />
-        </Link>
-        <FollowButton sheetId={s.id} following={s.following} />
-      </div>
-    </Card>
+    <svg
+      viewBox="0 0 300 200"
+      className="h-auto w-full"
+      role="img"
+      aria-label={`${title} is on ${sheets.filter((x) => x.has).length} of ${sheets.length} sheets`}
+    >
+      {sheets.map((sh, i) => {
+        const a = (i / n) * 2 * Math.PI - Math.PI / 2;
+        const x = 150 + Math.cos(a) * 104;
+        const y = 100 + Math.sin(a) * 70;
+        const label = sh.name
+          .replace(/'s\b/, "")
+          .replace(/ Sheet$/, "")
+          .replace(/ DSA$/, "");
+        return (
+          <g key={sh.name}>
+            <line
+              x1="150"
+              y1="100"
+              x2={x}
+              y2={y}
+              stroke={sh.has ? "var(--signal)" : "var(--line-2)"}
+              strokeWidth="1.2"
+              strokeDasharray={sh.has ? undefined : "3 3"}
+            />
+            <rect
+              x={x - 42}
+              y={y - 12}
+              width="84"
+              height="24"
+              rx="12"
+              fill="var(--surface-3)"
+              stroke={sh.has ? "var(--signal)" : "var(--line-2)"}
+            />
+            <text
+              x={x}
+              y={y + 3.5}
+              textAnchor="middle"
+              fontSize="10"
+              fill={sh.has ? "var(--ink)" : "var(--ink-3)"}
+            >
+              {label.length > 14 ? `${label.slice(0, 13)}…` : label}
+            </text>
+          </g>
+        );
+      })}
+      <circle
+        cx="150"
+        cy="100"
+        r="28"
+        fill="var(--color-signal-soft)"
+        stroke="var(--signal)"
+        strokeWidth="1.5"
+      />
+      <text x="150" y="104" textAnchor="middle" fontSize="9.5" fontWeight="600" fill="var(--ink)">
+        {title.length > 12 ? `${title.slice(0, 11)}…` : title}
+      </text>
+    </svg>
   );
 }
