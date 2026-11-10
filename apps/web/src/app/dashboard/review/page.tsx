@@ -49,8 +49,6 @@ async function ReviewContent() {
     .sort((a, b) => a.score - b.score)[0];
   const max = Math.max(1, ...week.days.map((d) => d.solved));
   const focusH = Math.round((week.progress.focusMs / 3_600_000) * 10) / 10;
-  const delta = (a: number, b: number) =>
-    a === b ? "same as last week" : a > b ? `+${a - b} vs last week` : `${a - b} vs last week`;
 
   const compare = [
     {
