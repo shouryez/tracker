@@ -161,7 +161,7 @@ export function FocusOrb({
         })}
       </svg>
       <div
-        className="orb absolute grid place-content-center text-center transition-[box-shadow] duration-500 motion-safe:animate-[orbit-breathe_5s_ease-in-out_infinite] group-hover/orb:shadow-[inset_-16px_-24px_46px_rgba(80,25,5,.42),inset_10px_14px_30px_rgba(255,255,255,.3),0_0_0_1px_rgba(255,220,195,.35),0_40px_110px_-20px_rgba(240,136,79,.75)]"
+        className="orbit-orb absolute grid place-content-center text-center transition-[box-shadow] duration-500 motion-safe:animate-[orbit-breathe_5s_ease-in-out_infinite] group-hover/orb:shadow-[inset_-16px_-24px_46px_rgba(80,25,5,.42),inset_10px_14px_30px_rgba(255,255,255,.3),0_0_0_1px_rgba(255,220,195,.35),0_40px_110px_-20px_rgba(240,136,79,.75)]"
         style={{ left: c - R, top: c - R, width: orb, height: orb }}
       >
         <span

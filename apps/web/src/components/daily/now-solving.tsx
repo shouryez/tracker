@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowUpRight, Timer } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { DifficultyTag, LiveDot, cn } from "@upsolve/ui";
 import type { LiveSession } from "@/lib/sessions-data";
 
@@ -66,28 +66,8 @@ export function NowSolving({ className }: { className?: string }) {
     return () => clearInterval(tick);
   }, [session]);
 
-  if (!session) {
-    return (
-      <div
-        className={cn(
-          "flex items-center gap-3 rounded-lg border border-line bg-surface-inset px-4 py-3.5",
-          className,
-        )}
-      >
-        <span className="grid size-9 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3">
-          <Timer size={16} aria-hidden="true" />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-13 font-[600]">
-            {live ? "Not solving right now" : "Checking your timer…"}
-          </span>
-          <span className="block text-12 text-ink-3">
-            Open a problem on LeetCode or GFG and the timer starts itself.
-          </span>
-        </span>
-      </div>
-    );
-  }
+  // Only while the extension is timing a problem; an idle row is just noise on Today.
+  if (!session) return null;
 
   const serverNow = now + (live?.offset ?? 0);
   const sinceReport = Math.max(0, serverNow - session.reportedAt);
