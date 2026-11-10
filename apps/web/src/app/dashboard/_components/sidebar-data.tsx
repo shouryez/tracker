@@ -4,29 +4,49 @@ import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import { getLearning, getTopicTargets, masteryOf, revisionQueue } from "@/lib/learning";
 import { getExtensionTokens } from "@/lib/sessions-data";
+import { getFriendsStudying, getSavedItems } from "@/lib/daily-data";
+import { getTodayPlan } from "@/lib/plan";
 import { requestNow } from "@/lib/time";
 import { Avatar } from "./avatar-menu";
 import { MobileNav, Sidebar } from "./nav-links";
 import { getAvatarUser } from "./user-menu";
 
-/** Numbers the navigation shows: reviews due today. */
-async function navBadges(): Promise<{ badges: Record<string, number>; hasExtension: boolean }> {
+/** Numbers the navigation shows: due reviews (amber), and quiet counts beside other pages. */
+async function navBadges(): Promise<{
+  badges: Record<string, number | string>;
+  due: Record<string, number>;
+  hasExtension: boolean;
+}> {
   const user = await getCurrentUser();
-  if (isDemoUser(user)) return { badges: {}, hasExtension: false };
-  const [profile, learning, targets, tokens] = await Promise.all([
+  if (isDemoUser(user)) return { badges: {}, due: {}, hasExtension: false };
+  const [profile, learning, targets, tokens, saved, live] = await Promise.all([
     getProfile(user.id),
     getLearning(user.id),
     getTopicTargets(),
     getExtensionTokens(user.id),
+    getSavedItems(user.id),
+    getFriendsStudying(user.id),
   ]);
   const now = requestNow();
+  const tz = profile?.timezone ?? "Asia/Kolkata";
   const queue = revisionQueue(learning, masteryOf(learning, targets, now), {
-    tz: profile?.timezone ?? "Asia/Kolkata",
+    tz,
     cap: profile?.reviewCap ?? 5,
     now,
   });
+  const plan = await getTodayPlan(user.id, tz, profile?.reviewCap ?? 5, now);
+  const due: Record<string, number> = queue.today.length
+    ? { "/dashboard/revision": queue.today.length }
+    : {};
+  const waiting = saved.filter((x) => !x.done).length;
   return {
-    badges: queue.today.length ? { "/dashboard/revision": queue.today.length } : {},
+    due,
+    badges: {
+      ...due,
+      ...(plan.total ? { "/dashboard/today": `${plan.done}/${plan.total}` } : {}),
+      ...(waiting ? { "/dashboard/later": String(waiting) } : {}),
+      ...(live ? { "/dashboard/groups": `${live} live` } : {}),
+    },
     hasExtension: tokens.length > 0,
   };
 }
@@ -57,8 +77,8 @@ export async function SidebarWithData() {
 }
 
 export async function MobileNavWithData() {
-  const { badges } = await navBadges();
-  return <MobileNav badges={badges} />;
+  const { due } = await navBadges();
+  return <MobileNav badges={due} />;
 }
 
 /** Bottom-of-sidebar promo card: hero-tier glass with grain and a lime CTA. */
@@ -87,5 +107,3 @@ export function ExtensionPromo({ connected }: { connected: boolean }) {
     </div>
   );
 }
-
-// DsaKaro

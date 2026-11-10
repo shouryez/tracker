@@ -26,37 +26,40 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   RotateCcw,
+  Search,
   Settings,
   Timer,
   Trophy,
   UsersRound,
   type LucideIcon,
 } from "lucide-react";
-import { Logo, LogoMark, THEME_STORAGE_KEY, Tooltip, cn } from "@upsolve/ui";
+import { Logo, LogoMark, THEME_STORAGE_KEY, ThemeToggle, Tooltip, cn } from "@upsolve/ui";
+import { openCommandPalette } from "@/components/command-palette";
 import { openFeedback } from "./feedback-button";
 
 export type NavItem = { label: string; icon: LucideIcon; href: string };
 
+// Lamplight sidebar: Practice → Library → Focus → Insights (the account lives under Insights).
 export const MENU: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutGrid },
   { label: "Today", href: "/dashboard/today", icon: CalendarCheck },
   { label: "Revision", href: "/dashboard/revision", icon: RotateCcw },
-  { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
-  { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
-  { label: "Analytics", href: "/dashboard/analytics", icon: ChartColumn },
-  { label: "Contests", href: "/dashboard/contests", icon: Trophy },
+  { label: "Recall", href: "/dashboard/recall", icon: Brain },
 ];
 export const TOOLKIT: NavItem[] = [
+  { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
   { label: "Notebook", href: "/dashboard/notebook", icon: BookMarked },
-  { label: "Recall", href: "/dashboard/recall", icon: Brain },
   { label: "Saved for later", href: "/dashboard/later", icon: Bookmark },
-  { label: "Weekly review", href: "/dashboard/review", icon: CalendarRange },
+  { label: "Contests", href: "/dashboard/contests", icon: Trophy },
 ];
 export const SOCIAL: NavItem[] = [
+  { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
   { label: "Groups", href: "/dashboard/groups", icon: UsersRound },
   { label: "Your college", href: "/dashboard/college", icon: GraduationCap },
 ];
 export const ACCOUNT: NavItem[] = [
+  { label: "Analytics", href: "/dashboard/analytics", icon: ChartColumn },
+  { label: "Weekly review", href: "/dashboard/review", icon: CalendarRange },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -106,7 +109,7 @@ function toggleTheme() {
 
 /** Sidebar with the current page highlighted. Reads the URL, so render it inside <Suspense>. */
 export function Sidebar(props: {
-  badges?: Record<string, number>;
+  badges?: Record<string, number | string>;
   footer?: ReactNode;
   user?: ReactNode;
 }) {
@@ -121,7 +124,7 @@ export function SidebarView({
   user,
 }: {
   pathname: string | null;
-  badges?: Record<string, number>;
+  badges?: Record<string, number | string>;
   footer?: ReactNode;
   /** User card pinned to the bottom; hide its text with group-data-[collapsed]/side. */
   user?: ReactNode;
@@ -173,31 +176,56 @@ export function SidebarView({
           </button>
         </Tooltip>
       )}
-      <Group label="Menu" items={MENU} pathname={pathname} badges={badges} collapsed={collapsed} />
+      {!collapsed && (
+        <button
+          type="button"
+          onClick={openCommandPalette}
+          aria-label="Search problems, pages and commands (Ctrl K)"
+          className="mb-1 flex h-9 w-full items-center gap-2 rounded-[10px] border border-line bg-surface-2 px-2.5 text-left text-13 text-ink-3 transition-colors hover:border-line-2 hover:text-ink-2"
+        >
+          <Search size={14} aria-hidden="true" />
+          <span className="flex-1 truncate">Search problems</span>
+          <span className="rounded-[5px] border border-line-2 px-1.5 font-mono text-[10.5px]">
+            Ctrl K
+          </span>
+        </button>
+      )}
       <Group
-        label="Toolkit"
+        label="Practice"
+        items={MENU}
+        pathname={pathname}
+        badges={badges}
+        collapsed={collapsed}
+      />
+      <Group
+        label="Library"
         items={TOOLKIT}
         pathname={pathname}
         badges={badges}
         collapsed={collapsed}
       />
       <Group
-        label="Social"
+        label="Focus"
         items={SOCIAL}
         pathname={pathname}
         badges={badges}
         collapsed={collapsed}
       />
       <Group
-        label="Account"
+        label="Insights"
         items={ACCOUNT}
         pathname={pathname}
         badges={badges}
         collapsed={collapsed}
       />
       <div className="mt-auto flex flex-col gap-3 pt-4">
+        {/* The running study session docks here (rendered by the study bar). */}
+        {!collapsed && <div id="sidebar-live" className="empty:hidden" />}
         {footer && !collapsed && footer}
-        {user}
+        <div className="flex items-center gap-1.5">
+          <div className="min-w-0 flex-1">{user}</div>
+          {!collapsed && <ThemeToggle />}
+        </div>
       </div>
     </aside>
   );
@@ -213,7 +241,7 @@ function Group({
   label: string;
   items: NavItem[];
   pathname: string | null;
-  badges: Record<string, number>;
+  badges: Record<string, number | string>;
   collapsed: boolean;
 }) {
   return (
@@ -258,7 +286,11 @@ function Group({
                 )}
               />
               {!collapsed && <span className="truncate">{label}</span>}
-              {badge ? (
+              {typeof badge === "string" ? (
+                !collapsed && (
+                  <span className="tnum ml-auto font-mono text-11 text-ink-3">{badge}</span>
+                )
+              ) : badge ? (
                 <span
                   aria-label={`${badge} due`}
                   className={cn(

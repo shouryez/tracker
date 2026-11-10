@@ -1,7 +1,8 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { createPortal } from "react-dom";
 import { BookOpenCheck, Maximize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
@@ -15,7 +16,7 @@ import {
 import { burst } from "@/components/dashboard/celebrate";
 import { Modal } from "@/components/fx/overlay";
 import type { ActiveFocus } from "@/lib/daily-data";
-import { focusElapsed, focusTotals } from "@/lib/focus";
+import { focusElapsed, focusPhase, focusTotals } from "@/lib/focus";
 import { labStart, labStop, type LabTotals } from "@/lib/ext-bridge";
 import type { StudyContents } from "@/lib/study-data";
 import {
@@ -232,6 +233,21 @@ export function StartStudyButton({
  * Floating bar on every page while a study session runs: elapsed time and Stop. Hidden on
  * Sessions, which has the full timer.
  */
+// The sidebar streams in separately, so watch for its dock to appear (or go, when collapsed).
+const watchDom = (cb: () => void) => {
+  const mo = new MutationObserver(cb);
+  mo.observe(document.body, { childList: true, subtree: true });
+  return () => mo.disconnect();
+};
+/** The sidebar's dock for the running session (desktop); null on phones and on the server. */
+function useSidebarSlot() {
+  return useSyncExternalStore(
+    watchDom,
+    () => document.getElementById("sidebar-live"),
+    () => null,
+  );
+}
+
 export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -241,6 +257,7 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const pip = useSharedPip();
   const [pending, start] = useTransition();
   const canPopout = useCanPopout();
+  const slot = useSidebarSlot();
   // Sessions has its own timer (and its own polling), but the pop-out is drawn from here.
   const onSessions = pathname === "/dashboard/sessions";
   const live = useLabLive(active && (!onSessions || pip) ? active.id : null);
@@ -311,7 +328,28 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   return (
     <>
       {floating}
-      <div className="fixed inset-x-0 bottom-24 z-40 flex justify-center px-4 lg:bottom-6">
+      {slot &&
+        createPortal(
+          <SidebarLive
+            active={active}
+            elapsed={elapsed}
+            paused={paused}
+            pending={pending}
+            onTogglePause={togglePause}
+            onOpen={() => {
+              enterFullscreen();
+              setFull(true);
+            }}
+            onStop={stop}
+          />,
+          slot,
+        )}
+      <div
+        className={cn(
+          "fixed inset-x-0 bottom-24 z-40 flex justify-center px-4 lg:bottom-6",
+          slot && "lg:hidden",
+        )}
+      >
         <div className="flex max-w-full items-center gap-3 rounded-full border border-line-2 bg-surface-3/95 py-1.5 pr-1.5 pl-4 shadow-e2 backdrop-blur-xl">
           <span
             className={cn(
@@ -399,5 +437,88 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
         }
       />
     </>
+  );
+}
+
+/**
+ * The running session, docked at the bottom of the sidebar: a ring for the pomodoro block
+ * (or the hour), the clock, and Pause, Open (focus mode) and Stop.
+ */
+function SidebarLive({
+  active,
+  elapsed,
+  paused,
+  pending,
+  onTogglePause,
+  onOpen,
+  onStop,
+}: {
+  active: ActiveFocus;
+  elapsed: number;
+  paused: boolean;
+  pending: boolean;
+  onTogglePause: () => void;
+  onOpen: () => void;
+  onStop: () => void;
+}) {
+  const phase = focusPhase(active.mode, elapsed);
+  const frac = phase ? 1 - phase.left / phase.length : (elapsed % 3_600_000) / 3_600_000;
+  const C = 2 * Math.PI * 18;
+  const tone = paused ? "var(--ink-3)" : "var(--amber)";
+  return (
+    <div className="flex flex-col gap-2.5 rounded-[14px] border border-line-2 bg-[radial-gradient(160px_90px_at_0%_0%,var(--color-primary-soft),transparent_70%),var(--surface-2)] p-3">
+      <div className="flex items-center gap-2.5">
+        <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true" className="shrink-0">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--line-2)" strokeWidth="3" />
+          <circle
+            cx="22"
+            cy="22"
+            r="18"
+            fill="none"
+            stroke={tone}
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeDasharray={`${(frac * C).toFixed(1)} ${C.toFixed(1)}`}
+            transform="rotate(-90 22 22)"
+          />
+          <circle cx="22" cy="22" r="3" fill={tone} />
+        </svg>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="label-mono" style={{ color: paused ? undefined : "var(--amber)" }}>
+            {paused ? "Paused" : phase ? `Focus · round ${phase.round}` : "Focus"}
+          </span>
+          <span
+            className="font-mono text-[20px] font-[600] tracking-[-0.02em]"
+            suppressHydrationWarning
+          >
+            {phase && !paused ? clock(phase.left) : clock(elapsed)}
+          </span>
+        </div>
+      </div>
+      {active.label && <p className="truncate text-12 text-ink-3">{active.label}</p>}
+      <div className="flex gap-1.5">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="flex-1"
+          disabled={pending}
+          onClick={onTogglePause}
+        >
+          {paused ? "Resume" : "Pause"}
+        </Button>
+        <Button variant="secondary" size="sm" className="flex-1" onClick={onOpen}>
+          Open
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Stop and save the session"
+          disabled={pending}
+          onClick={onStop}
+        >
+          <Square size={12} className="fill-current" aria-hidden="true" />
+        </Button>
+      </div>
+    </div>
   );
 }

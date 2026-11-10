@@ -186,6 +186,20 @@ export async function getStudyHall(groupId: string): Promise<HallMember[]> {
   }));
 }
 
+/** How many people in your groups (not you) are in a running, unpaused study session. */
+export async function getFriendsStudying(userId: string): Promise<number> {
+  const rows = (await db().execute(sql`
+    select count(distinct f.user_id)::int as n
+    from group_members mine
+    join group_members m on m.group_id = mine.group_id and m.user_id <> ${userId}
+    left join profiles p on p.user_id = m.user_id
+    join focus_sessions f on f.user_id = m.user_id
+    where mine.user_id = ${userId} and coalesce(p.share_live, true)
+      and f.ended_at is null and f.paused_at is null
+      and f.started_at > now() - interval '16 hours'`)) as unknown as { n: number }[];
+  return Number(rows[0]?.n ?? 0);
+}
+
 // ---------------------------------------------------------------- save for later
 
 export type SavedItem = {

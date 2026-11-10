@@ -20,8 +20,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
       </Suspense>
 
       {/* overflow-x-clip: decorative glows can't widen the page on phones; unlike hidden it keeps the header sticky. */}
-      <div className="min-w-0 flex-1 overflow-x-clip px-4 pb-32 sm:px-6 lg:pb-12">
-        <StickyHeader>
+      <div className="min-w-0 flex-1 overflow-x-clip px-4 pb-32 sm:px-6 lg:px-10 lg:pt-8 lg:pb-14">
+        {/* Phones and tablets only: on desktop, search, theme and you live in the sidebar. */}
+        <StickyHeader className="lg:hidden">
           <Link href="/dashboard" className="lg:hidden" aria-label="DsaKaro dashboard">
             <LogoMark size={26} />
           </Link>
