@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { CalendarDays, Check, History, ListTodo, TrendingUp } from "lucide-react";
+import { CalendarDays, Check, History, TrendingUp } from "lucide-react";
 import type { Platform } from "@upsolve/adapters";
 import {
   ButtonArrow,
@@ -9,8 +9,6 @@ import {
   CardHeader,
   CardSub,
   CardTitle,
-  DifficultyTag,
-  LinearProgress,
   SkeletonCard,
   Tag,
   buttonClasses,
@@ -49,7 +47,7 @@ export default function ContestsPage() {
         glow={PAGE_GLOW.contests}
         title={
           <>
-            Contests, <em>and what&apos;s left to upsolve.</em>
+            Contests <em>· what&apos;s left to upsolve</em>
           </>
         }
       />
@@ -235,67 +233,112 @@ async function Upsolve({ userId, contests }: { userId: string; contests: Contest
     <>
       <Card className="col-span-12 xl:col-span-5">
         <CardHeader>
-          <CardTitle icon={icon(ListTodo)} tint="var(--medium)">
-            Upsolve next
-          </CardTitle>
+          <CardTitle>Upsolve</CardTitle>
           <CardSub>
             {todo.length} left · {upsolved} upsolved
           </CardSub>
         </CardHeader>
-        {todo.length + upsolved > 0 && (
-          <LinearProgress
-            className="mb-4"
-            value={upsolved}
-            max={todo.length + upsolved}
-            height={7}
-            color="var(--signal-mark)"
-            label={`${upsolved} / ${todo.length + upsolved}`}
-            aria-label="Upsolved"
-          />
-        )}
-        {todo.length === 0 ? (
-          <p className="text-[13.5px] text-ink-2">
-            Nothing left from your last {Math.min(UPSOLVE_CONTESTS, recent.length)} contests.
-          </p>
+        {recent.length === 0 ? (
+          <p className="text-[13.5px] text-ink-2">Your recent contests show up here.</p>
         ) : (
-          <ul>
-            {/* Attempted first (closest to solved), then by contest order. */}
-            {todo
-              .sort((a, b) => Number(b.attempted) - Number(a.attempted))
-              .slice(0, 12)
-              .map((p) => (
+          <ul className="flex flex-col">
+            {recent.slice(0, UPSOLVE_CONTESTS).map((c) => {
+              const row = contests.find(
+                (x) => x.platform === c.platform && x.contestId === c.contestId,
+              );
+              const delta =
+                row && row.newRating !== null && row.oldRating !== null
+                  ? row.newRating - row.oldRating
+                  : null;
+              const inContest = c.problems.filter((p) => p.status === "contest").length;
+              return (
                 <li
-                  key={`${p.contest.contestId}-${p.externalId}`}
-                  className="flex items-center gap-3 rounded-[10px] px-2 py-2 transition-colors hover:bg-surface-2/70"
+                  key={`${c.platform}-${c.contestId}`}
+                  className="flex flex-col gap-2.5 border-t border-line py-3.5 first:border-t-0"
                 >
-                  <span className="min-w-0 flex-1">
-                    <a
-                      href={p.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block truncate text-[13.5px] font-medium hover:underline"
-                    >
-                      {p.title}
-                    </a>
-                    <span className="block truncate text-11 text-ink-3">{p.contest.name}</span>
-                  </span>
-                  {p.attempted && <Tag tone="tle">attempted</Tag>}
-                  {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-[600]">{c.name}</span>
+                    <span className="text-12 text-ink-3">
+                      {inContest} of {c.problems.length} in contest
+                    </span>
+                    {delta !== null && (
+                      <span
+                        className={cn(
+                          "ml-auto font-mono text-12",
+                          delta >= 0 ? "text-signal-text" : "text-bad",
+                        )}
+                      >
+                        {delta >= 0 ? "+" : ""}
+                        {delta}
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                    {c.problems.map((p, i) => (
+                      <a
+                        key={p.externalId}
+                        href={p.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={p.title}
+                        className="flex min-w-0 flex-col gap-0.5 rounded-[10px] px-2.5 py-2 transition-transform hover:-translate-y-0.5"
+                        style={{
+                          background:
+                            p.status === "contest"
+                              ? "var(--color-signal-soft)"
+                              : p.status === "upsolved"
+                                ? "var(--color-info-soft)"
+                                : "var(--surface-2)",
+                          boxShadow:
+                            p.status === "todo" ? "inset 0 0 0 1px var(--line-2)" : undefined,
+                        }}
+                      >
+                        <span
+                          className="font-mono text-[10.5px]"
+                          style={{
+                            color:
+                              p.status === "contest"
+                                ? "var(--signal-text)"
+                                : p.status === "upsolved"
+                                  ? "var(--sky)"
+                                  : "var(--ink-3)",
+                          }}
+                        >
+                          Q{i + 1}
+                          {p.attempted && p.status === "todo" ? " · tried" : ""}
+                        </span>
+                        <span
+                          className={cn(
+                            "truncate text-12",
+                            p.status === "todo" ? "text-ink" : "text-ink-2",
+                          )}
+                        >
+                          {p.title}
+                        </span>
+                      </a>
+                    ))}
+                  </div>
                 </li>
-              ))}
+              );
+            })}
           </ul>
         )}
-        <p className="mt-3 border-t border-line pt-3 text-12 leading-relaxed text-ink-3">
-          Problems from your last {UPSOLVE_CONTESTS} contests you haven&apos;t solved yet. Solve one
-          and it ticks here, and joins your revision queue.
-        </p>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line pt-3 text-12 text-ink-3">
+          <span className="flex items-center gap-1.5">
+            <i className="size-2 rounded-full bg-signal" /> in contest
+          </span>
+          <span className="flex items-center gap-1.5">
+            <i className="size-2 rounded-full bg-[var(--sky)]" /> upsolved
+          </span>
+          <span className="flex items-center gap-1.5">
+            <i className="size-2 rounded-full bg-line-3" /> left
+          </span>
+        </div>
       </Card>
 
       <Card className="col-span-12 xl:col-span-7">
         <CardHeader>
-          <CardTitle icon={icon(History)} tint="var(--violet)">
-            History
-          </CardTitle>
+          <CardTitle>History</CardTitle>
           <CardSub>newest first</CardSub>
         </CardHeader>
         <ul>
