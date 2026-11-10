@@ -18,6 +18,7 @@ import { RangeControl } from "@/components/range-control";
 import { PrefSwitch } from "@/components/social";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
+import { StandingChart } from "@/components/dashboard/lamplight";
 import { BOARD_METRICS, BOARD_TZ, getCollegeBoards, type BoardMetric } from "@/lib/social-data";
 import { localWeekStart, requestNow } from "@/lib/time";
 
@@ -207,6 +208,16 @@ async function CollegeContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
+          <Card className="lamp">
+            <CardHeader>
+              <CardTitle>Where you stand</CardTitle>
+              <CardSub>{rows.length} students · score</CardSub>
+            </CardHeader>
+            <StandingChart
+              scores={rows.map((r) => r.score)}
+              mine={rows.find((r) => r.userId === user.id)?.score ?? null}
+            />
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle icon={icon(Trophy)} tint="var(--signal-mark)">
@@ -240,5 +251,3 @@ async function CollegeContent({
     </>
   );
 }
-
-// DsaKaro

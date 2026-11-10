@@ -820,3 +820,46 @@ export function ContestCalendar({
     </div>
   );
 }
+
+/** Everyone's score as a histogram, your bar in lime, with where you rank in plain words. */
+export function StandingChart({ scores, mine }: { scores: number[]; mine: number | null }) {
+  if (scores.length < 3 || mine === null)
+    return (
+      <p className="text-13 text-ink-3">The chart appears once three students are on the board.</p>
+    );
+  const max = Math.max(...scores, 1);
+  const bins = 12;
+  const counts = Array.from({ length: bins }, () => 0);
+  const binOf = (v: number) => Math.min(bins - 1, Math.floor((v / max) * bins));
+  for (const v of scores) counts[binOf(v)]!++;
+  const top = Math.max(...counts);
+  const ahead = scores.filter((v) => v > mine).length;
+  const pct = Math.max(1, Math.round(((ahead + 1) / scores.length) * 100));
+  const sorted = [...scores].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)]!;
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex h-[120px] items-end gap-1" aria-hidden="true">
+        {counts.map((c, i) => (
+          <span
+            key={i}
+            className="flex-1 rounded-[4px_4px_1px_1px]"
+            style={{
+              height: c ? `${(c / top) * 100}%` : "2px",
+              background: i === binOf(mine) ? "var(--signal)" : "var(--surface-4)",
+            }}
+          />
+        ))}
+      </div>
+      <div className="flex justify-between font-mono text-11 text-ink-3">
+        <span>0</span>
+        <span>{Math.round(max / 2)}</span>
+        <span>{Math.round(max)}</span>
+      </div>
+      <p className="text-[13.5px]">
+        You&apos;re in the <b className="font-[600] text-signal-text">top {pct}%</b> this week with{" "}
+        {Math.round(mine)}. The middle student has {Math.round(median)}.
+      </p>
+    </div>
+  );
+}
