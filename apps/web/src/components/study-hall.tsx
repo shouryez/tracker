@@ -131,17 +131,18 @@ export function StudyHall({
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-[16px] border px-2 pt-3 pb-2.5 text-center transition-colors",
                 room && "gap-2 rounded-[22px] px-3 pt-6 pb-5 backdrop-blur-sm",
+                // Each desk: a lamp switches on over whoever is studying.
                 room
                   ? state === "studying"
-                    ? "border-[#a3e635]/30 bg-[#a3e635]/[.06]"
+                    ? "border-white/[.12] bg-[radial-gradient(220px_140px_at_50%_0%,rgba(243,180,92,.18),transparent_70%),rgba(255,255,255,.035)]"
                     : state === "paused"
-                      ? "border-[#f5b544]/30 bg-[#f5b544]/[.06]"
-                      : "border-white/[.07] bg-white/[.03]"
+                      ? "border-[#f3b45c]/25 bg-white/[.03]"
+                      : "border-white/[.07] bg-white/[.02] opacity-60 grayscale-[.7]"
                   : state === "studying"
-                    ? "border-signal-2/35 bg-signal/[.05]"
+                    ? "border-line-2 bg-[radial-gradient(200px_120px_at_50%_0%,color-mix(in_srgb,var(--amber)_16%,transparent),transparent_70%),var(--surface-2)]"
                     : state === "paused"
-                      ? "border-medium/30 bg-medium-soft/40"
-                      : "border-line bg-surface-2/40",
+                      ? "border-[color-mix(in_srgb,var(--amber)_30%,transparent)] bg-surface-2"
+                      : "border-line bg-surface-2/40 opacity-70 grayscale-[.6]",
               )}
             >
               <StudyBuddy buddy={m.avatar} level={level} size={room ? 132 : 84} />
@@ -181,13 +182,33 @@ export function StudyHall({
               >
                 {live ? focusClock(session) : "--:--"}
               </p>
+              {typeof level === "number" && (
+                <span className="flex gap-0.5" aria-hidden="true">
+                  {[1, 2, 3, 4].map((i) => (
+                    <svg key={i} width="11" height="13" viewBox="0 0 24 24">
+                      <path
+                        d="M12 2.5c.6 3.2 4.5 5.2 4.5 10a4.5 4.5 0 1 1-9 0c0-2 .9-3.3 2-4.4.2 1.6 1 2.6 2 2.9-.4-3.2-.1-6 .5-8.5Z"
+                        fill={
+                          i <= level
+                            ? "#f3b45c"
+                            : room
+                              ? "rgba(255,255,255,.12)"
+                              : "var(--surface-4)"
+                        }
+                      />
+                    </svg>
+                  ))}
+                </span>
+              )}
               <p
                 className={cn("text-11", room ? "text-white/50" : "text-ink-3")}
                 suppressHydrationWarning
               >
                 <span
                   className={cn(
-                    state === "studying" ? "text-signal-text" : state === "paused" && "text-medium",
+                    state === "studying"
+                      ? "text-[var(--amber)]"
+                      : state === "paused" && "text-ink-3",
                   )}
                 >
                   {LEVEL_LABEL[level]}
@@ -392,7 +413,7 @@ function RoomControls({
           type="button"
           onClick={onStart}
           disabled={pending}
-          className="flex h-10 items-center gap-2 rounded-full bg-[#a3e635] px-4 text-13 font-[600] text-[#0b0b0f] transition-transform hover:scale-[1.03] active:scale-95 disabled:opacity-50"
+          className="flex h-10 items-center gap-2 rounded-full bg-[#f3b45c] px-4 text-13 font-[600] text-[#0b0b0f] transition-transform hover:scale-[1.03] active:scale-95 disabled:opacity-50"
         >
           <Play size={14} className="fill-current" aria-hidden="true" /> Start studying
         </button>
@@ -409,7 +430,7 @@ function RoomControls({
         <span
           className={cn(
             "font-mono text-[22px] font-[600] tabular-nums",
-            paused ? "text-[#f5b544]" : "text-white",
+            paused ? "text-white/55" : "text-white",
           )}
           suppressHydrationWarning
         >
@@ -424,7 +445,7 @@ function RoomControls({
         className={cn(
           btn,
           "ml-1 size-11",
-          paused ? "bg-[#f5b544]" : "bg-[#a3e635]",
+          paused ? "bg-white/40" : "bg-[#f3b45c]",
           "text-[#0b0b0f]",
         )}
       >
@@ -515,17 +536,17 @@ function StudyRoom({
       role="dialog"
       aria-modal="true"
       aria-label={`${groupName} study room`}
-      className="fixed inset-0 z-[90] flex flex-col overflow-hidden bg-[#06060a] text-[#f4f4f6] animate-[focus-in_500ms_var(--ease-out)]"
+      className="fixed inset-0 z-[90] flex flex-col overflow-hidden bg-[#0b0c0f] text-[#eceef2] animate-[focus-in_500ms_var(--ease-out)]"
     >
       {/* The room: slow colour fields, a floor glow, grain. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div
           className="focus-field absolute -top-[25%] -left-[10%] size-[70vmax] rounded-full"
-          style={{ background: "radial-gradient(closest-side, rgba(163,230,53,.13), transparent)" }}
+          style={{ background: "radial-gradient(closest-side, rgba(243,180,92,.14), transparent)" }}
         />
         <div
           className="focus-field focus-field-b absolute -right-[15%] -bottom-[30%] size-[70vmax] rounded-full"
-          style={{ background: "radial-gradient(closest-side, rgba(139,92,246,.16), transparent)" }}
+          style={{ background: "radial-gradient(closest-side, rgba(120,150,255,.1), transparent)" }}
         />
         <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(to_top,rgba(255,255,255,.035),transparent)]" />
         <div className="grain absolute inset-0 [--grain-opacity:.1]" />
