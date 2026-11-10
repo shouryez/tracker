@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ExternalLink, History, ListChecks, Play, RotateCcw, Shapes, Timer } from "lucide-react";
+import { ExternalLink, Play, Timer } from "lucide-react";
 import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
 import {
   ButtonArrow,
@@ -14,7 +14,6 @@ import {
   Skeleton,
   SkeletonCard,
   StatusBadge,
-  StrengthLadder,
   Tag,
   VerdictChip,
   buttonClasses,
@@ -47,7 +46,6 @@ import { localDay, requestNow } from "@/lib/time";
 export const metadata: Metadata = { title: "Problem" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const icon = (Icon: typeof History) => <Icon size={13} strokeWidth={2} />;
 
 const DAY_MS = 86_400_000;
 const LINK_MARK: Partial<Record<SheetItemLink["site"], PlatformId>> = {
@@ -124,6 +122,13 @@ async function ProblemContent({
     : problem.submissions.length + problem.sessions.length > 0
       ? "attempted"
       : "todo";
+  // The latest wrap-up you wrote after a solve.
+  const wrap = [...problem.sessions]
+    .sort((a, b) => b.at.getTime() - a.at.getTime())
+    .reduce<{ pattern: string | null; takeaway: string | null }>(
+      (w, x) => ({ pattern: w.pattern ?? x.pattern, takeaway: w.takeaway ?? x.takeaway }),
+      { pattern: null, takeaway: null },
+    );
   const maxActive = Math.max(1, ...problem.sessions.map((x) => x.activeMs));
   const extraLinks = problem.sheets
     .flatMap((x) => x.links)
@@ -154,6 +159,19 @@ async function ProblemContent({
 
   return (
     <>
+      {problem.sheets[0] && (
+        <nav aria-label="Breadcrumb" className="flex flex-wrap gap-2 text-[12.5px] text-ink-3">
+          <Link href="/dashboard/sheets" className="hover:text-ink">
+            Sheets
+          </Link>
+          <span>/</span>
+          <Link href={`/dashboard/sheets/${problem.sheets[0].slug}`} className="hover:text-ink">
+            {problem.sheets[0].name}
+          </Link>
+          <span>/</span>
+          <span>{problem.sheets[0].step}</span>
+        </nav>
+      )}
       <header className="relative isolate flex flex-wrap items-end justify-between gap-4">
         <span
           aria-hidden="true"
@@ -267,6 +285,35 @@ async function ProblemContent({
 
       <div className="grid grid-cols-12 gap-3.5">
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-8">
+          <Card className="p-[22px]">
+            <CardHeader>
+              <CardTitle>Your wrap-up</CardTitle>
+              <CardSub>goes into your Notebook</CardSub>
+            </CardHeader>
+            <div className="mb-4 grid gap-3 sm:grid-cols-2">
+              <div className="surface-inset rounded-[12px] p-3.5">
+                <p className="label-mono">Pattern</p>
+                <p className="mt-1.5 font-[600]">{wrap.pattern ?? topics[0] ?? "Not noted yet"}</p>
+              </div>
+              <div className="surface-inset rounded-[12px] p-3.5">
+                <p className="label-mono text-bad">What went wrong</p>
+                <p className="mt-1.5 text-[13.5px]">
+                  {mistakes.length
+                    ? mistakes
+                        .map(([t, n]) => `${t.replace(/-/g, " ")}${n > 1 ? ` ×${n}` : ""}`)
+                        .join(", ")
+                    : "Nothing tagged."}
+                </p>
+              </div>
+            </div>
+            {wrap.takeaway && (
+              <div className="mb-4">
+                <p className="label-mono">Key idea</p>
+                <p className="mt-1.5 text-14">{wrap.takeaway}</p>
+              </div>
+            )}
+            <NoteEditor problemId={problem.id} initial={problem.note?.body ?? ""} />
+          </Card>
           <Card>
             <Tabs
               items={[
@@ -364,28 +411,6 @@ async function ProblemContent({
                     </>
                   ),
                 },
-                {
-                  id: "notes",
-                  label: "Notes",
-                  count: problem.note ? 1 : undefined,
-                  content: (
-                    <>
-                      <NoteEditor problemId={problem.id} initial={problem.note?.body ?? ""} />
-                      {mistakes.length > 0 && (
-                        <div className="mt-4 border-t border-dashed border-line-2 pt-3">
-                          <p className="mb-2 label-mono">Mistakes you tagged</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {mistakes.map(([tag, n]) => (
-                              <Tag key={tag} tone="wa" mono>
-                                {tag} ×{n}
-                              </Tag>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ),
-                },
               ]}
             />
           </Card>
@@ -394,9 +419,10 @@ async function ProblemContent({
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
           <Card glow={review && !review.state.retired ? "var(--violet)" : undefined}>
             <CardHeader>
-              <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
-                Revision
-              </CardTitle>
+              <CardTitle>On the ladder</CardTitle>
+              {review && !review.state.retired && (
+                <CardSub>rung {Math.min(6, review.state.step + 1)} of 6</CardSub>
+              )}
               {review && <RetireButton problemId={problem.id} retired={review.state.retired} />}
             </CardHeader>
             {!review ? (
@@ -406,25 +432,37 @@ async function ProblemContent({
               </p>
             ) : (
               <>
-                <div className="surface-inset flex items-end justify-between gap-3 rounded-[14px] p-3.5">
-                  <StrengthLadder
-                    stage={review.state.step + 1}
-                    overdue={status === "overdue"}
-                    dueLabel={dueLabel(review.state.dueAt, now, endOfToday)}
-                  />
-                  <span className="text-right">
-                    <span className="block text-13 font-[600]">
-                      {review.state.retired
-                        ? "Retired"
-                        : dueLabel(review.state.dueAt, now, endOfToday)}
-                    </span>
-                    {!review.state.retired && (
-                      <span className="tnum block text-11 text-ink-3">
-                        every {INTERVAL_DAYS[review.state.step]} days
-                      </span>
-                    )}
-                  </span>
+                <div className="grid h-[70px] grid-cols-6 items-end gap-1">
+                  {[0, 1, 2, 3, 4, 5].map((i) => {
+                    const on = !review.state.retired && i === Math.min(5, review.state.step);
+                    return (
+                      <span
+                        key={i}
+                        className="rounded-[5px_5px_2px_2px]"
+                        style={{
+                          height: 18 + i * 10,
+                          background:
+                            on || (review.state.retired && i === 5)
+                              ? "var(--amber)"
+                              : "var(--surface-4)",
+                          boxShadow: on
+                            ? "0 6px 16px -6px color-mix(in srgb, var(--amber) 60%, transparent)"
+                            : undefined,
+                        }}
+                      />
+                    );
+                  })}
                 </div>
+                <div className="mt-1.5 grid grid-cols-6 text-center font-mono text-[10.5px] text-ink-3">
+                  {INTERVAL_DAYS.map((d) => (
+                    <span key={d}>{d}d</span>
+                  ))}
+                </div>
+                <p className="mt-2.5 text-12 text-ink-3">
+                  {review.state.retired
+                    ? "Graduated: it won't come back unless you restore it."
+                    : `${dueLabel(review.state.dueAt, now, endOfToday)[0]!.toUpperCase()}${dueLabel(review.state.dueAt, now, endOfToday).slice(1)}. Pass it and it moves to ${INTERVAL_DAYS[Math.min(5, review.state.step + 1)]} days.`}
+                </p>
                 {!review.state.retired && (
                   <div className="mt-3.5">
                     <p className="mb-2 text-12 text-ink-3">Revised it without the extension?</p>
@@ -452,7 +490,7 @@ async function ProblemContent({
 
           <Card>
             <CardHeader>
-              <CardTitle icon={icon(ExternalLink)}>Solve on</CardTitle>
+              <CardTitle>Solve on</CardTitle>
             </CardHeader>
             <div className="grid grid-cols-2 gap-2">
               {problem.versions.map((v) => {
@@ -484,7 +522,7 @@ async function ProblemContent({
           {problem.sheets.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle icon={icon(ListChecks)}>In your sheets</CardTitle>
+                <CardTitle>In your sheets</CardTitle>
               </CardHeader>
               <ul className="flex flex-col gap-2">
                 {problem.sheets.map((s) => {
@@ -522,9 +560,8 @@ async function ProblemContent({
           {problem.similar.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle icon={icon(Shapes)} tint="var(--signal-mark)">
-                  Similar, not solved yet
-                </CardTitle>
+                <CardTitle>Same idea</CardTitle>
+                <CardSub>not solved yet</CardSub>
               </CardHeader>
               <ul className="flex flex-col gap-2">
                 {problem.similar.map((s) => (
