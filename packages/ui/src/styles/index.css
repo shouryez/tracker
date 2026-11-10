@@ -1227,7 +1227,9 @@
   background:
     radial-gradient(1100px 640px at 16% -14%, var(--lamp), transparent 62%),
     radial-gradient(900px 620px at 104% -6%, var(--lamp-2), transparent 60%), var(--bg);
-  background-attachment: fixed;
+  /* Not fixed: a fixed background repaints the whole page on every scroll frame. */
+  background-repeat: no-repeat;
+  background-color: var(--bg);
 }
 
 /* Dot field that fades downward; sits behind page headers. */
