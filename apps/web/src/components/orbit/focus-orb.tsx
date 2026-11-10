@@ -108,7 +108,15 @@ export function FocusOrb({
             strokeWidth="1.2"
           />
         ))}
-        <circle cx={c} cy={c} r={arcR} fill="none" stroke="var(--ink)" strokeOpacity=".06" strokeWidth="4" />
+        <circle
+          cx={c}
+          cy={c}
+          r={arcR}
+          fill="none"
+          stroke="var(--ink)"
+          strokeOpacity=".06"
+          strokeWidth="4"
+        />
         <circle
           cx={c}
           cy={c}
@@ -144,7 +152,9 @@ export function FocusOrb({
                 r={d}
                 fill="var(--signal)"
                 opacity={1 - i * 0.1}
-                style={{ filter: "drop-shadow(0 0 6px color-mix(in srgb, var(--signal) 75%, transparent))" }}
+                style={{
+                  filter: "drop-shadow(0 0 6px color-mix(in srgb, var(--signal) 75%, transparent))",
+                }}
               />
             </g>
           );
@@ -162,7 +172,9 @@ export function FocusOrb({
           {center}
         </span>
         {caption && (
-          <span className="relative mt-1 text-[12.5px] font-[600] text-[rgba(42,18,5,.72)]">{caption}</span>
+          <span className="relative mt-1 text-[12.5px] font-[600] text-[rgba(42,18,5,.72)]">
+            {caption}
+          </span>
         )}
       </div>
     </div>
@@ -186,7 +198,9 @@ export function LadderChips({ counts, className }: { counts: number[]; className
               className="rounded-full bg-signal shadow-[0_0_8px_color-mix(in_srgb,var(--signal)_60%,transparent)]"
               style={{ width: s, height: s, opacity: n ? 1 - i * 0.1 : 0.25 }}
             />
-            <b className="font-display text-[22px] leading-none font-[650] tracking-[-0.03em]">{n}</b>
+            <b className="font-display text-[22px] leading-none font-[650] tracking-[-0.03em]">
+              {n}
+            </b>
             <span className="text-12 font-[550] text-ink-3">Day {d}</span>
           </div>
         );

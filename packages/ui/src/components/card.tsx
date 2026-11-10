@@ -98,7 +98,10 @@ export function Card({
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("mb-4 flex min-h-8 items-center justify-between gap-3", className)} {...props} />
+    <div
+      className={cn("mb-4 flex min-h-8 items-center justify-between gap-3", className)}
+      {...props}
+    />
   );
 }
 

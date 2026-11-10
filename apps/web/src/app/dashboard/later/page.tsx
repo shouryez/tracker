@@ -6,6 +6,7 @@ import { LaterList } from "@/components/daily/later-list";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getSavedItems } from "@/lib/daily-data";
+import { LIBRARY_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 export const metadata: Metadata = { title: "Saved for later" };
 
@@ -37,6 +38,7 @@ async function LaterContent() {
 
   return (
     <>
+      <SectionTabs tabs={LIBRARY_TABS} />
       <PageHeader
         eyebrow="Saved for later"
         glow={PAGE_GLOW.sheets}

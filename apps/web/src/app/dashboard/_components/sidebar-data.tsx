@@ -102,7 +102,9 @@ export function ExtensionPromo({ connected }: { connected: boolean }) {
       <span className="mb-3 grid size-8 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--ink)_8%,transparent)] text-ink">
         <Puzzle size={15} aria-hidden="true" />
       </span>
-      <p className="text-[14px] leading-tight font-[600] text-ink">Time every problem automatically</p>
+      <p className="text-[14px] leading-tight font-[600] text-ink">
+        Time every problem automatically
+      </p>
       <p className="mt-1 text-12 text-ink-3">LeetCode and GFG. Your code is never uploaded.</p>
       <Link
         href="/extension/connect"

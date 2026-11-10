@@ -156,11 +156,21 @@ function ContinueButton({ next, collapsed }: { next: ContinueTarget; collapsed: 
     collapsed ? "mx-auto size-11 justify-center rounded-full" : "w-full px-2.5 py-2",
   );
   const link = next.external ? (
-    <a href={next.href} target="_blank" rel="noreferrer" className={cls} aria-label={collapsed ? `${next.label}: ${next.detail}` : undefined}>
+    <a
+      href={next.href}
+      target="_blank"
+      rel="noreferrer"
+      className={cls}
+      aria-label={collapsed ? `${next.label}: ${next.detail}` : undefined}
+    >
       {content}
     </a>
   ) : (
-    <Link href={next.href} className={cls} aria-label={collapsed ? `${next.label}: ${next.detail}` : undefined}>
+    <Link
+      href={next.href}
+      className={cls}
+      aria-label={collapsed ? `${next.label}: ${next.detail}` : undefined}
+    >
       {content}
     </Link>
   );
@@ -251,9 +261,27 @@ export function SidebarView({
             </span>
           </button>
         )}
-        <Group label="Practice" items={MENU} pathname={pathname} badges={badges} collapsed={collapsed} />
-        <Group label="Track" items={TOOLKIT} pathname={pathname} badges={badges} collapsed={collapsed} />
-        <Group label="Together" items={SOCIAL} pathname={pathname} badges={badges} collapsed={collapsed} />
+        <Group
+          label="Practice"
+          items={MENU}
+          pathname={pathname}
+          badges={badges}
+          collapsed={collapsed}
+        />
+        <Group
+          label="Track"
+          items={TOOLKIT}
+          pathname={pathname}
+          badges={badges}
+          collapsed={collapsed}
+        />
+        <Group
+          label="Together"
+          items={SOCIAL}
+          pathname={pathname}
+          badges={badges}
+          collapsed={collapsed}
+        />
         <div className="mt-auto flex flex-col gap-3 pt-4">
           {/* The running study session docks here (rendered by the study bar). */}
           {!collapsed && <div id="sidebar-live" className="empty:hidden" />}
@@ -350,7 +378,9 @@ function Group({
                   aria-label={`${badge} due`}
                   className={cn(
                     "tnum min-w-[20px] rounded-full bg-[color-mix(in_srgb,var(--ink)_8%,transparent)] px-1.5 text-center font-mono text-[11px] leading-[20px] font-semibold text-ink",
-                    collapsed ? "absolute top-0 right-2 h-[18px] min-w-[18px] leading-[18px]" : "ml-auto",
+                    collapsed
+                      ? "absolute top-0 right-2 h-[18px] min-w-[18px] leading-[18px]"
+                      : "ml-auto",
                   )}
                 >
                   {badge > 99 ? "99+" : badge}
@@ -388,7 +418,12 @@ export function MobileNav({
   const drag = useRef<{ y: number; dy: number } | null>(null);
   const left = MENU.slice(0, 2);
   const right = MENU.slice(2, 3);
-  const more = [...MENU.slice(3), ...TOOLKIT, ...SOCIAL, ...ACCOUNT.filter((a) => a.label === "Settings")];
+  const more = [
+    ...MENU.slice(3),
+    ...TOOLKIT,
+    ...SOCIAL,
+    ...ACCOUNT.filter((a) => a.label === "Settings"),
+  ];
   const moreActive = more.some((m) => isActive(m.href, pathname, m.match));
   const tabClass = (active: boolean) =>
     cn(
@@ -426,12 +461,25 @@ export function MobileNav({
   const tab = ({ label, href, icon: Icon, match }: NavItem) => {
     const active = isActive(href, pathname, match) && !moreOpen;
     return (
-      <Link key={href} href={href} aria-current={active ? "page" : undefined} className={tabClass(active)}>
+      <Link
+        key={href}
+        href={href}
+        aria-current={active ? "page" : undefined}
+        className={tabClass(active)}
+      >
         {active && pill("mobile-nav-active")}
-        <Icon size={18} strokeWidth={1.75} aria-hidden="true" className={cn(active && "text-primary")} />
+        <Icon
+          size={18}
+          strokeWidth={1.75}
+          aria-hidden="true"
+          className={cn(active && "text-primary")}
+        />
         <span className="truncate">{label}</span>
         {badges[href] ? (
-          <span className="absolute top-1.5 right-[24%] size-2 rounded-full bg-primary" aria-label={`${badges[href]} due`} />
+          <span
+            className="absolute top-1.5 right-[24%] size-2 rounded-full bg-primary"
+            aria-label={`${badges[href]} due`}
+          />
         ) : null}
       </Link>
     );
@@ -459,7 +507,10 @@ export function MobileNav({
           onPointerCancel={onPointerUp}
           className="glass fixed inset-x-2 bottom-2 z-50 animate-[sheet-up_var(--dur-slow)_var(--ease-spring)] touch-none rounded-[28px] border border-line-2 px-3 pt-2 pb-[96px] shadow-e4 lg:hidden"
         >
-          <span aria-hidden="true" className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-line-3" />
+          <span
+            aria-hidden="true"
+            className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-line-3"
+          />
           <div className="grid grid-cols-3 gap-1.5">
             {more.map(({ label, href, icon: Icon, match }) => (
               <Link
@@ -484,7 +535,10 @@ export function MobileNav({
                 setMoreOpen(false);
                 openFeedback();
               }}
-              className={cn(sheetItem, "text-ink-2 hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)]")}
+              className={cn(
+                sheetItem,
+                "text-ink-2 hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)]",
+              )}
             >
               <MessageSquarePlus size={19} strokeWidth={1.75} aria-hidden="true" />
               Feedback
@@ -492,7 +546,10 @@ export function MobileNav({
             <button
               type="button"
               onClick={toggleTheme}
-              className={cn(sheetItem, "text-ink-2 hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)]")}
+              className={cn(
+                sheetItem,
+                "text-ink-2 hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)]",
+              )}
             >
               <Moon size={19} strokeWidth={1.75} aria-hidden="true" />
               Theme
@@ -507,11 +564,21 @@ export function MobileNav({
         {left.map(tab)}
         {next ? (
           next.external ? (
-            <a href={next.href} target="_blank" rel="noreferrer" aria-label={`${next.label}: ${next.detail}`} className="gloss grid size-12 shrink-0 place-items-center rounded-full active:scale-90">
+            <a
+              href={next.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`${next.label}: ${next.detail}`}
+              className="gloss grid size-12 shrink-0 place-items-center rounded-full active:scale-90"
+            >
               <Play size={18} fill="currentColor" aria-hidden="true" />
             </a>
           ) : (
-            <Link href={next.href} aria-label={`${next.label}: ${next.detail}`} className="gloss grid size-12 shrink-0 place-items-center rounded-full active:scale-90">
+            <Link
+              href={next.href}
+              aria-label={`${next.label}: ${next.detail}`}
+              className="gloss grid size-12 shrink-0 place-items-center rounded-full active:scale-90"
+            >
               <Play size={18} fill="currentColor" aria-hidden="true" />
             </Link>
           )

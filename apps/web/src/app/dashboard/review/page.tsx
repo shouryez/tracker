@@ -10,6 +10,7 @@ import { getWeekReview } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { getLearning, getTopicTargets, masteryOf } from "@/lib/learning";
 import { requestNow } from "@/lib/time";
+import { INSIGHTS_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 export const metadata: Metadata = { title: "Weekly review" };
 
@@ -108,6 +109,7 @@ async function ReviewContent() {
 
   return (
     <div className="mx-auto flex w-full max-w-[920px] flex-col gap-5">
+      <SectionTabs tabs={INSIGHTS_TABS} />
       <PageHeader
         eyebrow={`Weekly review · week of ${fmtDay(week.weekStart, { day: "numeric", month: "short" })}`}
         glow={PAGE_GLOW.revision}

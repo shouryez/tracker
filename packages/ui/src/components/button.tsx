@@ -44,10 +44,15 @@ const glass =
 
 const variants: Record<ButtonVariant, string> = {
   signal: cn("gloss hover:brightness-105", lift),
-  primary: cn(glass, "bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--ink)_14%,transparent)]", lift),
+  primary: cn(
+    glass,
+    "bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--ink)_14%,transparent)]",
+    lift,
+  ),
   indigo: cn(glass, lift),
   secondary: cn(glass, lift),
-  outline: "text-ink shadow-[inset_0_0_0_1px_var(--line-2)] hover:shadow-[inset_0_0_0_1px_var(--line-3)] hover:bg-[color-mix(in_srgb,var(--ink)_5%,transparent)]",
+  outline:
+    "text-ink shadow-[inset_0_0_0_1px_var(--line-2)] hover:shadow-[inset_0_0_0_1px_var(--line-3)] hover:bg-[color-mix(in_srgb,var(--ink)_5%,transparent)]",
   ghost: "text-ink-2 hover:bg-[color-mix(in_srgb,var(--ink)_7%,transparent)] hover:text-ink",
   danger: cn("bg-bad text-white hover:shadow-glow-danger", lift),
   success: cn("bg-success text-signal-ink hover:shadow-glow-signal", lift),

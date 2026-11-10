@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Brain, Clock, Info } from "lucide-react";
 import {
@@ -8,19 +9,19 @@ import {
   CardTitle,
   DifficultyTag,
   SkeletonCard,
+  buttonClasses,
 } from "@upsolve/ui";
-import { TopicBar } from "@/components/charts";
 import { TopicRadar } from "@/components/charts/insights";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { RangeControl } from "@/components/range-control";
 import { MasteryBars } from "@/components/learning";
 import { KpiStrip, SkillMap } from "@/components/dashboard/lamplight";
-import { HonestSplit } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getAnalytics, RANGES, type RangeKey } from "@/lib/analytics-data";
 import { getProfile } from "@/lib/data";
 import { getLearning, getTopicTargets, masteryOf } from "@/lib/learning";
 import { requestNow } from "@/lib/time";
+import { INSIGHTS_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -82,7 +83,6 @@ async function AnalyticsContent({
   const firstTryRate = a.firstTry.total
     ? Math.round((a.firstTry.ac / a.firstTry.total) * 100)
     : null;
-  const topicMax = a.byTopic[0]?.activeMs ?? 1;
   const subs = a.verdicts.reduce((n, v) => n + v.n, 0);
   const honestTotal = a.independence.solo + a.independence.hint + a.independence.solution;
   const timed = a.byDifficulty.filter((r) => r.medianMs && r.solved);
@@ -90,6 +90,9 @@ async function AnalyticsContent({
     ? timed.reduce((n, r) => n + r.medianMs! * r.solved, 0) /
       timed.reduce((n, r) => n + r.solved, 0)
     : null;
+  // Verdicts, first-try rate and solve times come from the extension; without it they're
+  // empty or misleading (platform sync only reports Accepted), so those cards hide.
+  const extData = a.firstTry.total > 0 || timed.length > 0;
   const dayMax = Math.max(3, ...a.daily.map((d) => d.ac + d.wa + d.other));
   const hourMax = Math.max(1, ...a.byHour);
   const bestHour = a.byHour.some((n) => n > 0)
@@ -126,6 +129,7 @@ async function AnalyticsContent({
 
   return (
     <>
+      <SectionTabs tabs={INSIGHTS_TABS} />
       <PageHeader
         eyebrow={`Analytics · ${RANGE_LABEL[range].toLowerCase()}`}
         glow={PAGE_GLOW.analytics}
@@ -157,14 +161,18 @@ async function AnalyticsContent({
               value: subs,
               note: a.solved ? `${(subs / Math.max(1, a.solved)).toFixed(1)} per problem` : "—",
             },
-            {
-              label: "First-try accepted",
-              value: firstTryRate ?? "—",
-              unit: firstTryRate === null ? undefined : "%",
-              note: a.firstTry.total
-                ? `${a.firstTry.ac} of ${a.firstTry.total} new problems`
-                : "needs the extension",
-            },
+            ...(extData
+              ? [
+                  {
+                    label: "First-try accepted",
+                    value: firstTryRate ?? "—",
+                    unit: firstTryRate === null ? undefined : "%",
+                    note: a.firstTry.total
+                      ? `${a.firstTry.ac} of ${a.firstTry.total} new problems`
+                      : "needs the extension",
+                  },
+                ]
+              : []),
             {
               label: "Solved without help",
               value: honestTotal ? Math.round((a.independence.solo / honestTotal) * 100) : "—",
@@ -173,12 +181,16 @@ async function AnalyticsContent({
                 ? `${a.independence.hint + a.independence.solution} used hints or solutions`
                 : "answer after each Accepted",
             },
-            {
-              label: "Median time",
-              value: overallMedian ? Math.round(overallMedian / 60_000) : "—",
-              unit: overallMedian ? "min" : undefined,
-              note: "timed solves",
-            },
+            ...(extData
+              ? [
+                  {
+                    label: "Median time",
+                    value: overallMedian ? Math.round(overallMedian / 60_000) : "—",
+                    unit: overallMedian ? "min" : undefined,
+                    note: "timed solves",
+                  },
+                ]
+              : []),
             {
               label: "Active days",
               value: a.activeDays,
@@ -269,115 +281,135 @@ async function AnalyticsContent({
           </div>
         </Card>
 
-        <Card className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle>Verdicts</CardTitle>
-            <CardSub className="font-mono">{subs} submissions</CardSub>
-          </CardHeader>
-          <div className="flex items-center gap-5">
-            <svg
-              viewBox="0 0 120 120"
-              width="128"
-              height="128"
-              role="img"
-              aria-label={vmix.map((v) => `${v.label} ${v.n}`).join(", ")}
-            >
-              <circle
-                cx="60"
-                cy="60"
-                r="46"
-                fill="none"
-                stroke="var(--surface-4)"
-                strokeWidth="12"
-              />
-              {vmix.map((v) => (
-                <circle
-                  key={v.label}
-                  cx="60"
-                  cy="60"
-                  r="46"
-                  fill="none"
-                  stroke={v.color}
-                  strokeWidth="12"
-                  strokeDasharray={`${(v.frac * VC).toFixed(1)} ${VC.toFixed(1)}`}
-                  transform={`rotate(${v.rot.toFixed(1)} 60 60)`}
-                />
-              ))}
-              <text
-                x="60"
-                y="65"
-                textAnchor="middle"
-                fontSize="22"
-                fontWeight="600"
-                fill="var(--ink)"
-              >
-                {subs ? Math.round(((vmix[0]?.n ?? 0) / subs) * 100) : 0}%
-              </text>
-            </svg>
-            <ul className="flex flex-col gap-2.5 text-13">
-              {vmix.map((v) => (
-                <li key={v.label} className="flex items-center gap-2">
-                  <i className="size-2 rounded-[2px]" style={{ background: v.color }} />
-                  {v.label} <span className="font-mono text-ink-3">{v.n}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Card>
-
-        <Card className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle>Time to solve</CardTitle>
-            <CardSub>median and middle half</CardSub>
-          </CardHeader>
-          <div className="flex flex-col gap-4 pt-1.5">
-            {(["easy", "medium", "hard"] as const).map((d) => {
-              const row = a.byDifficulty.find((r) => r.difficulty === d);
-              const sp = a.spread[d];
-              const pos = (ms: number) => `${Math.min(100, (ms / SPAN_MS) * 100).toFixed(1)}%`;
-              return (
-                <div
-                  key={d}
-                  className="grid grid-cols-[72px_minmax(0,1fr)_48px] items-center gap-3"
+        {extData ? (
+          <>
+            <Card className="col-span-12 md:col-span-6 xl:col-span-4">
+              <CardHeader>
+                <CardTitle>Verdicts</CardTitle>
+                <CardSub className="font-mono">{subs} submissions</CardSub>
+              </CardHeader>
+              <div className="flex items-center gap-5">
+                <svg
+                  viewBox="0 0 120 120"
+                  width="128"
+                  height="128"
+                  role="img"
+                  aria-label={vmix.map((v) => `${v.label} ${v.n}`).join(", ")}
                 >
-                  <DifficultyTag difficulty={d} />
-                  <div className="relative h-[18px]">
-                    <span className="absolute inset-x-0 top-2 h-0.5 rounded-full bg-surface-4" />
-                    {sp && (
-                      <span
-                        className="absolute top-1 h-2.5 rounded-full"
-                        style={{
-                          left: pos(sp.p25),
-                          width: `calc(${pos(sp.p75)} - ${pos(sp.p25)})`,
-                          background: `color-mix(in srgb, var(--${d}) 25%, transparent)`,
-                        }}
-                      />
-                    )}
-                    {row?.medianMs ? (
-                      <span
-                        className="absolute top-0 -ml-[1.5px] h-[18px] w-[3px] rounded-full bg-ink"
-                        style={{ left: pos(row.medianMs) }}
-                      />
-                    ) : null}
-                  </div>
-                  <span className="tnum text-right font-mono text-13">
-                    {row?.medianMs ? `${Math.round(row.medianMs / 60_000)}m` : "—"}
-                  </span>
-                </div>
-              );
-            })}
-            <div className="grid grid-cols-[72px_minmax(0,1fr)_48px] gap-3">
-              <span />
-              <div className="flex justify-between font-mono text-11 text-ink-3">
-                <span>0</span>
-                <span>15</span>
-                <span>30</span>
-                <span>45</span>
-                <span>60 min</span>
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r="46"
+                    fill="none"
+                    stroke="var(--surface-4)"
+                    strokeWidth="12"
+                  />
+                  {vmix.map((v) => (
+                    <circle
+                      key={v.label}
+                      cx="60"
+                      cy="60"
+                      r="46"
+                      fill="none"
+                      stroke={v.color}
+                      strokeWidth="12"
+                      strokeDasharray={`${(v.frac * VC).toFixed(1)} ${VC.toFixed(1)}`}
+                      transform={`rotate(${v.rot.toFixed(1)} 60 60)`}
+                    />
+                  ))}
+                  <text
+                    x="60"
+                    y="65"
+                    textAnchor="middle"
+                    fontSize="22"
+                    fontWeight="600"
+                    fill="var(--ink)"
+                  >
+                    {subs ? Math.round(((vmix[0]?.n ?? 0) / subs) * 100) : 0}%
+                  </text>
+                </svg>
+                <ul className="flex flex-col gap-2.5 text-13">
+                  {vmix.map((v) => (
+                    <li key={v.label} className="flex items-center gap-2">
+                      <i className="size-2 rounded-[2px]" style={{ background: v.color }} />
+                      {v.label} <span className="font-mono text-ink-3">{v.n}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-          </div>
-        </Card>
+            </Card>
+
+            <Card className="col-span-12 md:col-span-6 xl:col-span-4">
+              <CardHeader>
+                <CardTitle>Time to solve</CardTitle>
+                <CardSub>median and middle half</CardSub>
+              </CardHeader>
+              <div className="flex flex-col gap-4 pt-1.5">
+                {(["easy", "medium", "hard"] as const).map((d) => {
+                  const row = a.byDifficulty.find((r) => r.difficulty === d);
+                  const sp = a.spread[d];
+                  const pos = (ms: number) => `${Math.min(100, (ms / SPAN_MS) * 100).toFixed(1)}%`;
+                  return (
+                    <div
+                      key={d}
+                      className="grid grid-cols-[72px_minmax(0,1fr)_48px] items-center gap-3"
+                    >
+                      <DifficultyTag difficulty={d} />
+                      <div className="relative h-[18px]">
+                        <span className="absolute inset-x-0 top-2 h-0.5 rounded-full bg-surface-4" />
+                        {sp && (
+                          <span
+                            className="absolute top-1 h-2.5 rounded-full"
+                            style={{
+                              left: pos(sp.p25),
+                              width: `calc(${pos(sp.p75)} - ${pos(sp.p25)})`,
+                              background: `color-mix(in srgb, var(--${d}) 25%, transparent)`,
+                            }}
+                          />
+                        )}
+                        {row?.medianMs ? (
+                          <span
+                            className="absolute top-0 -ml-[1.5px] h-[18px] w-[3px] rounded-full bg-ink"
+                            style={{ left: pos(row.medianMs) }}
+                          />
+                        ) : null}
+                      </div>
+                      <span className="tnum text-right font-mono text-13">
+                        {row?.medianMs ? `${Math.round(row.medianMs / 60_000)}m` : "—"}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div className="grid grid-cols-[72px_minmax(0,1fr)_48px] gap-3">
+                  <span />
+                  <div className="flex justify-between font-mono text-11 text-ink-3">
+                    <span>0</span>
+                    <span>15</span>
+                    <span>30</span>
+                    <span>45</span>
+                    <span>60 min</span>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </>
+        ) : (
+          <Card className="col-span-12 flex flex-col items-start justify-center gap-3 xl:col-span-8">
+            <CardHeader className="mb-0">
+              <CardTitle>Verdicts and solve times</CardTitle>
+            </CardHeader>
+            <p className="max-w-[560px] text-14 text-ink-2">
+              Install the extension to see your wrong answers, first-try rate and how long each
+              problem takes. Platform sync only reports Accepted, so these stay hidden until then.
+            </p>
+            <Link
+              href="/extension/connect"
+              className={buttonClasses({ variant: "secondary", size: "sm" })}
+            >
+              Get the extension
+            </Link>
+          </Card>
+        )}
 
         <Card className="col-span-12 xl:col-span-4">
           <CardHeader>
@@ -413,36 +445,6 @@ async function AnalyticsContent({
             <span>18</span>
             <span>24</span>
           </div>
-        </Card>
-
-        <Card className="col-span-12 md:col-span-6">
-          <CardHeader>
-            <CardTitle>How you solved</CardTitle>
-            <CardSub>after Accepted</CardSub>
-          </CardHeader>
-          <HonestSplit {...a.independence} />
-        </Card>
-
-        <Card className="col-span-12 md:col-span-6">
-          <CardHeader>
-            <CardTitle>Time per topic</CardTitle>
-            <CardSub>minutes · a session counts for each topic</CardSub>
-          </CardHeader>
-          {a.byTopic.length === 0 ? (
-            <p className="text-13 text-ink-2">No timed sessions in this range.</p>
-          ) : (
-            a.byTopic
-              .slice(0, 8)
-              .map((t, i) => (
-                <TopicBar
-                  key={t.topic}
-                  name={t.label}
-                  value={Math.round(t.activeMs / 60_000)}
-                  max={Math.round(topicMax / 60_000)}
-                  top={i === 0}
-                />
-              ))
-          )}
         </Card>
 
         <Card className="col-span-12">

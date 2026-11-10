@@ -49,9 +49,17 @@ export default function TodayHome() {
 
 function greeting(tz: string, now: number) {
   const hour = Number(
-    new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "numeric", hourCycle: "h23" }).format(now),
+    new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "numeric", hourCycle: "h23" }).format(
+      now,
+    ),
   );
-  return hour < 5 ? "Burning the midnight oil" : hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  return hour < 5
+    ? "Burning the midnight oil"
+    : hour < 12
+      ? "Good morning"
+      : hour < 17
+        ? "Good afternoon"
+        : "Good evening";
 }
 
 const fmt = (ms: number) => {
@@ -76,16 +84,17 @@ async function Today() {
     getSessionStats(user.id),
     getMyGroups(user.id),
   ]);
-  const [plan, suggestions, picks, focus, active, followed, nudges, localActivity] = await Promise.all([
-    getTodayPlan(user.id, tz, cap, now),
-    getTodaySuggestions(user.id, tz, cap, now),
-    getSheetPicks(user.id, tz, now),
-    getFocusSummary(user.id, tz, now, profile.dayResetHour),
-    getActiveFocus(user.id),
-    getFollowedSheets(user.id),
-    getUnseenNudges(user.id),
-    getLocalActivity(user.id, tz, profile.dayResetHour, now),
-  ]);
+  const [plan, suggestions, picks, focus, active, followed, nudges, localActivity] =
+    await Promise.all([
+      getTodayPlan(user.id, tz, cap, now),
+      getTodaySuggestions(user.id, tz, cap, now),
+      getSheetPicks(user.id, tz, now),
+      getFocusSummary(user.id, tz, now, profile.dayResetHour),
+      getActiveFocus(user.id),
+      getFollowedSheets(user.id),
+      getUnseenNudges(user.id),
+      getLocalActivity(user.id, tz, profile.dayResetHour, now),
+    ]);
   const queue = revisionQueue(learning, masteryOf(learning, targets, now), { tz, cap, now });
   const stats = buildStats(accounts, new Date(now), frozenDays(freezes), localActivity);
   const firstGroup = groups[0];
@@ -96,17 +105,22 @@ async function Today() {
   const current = plan.items.find((i) => !i.done);
   const firstName = profile.name?.split(" ")[0] ?? "there";
   const pastGoal = focus.todayMs >= goalMs;
-  const headline = plan.total === 0
-    ? "Nothing planned yet."
-    : left === 0
-      ? "Today's list is done."
-      : `${left} ${left === 1 ? "problem" : "problems"} left on today's list.`;
+  const headline =
+    plan.total === 0
+      ? "Nothing planned yet."
+      : left === 0
+        ? "Today's list is done."
+        : `${left} ${left === 1 ? "problem" : "problems"} left on today's list.`;
   const sub = [
-    queue.today.length ? `${queue.today.length} ${queue.today.length === 1 ? "revision" : "revisions"} due` : null,
+    queue.today.length
+      ? `${queue.today.length} ${queue.today.length === 1 ? "revision" : "revisions"} due`
+      : null,
     pastGoal
       ? `${Math.round((focus.todayMs - goalMs) / 60_000)} min past your daily goal`
       : `${Math.ceil((goalMs - focus.todayMs) / 60_000)} min to your daily goal`,
-  ].filter(Boolean).join(" · ");
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   const days = stats.days182;
   const last7 = days.slice(-7);
@@ -114,7 +128,9 @@ async function Today() {
   const weekMax = Math.max(goalMs, ...week, 1);
   const weekFocus = sessionStats.focusWeekMs;
   const rungs = [0, 1, 2, 3, 4, 5].map(
-    (i) => learning.filter((p) => !p.state.retired && Math.min(5, Math.max(0, p.state.step)) === i).length,
+    (i) =>
+      learning.filter((p) => !p.state.retired && Math.min(5, Math.max(0, p.state.step)) === i)
+        .length,
   );
   const hall = firstGroup
     ? hallMembers
@@ -130,7 +146,11 @@ async function Today() {
             todayMs: m.doneMs + Math.max(0, liveMs),
           };
         })
-        .sort((a, b) => Number(b.state === "studying") - Number(a.state === "studying") || b.todayMs - a.todayMs)
+        .sort(
+          (a, b) =>
+            Number(b.state === "studying") - Number(a.state === "studying") ||
+            b.todayMs - a.todayMs,
+        )
     : [];
   const studying = hall.filter((m) => m.state === "studying").length;
 
@@ -151,8 +171,12 @@ async function Today() {
       {accounts.length === 0 && (
         <Card className="flex flex-wrap items-center gap-4">
           <div className="min-w-[min(100%,260px)] flex-1">
-            <p className="text-[17px] font-[600] tracking-[-0.02em]">Connect LeetCode, Codeforces or GFG to fill this page.</p>
-            <p className="mt-1 text-13 text-ink-3">It takes a few seconds and only needs your username.</p>
+            <p className="text-[17px] font-[600] tracking-[-0.02em]">
+              Connect LeetCode, Codeforces or GFG to fill this page.
+            </p>
+            <p className="mt-1 text-13 text-ink-3">
+              It takes a few seconds and only needs your username.
+            </p>
           </div>
           <Link href="/onboarding/connect" className={buttonClasses({ variant: "signal" })}>
             Connect a platform <ButtonArrow />
@@ -162,7 +186,10 @@ async function Today() {
 
       <div className="grid grid-cols-12 gap-4">
         {/* Hero: the focus orb beside what's left today */}
-        <Card tier="hero" className="col-span-12 flex flex-col items-center gap-8 overflow-hidden p-6 md:flex-row md:p-8">
+        <Card
+          tier="hero"
+          className="col-span-12 flex flex-col items-center gap-8 overflow-hidden p-6 md:flex-row md:p-8"
+        >
           <FocusOrb
             size={300}
             orb={196}
@@ -182,14 +209,17 @@ async function Today() {
                 </>
               ) : current ? (
                 <>
-                  Next up: <b className="max-w-[260px] truncate font-[600] text-ink">{current.title}</b>
+                  Next up:{" "}
+                  <b className="max-w-[260px] truncate font-[600] text-ink">{current.title}</b>
                 </>
               ) : (
                 "Ready when you are"
               )}
             </span>
             <div>
-              <p className="font-display text-[clamp(28px,3vw,40px)] leading-[1.06] text-balance">{headline}</p>
+              <p className="font-display text-[clamp(28px,3vw,40px)] leading-[1.06] text-balance">
+                {headline}
+              </p>
               <p className="mt-2 text-[15px] text-ink-2">{sub}.</p>
             </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -199,7 +229,10 @@ async function Today() {
                 { k: "Focus today", v: fmt(focus.todayMs) },
                 { k: "Streak", v: `${stats.streak}d` },
               ].map((x) => (
-                <div key={x.k} className="rounded-[14px] bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] p-3 shadow-[inset_0_0_0_1px_var(--line)]">
+                <div
+                  key={x.k}
+                  className="rounded-[14px] bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] p-3 shadow-[inset_0_0_0_1px_var(--line)]"
+                >
                   <p className="font-display text-[22px] leading-none tabular-nums">{x.v}</p>
                   <p className="mt-1.5 text-12 text-ink-3">{x.k}</p>
                 </div>
@@ -214,7 +247,10 @@ async function Today() {
                 <StartStudyButton label={current?.title ?? null} active={null} />
               )}
               {queue.today.length > 0 && (
-                <Link href="/dashboard/revision" className={buttonClasses({ variant: "secondary" })}>
+                <Link
+                  href="/dashboard/revision"
+                  className={buttonClasses({ variant: "secondary" })}
+                >
                   <RotateCcw size={15} aria-hidden="true" /> Revise {queue.today.length}
                 </Link>
               )}
@@ -240,7 +276,11 @@ async function Today() {
                   key={i.id}
                   className="flex-1 rounded-full"
                   style={{
-                    background: i.done ? "var(--signal)" : i.id === current?.id ? "var(--ember-gloss)" : "color-mix(in srgb, var(--ink) 8%, transparent)",
+                    background: i.done
+                      ? "var(--signal)"
+                      : i.id === current?.id
+                        ? "var(--ember-gloss)"
+                        : "color-mix(in srgb, var(--ink) 8%, transparent)",
                   }}
                 />
               ))
@@ -262,10 +302,17 @@ async function Today() {
             {queue.today.length ? (
               <ul className="flex flex-col">
                 {queue.today.slice(0, 3).map((p) => (
-                  <li key={p.problemId} className="flex items-center gap-3 border-t border-line py-3 first:border-t-0 first:pt-0">
+                  <li
+                    key={p.problemId}
+                    className="flex items-center gap-3 border-t border-line py-3 first:border-t-0 first:pt-0"
+                  >
                     <Link href={`/dashboard/problems/${p.problemId}`} className="min-w-0 flex-1">
-                      <span className="block truncate text-[14.5px] font-[600] hover:underline">{p.title}</span>
-                      <span className="block truncate text-12 text-ink-3">{p.topics.slice(0, 2).join(" · ") || "Revision"}</span>
+                      <span className="block truncate text-[14.5px] font-[600] hover:underline">
+                        {p.title}
+                      </span>
+                      <span className="block truncate text-12 text-ink-3">
+                        {p.topics.slice(0, 2).join(" · ") || "Revision"}
+                      </span>
                     </Link>
                     <Pill>Day {[1, 3, 7, 16, 35, 90][Math.min(5, Math.max(0, p.state.step))]}</Pill>
                   </li>
@@ -276,25 +323,45 @@ async function Today() {
                 Nothing due. {rungs.reduce((a, b) => a + b, 0)} problems are on the ladder.
               </p>
             )}
-            <Link href="/dashboard/revision" className={buttonClasses({ variant: "secondary", size: "sm", className: "mt-4 self-start" })}>
+            <Link
+              href="/dashboard/revision"
+              className={buttonClasses({
+                variant: "secondary",
+                size: "sm",
+                className: "mt-4 self-start",
+              })}
+            >
               Open revision <ButtonArrow />
             </Link>
           </Card>
 
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle icon={<UsersRound />}>{firstGroup ? firstGroup.name : "Study together"}</CardTitle>
-              {firstGroup && <Pill tone={studying ? "mint" : "neutral"}>{studying ? `${studying} live` : "Quiet"}</Pill>}
+              <CardTitle icon={<UsersRound />}>
+                {firstGroup ? firstGroup.name : "Study together"}
+              </CardTitle>
+              {firstGroup && (
+                <Pill tone={studying ? "mint" : "neutral"}>
+                  {studying ? `${studying} live` : "Quiet"}
+                </Pill>
+              )}
             </CardHeader>
             {firstGroup ? (
               <ul className="flex flex-col">
                 {hall.slice(0, 3).map((m) => (
-                  <li key={m.userId} className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0 first:pt-0">
+                  <li
+                    key={m.userId}
+                    className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0 first:pt-0"
+                  >
                     <StudyBuddy buddy={m.avatar} level={m.level} size={36} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[14px] font-[600]">{m.name}</span>
                       <span className="block truncate text-12 text-ink-3">
-                        {m.state === "studying" ? "Studying now" : m.state === "paused" ? "On a break" : "Not studying"}
+                        {m.state === "studying"
+                          ? "Studying now"
+                          : m.state === "paused"
+                            ? "On a break"
+                            : "Not studying"}
                       </span>
                     </span>
                     <span className="tnum font-mono text-13 text-ink-2">{fmt(m.todayMs)}</span>
@@ -302,11 +369,17 @@ async function Today() {
                 ))}
               </ul>
             ) : (
-              <p className="text-13 text-ink-2">Make a group with friends: everyone&apos;s honest timer, live, and a weekly board.</p>
+              <p className="text-13 text-ink-2">
+                Make a group with friends: everyone&apos;s honest timer, live, and a weekly board.
+              </p>
             )}
             <Link
               href={firstGroup ? `/dashboard/groups/${firstGroup.id}` : "/dashboard/groups"}
-              className={buttonClasses({ variant: "secondary", size: "sm", className: "mt-4 self-start" })}
+              className={buttonClasses({
+                variant: "secondary",
+                size: "sm",
+                className: "mt-4 self-start",
+              })}
             >
               {firstGroup ? "Open study hall" : "Start a group"} <ButtonArrow />
             </Link>
@@ -335,15 +408,23 @@ async function Today() {
           </CardHeader>
           <p className="num font-display text-[52px]">
             {stats.solved.total}
-            <small className="ml-2 font-sans text-[15px] font-[500] tracking-normal text-ink-3">problems</small>
+            <small className="ml-2 font-sans text-[15px] font-[500] tracking-normal text-ink-3">
+              problems
+            </small>
           </p>
           <div className="flex h-2.5 gap-1">
             {(["easy", "medium", "hard"] as const).map((d) =>
               stats.solved[d] ? (
-                <i key={d} className="rounded-full" style={{ flex: stats.solved[d], background: `var(--${d})` }} />
+                <i
+                  key={d}
+                  className="rounded-full"
+                  style={{ flex: stats.solved[d], background: `var(--${d})` }}
+                />
               ) : null,
             )}
-            {stats.solved.total === 0 && <i className="flex-1 rounded-full bg-[color-mix(in_srgb,var(--ink)_8%,transparent)]" />}
+            {stats.solved.total === 0 && (
+              <i className="flex-1 rounded-full bg-[color-mix(in_srgb,var(--ink)_8%,transparent)]" />
+            )}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-13 text-ink-3">
             {(["easy", "medium", "hard"] as const).map((d) => (
@@ -362,7 +443,9 @@ async function Today() {
           </CardHeader>
           <p className="num font-display text-[52px]">
             {stats.streak}
-            <small className="ml-2 font-sans text-[15px] font-[500] tracking-normal text-ink-3">{stats.streak === 1 ? "day" : "days"}</small>
+            <small className="ml-2 font-sans text-[15px] font-[500] tracking-normal text-ink-3">
+              {stats.streak === 1 ? "day" : "days"}
+            </small>
           </p>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
@@ -372,9 +455,15 @@ async function Today() {
                   className="h-8 flex-1 rounded-[9px]"
                   style={
                     d.count > 0
-                      ? { background: "var(--signal)", boxShadow: "inset 0 1px 0 rgba(255,255,255,.35)" }
+                      ? {
+                          background: "var(--signal)",
+                          boxShadow: "inset 0 1px 0 rgba(255,255,255,.35)",
+                        }
                       : i === 6
-                        ? { boxShadow: "inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 80%, transparent)" }
+                        ? {
+                            boxShadow:
+                              "inset 0 0 0 1.5px color-mix(in srgb, var(--primary) 80%, transparent)",
+                          }
                         : { background: "color-mix(in srgb, var(--ink) 7%, transparent)" }
                   }
                 />
@@ -383,7 +472,10 @@ async function Today() {
             <div className="flex gap-2">
               {last7.map((d) => (
                 <span key={d.date} className="flex-1 text-center font-mono text-11 text-ink-3">
-                  {new Date(`${d.date}T12:00:00Z`).toLocaleDateString("en-GB", { weekday: "narrow", timeZone: "UTC" })}
+                  {new Date(`${d.date}T12:00:00Z`).toLocaleDateString("en-GB", {
+                    weekday: "narrow",
+                    timeZone: "UTC",
+                  })}
                 </span>
               ))}
             </div>
@@ -413,7 +505,9 @@ async function Today() {
                 />
               ))}
             </div>
-            <p className="text-12 text-ink-3">Honest time only: the timer pauses when you switch tabs.</p>
+            <p className="text-12 text-ink-3">
+              Honest time only: the timer pauses when you switch tabs.
+            </p>
           </div>
         </Card>
       </div>

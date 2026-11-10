@@ -16,7 +16,7 @@ export function Tabs({ items, className }: { items: TabItem[]; className?: strin
     <div className={className}>
       <div
         role="tablist"
-        className="relative isolate mb-4 inline-flex rounded-full border border-line bg-surface-2 p-[3px]"
+        className="glass-control relative isolate mb-4 inline-flex rounded-full p-1"
         onKeyDown={(e) => {
           if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
           const i = items.findIndex((t) => t.id === active);
@@ -38,7 +38,7 @@ export function Tabs({ items, className }: { items: TabItem[]; className?: strin
               tabIndex={on ? 0 : -1}
               onClick={() => setActive(t.id)}
               className={cn(
-                "relative inline-flex h-[30px] items-center gap-1.5 rounded-full px-3.5 text-[13px] transition-colors duration-[var(--dur-base)]",
+                "relative inline-flex h-8 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-[550] transition-colors duration-[var(--dur-base)]",
                 on ? "text-ink" : "text-ink-2 hover:text-ink",
               )}
             >
@@ -46,7 +46,7 @@ export function Tabs({ items, className }: { items: TabItem[]; className?: strin
                 <motion.span
                   layoutId={`${base}-pill`}
                   transition={{ type: "spring", stiffness: 500, damping: 38 }}
-                  className="absolute inset-0 -z-10 rounded-full bg-surface shadow-sm"
+                  className="absolute inset-0 -z-10 rounded-full bg-[color-mix(in_srgb,var(--ink)_11%,transparent)] shadow-[inset_0_1px_0_rgba(255,255,255,.12)]"
                 />
               )}
               {t.label}

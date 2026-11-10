@@ -7,6 +7,7 @@ import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { Tabs } from "@/components/tabs";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getNotebook } from "@/lib/daily-data";
+import { LIBRARY_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 export const metadata: Metadata = { title: "Notebook" };
 
@@ -30,6 +31,7 @@ async function NotebookContent() {
 
   return (
     <>
+      <SectionTabs tabs={LIBRARY_TABS} />
       <PageHeader
         eyebrow="Notebook · built from your wrap-ups"
         glow={PAGE_GLOW.analytics}

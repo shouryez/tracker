@@ -21,6 +21,7 @@ import { getProfile } from "@/lib/data";
 import { StandingChart } from "@/components/dashboard/lamplight";
 import { BOARD_METRICS, BOARD_TZ, getCollegeBoards, type BoardMetric } from "@/lib/social-data";
 import { localWeekStart, requestNow } from "@/lib/time";
+import { PEOPLE_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 export const metadata: Metadata = { title: "Your college" };
 
@@ -57,17 +58,20 @@ async function CollegeContent({
   const collegeName = profile?.college?.shortName ?? profile?.college?.name ?? "Your college";
 
   const header = (subtitle: string, actions?: React.ReactNode) => (
-    <PageHeader
-      eyebrow="College · leaderboards"
-      glow={PAGE_GLOW.college}
-      title={
-        <>
-          {collegeName}, <em>this week.</em>
-        </>
-      }
-      subtitle={subtitle}
-      actions={actions}
-    />
+    <>
+      <SectionTabs tabs={PEOPLE_TABS} />
+      <PageHeader
+        eyebrow="College · leaderboards"
+        glow={PAGE_GLOW.college}
+        title={
+          <>
+            {collegeName}, <em>this week.</em>
+          </>
+        }
+        subtitle={subtitle}
+        actions={actions}
+      />
+    </>
   );
 
   if (!profile?.collegeId) {

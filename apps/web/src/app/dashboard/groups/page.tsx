@@ -10,6 +10,7 @@ import { BOARD_TZ, getGroup, getGroupBoard, getMyGroups } from "@/lib/social-dat
 import { getStudyHall } from "@/lib/daily-data";
 import { localWeekStart, requestNow } from "@/lib/time";
 import { StudyBuddy } from "@/components/study-buddy";
+import { PEOPLE_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 function ordinal(n: number) {
   const t = n % 100;
@@ -25,6 +26,7 @@ const AVATAR_TINTS = ["var(--sky)", "var(--lime)", "var(--amber)", "var(--rose)"
 export default function GroupsPage() {
   return (
     <div className="flex flex-col gap-6">
+      <SectionTabs tabs={PEOPLE_TABS} />
       <PageHeader
         eyebrow="Groups · friends only"
         glow={PAGE_GLOW.groups}

@@ -21,8 +21,9 @@ import {
 } from "@upsolve/ui";
 import { CelebrateOnce } from "@/components/dashboard/celebrate";
 import { dueLabel, ResultTag, reviewUrl } from "@/components/learning";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
-import { KpiStrip, LadderStairs } from "@/components/dashboard/lamplight";
+import { FocusOrb, LadderChips } from "@/components/orbit/focus-orb";
+import { REVISION_TABS, SectionTabs } from "@/components/orbit/section-tabs";
+import { PageHeader } from "@/components/page-header";
 import { Tabs } from "@/components/tabs";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton } from "@/components/review-actions";
@@ -94,6 +95,11 @@ async function RevisionContent() {
     .sort((a, b) => a.state.dueAt - b.state.dueAt);
   const weekRows = scheduled.filter((p) => p.state.dueAt < now + 7 * DAY_MS);
   const allRows = scheduled;
+  const rungs = [0, 1, 2, 3, 4, 5].map(
+    (i) =>
+      problems.filter((p) => !p.state.retired && Math.min(5, Math.max(0, p.state.step)) === i)
+        .length,
+  );
 
   // History grouped by week (display only).
   const groups: { label: string; items: typeof history }[] = [];
@@ -107,31 +113,19 @@ async function RevisionContent() {
 
   return (
     <>
+      <SectionTabs tabs={REVISION_TABS} />
       <PageHeader
-        eyebrow="Revision · spaced repetition"
-        glow={PAGE_GLOW.revision}
-        title="Revision"
-        subtitle="Solve it again without notes to move it up a rung. Miss it and it goes back to rung 1."
+        eyebrow="Spaced revision · 1 · 3 · 7 · 16 · 35 · 90 days"
+        title="Revision you have to prove"
+        subtitle="Re-solve a problem on time and it moves out a ring. Miss it and it drops back to day 1."
         actions={
           problems.length > 0 && (
-            <>
-              <Link
-                href="/dashboard/settings#learning"
-                className={buttonClasses({ variant: "ghost", size: "sm" })}
-              >
-                Schedule settings
-              </Link>
-              {first && (
-                <a
-                  href={reviewUrl(first.url)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={buttonClasses({ variant: "signal", size: "sm" })}
-                >
-                  <Play size={13} aria-hidden="true" /> Revise {left} due now
-                </a>
-              )}
-            </>
+            <Link
+              href="/dashboard/settings#learning"
+              className={buttonClasses({ variant: "ghost", size: "sm" })}
+            >
+              Schedule settings
+            </Link>
           )
         }
       />
@@ -156,72 +150,57 @@ async function RevisionContent() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="stagger-in grid grid-cols-12 gap-3.5">
+        <div className="grid grid-cols-12 gap-4">
           {left === 0 && queue.reviewedToday > 0 && (
             <CelebrateOnce id={`queue-${localDate(tz, now)}`} />
           )}
-          <KpiStrip
-            className="col-span-12"
-            items={[
-              {
-                label: "Due today",
-                value: left,
-                note: overdueCount
-                  ? `${overdueCount} overdue`
-                  : `${queue.reviewedToday} done today`,
-                tone: overdueCount ? "down" : undefined,
-              },
-              {
-                label: "This week",
-                value: dueThisWeek,
-                note: heaviest ? `heaviest on ${heaviest}` : "nothing scheduled",
-              },
-              {
-                label: "Scheduled",
-                value: problems.length - retired.length,
-                note: "across 6 rungs",
-              },
-              {
-                label: "Pass rate",
-                value: passRate ?? "—",
-                unit: passRate === null ? undefined : "%",
-                note: recent.length
-                  ? `${recent.filter((h) => h.result === "pass").length} of ${recent.length} · 30 days`
-                  : "no reviews yet",
-              },
-              {
-                label: "Graduated",
-                value: retired.length,
-                note: "passed at 90 days",
-              },
-            ]}
-          />
-
-          {/* The ladder as a staircase */}
-          <Card className="lamp col-span-12 p-[22px]">
-            <CardHeader>
-              <CardTitle>The ladder</CardTitle>
-              <CardSub>each pass waits longer before asking again</CardSub>
-            </CardHeader>
-            <LadderStairs
-              now={now}
-              items={problems.map((p) => ({
-                step: p.state.step,
-                dueAt: p.state.dueAt,
-                failed: p.state.lastResult === "fail",
-                retired: p.state.retired,
-              }))}
+          {/* The orbit: today's due count in the orb, the ladder as rings */}
+          <Card
+            tier="hero"
+            className="col-span-12 flex flex-col items-center gap-8 overflow-hidden p-6 lg:flex-row lg:p-8"
+          >
+            <FocusOrb
+              size={340}
+              orb={176}
+              progress={queue.reviewedToday / Math.max(1, queue.reviewedToday + left)}
+              rings={[122, 136, 150, 164]}
+              dots={rungs.slice(0, 4).map((n) => (n ? 3 + Math.min(n, 12) * 0.4 : 0))}
+              center={left}
+              caption={left === 1 ? "due today" : "due today"}
+              label={`${left} due today, ${queue.reviewedToday} reviewed today`}
+              className="max-sm:scale-90"
             />
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-12 text-ink-3">
-              <span className="flex items-center gap-1.5">
-                <i className="h-1.5 w-3.5 rounded-[3px] bg-[var(--amber)]" /> due within 3 days
-              </span>
-              <span className="flex items-center gap-1.5">
-                <i className="h-1.5 w-3.5 rounded-[3px] bg-line-3" /> waiting
-              </span>
-              <span className="flex items-center gap-1.5">
-                <i className="h-1.5 w-3.5 rounded-[3px] bg-[var(--rose)]" /> missed last time
-              </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-5">
+              <div>
+                <p className="font-display text-[clamp(26px,2.6vw,36px)] leading-[1.08] text-balance">
+                  {left
+                    ? `${left} to prove today${overdueCount ? `, ${overdueCount} overdue` : ""}.`
+                    : queue.reviewedToday
+                      ? "All caught up for today."
+                      : "Nothing due today."}
+                </p>
+                <p className="mt-2 text-[15px] text-ink-2">
+                  {problems.length - retired.length} problems on the ladder · {retired.length}{" "}
+                  graduated
+                  {passRate !== null ? ` · ${passRate}% passed in the last 30 days` : ""}
+                </p>
+              </div>
+              <LadderChips counts={rungs} />
+              <div className="flex flex-wrap gap-2.5">
+                {first && (
+                  <a
+                    href={reviewUrl(first.url)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={buttonClasses({ variant: "signal" })}
+                  >
+                    <Play size={14} fill="currentColor" aria-hidden="true" /> Revise {left} due now
+                  </a>
+                )}
+                <span className="inline-flex h-10 items-center gap-2 rounded-full px-4 text-13 text-ink-2 shadow-[inset_0_0_0_1px_var(--line-2)]">
+                  {dueThisWeek} this week{heaviest ? ` · busiest ${heaviest}` : ""}
+                </span>
+              </div>
             </div>
           </Card>
 
@@ -365,54 +344,66 @@ async function RevisionContent() {
             </Card>
           </div>
 
-          {/* History */}
+          {/* History: rarely read, so it starts collapsed */}
           <Card className="col-span-12">
-            <CardHeader>
-              <CardTitle icon={icon(History)}>History</CardTitle>
-              <CardSub>latest reviews</CardSub>
-            </CardHeader>
-            {history.length === 0 ? (
-              <p className="text-13 text-ink-2">Your reviews show up here.</p>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {groups.map((g) => (
-                  <section key={g.label}>
-                    <p className="mb-1.5 label-mono">{g.label}</p>
-                    <ul>
-                      {g.items.map((h) => {
-                        const ok = h.result === "pass";
-                        return (
-                          <li
-                            key={`${h.problem.problemId}-${h.at}`}
-                            className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[10px] px-2 py-2 transition-colors hover:bg-surface-2/70"
-                          >
-                            {ok ? (
-                              <CircleCheck size={15} aria-hidden="true" className="text-success" />
-                            ) : (
-                              <CircleX
-                                size={15}
-                                aria-hidden="true"
-                                className={h.result === "fail" ? "text-hard" : "text-medium"}
-                              />
-                            )}
-                            <Link
-                              href={`/dashboard/problems/${h.problem.problemId}`}
-                              className="min-w-0 flex-1 truncate text-[13.5px] font-medium hover:underline"
-                            >
-                              {h.problem.title}
-                            </Link>
-                            <ResultTag entry={h} />
-                            <span className="tnum w-16 text-right text-11 text-ink-3">
-                              <TimeAgo date={new Date(h.at)} />
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </section>
-                ))}
+            <details className="group/h">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                <CardTitle icon={icon(History)}>History</CardTitle>
+                <CardSub>
+                  {history.length} latest reviews ·{" "}
+                  <span className="group-open/h:hidden">show</span>
+                  <span className="hidden group-open/h:inline">hide</span>
+                </CardSub>
+              </summary>
+              <div className="mt-4">
+                {history.length === 0 ? (
+                  <p className="text-13 text-ink-2">Your reviews show up here.</p>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {groups.map((g) => (
+                      <section key={g.label}>
+                        <p className="mb-1.5 label-mono">{g.label}</p>
+                        <ul>
+                          {g.items.map((h) => {
+                            const ok = h.result === "pass";
+                            return (
+                              <li
+                                key={`${h.problem.problemId}-${h.at}`}
+                                className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-[10px] px-2 py-2 transition-colors hover:bg-surface-2/70"
+                              >
+                                {ok ? (
+                                  <CircleCheck
+                                    size={15}
+                                    aria-hidden="true"
+                                    className="text-success"
+                                  />
+                                ) : (
+                                  <CircleX
+                                    size={15}
+                                    aria-hidden="true"
+                                    className={h.result === "fail" ? "text-hard" : "text-medium"}
+                                  />
+                                )}
+                                <Link
+                                  href={`/dashboard/problems/${h.problem.problemId}`}
+                                  className="min-w-0 flex-1 truncate text-[13.5px] font-medium hover:underline"
+                                >
+                                  {h.problem.title}
+                                </Link>
+                                <ResultTag entry={h} />
+                                <span className="tnum w-16 text-right text-11 text-ink-3">
+                                  <TimeAgo date={new Date(h.at)} />
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </details>
           </Card>
 
           {retired.length > 0 && (

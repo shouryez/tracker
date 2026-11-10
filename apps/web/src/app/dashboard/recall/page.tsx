@@ -7,6 +7,7 @@ import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getRecallDeck, getRecallStats } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { localDate, requestNow } from "@/lib/time";
+import { REVISION_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
 export const metadata: Metadata = { title: "Recall" };
 
@@ -38,6 +39,7 @@ async function RecallContent({
 
   return (
     <>
+      <SectionTabs tabs={REVISION_TABS} />
       <PageHeader
         eyebrow="Recall · 2 minutes"
         glow={PAGE_GLOW.revision}
