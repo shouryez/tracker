@@ -35,7 +35,7 @@ async function NotebookContent() {
         glow={PAGE_GLOW.analytics}
         title={
           <>
-            Notebook, <em>your own cheat sheet.</em>
+            Notebook <em>· your own cheat sheet</em>
           </>
         }
         subtitle={
@@ -67,5 +67,3 @@ async function NotebookContent() {
     </>
   );
 }
-
-// DsaKaro

@@ -53,38 +53,53 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="glass flex flex-wrap items-center gap-2.5 rounded-[18px] border border-line px-3 py-2.5 shadow-e1 print:hidden">
-        <label className="relative min-w-[220px] flex-1">
-          <span className="sr-only">Search notebook</span>
-          <Search
-            size={14}
-            aria-hidden="true"
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-ink-3"
-          />
-          <input
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search problems, takeaways, notes"
-            className={inputClasses({ icon: true, className: "h-[38px]" })}
-          />
-        </label>
-        <select
-          aria-label="Topic"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          className={inputClasses({ className: "h-[38px] w-auto" })}
-        >
-          <option value="all">All topics</option>
-          {used.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.label}
-            </option>
-          ))}
-        </select>
-        <Button variant="secondary" size="sm" onClick={() => window.print()}>
-          <Printer size={14} aria-hidden="true" /> Print / PDF
-        </Button>
+      <div className="flex flex-col gap-3 print:hidden">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <label className="relative max-w-[420px] min-w-[220px] flex-1">
+            <span className="sr-only">Search notebook</span>
+            <Search
+              size={14}
+              aria-hidden="true"
+              className="absolute top-1/2 left-3 -translate-y-1/2 text-ink-3"
+            />
+            <input
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search notes, mistakes, takeaways"
+              className={inputClasses({ icon: true, className: "h-[38px]" })}
+            />
+          </label>
+          <Button variant="secondary" size="sm" onClick={() => window.print()} className="ml-auto">
+            <Printer size={14} aria-hidden="true" /> Export as PDF
+          </Button>
+        </div>
+        <div role="group" aria-label="Topic" className="flex flex-wrap gap-1.5">
+          {[{ id: "all", label: "All" }, ...used].map((t) => {
+            const n =
+              t.id === "all" ? entries.length : entries.filter((e) => e.topic === t.id).length;
+            const on = topic === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setTopic(t.id)}
+                className={cn(
+                  "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[12.5px] font-[550] transition-colors",
+                  on
+                    ? "border-transparent bg-signal text-signal-ink"
+                    : "border-line-2 bg-surface-3 text-ink hover:bg-surface-4",
+                )}
+              >
+                {t.label}
+                <span className={cn("font-mono text-11", on ? "opacity-70" : "text-ink-3")}>
+                  {n}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Index cards, one per topic, laid out like a notebook spread. */}
