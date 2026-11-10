@@ -9,6 +9,7 @@ export {
   CornerArrow,
   Stat,
   cardClasses,
+  Pill,
 } from "./components/card";
 export type { CardProps, CardTier } from "./components/card";
 export { Eyebrow, LiveDot } from "./components/eyebrow";

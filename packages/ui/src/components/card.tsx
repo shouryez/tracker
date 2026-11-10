@@ -37,11 +37,11 @@ export function cardClasses({
 } = {}) {
   return cn(
     // A card holding an open dropdown/popover rises above its neighbours.
-    "group/card relative isolate rounded-lg has-[[aria-expanded=true]]:z-30",
-    padded && "p-[18px]",
+    "group/card relative isolate rounded-[24px] has-[[aria-expanded=true]]:z-30",
+    padded && "p-[22px]",
     tiers[tier],
     "transition-[transform,box-shadow,border-color] duration-[var(--dur-base)] ease-[var(--ease-out)]",
-    interactive && "hover:-translate-y-1 hover:border-line-2 hover:shadow-e2",
+    interactive && "sheen hover:-translate-y-[3px] hover:shadow-e2",
     (spotlight || beam) && "overflow-hidden",
     spotlight &&
       // Fill light + a border ring lit only near the cursor (masked to the 1px edge).
@@ -98,7 +98,7 @@ export function Card({
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("mb-3.5 flex items-center justify-between gap-2.5", className)} {...props} />
+    <div className={cn("mb-4 flex min-h-8 items-center justify-between gap-3", className)} {...props} />
   );
 }
 
@@ -113,7 +113,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "flex items-center gap-2 text-[14.5px] font-[600] tracking-[-0.01em]",
+        "flex min-w-0 items-center gap-2.5 text-[14.5px] font-[600] tracking-[-0.01em] text-ink",
         className,
       )}
       {...props}
@@ -122,8 +122,8 @@ export function CardTitle({
         <span
           aria-hidden="true"
           className={cn(
-            "grid shrink-0 place-items-center [&_svg]:size-[15px]",
-            tint ? "text-[var(--tint)]" : "text-ink-3",
+            "grid size-8 shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] shadow-[inset_0_0_0_1px_var(--line),var(--highlight)] [&_svg]:size-[15px]",
+            tint ? "text-[var(--tint)]" : "text-ink",
           )}
           style={tint ? ({ "--tint": tint } as CSSProperties) : undefined}
         >
@@ -135,9 +135,39 @@ export function CardTitle({
   );
 }
 
-/** Muted meta line on the right of a card header. */
+/** Muted meta on the right of a card header: a quiet glass pill. */
 export function CardSub({ className, ...props }: HTMLAttributes<HTMLSpanElement>) {
-  return <span className={cn("tnum text-12 leading-tight text-ink-3", className)} {...props} />;
+  return (
+    <span
+      className={cn(
+        "tnum inline-flex h-[26px] shrink-0 items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] px-2.5 text-12 leading-none font-[600] whitespace-nowrap text-ink-2 shadow-[inset_0_0_0_1px_var(--line)]",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Status pill. tone: neutral glass, mint (data, done), ember (now, overdue). */
+export function Pill({
+  tone = "neutral",
+  className,
+  ...props
+}: HTMLAttributes<HTMLSpanElement> & { tone?: "neutral" | "mint" | "ember" | "rose" }) {
+  return (
+    <span
+      className={cn(
+        "tnum inline-flex h-[26px] shrink-0 items-center gap-1.5 rounded-full px-2.5 text-12 leading-none font-[600] whitespace-nowrap",
+        tone === "neutral" &&
+          "bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] text-ink-2 shadow-[inset_0_0_0_1px_var(--line)]",
+        tone === "mint" && "bg-mint-soft text-signal-text",
+        tone === "ember" && "bg-primary-soft text-primary",
+        tone === "rose" && "bg-bad-soft text-bad",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 /**
@@ -163,12 +193,12 @@ export function CornerArrow({ className }: { className?: string }) {
     <span
       aria-hidden="true"
       className={cn(
-        "relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-full border border-line-2 text-ink-2",
-        "transition-[color,border-color] duration-[var(--dur-base)] group-hover/card:border-transparent group-hover/card:text-signal-ink",
+        "relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-full text-ink-2 shadow-[inset_0_0_0_1px_var(--line-2)]",
+        "transition-[color,box-shadow] duration-[var(--dur-base)] group-hover/card:text-ink group-hover/card:shadow-[inset_0_0_0_1px_var(--line-3)]",
         className,
       )}
     >
-      <span className="absolute inset-0 scale-0 rounded-full bg-signal transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover/card:scale-100" />
+      <span className="absolute inset-0 scale-0 rounded-full bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover/card:scale-100" />
       <span className="relative transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover/card:translate-x-4 group-hover/card:-translate-y-4">
         {arrow}
       </span>
@@ -190,7 +220,7 @@ export function Stat({
   className?: string;
 }) {
   return (
-    <div className={cn("num text-[40px]", className)}>
+    <div className={cn("num font-display text-[44px]", className)}>
       {value}
       {unit && (
         <small className="ml-1 text-[.5em] font-[500] tracking-[-0.01em] text-ink-3">{unit}</small>

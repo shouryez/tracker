@@ -8,17 +8,21 @@ import { getFriendsStudying, getSavedItems } from "@/lib/daily-data";
 import { getTodayPlan } from "@/lib/plan";
 import { requestNow } from "@/lib/time";
 import { Avatar } from "./avatar-menu";
-import { MobileNav, Sidebar } from "./nav-links";
+import { MobileNav, Sidebar, type ContinueTarget } from "./nav-links";
 import { getAvatarUser } from "./user-menu";
 
-/** Numbers the navigation shows: due reviews (amber), and quiet counts beside other pages. */
+/**
+ * Numbers the navigation shows (due reviews, today's progress, live friends) and the one
+ * next step for the Continue button: the first due revision, else the next item on Today.
+ */
 async function navBadges(): Promise<{
   badges: Record<string, number | string>;
   due: Record<string, number>;
   hasExtension: boolean;
+  next: ContinueTarget | null;
 }> {
   const user = await getCurrentUser();
-  if (isDemoUser(user)) return { badges: {}, due: {}, hasExtension: false };
+  if (isDemoUser(user)) return { badges: {}, due: {}, hasExtension: false, next: null };
   const [profile, learning, targets, tokens, saved, live] = await Promise.all([
     getProfile(user.id),
     getLearning(user.id),
@@ -39,29 +43,38 @@ async function navBadges(): Promise<{
     ? { "/dashboard/revision": queue.today.length }
     : {};
   const waiting = saved.filter((x) => !x.done).length;
+  const firstDue = queue.today[0];
+  const nextItem = plan.items.find((i) => !i.done && i.url);
+  const next: ContinueTarget = firstDue
+    ? { label: "Revise", detail: firstDue.title, href: firstDue.url, external: true }
+    : nextItem?.url
+      ? { label: "Continue", detail: nextItem.title, href: nextItem.url, external: true }
+      : { label: "Plan today", detail: "Pick what to solve", href: "/dashboard" };
   return {
     due,
     badges: {
       ...due,
-      ...(plan.total ? { "/dashboard/today": `${plan.done}/${plan.total}` } : {}),
-      ...(waiting ? { "/dashboard/later": String(waiting) } : {}),
+      ...(plan.total ? { "/dashboard": `${plan.done}/${plan.total}` } : {}),
+      ...(waiting ? { "/dashboard/notebook": String(waiting) } : {}),
       ...(live ? { "/dashboard/groups": `${live} live` } : {}),
     },
     hasExtension: tokens.length > 0,
+    next,
   };
 }
 
 export async function SidebarWithData() {
-  const [{ badges, hasExtension }, user] = await Promise.all([navBadges(), getAvatarUser()]);
+  const [{ badges, hasExtension, next }, user] = await Promise.all([navBadges(), getAvatarUser()]);
   return (
     <Sidebar
       badges={badges}
+      next={next}
       footer={<ExtensionPromo connected={hasExtension} />}
       user={
         <Link
           href="/dashboard/settings"
           aria-label={`${user.label}, settings`}
-          className="group/user flex items-center gap-2.5 rounded-[14px] border border-line bg-surface-2/70 p-2 transition-colors hover:border-line-2 hover:bg-surface-3 group-data-[collapsed]/side:justify-center group-data-[collapsed]/side:border-transparent group-data-[collapsed]/side:bg-transparent"
+          className="group/user flex items-center gap-2.5 rounded-[16px] p-2 shadow-[inset_0_0_0_1px_var(--line)] transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] group-data-[collapsed]/side:justify-center group-data-[collapsed]/side:shadow-none"
         >
           <Avatar user={user} size={34} />
           <span className="min-w-0 leading-tight group-data-[collapsed]/side:hidden">
@@ -77,30 +90,23 @@ export async function SidebarWithData() {
 }
 
 export async function MobileNavWithData() {
-  const { due } = await navBadges();
-  return <MobileNav badges={due} />;
+  const { due, next } = await navBadges();
+  return <MobileNav badges={due} next={next} />;
 }
 
-/** Bottom-of-sidebar promo card: hero-tier glass with grain and a lime CTA. */
+/** Bottom-of-sidebar card when the extension isn't connected yet. */
 export function ExtensionPromo({ connected }: { connected: boolean }) {
   if (connected) return null;
   return (
-    <div className="surface-hero relative overflow-hidden rounded-[18px] p-4">
-      <span aria-hidden="true" className="grain absolute inset-0" />
-      <span
-        aria-hidden="true"
-        className="absolute -top-12 -right-10 size-36 scale-[1.6] bg-[radial-gradient(closest-side,var(--signal),transparent)] opacity-20"
-      />
-      <span className="relative mb-3 grid size-8 place-items-center rounded-[10px] bg-white/12">
+    <div className="relative overflow-hidden rounded-[18px] p-4 shadow-[inset_0_0_0_1px_var(--line)] bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]">
+      <span className="mb-3 grid size-8 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--ink)_8%,transparent)] text-ink">
         <Puzzle size={15} aria-hidden="true" />
       </span>
-      <p className="relative text-14 leading-tight font-[600]">
-        Time every problem, <em className="font-display font-normal">automatically.</em>
-      </p>
-      <p className="relative mt-1 text-12 text-white/65">LeetCode + GFG, no code uploaded</p>
+      <p className="text-[14px] leading-tight font-[600] text-ink">Time every problem automatically</p>
+      <p className="mt-1 text-12 text-ink-3">LeetCode and GFG. Your code is never uploaded.</p>
       <Link
         href="/extension/connect"
-        className="relative mt-3 flex h-9 items-center justify-center rounded-full bg-signal text-13 font-[600] text-signal-ink transition-[transform,box-shadow] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:shadow-glow-signal active:scale-[.97]"
+        className="glass-control mt-3 flex h-9 items-center justify-center rounded-full text-13 font-[600] text-ink transition-[transform,background-color] duration-[var(--dur-base)] hover:-translate-y-px active:scale-[.97]"
       >
         Get the extension
       </Link>
