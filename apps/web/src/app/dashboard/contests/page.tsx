@@ -17,6 +17,8 @@ import {
   cn,
 } from "@upsolve/ui";
 import { UpcomingContests } from "@/components/daily/upcoming-contests";
+import { ContestCalendar } from "@/components/dashboard/lamplight";
+import { requestNow } from "@/lib/time";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { PLATFORM_LABEL, PLATFORM_STROKE } from "@/components/platform-meta";
@@ -84,6 +86,8 @@ async function UpcomingSection() {
         </CardTitle>
         <CardSub>next 14 days · 4 platforms</CardSub>
       </CardHeader>
+      <ContestCalendar contests={upcoming} now={requestNow()} timeZone={tz} />
+      <div className="mt-5 border-t border-line pt-4" />
       <UpcomingContests
         tz={tz}
         contests={upcoming.map((c) => ({ ...c, calendarUrl: googleCalendarUrl(c) }))}
@@ -400,5 +404,3 @@ function Podium() {
     </span>
   );
 }
-
-// DsaKaro

@@ -711,3 +711,112 @@ export function AttemptStrip({
     </div>
   );
 }
+
+const CONTEST_TONE: Record<string, { bg: string; fg: string; label: string }> = {
+  leetcode: {
+    bg: "color-mix(in srgb, var(--amber) 14%, transparent)",
+    fg: "var(--amber)",
+    label: "LeetCode",
+  },
+  codeforces: {
+    bg: "color-mix(in srgb, var(--sky) 14%, transparent)",
+    fg: "var(--sky)",
+    label: "Codeforces",
+  },
+  codechef: {
+    bg: "color-mix(in srgb, var(--rose) 14%, transparent)",
+    fg: "var(--rose)",
+    label: "CodeChef",
+  },
+  atcoder: { bg: "var(--surface-3)", fg: "var(--ink-2)", label: "AtCoder" },
+};
+
+/** The next 14 days as a strip of day columns, each contest a small chip in its platform's colour. */
+export function ContestCalendar({
+  contests,
+  now,
+  timeZone,
+}: {
+  contests: { id: string; platform: string; name: string; startsAt: number; url: string }[];
+  now: number;
+  timeZone: string;
+}) {
+  const key = (t: number) => new Date(t).toLocaleDateString("en-CA", { timeZone });
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const t = now + i * DAY;
+    const d = new Date(t);
+    return {
+      key: key(t),
+      label:
+        i === 0
+          ? "Today"
+          : d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", timeZone }),
+      weekend: ["Sat", "Sun"].includes(
+        d.toLocaleDateString("en-GB", { weekday: "short", timeZone }),
+      ),
+    };
+  });
+  const byDay = new Map<string, typeof contests>();
+  for (const c of contests) {
+    const k = key(c.startsAt);
+    byDay.set(k, [...(byDay.get(k) ?? []), c]);
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="overflow-x-auto">
+        <div className="grid min-w-[860px] grid-cols-14 border-y border-line">
+          {days.map((d, i) => (
+            <div
+              key={d.key}
+              className={cn(
+                "flex min-h-[150px] flex-col gap-1.5 border-l border-line px-1.5 py-2 first:border-l-0",
+                i === 0
+                  ? "bg-surface-2"
+                  : d.weekend && "bg-[color-mix(in_srgb,var(--ink)_1.5%,transparent)]",
+              )}
+            >
+              <span className={cn("font-mono text-[10.5px]", i === 0 ? "text-ink" : "text-ink-3")}>
+                {d.label}
+              </span>
+              {(byDay.get(d.key) ?? []).map((c) => {
+                const tone = CONTEST_TONE[c.platform] ?? CONTEST_TONE.atcoder!;
+                return (
+                  <a
+                    key={c.id}
+                    href={c.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`${tone.label} · ${c.name}`}
+                    className="flex flex-col gap-0.5 rounded-[8px] px-1.5 py-1.5 transition-transform hover:-translate-y-0.5"
+                    style={{ background: tone.bg }}
+                  >
+                    <span
+                      className="line-clamp-2 text-[11px] leading-tight font-[600]"
+                      style={{ color: tone.fg }}
+                    >
+                      {c.name.replace(/^(LeetCode|Codeforces|CodeChef|AtCoder)\s*/i, "")}
+                    </span>
+                    <span className="font-mono text-[10px] text-ink-3">
+                      {clockOf(c.startsAt, timeZone)}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-x-5 gap-y-2 text-12 text-ink-3">
+        {Object.values(CONTEST_TONE).map((t) => (
+          <span key={t.label} className="flex items-center gap-1.5">
+            <i
+              className="size-2.5 rounded-[3px]"
+              style={{ background: t.bg, boxShadow: `inset 0 0 0 1px ${t.fg}` }}
+            />
+            {t.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
