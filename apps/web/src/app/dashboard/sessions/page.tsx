@@ -18,6 +18,7 @@ import { HonestSplit, SessionItem } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { LabTimer } from "@/components/daily/lab-timer";
 import { RecentStudySessions } from "@/components/daily/recent-study-sessions";
+import { AddOfflineSession } from "@/components/daily/session-edit";
 import { NowSolving } from "@/components/daily/now-solving";
 import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -154,13 +155,16 @@ async function SessionsContent() {
       title="Sessions"
       subtitle="Only study tabs count. The clock pauses on anything else and breaks are kept separate."
       actions={
-        active ? (
-          <span className="text-13 text-ink-2">
-            A session is running · it&apos;s in the sidebar
-          </span>
-        ) : (
-          <StartStudyButton label={null} active={null} />
-        )
+        <>
+          <AddOfflineSession timeZone={profile?.timezone ?? "Asia/Kolkata"} now={requestNow()} />
+          {active ? (
+            <span className="text-13 text-ink-2">
+              A session is running · it&apos;s in the sidebar
+            </span>
+          ) : (
+            <StartStudyButton label={null} active={null} />
+          )}
+        </>
       }
     />
   );

@@ -25,7 +25,7 @@ import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/li
 import { ON_LIST, ON_TODAY_LIST, SAME_SHEET_ITEM, getTodaySuggestions } from "@/lib/plan";
 import { getStudyContents, type StudyContents } from "@/lib/study-data";
 import { queueTufPush } from "@/lib/tuf-sync";
-import { localDate, requestNow } from "@/lib/time";
+import { localDate, requestNow, tzOffsetMs } from "@/lib/time";
 
 // Writes for the daily-loop features. Every action resolves the user from the
 // session and validates its input; nothing trusts ids from the client blindly.
@@ -474,6 +474,112 @@ export async function stopFocus(
       })
       .where(where);
   }
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
+
+// ---------------------------------------------------------------- correct your own sessions
+
+// "2026-11-11T21:30" typed in the user's own timezone.
+const LocalTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Pick a date and time");
+const SessionFix = z.object({
+  label: z.string().trim().max(80).optional(),
+  start: LocalTime,
+  minutes: z
+    .number()
+    .int()
+    .min(1, "At least a minute")
+    .max(16 * 60, "At most 16 hours"),
+});
+
+/** Epoch ms for a wall-clock time in `tz` (two passes, so DST edges land right). */
+function zonedToUtc(local: string, tz: string): number {
+  const [d, t] = local.split("T") as [string, string];
+  const [y, mo, day] = d.split("-").map(Number) as [number, number, number];
+  const [h, mi] = t.split(":").map(Number) as [number, number];
+  const guess = Date.UTC(y, mo - 1, day, h, mi);
+  const first = guess - tzOffsetMs(tz, guess);
+  return guess - tzOffsetMs(tz, first);
+}
+
+async function sessionWindow(userId: string, values: z.input<typeof SessionFix>) {
+  const v = SessionFix.safeParse(values);
+  if (!v.success)
+    return { error: v.error.issues[0]?.message ?? "Check the time and length." } as const;
+  const profile = await getProfile(userId);
+  const start = zonedToUtc(v.data.start, profile?.timezone ?? "Asia/Kolkata");
+  const ms = v.data.minutes * 60_000;
+  if (start + ms > Date.now() + 60_000) return { error: "That ends in the future." } as const;
+  return { start, ms, label: v.data.label || null } as const;
+}
+
+/** Change a finished session's start, length or label. It becomes a hand-entered session. */
+export async function editStudySession(
+  id: string,
+  values: z.input<typeof SessionFix>,
+): Promise<DailyResult> {
+  const user = await me();
+  if (!user || !Id.safeParse(id).success) return fail("Not found.");
+  const w = await sessionWindow(user.id, values);
+  if ("error" in w) return fail(w.error ?? "Check the time and length.");
+  const rows = await db()
+    .update(focusSessions)
+    .set({
+      label: w.label,
+      startedAt: new Date(w.start),
+      endedAt: new Date(w.start + w.ms),
+      focusMs: w.ms,
+      awayMs: 0,
+      pausedMs: 0,
+      tracked: false,
+    })
+    .where(
+      and(
+        eq(focusSessions.id, id),
+        eq(focusSessions.userId, user.id),
+        isNotNull(focusSessions.endedAt),
+      ),
+    )
+    .returning({ id: focusSessions.id });
+  if (rows.length === 0) return fail("Only finished sessions can be edited.");
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
+
+/** Delete a finished session for good. */
+export async function deleteStudySession(id: string): Promise<DailyResult> {
+  const user = await me();
+  if (!user || !Id.safeParse(id).success) return fail("Not found.");
+  await db()
+    .delete(focusSessions)
+    .where(
+      and(
+        eq(focusSessions.id, id),
+        eq(focusSessions.userId, user.id),
+        isNotNull(focusSessions.endedAt),
+      ),
+    );
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
+
+/** Time studied away from the computer: paper practice, a lecture, a book. */
+export async function addOfflineSession(values: z.input<typeof SessionFix>): Promise<DailyResult> {
+  const user = await me();
+  if (!user) return fail("Sign in first.");
+  const w = await sessionWindow(user.id, values);
+  if ("error" in w) return fail(w.error ?? "Check the time and length.");
+  await db()
+    .insert(focusSessions)
+    .values({
+      userId: user.id,
+      mode: "offline",
+      label: w.label ?? "Offline study",
+      startedAt: new Date(w.start),
+      endedAt: new Date(w.start + w.ms),
+      focusMs: w.ms,
+      tracked: false,
+    });
   updateTag(userTag(user.id));
   return { ok: true };
 }

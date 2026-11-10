@@ -2,6 +2,7 @@ import { CheckSquare, ChevronRight, History, Play } from "lucide-react";
 import { DifficultyTag, Tag, cn } from "@upsolve/ui";
 import { PlatformMark, platformMarkId } from "@/components/site-icons";
 import { formatDuration } from "@/lib/format";
+import { SessionEditControls } from "./session-edit";
 import type { StudyContents, StudySession } from "@/lib/study-data";
 
 const OUTCOME: Record<string, { label: string; tone: "success" | "medium" | "neutral" | "info" }> =
@@ -186,6 +187,7 @@ export function StudyHistory({
                 contents={s}
                 className="mt-3 border-t border-line pt-3 pl-[26px]"
               />
+              <SessionEditControls session={s} timeZone={timeZone} />
             </details>
           </li>
         );
@@ -193,5 +195,3 @@ export function StudyHistory({
     </ul>
   );
 }
-
-// DsaKaro
