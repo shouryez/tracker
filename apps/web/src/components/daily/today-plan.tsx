@@ -48,9 +48,12 @@ export function TodayPlanList({
   plan,
   compact = false,
   action,
+  hideSummary = false,
 }: {
   plan: TodayPlan;
   compact?: boolean;
+  /** The page shows its own progress line, so skip the ring and summary row. */
+  hideSummary?: boolean;
   /** Shown beside the summary, e.g. the "Add from sheet" button. */
   action?: ReactNode;
 }) {
@@ -65,6 +68,8 @@ export function TodayPlanList({
   const done = items.filter((i) => i.done).length;
   const carried = items.filter((i) => i.day < plan.day && !i.done).length;
   const shown = compact ? items.slice(0, 6) : items;
+  // The item you're on: on the full list it opens up with its actions.
+  const currentId = compact ? null : (items.find((i) => !i.done)?.id ?? null);
 
   function toggle(item: PlanItem, el: HTMLElement) {
     if (item.auto) return; // solved today: stays done
@@ -113,7 +118,12 @@ export function TodayPlanList({
   return (
     <div className="flex flex-col gap-4">
       {items.length > 0 && done === items.length && <CelebrateOnce id={`plan-${plan.day}`} />}
-      <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-3", compact && "hidden")}>
+      <div
+        className={cn(
+          "flex flex-wrap items-center gap-x-4 gap-y-3",
+          (compact || hideSummary) && "hidden",
+        )}
+      >
         <ProgressRing
           total={Math.max(1, items.length)}
           size={compact ? 64 : 84}
@@ -152,7 +162,8 @@ export function TodayPlanList({
           <li
             key={item.id}
             className={cn(
-              "group/item relative isolate flex items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
+              "group/item relative isolate flex flex-wrap items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
+              item.id === currentId && "border-line bg-surface-2/60",
               "first:[&>.rail]:top-1/2 last:[&>.rail]:bottom-1/2",
             )}
           >
@@ -228,6 +239,38 @@ export function TodayPlanList({
               >
                 <ArrowUpRight size={14} />
               </a>
+            )}
+            {item.id === currentId && (
+              <span className="order-last flex w-full flex-wrap gap-1.5 pt-1 pl-8">
+                {item.url && (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center rounded-[8px] bg-signal px-3 text-[12.5px] font-[550] text-signal-ink"
+                  >
+                    Open problem
+                  </a>
+                )}
+                {!item.auto && (
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={(e) => toggle(item, e.currentTarget)}
+                    className="inline-flex h-8 items-center rounded-[8px] border border-line-2 bg-surface-3 px-3 text-[12.5px] font-[550]"
+                  >
+                    Mark done
+                  </button>
+                )}
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => remove(item)}
+                  className="inline-flex h-8 items-center rounded-[8px] px-3 text-[12.5px] font-[550] text-ink-2 hover:bg-surface-3"
+                >
+                  Skip
+                </button>
+              </span>
             )}
             {!compact && (
               <button

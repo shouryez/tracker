@@ -2,34 +2,25 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import {
-  BookOpenCheck,
-  CalendarCheck2,
-  Layers,
-  ListTodo,
-  Sparkles,
-  Target,
-  Timer,
-  Zap,
-} from "lucide-react";
-import {
   ButtonArrow,
   Card,
   CardHeader,
   CardSub,
   CardTitle,
-  ProgressRing,
   SkeletonCard,
   buttonClasses,
 } from "@upsolve/ui";
 import { AddFromSheet } from "@/components/daily/add-from-sheet";
 import { NextProblemButton } from "@/components/daily/next-problem";
 import { PlanSuggestions, SheetPicks } from "@/components/daily/plan-suggestions";
+import { SessionStarter } from "@/components/daily/session-starter";
+import { StartStudyButton } from "@/components/daily/study-bar";
 import { TodayPlanList } from "@/components/daily/today-plan";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { Rekha } from "@/components/dashboard/lamplight";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
-import { getActiveFocus, getFocusSummary, getWeekReview } from "@/lib/daily-data";
+import { getActiveFocus, getFocusSummary } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
-import { formatDuration } from "@/lib/format";
 import { getFollowedSheets, getSheetPicks, getTodayPlan, getTodaySuggestions } from "@/lib/plan";
 import { requestNow } from "@/lib/time";
 
@@ -59,204 +50,220 @@ async function TodayContent() {
   const tz = profile?.timezone ?? "Asia/Kolkata";
   const now = requestNow();
   const cap = profile?.reviewCap ?? 5;
-  const [plan, suggestions, picks, focus, active, week, followed] = await Promise.all([
+  const [plan, suggestions, picks, focus, active, followed] = await Promise.all([
     getTodayPlan(user.id, tz, cap, now),
     getTodaySuggestions(user.id, tz, cap, now),
     getSheetPicks(user.id, tz, now),
     getFocusSummary(user.id, tz, now, profile?.dayResetHour ?? 0),
     getActiveFocus(user.id),
-    getWeekReview(user.id, tz, now),
     getFollowedSheets(user.id),
   ]);
   const goalMin = profile?.dailyGoalMin ?? 60;
+  const goalMs = goalMin * 60_000;
   const left = plan.total - plan.done;
+  const resetHour = profile?.dayResetHour ?? 0;
+  const why = (["sheet", "next", "stretch", "revision", "drill", "contest", "shared"] as const)
+    .map((k) => ({ k, n: plan.items.filter((i) => i.kind === k).length }))
+    .filter((x) => x.n > 0);
+  const WHY: Record<string, [string, string]> = {
+    sheet: ["var(--signal)", "from the sheets you follow"],
+    next: ["var(--signal)", "next up for your level"],
+    stretch: ["var(--sky)", "a stretch problem"],
+    revision: ["var(--amber)", "due for revision"],
+    drill: ["var(--rose)", "for your weakest topic"],
+    contest: ["var(--sky)", "from a contest"],
+    shared: ["var(--ink-3)", "shared by a friend"],
+  };
+  const current = plan.items.find((i) => !i.done);
+  const C1 = 2 * Math.PI * 82;
+  const C2 = 2 * Math.PI * 64;
+  const focusFrac = Math.min(1, focus.todayMs / Math.max(1, goalMs));
+  const planFrac = plan.total ? plan.done / plan.total : 0;
+  const fmt = (ms: number) => {
+    const m = Math.round(ms / 60_000);
+    return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m` : `${m}m`;
+  };
 
   return (
     <>
       <PageHeader
-        eyebrow={new Date(now).toLocaleDateString("en-IN", {
+        eyebrow={`Today · ${new Date(now).toLocaleDateString("en-GB", {
           weekday: "long",
           day: "numeric",
-          month: "long",
+          month: "short",
           timeZone: tz,
-        })}
+        })} · resets at ${String(resetHour).padStart(2, "0")}:00`}
         glow={PAGE_GLOW.revision}
         title={
-          plan.total === 0 ? (
-            <>
-              Today, <em>your call.</em>
-            </>
-          ) : left === 0 ? (
-            <>
-              Today, <em>all done.</em>
-            </>
-          ) : (
-            <>
-              Today, <em>{left} to go.</em>
-            </>
-          )
-        }
-        subtitle={
           <>
-            <span>{plan.done} done</span>
-            <Dot />
-            <span>{formatDuration(focus.todayMs)} focused</span>
-            <Dot />
-            <span>goal {goalMin}m</span>
+            Today{" "}
+            <em>{plan.total === 0 ? "· nothing planned" : `${plan.done} of ${plan.total} done`}</em>
           </>
         }
+        subtitle="Picked from your place in the sheets you follow, your weakest topic and what's due for revision."
         actions={
           <>
             <NextProblemButton />
-            <Link
-              href="/dashboard/sessions#lab"
-              className={buttonClasses({ variant: "signal", size: "sm" })}
-            >
-              <Timer size={14} aria-hidden="true" /> {active ? "Back to Lab" : "Start focus"}
-              <ButtonArrow />
-            </Link>
+            {active ? (
+              <Link
+                href="/dashboard/sessions"
+                className={buttonClasses({ variant: "signal", size: "sm" })}
+              >
+                Session running <ButtonArrow />
+              </Link>
+            ) : (
+              <StartStudyButton label={current?.title ?? null} active={null} />
+            )}
           </>
         }
       />
 
-      <div className="stagger-in grid grid-cols-12 gap-3.5">
-        <Card className="col-span-12 xl:col-span-7">
+      <div className="flex flex-wrap items-start gap-4">
+        <Card className="min-w-0 flex-[2_1_560px] p-[22px]">
           <CardHeader>
-            <CardTitle icon={<ListTodo size={14} />} tint="var(--signal-mark)">
-              Today&apos;s to-do
-            </CardTitle>
-            <CardSub>unfinished items roll over</CardSub>
+            <CardTitle>Queue</CardTitle>
+            <span className="flex items-center gap-3">
+              <CardSub className="font-mono">{left > 0 ? `${left} left` : "all done"}</CardSub>
+              <AddFromSheet sheets={followed} />
+            </span>
           </CardHeader>
-          <TodayPlanList plan={plan} action={<AddFromSheet sheets={followed} />} />
+          <Rekha value={planFrac} className="mb-3" />
+          <TodayPlanList plan={plan} hideSummary />
         </Card>
 
-        <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
-          <Card>
+        <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-4">
+          <Card className="lamp flex flex-col items-center p-[22px] text-center">
+            <svg
+              viewBox="0 0 200 200"
+              width="188"
+              height="188"
+              role="img"
+              aria-label={`Daily goal: ${fmt(focus.todayMs)} of ${fmt(goalMs)} focus, ${plan.done} of ${plan.total} done`}
+            >
+              <circle
+                cx="100"
+                cy="100"
+                r="82"
+                fill="none"
+                stroke="var(--surface-4)"
+                strokeWidth="12"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="82"
+                fill="none"
+                stroke="var(--amber)"
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={`${(focusFrac * C1).toFixed(1)} ${C1.toFixed(1)}`}
+                transform="rotate(-90 100 100)"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="64"
+                fill="none"
+                stroke="var(--surface-4)"
+                strokeWidth="8"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r="64"
+                fill="none"
+                stroke="var(--signal)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={`${(planFrac * C2).toFixed(1)} ${C2.toFixed(1)}`}
+                transform="rotate(-90 100 100)"
+              />
+              <text
+                x="100"
+                y="98"
+                textAnchor="middle"
+                fontSize="28"
+                fontWeight="600"
+                fill="var(--ink)"
+                letterSpacing="-1"
+              >
+                {fmt(focus.todayMs)}
+              </text>
+              <text
+                x="100"
+                y="118"
+                textAnchor="middle"
+                fontSize="11"
+                fill="var(--ink-3)"
+                fontFamily="var(--font-mono)"
+              >
+                goal {fmt(goalMs)} · {plan.done}/{plan.total} done
+              </text>
+            </svg>
+            <div className="mt-2 flex justify-center gap-4 text-12 text-ink-3">
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-full bg-[var(--amber)]" /> Focus
+              </span>
+              <span className="flex items-center gap-1.5">
+                <i className="size-2 rounded-full bg-signal" /> Today&apos;s list
+              </span>
+            </div>
+          </Card>
+
+          <Card className="p-[22px]">
             <CardHeader>
-              <CardTitle icon={<Sparkles size={14} />} tint="var(--violet)">
-                Suggested for today
-              </CardTitle>
+              <CardTitle>Next session</CardTitle>
+            </CardHeader>
+            {active ? (
+              <p className="text-13 text-ink-2">
+                A session is running. It&apos;s docked in the sidebar; open it from there.
+              </p>
+            ) : (
+              <SessionStarter
+                label={current?.title ?? null}
+                cta="Start session"
+              />
+            )}
+          </Card>
+
+          {why.length > 0 && (
+            <Card tier="inset" className="p-[18px]">
+              <CardHeader>
+                <CardTitle>Why these {plan.total}</CardTitle>
+              </CardHeader>
+              <ul className="flex flex-col gap-2 text-13 text-ink-2">
+                {why.map(({ k, n }) => (
+                  <li key={k} className="flex items-center gap-2.5">
+                    <i
+                      className="size-2 shrink-0 rounded-[2px]"
+                      style={{ background: WHY[k]![0] }}
+                    />
+                    {n} {WHY[k]![1]}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/dashboard/settings#learning"
+                className="mt-3 block text-12 text-ink-2 hover:text-ink"
+              >
+                Change daily goal and mix →
+              </Link>
+            </Card>
+          )}
+
+          <Card className="p-[18px]">
+            <CardHeader>
+              <CardTitle>Add more</CardTitle>
               <CardSub>tap + to add</CardSub>
             </CardHeader>
             <PlanSuggestions suggestions={suggestions} />
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle icon={<Layers size={14} />} tint="var(--info)">
-                From your sheets
-              </CardTitle>
-              <CardSub>next unsolved</CardSub>
-            </CardHeader>
-            <SheetPicks picks={picks} />
-          </Card>
-        </div>
-
-        <Card glow="var(--signal-mark)" className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
-              Focus today
-            </CardTitle>
-            <CardSub>{focus.sessionsToday} sessions</CardSub>
-          </CardHeader>
-          <div className="flex items-center gap-4">
-            <ProgressRing
-              total={goalMin * 60_000}
-              size={96}
-              stroke={9}
-              segments={[
-                {
-                  label: "Focus",
-                  value: Math.min(focus.todayMs, goalMin * 60_000),
-                  color: "var(--signal-mark)",
-                },
-              ]}
-              aria-label={`${formatDuration(focus.todayMs)} of ${goalMin} minutes`}
-            >
-              <span className="num text-17">{Math.round(focus.todayMs / 60_000)}</span>
-              <span className="text-[10px] text-ink-3">of {goalMin}m</span>
-            </ProgressRing>
-            <div className="text-13 text-ink-2">
-              {active ? (
-                <p className="font-[600] text-success">In Lab right now</p>
-              ) : (
-                <p>Start a focus block when you sit down to solve.</p>
-              )}
-              {focus.todayAwayMs > 0 && (
-                <p className="mt-1 text-12 text-ink-3">{formatDuration(focus.todayAwayMs)} away</p>
-              )}
+            <div className="mt-4 border-t border-line pt-4">
+              <p className="mb-2 label-mono">From your sheets</p>
+              <SheetPicks picks={picks} />
             </div>
-          </div>
-        </Card>
-
-        <Card className="col-span-12 md:col-span-6 xl:col-span-4">
-          <CardHeader>
-            <CardTitle icon={<Target size={14} />} tint="var(--violet)">
-              This week&apos;s targets
-            </CardTitle>
-            <Link href="/dashboard/review" className="text-12 text-ink-3 hover:text-ink">
-              {week.saved ? "edit" : "set them"}
-            </Link>
-          </CardHeader>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              ["Mediums", week.progress.mediums, week.goals.mediums, "var(--medium)"],
-              [
-                "Focus h",
-                Math.round((week.progress.focusMs / 3_600_000) * 10) / 10,
-                week.goals.focusHours,
-                "var(--signal-mark)",
-              ],
-              ["Revisions", week.progress.revisions, week.goals.revisions, "var(--violet)"],
-            ].map(([label, value, goal, color]) => (
-              <div key={label as string} className="flex flex-col items-center gap-1.5">
-                <ProgressRing
-                  total={Math.max(1, goal as number)}
-                  size={68}
-                  stroke={7}
-                  segments={[
-                    {
-                      label: label as string,
-                      value: Math.min(value as number, goal as number),
-                      color: color as string,
-                    },
-                  ]}
-                >
-                  <span className="num text-15">{value as number}</span>
-                </ProgressRing>
-                <span className="text-11 text-ink-3">
-                  {label as string} / {goal as number}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card tier="inset" className="col-span-12 xl:col-span-4">
-          <p className="mb-3 label-mono">Quick tools</p>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              ["/dashboard/recall", "2-min recall", Zap],
-              ["/dashboard/notebook", "Notebook", BookOpenCheck],
-              ["/dashboard/later", "Saved for later", CalendarCheck2],
-              ["/dashboard/review", "Weekly review", Target],
-            ].map(([href, label, Icon]) => {
-              const I = Icon as typeof Zap;
-              return (
-                <Link
-                  key={href as string}
-                  href={href as string}
-                  className="flex items-center gap-2 rounded-[12px] border border-line bg-surface-2 px-3 py-2.5 text-13 font-[550] transition-colors hover:border-line-2 hover:bg-surface-3"
-                >
-                  <I size={14} aria-hidden="true" className="text-ink-3" />
-                  {label as string}
-                </Link>
-              );
-            })}
-          </div>
-        </Card>
+          </Card>
+        </aside>
       </div>
     </>
   );
 }
-
-// DsaKaro
