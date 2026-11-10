@@ -2,63 +2,38 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import {
-  Brain,
-  Flame,
-  Gauge,
-  Grid3x3,
-  History,
-  ListChecks,
-  Play,
-  Plug,
-  Puzzle,
-  RotateCcw,
-  Share2,
-  Sparkles,
-  Timer,
-} from "lucide-react";
+import { Flame, Share2 } from "lucide-react";
 import { ratingToDifficulty } from "@upsolve/adapters";
-import { frozenDays, suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
+import { frozenDays } from "@upsolve/core";
 import {
   ButtonArrow,
   Card,
   CardHeader,
   CardSub,
   CardTitle,
-  CounterChip,
   DifficultyTag,
-  EmptyState,
   Skeleton,
   SkeletonCard,
-  StatusBadge,
-  StrengthLadder,
-  Tag,
-  VerifiedChip,
+  VerdictChip,
   buttonClasses,
+  cn,
 } from "@upsolve/ui";
 import { CardLink } from "@/components/card-link";
-import { NextProblemButton } from "@/components/daily/next-problem";
 import { NudgeBanner } from "@/components/daily/nudge-banner";
 import { NowSolving } from "@/components/daily/now-solving";
 import { TodayPlanList } from "@/components/daily/today-plan";
-import { SolvedSplit, Sparkline } from "@/components/charts";
-import { FocusWeek, TopicRadar } from "@/components/charts/insights";
 import { ActivityHeatmap } from "@/components/dashboard/activity-heatmap";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
-import { HalfGauge } from "@/components/dashboard/widgets";
 import { DayDial, KpiStrip, Rekha, WeekStrip } from "@/components/dashboard/lamplight";
 import { NumberTicker } from "@/components/fx/number-ticker";
-import { dueLabel, MasteryBars, reviewUrl } from "@/components/learning";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
-import { PLATFORM_LABEL, PLATFORM_PROFILE_URL, PLATFORM_STROKE } from "@/components/platform-meta";
-import { formatEta, SegmentedProgress } from "@/components/progress";
-import { PlatformMark, platformMarkId } from "@/components/site-icons";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PLATFORM_LABEL } from "@/components/platform-meta";
+import { formatEta } from "@/components/progress";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import {
   buildStats,
   getAccounts,
-  getContestSeries,
   getProfile,
   getRecentSolves,
   needsSync,
@@ -66,27 +41,21 @@ import {
   getLocalActivity,
 } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
-import {
-  getLearning,
-  getNextCandidates,
-  getTopicTargets,
-  masteryOf,
-  revisionQueue,
-} from "@/lib/learning";
-import { getSheetSummaries } from "@/lib/sheets-data";
-import { getExtensionTokens, getSessionStats, getSessions } from "@/lib/sessions-data";
-import { getStreakFreezes } from "@/lib/social-data";
-import { getFocusSummary, getUnseenNudges } from "@/lib/daily-data";
+import { getLearning, getTopicTargets, masteryOf, revisionQueue } from "@/lib/learning";
+import { getSheetDetail, getSheetSummaries } from "@/lib/sheets-data";
+import { getExtensionTokens, getSessionStats } from "@/lib/sessions-data";
+import { getMyGroups, getStreakFreezes } from "@/lib/social-data";
+import { getActiveFocus, getFocusSummary, getStudyHall, getUnseenNudges } from "@/lib/daily-data";
+import { StartStudyButton } from "@/components/daily/study-bar";
+import { buddyLevel } from "@/lib/buddies";
+import { StudyBuddy } from "@/components/study-buddy";
 import { getTodayPlan } from "@/lib/plan";
-import { localDate, localDay, requestNow, studyDay } from "@/lib/time";
+import { localDate, requestNow, studyDay } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
 
 export const metadata: Metadata = { title: "Overview" };
 
 const DAY_MS = 86_400_000;
-const icon = (Icon: typeof Flame, className?: string) => (
-  <Icon size={14} strokeWidth={2} className={className} />
-);
 
 export default function DashboardPage() {
   return (
@@ -118,31 +87,17 @@ async function Overview() {
   const profile = await getProfile(user.id);
   if (!profile?.onboardedAt) redirect("/onboarding");
 
-  const [
-    accounts,
-    contestSeries,
-    recent,
-    sessionStats,
-    sessions,
-    tokens,
-    learning,
-    targets,
-    candidates,
-    sheets,
-    freezes,
-  ] = await Promise.all([
-    getAccounts(user.id),
-    getContestSeries(user.id),
-    getRecentSolves(user.id),
-    getSessionStats(user.id),
-    getSessions(user.id, 3),
-    getExtensionTokens(user.id),
-    getLearning(user.id),
-    getTopicTargets(),
-    getNextCandidates(user.id),
-    getSheetSummaries(user.id),
-    getStreakFreezes(user.id),
-  ]);
+  const [accounts, recent, sessionStats, tokens, learning, targets, sheets, freezes] =
+    await Promise.all([
+      getAccounts(user.id),
+      getRecentSolves(user.id),
+      getSessionStats(user.id),
+      getExtensionTokens(user.id),
+      getLearning(user.id),
+      getTopicTargets(),
+      getSheetSummaries(user.id),
+      getStreakFreezes(user.id),
+    ]);
   const now = requestNow();
   const [plan, nudges, localActivity, focusSummary] = await Promise.all([
     getTodayPlan(user.id, profile.timezone, profile.reviewCap, now),
@@ -150,30 +105,38 @@ async function Overview() {
     getLocalActivity(user.id, profile.timezone, profile.dayResetHour, now),
     getFocusSummary(user.id, profile.timezone, now, profile.dayResetHour),
   ]);
+  const active = await getActiveFocus(user.id);
   const mastery = masteryOf(learning, targets, now);
   const queue = revisionQueue(learning, mastery, {
     tz: profile.timezone,
     cap: profile.reviewCap,
     now,
   });
-  const { end: endOfToday } = localDay(profile.timezone, now);
-  const solvedBy: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
-  for (const p of learning) if (p.difficulty) solvedBy[p.difficulty]++;
-  const nextUp = suggestNext(candidates, mastery, solvedBy, 4);
-  // The topics you've solved most in, strongest first (radar wants up to 8).
-  const masteryTop = mastery
-    .filter((m) => m.solved > 0)
-    .sort((a, b) => b.solved - a.solved)
-    .slice(0, 8)
-    .sort((a, b) => b.score - a.score);
   const followed = sheets.filter((s) => s.following);
   const hasExtension = tokens.length > 0;
-  const answered =
-    sessionStats.honest.solo + sessionStats.honest.hint + sessionStats.honest.solution;
   const stats = buildStats(accounts, new Date(now), frozenDays(freezes), localActivity);
   const todayLocal = localDate(profile.timezone, now);
   const activeFreeze = freezes.find((f) => f.start <= todayLocal && f.end >= todayLocal);
   const firstName = profile.name?.split(" ")[0] ?? "there";
+  const goalMs = profile.dailyGoalMin * 60_000;
+  const left = plan.total - plan.done;
+  const facts = [
+    queue.today.length
+      ? `${queue.today.length} revision${queue.today.length === 1 ? "" : "s"} due`
+      : null,
+    plan.total
+      ? left
+        ? `${left} problem${left === 1 ? "" : "s"} left on today's list`
+        : "today's list done"
+      : null,
+    focusSummary.todayMs >= goalMs
+      ? `you're ${Math.round((focusSummary.todayMs - goalMs) / 60_000)} minutes past your daily goal`
+      : `${Math.ceil((goalMs - focusSummary.todayMs) / 60_000)} minutes to your daily goal`,
+  ].filter(Boolean) as string[];
+  const headline =
+    facts.length > 1
+      ? `${facts.slice(0, -1).join(", ")}, and ${facts.at(-1)}.`
+      : `${facts[0]![0]!.toUpperCase()}${facts[0]!.slice(1)}.`;
 
   // New problems solved this week vs the week before (first solve dates).
   const thisWeek = learning.filter((p) => p.state.firstSolvedAt > now - 7 * DAY_MS).length;
@@ -202,6 +165,26 @@ async function Overview() {
   }));
   const week7Ms = last7.reduce((n, d) => n + d.focusMs, 0);
   const activeDays30 = spark30.filter((n) => n > 0).length;
+  const bestRun30 = spark30.reduce(
+    (acc, v) => {
+      const run = v > 0 ? acc.run + 1 : 0;
+      return { run, best: Math.max(acc.best, run) };
+    },
+    { run: 0, best: 0 },
+  ).best;
+  // Topics by solved, with the weakest (lowest mastery among those you've started).
+  const topTopics = [...mastery]
+    .filter((m) => m.solved > 0)
+    .sort((a, b) => b.solved - a.solved)
+    .slice(0, 6);
+  const weakest =
+    topTopics.length > 1 ? topTopics.reduce((x, y) => (y.score < x.score ? y : x)) : null;
+  // Cards on each rung of the ladder (1, 3, 7, 16, 35, 90 days).
+  const rungs = [0, 1, 2, 3, 4, 5].map(
+    (i) =>
+      learning.filter((p) => !p.state.retired && Math.min(5, Math.max(0, p.state.step)) === i)
+        .length,
+  );
   const base30 = stats.solved.total - spark30.reduce((n, v) => n + v, 0);
   const cumulative30 = spark30.map(
     (_, i) => base30 + spark30.slice(0, i + 1).reduce((n, v) => n + v, 0),
@@ -213,6 +196,64 @@ async function Overview() {
   );
   const nextReview = queue.today[0];
   const mainSheet = followed[0];
+  const [sheetDetail, groups] = await Promise.all([
+    mainSheet ? getSheetDetail(user.id, mainSheet.slug) : Promise.resolve(null),
+    getMyGroups(user.id),
+  ]);
+  const sheetSteps: { step: string; done: number; total: number }[] = [];
+  for (const it of sheetDetail?.items ?? []) {
+    if (it.kind !== "practice") continue;
+    let st = sheetSteps.find((x) => x.step === it.step);
+    if (!st) sheetSteps.push((st = { step: it.step, done: 0, total: 0 }));
+    st.total++;
+    if (it.status) st.done++;
+  }
+  const currentStep = Math.max(
+    0,
+    sheetSteps.findIndex((st) => st.done < st.total),
+  );
+  const firstGroup = groups[0];
+  const hallMembers = firstGroup ? await getStudyHall(firstGroup.id) : [];
+  const hall = firstGroup
+    ? (() => {
+        const members = hallMembers
+          .map((m) => {
+            const liveMs = m.live
+              ? (m.live.pausedAt ?? now) - m.live.startedAt - m.live.pausedMs
+              : 0;
+            const state = !m.live ? "idle" : m.live.pausedAt ? "paused" : "studying";
+            return {
+              userId: m.userId,
+              name: m.name,
+              avatar: m.avatar,
+              level: buddyLevel(state, liveMs),
+              status:
+                state === "studying"
+                  ? "Studying now"
+                  : state === "paused"
+                    ? "On a break"
+                    : "Not studying",
+              todayMs: m.doneMs + Math.max(0, liveMs),
+              state,
+            };
+          })
+          .sort(
+            (a, b) =>
+              Number(b.state === "studying") - Number(a.state === "studying") ||
+              b.todayMs - a.todayMs,
+          )
+          .map((m) => ({
+            ...m,
+            today: `${Math.floor(m.todayMs / 3_600_000)}:${String(Math.floor((m.todayMs % 3_600_000) / 60_000)).padStart(2, "0")}`,
+          }));
+        return {
+          id: firstGroup.id,
+          name: firstGroup.name,
+          members,
+          studying: members.filter((m) => m.state === "studying").length,
+        };
+      })()
+    : null;
   const focus = sessionStats.focusWeekMs;
   const fmtDay = (d: string) =>
     new Date(`${d}T12:00:00Z`).toLocaleDateString("en-IN", {
@@ -220,69 +261,44 @@ async function Overview() {
       month: "short",
       timeZone: "UTC",
     });
-  const overdueDays = nextReview ? Math.floor((now - nextReview.state.dueAt) / DAY_MS) : 0;
 
   return (
     <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} />
       <PageHeader
-        eyebrow="Overview"
+        eyebrow={`${new Date(now).toLocaleDateString("en-GB", {
+          weekday: "long",
+          day: "numeric",
+          month: "short",
+          timeZone: profile.timezone,
+        })} · study day ends ${String(profile.dayResetHour).padStart(2, "0")}:00`}
         glow={PAGE_GLOW.overview}
         title={
           <>
-            {greeting(profile.timezone, now)}, <em>{firstName}.</em>
+            {greeting(profile.timezone, now)}, {firstName}
           </>
         }
-        subtitle={
-          <>
-            <span className="inline-flex items-center gap-1.5">
-              <Flame
-                size={14}
-                aria-hidden="true"
-                className={stats.streak > 0 ? "text-ember" : "text-ink-4"}
-              />
-              {stats.streak > 0 ? `${stats.streak}-day streak` : "Start a streak today"}
-            </span>
-            {queue.today.length > 0 && (
-              <>
-                <Dot />
-                <span>{queue.today.length} to revise</span>
-              </>
-            )}
-            {profile.college && (
-              <>
-                <Dot />
-                <span>{profile.college.shortName ?? profile.college.name}</span>
-              </>
-            )}
-          </>
-        }
+        subtitle={<span>{headline}</span>}
         actions={
           <>
             <AutoSync stale={needsSync(accounts)} />
-            <NextProblemButton />
             <a
               href="/api/share-card?download=1"
               title="Download a 1200×630 card with your heatmap and numbers, for LinkedIn or WhatsApp"
-              className={buttonClasses({ variant: "secondary", size: "sm" })}
+              className={buttonClasses({ variant: "ghost", size: "sm" })}
             >
               <Share2 size={14} aria-hidden="true" /> Share card
             </a>
-            {nextReview ? (
+            {active ? (
               <Link
-                href="/dashboard/revision"
+                href="/dashboard/sessions"
                 className={buttonClasses({ variant: "signal", size: "sm" })}
               >
-                <RotateCcw size={14} aria-hidden="true" /> Revise now <ButtonArrow />
+                Session running <ButtonArrow />
               </Link>
-            ) : mainSheet ? (
-              <Link
-                href={`/dashboard/sheets/${mainSheet.slug}`}
-                className={buttonClasses({ variant: "signal", size: "sm" })}
-              >
-                Continue {mainSheet.name.replace(/'s.*$/, "")} <ButtonArrow />
-              </Link>
-            ) : null}
+            ) : (
+              <StartStudyButton label={null} active={null} />
+            )}
           </>
         }
       />
@@ -424,208 +440,217 @@ async function Overview() {
           ]}
         />
 
-        {/* What to do next: the next revision and picks from your sheets */}
-        <Card
-          spotlight
-          glow={nextReview ? (overdueDays > 0 ? "var(--overdue)" : "var(--violet)") : undefined}
-          className="col-span-12 flex flex-col md:col-span-6"
-        >
+        {/* Activity beside what you've solved */}
+        <Card className="col-span-12 xl:col-span-8">
           <CardHeader>
-            <CardTitle icon={icon(RotateCcw)} tint="var(--violet)">
-              Next revision
-            </CardTitle>
-            <CardLink href="/dashboard/revision" label="Open revision" />
+            <CardTitle>Activity</CardTitle>
+            <CardSub>26 weeks · by your study day</CardSub>
           </CardHeader>
-          {nextReview ? (
-            <div className="flex flex-1 flex-col">
-              <div className="surface-inset flex flex-1 flex-col rounded-[16px] p-4">
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  {nextReview.difficulty && <DifficultyTag difficulty={nextReview.difficulty} />}
-                  <StatusBadge
-                    status={overdueDays > 0 ? "overdue" : "revise"}
-                    label={dueLabel(nextReview.state.dueAt, now, endOfToday)}
-                    pulse={overdueDays > 7}
-                  />
-                </div>
-                <Link
-                  href={`/dashboard/problems/${nextReview.problemId}`}
-                  className="text-20 leading-tight font-[600] tracking-[-0.02em] hover:underline"
-                >
-                  {nextReview.title}
-                </Link>
-                <div className="mt-4 flex items-end justify-between gap-3">
-                  <StrengthLadder
-                    stage={nextReview.state.step + 1}
-                    overdue={overdueDays > 0}
-                    dueLabel={dueLabel(nextReview.state.dueAt, now, endOfToday)}
-                  />
-                  {queue.today.length > 1 && (
-                    <span className="text-12 text-ink-3">+{queue.today.length - 1} more today</span>
-                  )}
-                </div>
-              </div>
-              <a
-                href={reviewUrl(nextReview.url)}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonClasses({ variant: "secondary", className: "mt-3.5 w-full" })}
-              >
-                <Play size={14} aria-hidden="true" /> Re-solve now <ButtonArrow />
-              </a>
-            </div>
-          ) : (
-            <EmptyState
-              className="flex-1 py-4"
-              mascot={learning.length === 0 ? "sleepy" : "accepted"}
-              title={
-                learning.length === 0 ? (
-                  <>
-                    Nothing to revise <em>yet.</em>
-                  </>
-                ) : (
-                  <>
-                    All caught <em>up.</em>
-                  </>
-                )
-              }
-            >
-              {learning.length === 0
-                ? "Solved problems are scheduled here: 1 → 3 → 7 → 16 → 35 → 90 days."
-                : `${queue.upcoming[0] ?? 0} due tomorrow.`}
-            </EmptyState>
-          )}
+          <ActivityHeatmap days={days} />
+          <p className="mt-3 text-12 text-ink-3">
+            {activeDays30} active days in the last 30 · best run {bestRun30} ·{" "}
+            {spark30.reduce((n, v) => n + v, 0)} accepted
+          </p>
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col md:col-span-6">
-          <CardHeader>
-            <CardTitle icon={icon(Sparkles)} tint="var(--signal-mark)">
-              Solve next
-            </CardTitle>
-            <CardSub>
-              {nextUp[0] ? `focus: ${topicLabel(nextUp[0].topic)}` : "from your sheets"}
-            </CardSub>
+        <Card className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
+          <CardHeader className="mb-0">
+            <CardTitle>Solved</CardTitle>
+            <CardSub className="font-mono">{stats.solved.total}</CardSub>
           </CardHeader>
-          {nextUp.length === 0 ? (
-            <EmptyState
-              className="py-4"
-              icon={<Sparkles size={18} />}
-              title={
-                <>
-                  Suggestions come <em>next.</em>
-                </>
-              }
-            >
-              Follow a sheet and solve a few problems; picks target your weakest topic.
-            </EmptyState>
+          <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-surface-4">
+            {(["easy", "medium", "hard"] as const).map((d) =>
+              stats.solved[d] ? (
+                <span
+                  key={d}
+                  style={{
+                    width: `${(stats.solved[d] / Math.max(1, stats.solved.total)) * 100}%`,
+                    background: `var(--${d})`,
+                  }}
+                />
+              ) : null,
+            )}
+          </div>
+          <ul className="flex flex-col">
+            {(["easy", "medium", "hard"] as const).map((d) => (
+              <li
+                key={d}
+                className="grid grid-cols-[72px_minmax(0,1fr)_28px] items-center gap-3 border-t border-line py-2.5 first:border-t-0"
+              >
+                <DifficultyTag difficulty={d} />
+                <span className="h-1 overflow-hidden rounded-full bg-surface-4">
+                  <span
+                    className="block h-full origin-left animate-[grow-x_800ms_var(--ease-out)_backwards] rounded-full"
+                    style={{
+                      width: `${(stats.solved[d] / Math.max(1, stats.solved.easy, stats.solved.medium, stats.solved.hard)) * 100}%`,
+                      background: `var(--${d})`,
+                    }}
+                  />
+                </span>
+                <span
+                  className={cn(
+                    "tnum text-right font-mono text-13",
+                    !stats.solved[d] && "text-ink-3",
+                  )}
+                >
+                  {stats.solved[d]}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-auto flex items-center justify-between gap-2 border-t border-line pt-3 text-12 text-ink-3">
+            <span className="truncate">
+              {accounts.length
+                ? accounts
+                    .map((a) => `${PLATFORM_LABEL[a.platform]} ${a.snapshot?.solved.total ?? 0}`)
+                    .join(" · ")
+                : "Connect a platform to start"}
+            </span>
+            <Link href="/dashboard/analytics" className="shrink-0 text-ink-2 hover:text-ink">
+              Analytics →
+            </Link>
+          </div>
+        </Card>
+
+        {/* Topics · the ladder · your main sheet, step by step */}
+        <Card className="col-span-12 md:col-span-6 xl:col-span-4">
+          <CardHeader>
+            <CardTitle>Topics</CardTitle>
+            <CardSub>solved</CardSub>
+          </CardHeader>
+          {topTopics.length === 0 ? (
+            <p className="text-13 text-ink-3">Solve a few problems and your topics show up here.</p>
           ) : (
-            <ul className="flex flex-col gap-2">
-              {nextUp.map((p) => (
-                <li key={p.problemId}>
-                  <Link
-                    href={`/dashboard/problems/${p.problemId}`}
-                    className="surface-inset group/next flex items-center gap-3 rounded-[14px] px-3.5 py-2.5 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
+            <ul className="flex flex-col">
+              {topTopics.map((t) => (
+                <li
+                  key={t.topic}
+                  className="grid grid-cols-[110px_minmax(0,1fr)_24px] items-center gap-3 border-t border-line py-2 first:border-t-0"
+                >
+                  <span
+                    className={cn(
+                      "truncate text-[13.5px]",
+                      t.topic === weakest?.topic && "text-bad",
+                    )}
                   >
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13.5px] font-[600] group-hover/next:underline">
-                        {p.title}
-                      </span>
-                      <span className="block truncate text-11 text-ink-3">
-                        {topicLabel(p.topic)} · {p.reason}
-                      </span>
-                    </span>
-                    {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
-                    <ButtonArrow />
-                  </Link>
+                    {t.label}
+                  </span>
+                  <span className="h-1 overflow-hidden rounded-full bg-surface-4">
+                    <span
+                      className="block h-full rounded-full"
+                      style={{
+                        width: `${(t.solved / Math.max(1, topTopics[0]!.solved)) * 100}%`,
+                        background: t.topic === weakest?.topic ? "var(--rose)" : "var(--signal)",
+                      }}
+                    />
+                  </span>
+                  <span className="tnum text-right font-mono text-12">{t.solved}</span>
                 </li>
               ))}
             </ul>
           )}
+          {weakest && (
+            <p className="mt-3 text-12 text-ink-3">
+              Weakest for your level: <span className="text-bad">{weakest.label}</span>.{" "}
+              <Link href="/dashboard/today" className="text-ink-2 hover:text-ink">
+                Picks on Today →
+              </Link>
+            </p>
+          )}
         </Card>
 
-        {/* Activity, 26 weeks */}
-        <Card className="col-span-12">
+        <Card className="col-span-12 flex flex-col md:col-span-6 xl:col-span-4">
           <CardHeader>
-            <CardTitle icon={icon(Grid3x3)} tint="var(--primary)">
-              Activity
-            </CardTitle>
-            <CardSub>last 26 weeks · all platforms</CardSub>
+            <CardTitle>Revision ladder</CardTitle>
+            <CardSub className="font-mono">
+              {learning.filter((p) => !p.state.retired).length} cards
+            </CardSub>
           </CardHeader>
-          <ActivityHeatmap days={days} />
-        </Card>
-
-        {/* Row 4 · mastery (radar beside its bars) + sheets */}
-        <Card spotlight className="col-span-12 flex flex-col xl:col-span-7">
-          <CardHeader>
-            <CardTitle icon={icon(Brain)} tint="var(--easy)">
-              Topic mastery
-            </CardTitle>
-            <CardLink href="/dashboard/analytics#mastery" label="All topics" />
-          </CardHeader>
-          <div className="@container flex flex-1 items-center">
-            <div className="grid w-full items-center gap-5 @lg:grid-cols-[220px_minmax(0,1fr)] @lg:gap-7">
-              <div className="mx-auto">
-                <TopicRadar topics={masteryTop} size={220} />
+          <div className="grid h-[150px] grid-cols-6 items-end gap-1.5">
+            {rungs.map((n, i) => (
+              <div key={i} className="flex h-full flex-col justify-end gap-1.5">
+                <span className="tnum text-center font-mono text-12 text-ink-2">{n}</span>
+                <span
+                  className="origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[6px_6px_3px_3px] bg-[linear-gradient(180deg,var(--amber),color-mix(in_srgb,var(--amber)_35%,transparent))]"
+                  style={{
+                    height: n ? `${20 + (n / Math.max(1, ...rungs)) * 90}px` : "4px",
+                    opacity: n ? 1 - i * 0.08 : 0.4,
+                    animationDelay: `${i * 60}ms`,
+                  }}
+                />
+                <span className="text-center font-mono text-[10.5px] text-ink-3">
+                  {[1, 3, 7, 16, 35, 90][i]}d
+                </span>
               </div>
-              <MasteryBars topics={masteryTop.slice(0, 5)} showInputs={false} />
-            </div>
+            ))}
           </div>
+          {nextReview ? (
+            <div className="mt-auto flex flex-wrap items-center gap-3 rounded-[12px] bg-primary-soft px-3 py-2.5">
+              <span className="min-w-0 flex-1 truncate text-13">{nextReview.title} is due</span>
+              <Link
+                href="/dashboard/revision"
+                className={buttonClasses({ variant: "secondary", size: "sm" })}
+              >
+                Revise
+              </Link>
+            </div>
+          ) : (
+            <p className="mt-auto pt-3 text-12 text-ink-3">Nothing due today.</p>
+          )}
         </Card>
 
-        <Card spotlight className="col-span-12 flex flex-col xl:col-span-5">
-          <CardHeader>
-            <CardTitle icon={icon(mainSheet ? Gauge : ListChecks)} tint="var(--violet)">
-              {mainSheet ? "Your sheets" : "By difficulty"}
-            </CardTitle>
-            <Link
-              href="/dashboard/sheets"
-              className={buttonClasses({ variant: "ghost", size: "sm", className: "h-8 px-3" })}
-            >
-              All sheets
-            </Link>
+        <Card className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
+          <CardHeader className="mb-0">
+            <CardTitle>{mainSheet ? mainSheet.name.replace(/'s\b/, "") : "Your sheet"}</CardTitle>
+            {mainSheet && (
+              <CardSub className="font-mono">
+                {mainSheet.done} / {mainSheet.total}
+              </CardSub>
+            )}
           </CardHeader>
           {mainSheet ? (
             <>
-              <Link href={`/dashboard/sheets/${mainSheet.slug}`} className="group/sheet">
-                <HalfGauge
-                  done={mainSheet.done}
-                  total={mainSheet.total}
-                  label={`of ${mainSheet.name}${mainSheet.eta ? ` · done by ${formatEta(mainSheet.eta)}` : ""}`}
-                />
-              </Link>
-              {followed.length > 1 && (
-                <ul className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
-                  {followed.slice(1).map((s) => (
-                    <li key={s.id}>
-                      <Link href={`/dashboard/sheets/${s.slug}`} className="group/s block">
-                        <div className="mb-1.5 flex items-baseline justify-between gap-2 text-13">
-                          <span className="truncate font-[550] group-hover/s:underline">
-                            {s.name}
-                          </span>
-                          <span className="tnum shrink-0 font-mono text-11 text-ink-3">
-                            {s.done}/{s.total}
-                          </span>
-                        </div>
-                        <SegmentedProgress done={s.done} total={s.total} segments={24} />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <Rekha value={mainSheet.done / Math.max(1, mainSheet.total)} />
+              <ul className="grid grid-cols-6 gap-1.5">
+                {sheetSteps.map((st, i) => (
+                  <li
+                    key={st.step}
+                    title={`${st.step}: ${st.done} of ${st.total}`}
+                    className="relative h-[34px] overflow-hidden rounded-[7px] bg-surface-3"
+                    style={{
+                      boxShadow: `inset 0 0 0 1px ${i === currentStep ? "var(--signal)" : "var(--line)"}`,
+                    }}
+                  >
+                    <span
+                      className="absolute inset-x-0 bottom-0 bg-signal-soft"
+                      style={{
+                        height: `${(st.done / Math.max(1, st.total)) * 100}%`,
+                        borderTop: st.done ? "1px solid var(--signal)" : undefined,
+                      }}
+                    />
+                    <span className="absolute top-1 left-1.5 font-mono text-[10px] text-ink-3">
+                      {i + 1}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto flex justify-between gap-2 text-12 text-ink-3">
+                <span className="truncate">
+                  {sheetSteps[currentStep]
+                    ? `Now on step ${currentStep + 1} · ${sheetSteps[currentStep]!.step.replace(/^Step\s*\d+\s*[:·.-]?\s*/i, "")}`
+                    : "All steps done"}
+                </span>
+                {mainSheet.eta && (
+                  <span className="shrink-0">at this pace: {formatEta(mainSheet.eta)}</span>
+                )}
+              </div>
             </>
           ) : (
-            <div className="flex flex-1 flex-col justify-center">
-              <span className="num mb-4 block text-[40px]">
-                <NumberTicker value={stats.solved.total} />
-                <small className="ml-1 text-[.5em] font-[500] text-ink-3">solved</small>
-              </span>
-              <SolvedSplit solved={stats.solved} />
+            <div className="flex flex-1 flex-col items-start justify-center gap-3">
+              <p className="text-13 text-ink-2">Follow a sheet and its steps fill in here.</p>
               <Link
                 href="/dashboard/sheets"
-                className={buttonClasses({
-                  variant: "secondary",
-                  size: "sm",
-                  className: "mt-5 self-start",
-                })}
+                className={buttonClasses({ variant: "secondary", size: "sm" })}
               >
                 Pick a sheet <ButtonArrow />
               </Link>
@@ -633,29 +658,28 @@ async function Overview() {
           )}
         </Card>
 
-        {/* Row 5 · recent solves + focus this week */}
+        {/* Recent submissions · your group, live */}
         <Card className="col-span-12 xl:col-span-7">
           <CardHeader>
-            <CardTitle icon={icon(History)} tint="var(--success)">
-              Recent solves
-            </CardTitle>
-            <CardSub>accepted</CardSub>
+            <CardTitle>Recent submissions</CardTitle>
+            <CardSub>
+              {accounts[0]?.lastSyncedAt ? (
+                <>
+                  synced <TimeAgo date={accounts[0].lastSyncedAt} />
+                </>
+              ) : (
+                "accepted"
+              )}
+            </CardSub>
           </CardHeader>
           {recent.length === 0 ? (
-            <EmptyState
-              icon={<History size={18} />}
-              title={
-                <>
-                  No solves <em>yet.</em>
-                </>
-              }
-            >
+            <p className="text-13 text-ink-3">
               Your accepted problems show up here. Start with a sheet.
-            </EmptyState>
+            </p>
           ) : (
-            <ol className="relative ml-2 border-l border-line-2">
+            <ol className="flex flex-col">
               {recent.slice(0, 6).map((r, i) => (
-                <RecentRow key={r.id} solve={r} index={i} />
+                <RecentRow key={r.id} solve={r} index={i} timeZone={profile.timezone} />
               ))}
             </ol>
           )}
@@ -663,141 +687,57 @@ async function Overview() {
 
         <Card className="col-span-12 flex flex-col xl:col-span-5">
           <CardHeader>
-            <CardTitle icon={icon(Timer)} tint="var(--signal-mark)">
-              Focus this week
-            </CardTitle>
-            <CardLink href="/dashboard/sessions" label="All sessions" />
+            <CardTitle>{hall ? `${hall.name} · live` : "Study together"}</CardTitle>
+            {hall && hall.studying > 0 && (
+              <span className="flex items-center gap-1.5 rounded-full bg-signal-soft px-2.5 py-0.5 text-12 font-[600] text-signal-text">
+                <span className="size-1.5 rounded-full bg-signal" /> {hall.studying} studying
+              </span>
+            )}
           </CardHeader>
-          {hasExtension ? (
+          {hall ? (
             <>
-              <FocusWeek days={sessionStats.focusByDay} goalMin={profile.dailyGoalMin} />
-              <div className="mt-4 flex flex-wrap gap-2 text-12">
-                <Tag>{sessionStats.totalSessions} sessions</Tag>
-                {answered > 0 && (
-                  <Tag tone="success">{Math.round((sessionStats.soloRate ?? 0) * 100)}% solo</Tag>
-                )}
-                <Tag>goal {profile.dailyGoalMin}m/day</Tag>
-              </div>
-              {sessions.length > 0 && (
-                <ul className="mt-4 border-t border-line pt-3">
-                  {sessions.map((s) => (
-                    <li
-                      key={s.id}
-                      className="flex items-center justify-between gap-2 py-1.5 text-13"
-                    >
-                      <span className="truncate text-ink-2">{s.title}</span>
-                      <span className="tnum shrink-0 font-mono text-11 text-ink-3">
-                        {formatDuration(s.activeMs)} · <TimeAgo date={s.startedAt} />
+              <ul className="flex flex-col">
+                {hall.members.slice(0, 5).map((m) => (
+                  <li
+                    key={m.userId}
+                    className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0"
+                  >
+                    <StudyBuddy buddy={m.avatar} level={m.level} size={40} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13.5px] font-[550]">
+                        {m.userId === user.id ? "You" : m.name}
                       </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                      <span className="block truncate text-12 text-ink-3">{m.status}</span>
+                    </span>
+                    <span className="text-right">
+                      <span className="tnum block font-mono text-14 font-[550]">{m.today}</span>
+                      <span className="text-11 text-ink-3">today</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={`/dashboard/groups/${hall.id}`}
+                className={buttonClasses({
+                  variant: "secondary",
+                  size: "sm",
+                  className: "mt-auto self-start",
+                })}
+              >
+                Open study hall
+              </Link>
             </>
           ) : (
-            <EmptyState
-              className="flex-1"
-              icon={<Puzzle size={18} />}
-              title={
-                <>
-                  Time every problem, <em>automatically.</em>
-                </>
-              }
-              action={
-                <Link
-                  href="/extension/connect"
-                  className={buttonClasses({ variant: "secondary", size: "sm" })}
-                >
-                  <Puzzle size={14} aria-hidden="true" /> Set up the extension
-                </Link>
-              }
-            >
-              The extension times LeetCode and GFG problems and catches every verdict.
-            </EmptyState>
-          )}
-        </Card>
-
-        {/* Row 6 · platforms */}
-        <Card className="col-span-12">
-          <CardHeader>
-            <CardTitle icon={icon(Plug)} tint="var(--info)">
-              Platforms
-            </CardTitle>
-            <CardLink href="/dashboard/settings" label="Manage platforms" />
-          </CardHeader>
-          {accounts.length === 0 ? (
-            <EmptyState
-              icon={<Plug size={18} />}
-              title={
-                <>
-                  No platforms <em>yet.</em>
-                </>
-              }
-              action={
-                <Link
-                  href="/onboarding/connect"
-                  className={buttonClasses({ variant: "secondary", size: "sm" })}
-                >
-                  Connect a platform <ButtonArrow />
-                </Link>
-              }
-            />
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {accounts.map((a) => {
-                const series = contestSeries.find((s) => s.platform === a.platform);
-                const url = PLATFORM_PROFILE_URL[a.platform]?.(a.handle);
-                const mark = platformMarkId(a.platform);
-                return (
-                  <div
-                    key={a.id}
-                    className="surface-inset group flex flex-col gap-3 rounded-[16px] p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="flex flex-wrap items-center gap-2 text-14 font-[600]">
-                          {mark && <PlatformMark site={mark} size={16} />}
-                          {PLATFORM_LABEL[a.platform]}
-                          {a.verified && <VerifiedChip />}
-                        </p>
-                        <a
-                          href={url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-mono text-12 text-ink-3 hover:text-ink hover:underline"
-                        >
-                          {a.handle}
-                        </a>
-                      </div>
-                      <div className="text-right">
-                        <p className="num text-24">{a.snapshot?.rating ?? "—"}</p>
-                        <p className="text-11 text-ink-3">{a.snapshot?.rankLabel ?? "unrated"}</p>
-                      </div>
-                    </div>
-                    {series && series.points.length > 1 && (
-                      <Sparkline
-                        values={series.points.slice(-24).map((p) => p.rating)}
-                        stroke={PLATFORM_STROKE[a.platform]}
-                        width={280}
-                        height={36}
-                        className="w-full"
-                      />
-                    )}
-                    {a.snapshot && <SolvedSplit solved={a.snapshot.solved} />}
-                    <p className="text-11 text-ink-3">
-                      {a.lastSyncedAt ? (
-                        <>
-                          Synced <TimeAgo date={a.lastSyncedAt} />
-                        </>
-                      ) : a.lastError ? (
-                        <span className="text-bad">{a.lastError}</span>
-                      ) : (
-                        "Waiting for first sync"
-                      )}
-                    </p>
-                  </div>
-                );
-              })}
+            <div className="flex flex-1 flex-col items-start justify-center gap-3">
+              <p className="text-13 text-ink-2">
+                Make a group with friends: everyone&apos;s timer, live, and a weekly leaderboard.
+              </p>
+              <Link
+                href="/dashboard/groups"
+                className={buttonClasses({ variant: "secondary", size: "sm" })}
+              >
+                Start a group <ButtonArrow />
+              </Link>
             </div>
           )}
         </Card>
@@ -806,34 +746,36 @@ async function Overview() {
   );
 }
 
-function RecentRow({ solve, index }: { solve: RecentSolve; index: number }) {
+function RecentRow({
+  solve,
+  index,
+  timeZone,
+}: {
+  solve: RecentSolve;
+  index: number;
+  timeZone: string;
+}) {
   const difficulty =
     solve.platform === "codeforces"
       ? ratingToDifficulty(solve.rating ?? undefined)
       : (solve.difficultyRaw?.toLowerCase() as "easy" | "medium" | "hard" | undefined);
-  const mark = platformMarkId(solve.platform);
+  const at = new Date(solve.submittedAt);
+  const sameDay =
+    at.toLocaleDateString("en-CA", { timeZone }) ===
+    new Date(requestNow()).toLocaleDateString("en-CA", { timeZone });
+  const when = sameDay
+    ? at.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone })
+    : at.toLocaleDateString("en-GB", { weekday: "short", timeZone });
   const title = (
-    <span className="block truncate bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat text-[13.5px] font-medium transition-[background-size] duration-[var(--dur-base)] group-hover/row:bg-[length:100%_1px]">
-      {solve.title}
-    </span>
+    <span className="block truncate text-[13.5px] font-[550] hover:underline">{solve.title}</span>
   );
   return (
     <li
-      className="group/row relative flex items-center gap-3 rounded-r-[12px] py-2.5 pr-2 pl-5 transition-colors duration-[var(--dur-fast)] hover:bg-surface-2/70"
+      className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-3 border-t border-line py-2.5 first:border-t-0"
       style={{ animation: `rise-in 420ms var(--ease-out) ${index * 45}ms backwards` }}
     >
-      <span
-        aria-hidden="true"
-        className="absolute top-1/2 -left-[5px] size-[9px] -translate-y-1/2 rounded-full border-2 border-surface bg-success shadow-[0_0_8px_var(--success)]"
-      />
-      {mark && (
-        <PlatformMark
-          site={mark}
-          size={15}
-          className="text-ink-3 group-hover/row:text-[var(--brand)]"
-        />
-      )}
-      <span className="min-w-0 flex-1">
+      <span className="font-mono text-12 text-ink-3">{when}</span>
+      <span className="min-w-0">
         {solve.problemId ? (
           <Link href={`/dashboard/problems/${solve.problemId}`}>{title}</Link>
         ) : (
@@ -841,14 +783,13 @@ function RecentRow({ solve, index }: { solve: RecentSolve; index: number }) {
             {title}
           </a>
         )}
-        <span className="tnum text-11 text-ink-3">
+        <span className="block truncate text-12 text-ink-3">
           {PLATFORM_LABEL[solve.platform]}
-          {solve.rating ? ` · ${solve.rating}` : ""} · <TimeAgo date={solve.submittedAt} />
+          {difficulty ? ` · ${difficulty[0]!.toUpperCase()}${difficulty.slice(1)}` : ""}
+          {solve.accepted > 1 ? ` · solved ${solve.accepted}×` : ""}
         </span>
       </span>
-      {solve.accepted > 1 && <CounterChip n={solve.accepted} />}
-      <StatusBadge status="solved" className="hidden sm:inline-flex" />
-      {difficulty ? <DifficultyTag difficulty={difficulty} /> : <Tag mono>unrated</Tag>}
+      <VerdictChip verdict="AC" />
     </li>
   );
 }
