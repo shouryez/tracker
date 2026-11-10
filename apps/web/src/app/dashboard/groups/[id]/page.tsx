@@ -26,7 +26,14 @@ import {
 } from "@/components/social";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
-import { getActiveFocus, getGroupShares, getNudgedToday, getStudyHall } from "@/lib/daily-data";
+import {
+  getActiveFocus,
+  getGroupLanes,
+  getGroupShares,
+  getNudgedToday,
+  getStudyHall,
+} from "@/lib/daily-data";
+import { DayLanes } from "@/components/dashboard/lamplight";
 import { StudyHallCard } from "@/components/study-hall";
 import { getProfile } from "@/lib/data";
 import { formatDuration } from "@/lib/format";
@@ -105,6 +112,7 @@ async function GroupContent({
   const inviteUrl = `${proto}://${host}/join/${group.inviteCode}`;
   const owner = group.role === "owner";
   const manager = owner || group.role === "admin";
+  const lanes = await getGroupLanes(group.id);
   const liveCount = room.filter((m) => m.live && !m.live.solved).length;
 
   return (
@@ -113,7 +121,11 @@ async function GroupContent({
       <PageHeader
         eyebrow="Group"
         glow={PAGE_GLOW.groups}
-        title={<em>{group.name}</em>}
+        title={
+          <>
+            {group.name} <em>· study hall</em>
+          </>
+        }
         subtitle={
           <>
             <span>
@@ -133,12 +145,33 @@ async function GroupContent({
         actions={<LeaveGroupButton groupId={group.id} owner={owner} />}
       />
 
+      {/* The study hall comes first, across the page, then today by hour. */}
+      <StudyHallCard
+        groupName={group.name}
+        members={hall}
+        viewerId={user.id}
+        serverNow={now}
+        active={active}
+        buddy={profile?.avatar ?? null}
+      />
+      <Card className="p-[22px]">
+        <CardHeader>
+          <CardTitle>Today, by hour</CardTitle>
+          <CardSub>each row is one person · last 12 hours</CardSub>
+        </CardHeader>
+        <DayLanes
+          lanes={lanes}
+          from={now - 12 * 3_600_000}
+          now={now}
+          timeZone={profile?.timezone ?? "Asia/Kolkata"}
+          viewerId={user.id}
+        />
+      </Card>
+
       <div className="stagger-in grid grid-cols-12 gap-3.5">
         <Card className="col-span-12 xl:col-span-7">
           <CardHeader className="flex-wrap">
-            <CardTitle icon={icon(Trophy)} tint="var(--signal-mark)">
-              This week
-            </CardTitle>
+            <CardTitle>This week</CardTitle>
             <MetricTabs
               metric={metric}
               href={(m) =>
@@ -164,15 +197,6 @@ async function GroupContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-5">
-          <StudyHallCard
-            groupName={group.name}
-            members={hall}
-            viewerId={user.id}
-            serverNow={now}
-            active={active}
-            buddy={profile?.avatar ?? null}
-          />
-
           {shares.length > 0 && (
             <Card>
               <CardHeader>

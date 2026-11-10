@@ -866,3 +866,66 @@ export function StandingChart({ scores, mine }: { scores: number[]; mine: number
     </div>
   );
 }
+
+/** One row per person: when they studied over the last few hours, amber bars on a time axis. */
+export function DayLanes({
+  lanes,
+  from,
+  now,
+  timeZone,
+  viewerId,
+}: {
+  lanes: {
+    userId: string;
+    name: string;
+    sessions: { start: number; end: number; paused: boolean }[];
+  }[];
+  from: number;
+  now: number;
+  timeZone: string;
+  viewerId: string;
+}) {
+  const span = Math.max(1, now - from);
+  const x = (t: number) => `${(Math.min(1, Math.max(0, (t - from) / span)) * 100).toFixed(2)}%`;
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => from + f * span);
+  return (
+    <div className="overflow-x-auto">
+      <div className="flex min-w-[640px] flex-col gap-1.5">
+        {lanes.map((l) => (
+          <div key={l.userId} className="grid grid-cols-[90px_minmax(0,1fr)] items-center gap-3">
+            <span className="truncate text-[12.5px] text-ink-2">
+              {l.userId === viewerId ? "You" : l.name}
+            </span>
+            <div className="relative h-3.5 rounded-[7px] bg-surface-2">
+              {l.sessions.map((s, i) => (
+                <span
+                  key={i}
+                  className="absolute top-[3px] bottom-[3px] rounded-[4px] bg-[var(--amber)]"
+                  style={{
+                    left: x(s.start),
+                    width: `max(3px, calc(${x(s.end)} - ${x(s.start)}))`,
+                    opacity: s.paused ? 0.45 : 1,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+        <div className="grid grid-cols-[90px_minmax(0,1fr)] gap-3">
+          <span />
+          <div className="relative h-4 font-mono text-11 text-ink-3">
+            {ticks.map((t, i) => (
+              <span
+                key={i}
+                className="absolute -translate-x-1/2 first:translate-x-0 last:-translate-x-full"
+                style={{ left: x(t) }}
+              >
+                {i === ticks.length - 1 ? "now" : clockOf(t, timeZone)}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

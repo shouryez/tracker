@@ -200,6 +200,46 @@ export async function getFriendsStudying(userId: string): Promise<number> {
   return Number(rows[0]?.n ?? 0);
 }
 
+/** Everyone's study sessions in a group over the last `hours`, for the "today, by hour" lanes. */
+export async function getGroupLanes(
+  groupId: string,
+  hours = 12,
+): Promise<
+  { userId: string; name: string; sessions: { start: number; end: number; paused: boolean }[] }[]
+> {
+  const rows = (await db().execute(sql`
+    select m.user_id as "userId", coalesce(p.name, p.handle, 'Someone') as name,
+           f.started_at as "startedAt", coalesce(f.ended_at, now()) as "endedAt",
+           (f.ended_at is null and f.paused_at is not null) as paused
+    from group_members m
+    left join profiles p on p.user_id = m.user_id
+    left join focus_sessions f on f.user_id = m.user_id
+      and coalesce(f.ended_at, now()) > now() - make_interval(hours => ${hours})
+    where m.group_id = ${groupId} and coalesce(p.share_live, true)
+    order by m.joined_at, f.started_at`)) as unknown as {
+    userId: string;
+    name: string;
+    startedAt: unknown;
+    endedAt: unknown;
+    paused: boolean | null;
+  }[];
+  const lanes = new Map<
+    string,
+    { userId: string; name: string; sessions: { start: number; end: number; paused: boolean }[] }
+  >();
+  for (const r of rows) {
+    const lane = lanes.get(r.userId) ?? { userId: r.userId, name: r.name, sessions: [] };
+    if (r.startedAt)
+      lane.sessions.push({
+        start: toMs(r.startedAt),
+        end: toMs(r.endedAt),
+        paused: Boolean(r.paused),
+      });
+    lanes.set(r.userId, lane);
+  }
+  return [...lanes.values()];
+}
+
 // ---------------------------------------------------------------- save for later
 
 export type SavedItem = {
