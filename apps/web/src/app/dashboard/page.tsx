@@ -208,9 +208,10 @@ async function Overview() {
     st.total++;
     if (it.status) st.done++;
   }
+  // The step you're on: the furthest one you've ticked anything in.
   const currentStep = Math.max(
     0,
-    sheetSteps.findIndex((st) => st.done < st.total),
+    sheetSteps.reduce((at, st, i) => (st.done > 0 ? i : at), 0),
   );
   const firstGroup = groups[0];
   const hallMembers = firstGroup ? await getStudyHall(firstGroup.id) : [];
@@ -447,10 +448,6 @@ async function Overview() {
             <CardSub>26 weeks · by your study day</CardSub>
           </CardHeader>
           <ActivityHeatmap days={days} />
-          <p className="mt-3 text-12 text-ink-3">
-            {activeDays30} active days in the last 30 · best run {bestRun30} ·{" "}
-            {spark30.reduce((n, v) => n + v, 0)} accepted
-          </p>
         </Card>
 
         <Card className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">

@@ -153,11 +153,11 @@
   --aurora-2: rgba(138, 185, 255, 0.14);
   --aurora-3: rgba(198, 241, 107, 0.12);
   --scrollbar: rgba(255, 255, 255, 0.14);
-}
   --mint: #5fd6b2;
   --lamp: rgba(243, 180, 92, 0.085);
   --lamp-2: rgba(120, 150, 255, 0.05);
   --dots: rgba(255, 255, 255, 0.05);
+}
 /* Light: warm paper, ink text, accents darkened to keep AA. Designed, not inverted. */
 [data-theme="light"] {
   color-scheme: light;
@@ -232,8 +232,8 @@
   --aurora-2: rgba(47, 111, 214, 0.1);
   --aurora-3: rgba(127, 184, 31, 0.16);
   --scrollbar: rgba(32, 28, 18, 0.18);
-}
   --mint: #0c7556;
   --lamp: rgba(243, 180, 92, 0.16);
   --lamp-2: rgba(120, 150, 255, 0.08);
   --dots: rgba(16, 18, 24, 0.07);
+}
