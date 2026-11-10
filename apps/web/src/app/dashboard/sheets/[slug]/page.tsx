@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, Clock, ExternalLink, Video } from "lucide-react";
-import { Card, LinearProgress, ProgressRing, Skeleton, SkeletonCard } from "@upsolve/ui";
-import { NumberTicker } from "@/components/fx/number-ticker";
-import { PageHeader } from "@/components/page-header";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import { Skeleton, SkeletonCard, cn } from "@upsolve/ui";
+import { Rekha } from "@/components/dashboard/lamplight";
 import { formatEta } from "@/components/progress";
 import { SheetBrowser, type ItemReview } from "@/components/sheet-browser";
-import { SheetCover, sheetIdentity } from "@/components/sheet-identity";
+import { BookCover } from "@/components/sheet-identity";
 import { StartStudyButton } from "@/components/daily/study-bar";
 import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -20,15 +19,6 @@ import { getSheetDetail } from "@/lib/sheets-data";
 import { localDay, requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Sheet" };
-
-const TIER_COLOR: Record<string, string> = {
-  easy: "var(--easy)",
-  medium: "var(--medium)",
-  hard: "var(--hard)",
-  basic: "var(--easy)",
-  core: "var(--medium)",
-  pro: "var(--hard)",
-};
 
 export default function SheetPage({ params }: PageProps<"/dashboard/sheets/[slug]">) {
   return (
@@ -86,133 +76,163 @@ async function SheetContent({
       step: p.state.step,
     };
   }
-  const tiers = ["easy", "medium", "hard", "basic", "core", "pro"]
-    .map((t) => {
-      const all = sheet.items.filter((i) => i.tier === t);
-      return { tier: t, total: all.length, done: all.filter((i) => i.status).length };
-    })
-    .filter((t) => t.total > 0);
   const minutesLeft = sheet.items
     .filter((i) => !i.status)
     .reduce((n, i) => n + (i.minutes ?? 0), 0);
   const videos = sheet.items.filter((i) => i.links.some((l) => l.site === "youtube")).length;
-  const { color } = sheetIdentity(sheet.slug, sheet.name);
+  // Steps in order, with how much of each is done; the current one is the furthest you've worked in.
+  const steps: { name: string; done: number; total: number }[] = [];
+  for (const it of sheet.items) {
+    let st = steps.find((x) => x.name === it.step);
+    if (!st) steps.push((st = { name: it.step, done: 0, total: 0 }));
+    st.total++;
+    if (it.status) st.done++;
+  }
+  const currentStep = steps.reduce((at, st, i) => (st.done > 0 ? i : at), steps.length ? 0 : -1);
   const pct = Math.round((sheet.done / Math.max(1, sheet.total)) * 100);
-  const [base, rest] = sheet.name.includes("'s")
-    ? [
-        sheet.name.slice(0, sheet.name.indexOf("'s") + 2),
-        sheet.name.slice(sheet.name.indexOf("'s") + 2),
-      ]
-    : [sheet.name, ""];
 
   return (
     <>
-      <PageHeader
-        eyebrow="Sheet"
-        glow={color}
-        title={
-          rest ? (
-            <>
-              {base} <em>{rest.trim()}</em>
-            </>
-          ) : (
-            <em>{base}</em>
-          )
-        }
-        subtitle={
-          sheet.author ? (
+      <header className="surface-card lamp flex flex-wrap items-center gap-6 rounded-lg p-[22px]">
+        <div className="w-[96px] shrink-0">
+          <BookCover
+            slug={sheet.slug}
+            name={sheet.name}
+            author={sheet.author}
+            done={sheet.done}
+            total={sheet.total}
+          />
+        </div>
+        <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-2">
+          <span className="label-mono">
+            {sheet.following ? "Following" : "Sheet"} · {steps.length} steps
+          </span>
+          <h1 className="text-[clamp(26px,3vw,34px)] leading-[1.05] font-[620] tracking-[-0.035em]">
+            {sheet.name}
+          </h1>
+          <p className="flex flex-wrap gap-x-4 gap-y-1 text-13 text-ink-2">
+            <span>
+              <b className="tnum font-mono font-[600] text-ink">{sheet.done}</b> / {sheet.total}{" "}
+              solved
+            </span>
+            {currentStep >= 0 && (
+              <span>
+                on step {currentStep + 1} of {steps.length}
+              </span>
+            )}
+            {sheet.eta && <span>finish by {formatEta(sheet.eta)} at this pace</span>}
+            {minutesLeft > 0 && <span>~{Math.round(minutesLeft / 60)} hours left</span>}
+            {videos > 0 && <span>{videos} videos</span>}
+          </p>
+          <Rekha value={pct / 100} className="max-w-[520px]" />
+          {sheet.author && (
             <a
               href={sheet.sourceUrl ?? undefined}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 hover:text-ink"
+              className="inline-flex items-center gap-1 text-12 text-ink-3 hover:text-ink"
             >
-              by {sheet.author} · full sheet with explanations on their site{" "}
+              by {sheet.author} · full sheet on their site{" "}
               <ExternalLink size={11} aria-hidden="true" />
             </a>
-          ) : undefined
-        }
-        actions={
-          <>
-            <StartStudyButton label={sheet.name} active={active} />
-            <FollowButton sheetId={sheet.id} following={sheet.following} />
-          </>
-        }
-      />
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <FollowButton sheetId={sheet.id} following={sheet.following} />
+          <StartStudyButton label={sheet.name} active={active} />
+        </div>
+      </header>
 
-      <Card
-        glow={color}
-        className="grid items-center gap-6 overflow-hidden md:grid-cols-[auto_1fr_auto]"
-      >
-        <ProgressRing
-          total={Math.max(1, sheet.total)}
-          size={148}
-          stroke={12}
-          segments={[{ label: "Done", value: sheet.done, color }]}
-          aria-label={`${sheet.done} of ${sheet.total} done`}
+      <div className="flex flex-wrap items-start gap-4">
+        <nav
+          aria-label="Steps"
+          className="surface-card flex-[1_1_260px] rounded-lg px-3.5 py-[18px] lg:sticky lg:top-8 lg:max-w-[340px]"
         >
-          <span className="num text-36">
-            <NumberTicker value={pct} />
-            <span className="text-[.55em] text-ink-3">%</span>
-          </span>
-          <span className="tnum text-11 text-ink-3">
-            {sheet.done} / {sheet.total}
-          </span>
-        </ProgressRing>
-        <div className="flex min-w-0 flex-col gap-3">
-          {tiers.map((t) => (
-            <div key={t.tier} className="grid grid-cols-[64px_1fr_64px] items-center gap-3">
-              <span className="text-13 font-[550] capitalize">{t.tier}</span>
-              <LinearProgress
-                value={t.done}
-                max={t.total}
-                height={7}
-                color={TIER_COLOR[t.tier]}
-                aria-label={`${t.tier} ${t.done} of ${t.total}`}
-              />
-              <span className="tnum text-right font-mono text-12 text-ink-3">
-                {t.done}/{t.total}
-              </span>
-            </div>
-          ))}
-          <p className="text-12 text-ink-3">
-            {sheet.autoTracked} tick automatically · the rest you tick yourself
-            {sheet.eta ? ` · est. ${formatEta(sheet.eta)}` : ""}
-          </p>
+          <span className="block px-2 pb-2.5 label-mono">Route</span>
+          <ol>
+            {steps.map((st, i) => {
+              const full = st.total > 0 && st.done === st.total;
+              const any = st.done > 0;
+              const cur = i === currentStep;
+              return (
+                <li key={st.name}>
+                  <a
+                    href={`#step-${i + 1}`}
+                    className={cn(
+                      "grid grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-3 rounded-[10px] px-2 transition-colors hover:bg-surface-2",
+                      cur && "bg-surface-3",
+                    )}
+                  >
+                    <span className="flex h-11 flex-col items-center">
+                      <span
+                        className="w-0.5 flex-1"
+                        style={{
+                          background:
+                            i === 0
+                              ? "transparent"
+                              : i <= currentStep
+                                ? "var(--signal)"
+                                : "var(--line-2)",
+                        }}
+                      />
+                      <span
+                        className="size-3 shrink-0 rounded-full"
+                        style={{
+                          background: full
+                            ? "var(--signal)"
+                            : any
+                              ? "var(--surface)"
+                              : "var(--surface-4)",
+                          boxShadow: full
+                            ? "0 0 0 3px var(--color-signal-soft)"
+                            : any
+                              ? `inset 0 0 0 2px var(--signal)${cur ? ", 0 0 0 5px var(--color-signal-soft)" : ""}`
+                              : undefined,
+                        }}
+                      />
+                      <span
+                        className="w-0.5 flex-1"
+                        style={{
+                          background:
+                            i === steps.length - 1
+                              ? "transparent"
+                              : i < currentStep
+                                ? "var(--signal)"
+                                : "var(--line-2)",
+                        }}
+                      />
+                    </span>
+                    <span
+                      className={cn(
+                        "truncate text-[13.5px]",
+                        cur ? "font-[600] text-ink" : any ? "text-ink" : "text-ink-2",
+                      )}
+                    >
+                      <span className="mr-2 font-mono text-11 text-ink-3">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      {st.name.replace(/^Step\s*\d+\s*[:·.-]?\s*/i, "")}
+                    </span>
+                    <span
+                      className={cn("font-mono text-11", full ? "text-signal-text" : "text-ink-3")}
+                    >
+                      {st.done}/{st.total}
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        </nav>
+        <div className="min-w-0 flex-[999_1_520px]">
+          <SheetBrowser
+            sheetId={sheet.id}
+            items={sheet.items}
+            reviews={reviews}
+            onToday={onToday}
+          />
         </div>
-        <div className="flex gap-3 md:flex-col">
-          {minutesLeft > 0 && (
-            <div className="surface-inset rounded-[14px] px-4 py-3">
-              <p className="flex items-center gap-1.5 label-mono">
-                <Clock size={11} aria-hidden="true" /> Left
-              </p>
-              <p className="num mt-1 text-24">
-                ~{Math.round(minutesLeft / 60)}
-                <small className="ml-1 font-display text-[.55em] font-normal text-ink-3 italic">
-                  hours
-                </small>
-              </p>
-            </div>
-          )}
-          {videos > 0 && (
-            <div className="surface-inset rounded-[14px] px-4 py-3">
-              <p className="flex items-center gap-1.5 label-mono">
-                <Video size={11} aria-hidden="true" /> Videos
-              </p>
-              <p className="num mt-1 text-24">{videos}</p>
-            </div>
-          )}
-        </div>
-        <SheetCover
-          slug={sheet.slug}
-          name={sheet.name}
-          className="pointer-events-none absolute inset-y-0 right-0 -z-10 hidden w-1/3 opacity-40 md:block [&>span]:hidden"
-        />
-      </Card>
-
-      <SheetBrowser sheetId={sheet.id} items={sheet.items} reviews={reviews} onToday={onToday} />
+      </div>
     </>
   );
 }
-
-// DsaKaro

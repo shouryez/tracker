@@ -157,6 +157,25 @@ export function SheetBrowser({
 
   const doneAll = items.filter((i) => i.status).length;
 
+  // The step route (beside the sheet) links to #step-N: open that step and bring it up.
+  useEffect(() => {
+    const onHash = () => {
+      const m = /^#step-(\d+)$/.exec(window.location.hash);
+      const step = m ? steps[Number(m[1]) - 1] : undefined;
+      if (!step) return;
+      setOpen((prev) => new Set([...prev, step.name]));
+      requestAnimationFrame(() =>
+        document
+          .getElementById(`step-${m![1]}`)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+    };
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // "Continue" scrolls to the item once its step has rendered.
   useEffect(() => {
     if (!highlight) return;
@@ -380,8 +399,9 @@ export function SheetBrowser({
         return (
           <section
             key={step.name}
+            id={`step-${stepIndex + 1}`}
             className={cn(
-              "surface-card overflow-clip rounded-lg transition-shadow duration-[var(--dur-base)] hover:shadow-e2",
+              "surface-card scroll-mt-24 overflow-clip rounded-lg transition-shadow duration-[var(--dur-base)] hover:shadow-e2",
               pct === 100 && "border-success-line shadow-[var(--e1),0_0_30px_-14px_var(--success)]",
             )}
           >
