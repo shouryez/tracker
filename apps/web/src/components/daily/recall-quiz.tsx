@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { Check, RotateCcw, Timer, X } from "lucide-react";
-import { Button, ButtonArrow, DifficultyTag, LinearProgress, cn } from "@upsolve/ui";
+import { Button, ButtonArrow, DifficultyTag, cn } from "@upsolve/ui";
 import { recordRecall } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
 import type { RecallCard } from "@/lib/daily-data";
@@ -20,6 +20,8 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [score, setScore] = useState(0);
+  // Per card: true = right, false = missed (for the progress pips).
+  const [results, setResults] = useState<boolean[]>([]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState(0);
   const [, start] = useTransition();
@@ -38,6 +40,24 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
 
   const left = startedAt === null ? LIMIT_MS : Math.max(0, LIMIT_MS - (now - startedAt));
 
+  function next() {
+    setPicked(null);
+    setI((n) => n + 1);
+  }
+
+  // Keys 1–4 pick an answer, Enter goes to the next card.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLElement && e.target.closest("input, textarea")) return;
+      if (!card) return;
+      const n = Number(e.key);
+      if (!picked && n >= 1 && n <= card.options.length) answer(card.options[n - 1]!.id);
+      else if (picked && e.key === "Enter") next();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   function answer(id: string) {
     if (!card || picked) return;
     if (startedAt === null) {
@@ -48,6 +68,7 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
     setPicked(id);
     const correct = id === card.answer;
     if (correct) setScore((s) => s + 1);
+    setResults((r) => [...r, correct]);
     start(async () => {
       await recordRecall(card.problemId, correct);
     });
@@ -97,17 +118,27 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-4">
-        <LinearProgress
-          value={i + (picked ? 1 : 0)}
-          max={cards.length}
-          height={6}
-          color="var(--violet)"
-          aria-label="Quiz progress"
-          className="flex-1"
-        />
+        <div className="flex flex-1 gap-1.5" aria-label={`Card ${i + 1} of ${cards.length}`}>
+          {cards.map((c, k) => (
+            <span
+              key={c.problemId}
+              className="h-1 flex-1 rounded-full transition-colors duration-[var(--dur-base)]"
+              style={{
+                background:
+                  k < results.length
+                    ? results[k]
+                      ? "var(--signal)"
+                      : "var(--rose)"
+                    : k === i
+                      ? "var(--ink)"
+                      : "var(--surface-4)",
+              }}
+            />
+          ))}
+        </div>
         <span
           className={cn(
-            "tnum inline-flex items-center gap-1.5 text-13",
+            "tnum inline-flex items-center gap-1.5 font-mono text-13",
             left < 20_000 ? "text-hard" : "text-ink-3",
           )}
         >
@@ -116,17 +147,23 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
         </span>
       </div>
 
-      <div key={card!.problemId} className="animate-[slide-in-r_var(--dur-slow)_var(--ease-out)]">
-        <p className="label-mono">
-          Card {i + 1} of {cards.length} · which pattern solves it?
-        </p>
-        <p className="mt-2 flex flex-wrap items-center gap-2 text-24 font-[600] tracking-[-0.02em]">
-          {card!.title}
-          {card!.difficulty && <DifficultyTag difficulty={card!.difficulty} />}
-        </p>
+      <div
+        key={card!.problemId}
+        className="flex animate-[slide-in-r_var(--dur-slow)_var(--ease-out)] flex-col gap-5"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="label-mono">
+            Card {i + 1} of {cards.length}
+          </span>
+          <span className="ml-auto">
+            {card!.difficulty && <DifficultyTag difficulty={card!.difficulty} />}
+          </span>
+        </div>
+        <h2 className="text-[28px] leading-tight font-[620] tracking-[-0.03em]">{card!.title}</h2>
 
-        <div className="mt-5 grid gap-2 sm:grid-cols-2">
-          {card!.options.map((o) => {
+        <fieldset className="m-0 grid gap-2.5 border-0 p-0 sm:grid-cols-2">
+          <legend className="mb-2.5 label-mono">Which idea?</legend>
+          {card!.options.map((o, k) => {
             const isAnswer = o.id === card!.answer;
             const isPicked = o.id === picked;
             return (
@@ -136,53 +173,65 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
                 disabled={Boolean(picked)}
                 onClick={() => answer(o.id)}
                 className={cn(
-                  "flex h-14 items-center justify-between rounded-[14px] border px-4 text-left text-15 font-[550] transition-[background-color,border-color,transform] active:scale-[.98]",
-                  !picked && "border-line-2 bg-surface-2 hover:border-line-3 hover:bg-surface-3",
-                  picked && isAnswer && "border-success-line bg-success-soft text-success",
-                  picked && isPicked && !isAnswer && "border-hard-line bg-hard-soft text-hard",
+                  "flex min-h-14 items-center gap-3 rounded-[14px] border px-4 text-left text-15 font-[550] transition-[background-color,border-color,transform] active:scale-[.98]",
+                  !picked && "border-line bg-surface-2 hover:border-line-3 hover:bg-surface-3",
+                  picked && isAnswer && "border-signal bg-signal-soft",
+                  picked && isPicked && !isAnswer && "border-hard-line bg-hard-soft",
                   picked && !isPicked && !isAnswer && "border-line opacity-50",
                 )}
               >
-                {o.label}
-                {picked && isAnswer && <Check size={18} aria-hidden="true" />}
-                {picked && isPicked && !isAnswer && <X size={18} aria-hidden="true" />}
+                <span className="font-mono text-12 text-ink-3">{k + 1}</span>
+                <span className="flex-1">{o.label}</span>
+                {picked && isPicked && (
+                  <span className={cn("text-12", isAnswer ? "text-signal-text" : "text-hard")}>
+                    Your pick
+                  </span>
+                )}
+                {picked && isAnswer && !isPicked && (
+                  <Check size={16} className="text-signal-text" aria-hidden="true" />
+                )}
               </button>
             );
           })}
-        </div>
+        </fieldset>
 
         {picked && (
-          <div className="mt-5 flex animate-[rise-in_var(--dur-slow)_var(--ease-out)] flex-col gap-3">
-            <div className="surface-inset rounded-[14px] p-4">
-              <p className="label-mono">{correct ? "Right. The key idea" : "The key idea"}</p>
-              <p className="mt-1.5 text-14">{card!.reveal.idea}</p>
+          <div
+            className={cn(
+              "flex animate-[rise-in_var(--dur-slow)_var(--ease-out)] flex-wrap items-center gap-3 rounded-[14px] px-4 py-3.5",
+              correct ? "bg-signal-soft" : "bg-hard-soft",
+            )}
+          >
+            {correct ? (
+              <Check size={20} className="shrink-0 text-signal-text" aria-hidden="true" />
+            ) : (
+              <X size={20} className="shrink-0 text-hard" aria-hidden="true" />
+            )}
+            <div className="min-w-[240px] flex-1 text-[13.5px]">
+              <p>
+                {correct ? "Right. " : "Not quite. "}
+                {card!.reveal.idea}
+              </p>
               {card!.reveal.takeaway && (
-                <p className="mt-3 text-14">
-                  <span className="mr-1.5 text-signal-text">→ you wrote:</span>
+                <p className="mt-1.5 text-ink-2">
+                  <span className="text-ink-3">You wrote: </span>
                   {card!.reveal.takeaway}
                 </p>
               )}
-              {card!.reveal.note && !card!.reveal.takeaway && (
-                <p className="mt-3 line-clamp-3 text-13 whitespace-pre-line text-ink-2">
-                  {card!.reveal.note}
-                </p>
-              )}
             </div>
-            <Button
-              variant="signal"
-              className="self-end"
-              onClick={() => {
-                setPicked(null);
-                setI((n) => n + 1);
-              }}
-            >
-              {i + 1 === cards.length ? "See score" : "Next card"} <ButtonArrow />
+            <Button variant="signal" onClick={next}>
+              {i + 1 === cards.length ? "See score" : "Next card"}
             </Button>
           </div>
         )}
       </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 text-12 text-ink-3">
+        <span>Keys 1–{card!.options.length} pick an answer · Enter for next</span>
+        <Link href={`/dashboard/problems/${card!.problemId}`} className="hover:text-ink">
+          Open my notes
+        </Link>
+      </div>
     </div>
   );
 }
-
-// DsaKaro

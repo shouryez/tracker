@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Zap } from "lucide-react";
-import { Card, CardHeader, CardSub, CardTitle, SkeletonCard } from "@upsolve/ui";
+import { Card, SkeletonCard } from "@upsolve/ui";
 import { RecallQuiz } from "@/components/daily/recall-quiz";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getRecallDeck, getRecallStats } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -13,7 +12,7 @@ export const metadata: Metadata = { title: "Recall" };
 
 export default function RecallPage({ searchParams }: PageProps<"/dashboard/recall">) {
   return (
-    <div className="mx-auto flex w-full max-w-[820px] flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-[860px] flex-col gap-6">
       <Suspense fallback={<SkeletonCard lines={6} className="h-[420px]" />}>
         <RecallContent searchParams={searchParams} />
       </Suspense>
@@ -44,20 +43,28 @@ async function RecallContent({
         glow={PAGE_GLOW.revision}
         title={
           <>
-            Recall, <em>five quick cards.</em>
+            Name the pattern <em>· round {round + 1}</em>
           </>
         }
-        subtitle={
-          stats.answered > 0 ? (
-            <>
-              <span>{Math.round((stats.correct / stats.answered) * 100)}% right this week</span>
-              <Dot />
-              <span>{stats.answered} answered</span>
-              <Dot />
-              <span>{stats.streakDays} days</span>
-            </>
-          ) : (
-            "Name the pattern for problems you've solved. Remembering beats re-reading."
+        subtitle="Problems you've solved. Pick the idea that cracks each one."
+        actions={
+          stats.answered > 0 && (
+            <div className="flex gap-5">
+              <div className="text-right">
+                <p className="num text-[22px]">
+                  {Math.round((stats.correct / stats.answered) * 100)}
+                  <small className="text-[.55em] text-ink-3">%</small>
+                </p>
+                <p className="text-12 text-ink-3">right this week</p>
+              </div>
+              <div className="text-right">
+                <p className="num text-[22px]">
+                  {stats.streakDays}
+                  <small className="ml-0.5 text-[.55em] text-ink-3">days</small>
+                </p>
+                <p className="text-12 text-ink-3">in a row</p>
+              </div>
+            </div>
           )
         }
       />
@@ -72,12 +79,6 @@ async function RecallContent({
           className="absolute inset-x-5 top-[7px] h-16 rounded-[16px] bg-surface-3 shadow-[inset_0_0_0_1px_var(--line)]"
         />
         <Card className="lamp relative p-6 sm:p-7">
-          <CardHeader>
-            <CardTitle icon={<Zap size={14} />} tint="var(--sky)">
-              Round {round + 1}
-            </CardTitle>
-            <CardSub>from your solved problems</CardSub>
-          </CardHeader>
           <RecallQuiz key={`${day}-${round}`} cards={cards} round={round} />
         </Card>
       </div>
