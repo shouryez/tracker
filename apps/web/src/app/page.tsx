@@ -1,25 +1,21 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Check, LayoutDashboard, Lock, Puzzle, Timer, Trophy, UsersRound } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import {
-  Aurora,
   ButtonArrow,
-  Eyebrow,
-  LiveDot,
   Logo,
   LogoMark,
-  PixelHeatmap,
   SpotlightTracker,
-  Tag,
   ThemeToggle,
   buttonClasses,
-  cardClasses,
   cn,
 } from "@upsolve/ui";
-import { AnimatedBeam, Marquee as Ticker } from "@/components/fx/decor";
-import { CursorGlow } from "@/components/fx/pointer";
-import { Hero } from "@/components/landing/hero/hero";
+import { Marquee as Ticker } from "@/components/fx/decor";
+import { NumberTicker } from "@/components/fx/number-ticker";
+import { DayDial, Rekha } from "@/components/dashboard/lamplight";
 import { ForgettingCurve } from "@/components/landing/forgetting-curve";
+import { CONTACT_EMAIL, Founders } from "@/components/landing/founders";
+import { Drift, HeroCopyDrift, TiltFrame } from "@/components/landing/lamp-scroll";
 import { LandingNavLinks, SheetDemo, SmoothScroll } from "@/components/landing/landing-fx";
 import { LiveTimer } from "@/components/landing/live-timer";
 import {
@@ -30,23 +26,22 @@ import {
   ScrollProgress,
 } from "@/components/landing/motion-bits";
 import {
-  PlayOnView,
   PauseOffscreen,
-  StackCards,
-  TimerDemo,
+  PlayOnView,
   VelocityMarquee,
   WordmarkFill,
 } from "@/components/landing/scene-bits";
-import { CONTACT_EMAIL, Founders } from "@/components/landing/founders";
-import { SheetCover } from "@/components/sheet-identity";
+import { SCENE_SCRIPT } from "@/components/landing/hero/scene-script";
+import { BookCover } from "@/components/sheet-identity";
 import { PlatformMark } from "@/components/site-icons";
+import { StudyBuddy } from "@/components/study-buddy";
 
-// Marketing site (DESIGN.md §9.1). Static: every number here is illustrative and
-// labelled as such in the frame; claims match what the product does today.
+// Marketing site, Lamplight. Static: every number in a mock is illustrative and labelled
+// as an example; claims match what the product does today.
 
 const WRAP = "mx-auto w-[min(1200px,100%-32px)]";
 
-/** Deterministic "random" activity so the mock heatmaps look lived-in. */
+/** Deterministic "random" activity so the mock heatmap looks lived-in. */
 function demoLevels(days: number, seed: number): number[] {
   let x = seed;
   return Array.from({ length: days }, (_, i) => {
@@ -60,23 +55,16 @@ function demoLevels(days: number, seed: number): number[] {
 
 export default function Home() {
   return (
-    <div className="relative overflow-x-clip">
+    <div className="desk relative overflow-x-clip">
       <Nav />
       <ScrollProgress />
       <main id="main">
         <Hero />
-        <Marquee />
-        <Reveal>
-          <Features />
-        </Reveal>
-        <ForgettingCurve />
+        <Platforms />
         <HowItWorks />
-        <Reveal>
-          <SheetShowcase />
-        </Reveal>
-        <Reveal>
-          <Friends />
-        </Reveal>
+        <ForgettingCurve />
+        <Sheets />
+        <Friends />
         <Reveal>
           <ForColleges />
         </Reveal>
@@ -104,17 +92,18 @@ function Nav() {
     <NavAutoHide className="sticky top-3 z-50 px-4">
       <nav
         aria-label="Main"
-        className="glass mx-auto flex h-[56px] w-[min(1100px,100%)] items-center justify-between gap-3 rounded-full border border-line-2 pr-2 pl-5 shadow-e3"
+        className="glass mx-auto flex h-[56px] w-[min(1160px,100%)] items-center justify-between gap-3 rounded-[16px] border border-line-2 pr-2 pl-5 shadow-e3"
       >
         <Link href="/" aria-label="DsaKaro home">
           <Logo />
         </Link>
         <LandingNavLinks
           links={[
-            { href: "#features", label: "Features" },
             { href: "#how", label: "How it works" },
-            { href: "#colleges", label: "Colleges" },
-            { href: "#faq", label: "FAQ" },
+            { href: "#revision", label: "Revision" },
+            { href: "#sheets", label: "Sheets" },
+            { href: "#friends", label: "Friends" },
+            { href: "#pricing", label: "Pricing" },
           ]}
         />
         <div className="flex items-center gap-1.5">
@@ -122,10 +111,8 @@ function Nav() {
           <Link href="/login" className={buttonClasses({ variant: "ghost", size: "sm" })}>
             Sign in
           </Link>
-          {/* cn() doesn't merge classes, so hide a wrapper rather than the button. */}
           <span className="hidden sm:contents">
-            {/* Ink, not lime: the hero's CTA is the one lime element up here. */}
-            <Link href="/signup" className={buttonClasses({ variant: "primary", size: "sm" })}>
+            <Link href="/signup" className={buttonClasses({ variant: "secondary", size: "sm" })}>
               Get started
             </Link>
           </span>
@@ -135,9 +122,203 @@ function Nav() {
   );
 }
 
-// ---------------------------------------------------------------- marquee
+// ---------------------------------------------------------------- hero
 
-function Marquee() {
+function Hero() {
+  return (
+    <section aria-labelledby="hero-title" className="relative isolate pt-16 sm:pt-24">
+      {/* Before paint: turns on the pinned scroll scenes (revision curve) where they can run. */}
+      <script dangerouslySetInnerHTML={{ __html: SCENE_SCRIPT }} />
+      {/* The lamp, and a dot field that fades out around the headline. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[900px] bg-[radial-gradient(900px_520px_at_50%_18%,rgba(243,180,92,.14),transparent_65%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -top-20 -z-10 h-[720px] bg-[radial-gradient(var(--dots)_1px,transparent_1.4px)] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_30%,#000,transparent)] bg-[length:22px_22px]"
+      />
+
+      <HeroCopyDrift className={cn(WRAP, "flex flex-col items-center gap-6 text-center")}>
+        <span className="flex animate-[rise-in_700ms_var(--ease-out)_backwards] items-center gap-2 rounded-full bg-surface-2 px-3 py-1.5 label-mono shadow-[inset_0_0_0_1px_var(--line-2)]">
+          <span className="size-1.5 rounded-full bg-signal shadow-[0_0_0_3px_var(--color-signal-soft)]" />
+          LeetCode · Codeforces · GFG · free for students
+        </span>
+        <h1
+          id="hero-title"
+          className="max-w-[14ch] text-[clamp(44px,7.4vw,96px)] leading-[.96] font-[640] tracking-[-0.055em] text-balance"
+        >
+          Every problem you solve,{" "}
+          <span className="relative whitespace-nowrap">
+            remembered.
+            <span
+              aria-hidden="true"
+              className="absolute right-[3%] -bottom-[.03em] left-0 h-[.07em] origin-left animate-[grow-x_1100ms_var(--ease-out)_350ms_backwards] rounded-full bg-signal shadow-[0_0_30px_color-mix(in_srgb,var(--signal)_55%,transparent)]"
+            />
+          </span>
+        </h1>
+        <p className="max-w-[600px] animate-[rise-in_700ms_var(--ease-out)_150ms_backwards] text-[clamp(15px,1.6vw,18px)] leading-relaxed text-ink-2">
+          DsaKaro times every problem you open, catches every verdict, ticks your Striver and
+          NeetCode sheets for you, and tells you exactly what to revise before you forget it.
+        </p>
+        <div className="flex animate-[rise-in_700ms_var(--ease-out)_250ms_backwards] flex-wrap justify-center gap-3">
+          <Magnetic>
+            <Link href="/signup" className={buttonClasses({ variant: "signal", size: "lg" })}>
+              <span data-magnetic-label className="inline-flex items-center gap-2">
+                Start free with Google <ButtonArrow />
+              </span>
+            </Link>
+          </Magnetic>
+          <a href="#how" className={buttonClasses({ variant: "secondary", size: "lg" })}>
+            See how it works
+          </a>
+        </div>
+      </HeroCopyDrift>
+
+      <TiltFrame className={cn(WRAP, "mt-16 max-w-[1120px]")}>
+        <ProductFrame />
+      </TiltFrame>
+      <a
+        href="#how"
+        aria-label="Scroll to how it works"
+        className="mx-auto mt-10 flex w-fit flex-col items-center gap-1 label-mono text-ink-3 hover:text-ink"
+      >
+        Scroll
+        <ChevronDown
+          size={14}
+          aria-hidden="true"
+          className="animate-bounce motion-reduce:animate-none"
+        />
+      </a>
+    </section>
+  );
+}
+
+/** A small, honest picture of the dashboard (example data) inside a device frame. */
+function ProductFrame() {
+  const levels = demoLevels(40 * 7, 7);
+  const START = Date.UTC(2026, 0, 1, 22, 30);
+  const H = 3_600_000;
+  const nav = ["Overview", "Today", "Revision", "Sheets", "Sessions", "Groups"];
+  return (
+    <div className="rounded-[22px_22px_0_0] bg-[linear-gradient(180deg,var(--surface-3),var(--surface))] p-3 pb-0 shadow-[inset_0_0_0_1px_var(--line-2),0_60px_120px_-40px_rgba(0,0,0,.9)]">
+      <div className="flex items-center gap-1.5 px-2 pb-2.5" aria-hidden="true">
+        <i className="size-2.5 rounded-full bg-line-3" />
+        <i className="size-2.5 rounded-full bg-line-3" />
+        <i className="size-2.5 rounded-full bg-line-3" />
+        <span className="mx-auto rounded-[6px] bg-surface-2 px-3 py-0.5 font-mono text-[10.5px] text-ink-3">
+          dsakaro.com/dashboard
+        </span>
+        <span className="font-mono text-[10px] text-ink-4">example</span>
+      </div>
+      <div className="grid min-h-[440px] overflow-hidden rounded-[14px_14px_0_0] bg-bg text-left shadow-[inset_0_0_0_1px_var(--line)] md:grid-cols-[176px_minmax(0,1fr)]">
+        <div className="hidden flex-col gap-1 border-r border-line p-3 md:flex" aria-hidden="true">
+          <span className="flex items-center gap-2 px-2 pb-3">
+            <LogoMark size={18} />
+            <span className="text-[12.5px] font-[650]">DSA करो</span>
+          </span>
+          {nav.map((n, i) => (
+            <span
+              key={n}
+              className={cn(
+                "flex h-7 items-center rounded-[8px] px-2.5 text-12",
+                i === 0 ? "bg-surface-3 text-ink" : "text-ink-3",
+              )}
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+        <div className="grid content-start gap-3 p-4 sm:grid-cols-3 sm:p-5">
+          <div className="surface-card flex flex-col items-center gap-4 rounded-[14px] p-4 sm:col-span-2 sm:flex-row">
+            <DayDial
+              dayStart={START}
+              now={START + 18.6 * H}
+              resetHour={4}
+              sessions={[
+                { start: START + 15 * H, ms: 57 * 60_000 },
+                { start: START + 17.3 * H, ms: 52 * 60_000 },
+              ]}
+              solves={[START + 15.8 * H, START + 17.9 * H]}
+              focusMs={112 * 60_000}
+              goalMs={60 * 60_000}
+              solvedToday={2}
+              className="w-[150px] shrink-0 [&_figcaption_.label-mono]:hidden [&_figcaption_.num]:text-[20px] [&_figcaption>span:last-child]:hidden"
+            />
+            <div className="flex w-full min-w-0 flex-col gap-2">
+              <span className="flex justify-between text-[12.5px] font-[600]">
+                Today&apos;s list <span className="font-mono font-normal text-ink-3">2 of 4</span>
+              </span>
+              <Rekha value={0.5} />
+              {[
+                ["Find Peak Element", true],
+                ["Koko Eating Bananas", true],
+                ["Search in Rotated Sorted Array II", false],
+              ].map(([t, done]) => (
+                <span key={t as string} className="flex items-center gap-2 text-12">
+                  <span
+                    className={cn(
+                      "grid size-5 shrink-0 place-items-center rounded-[6px] text-[10px]",
+                      done ? "bg-signal/15 text-signal-text" : "bg-surface-3 text-ink-3",
+                    )}
+                  >
+                    {done ? <Check size={11} aria-hidden="true" /> : "03"}
+                  </span>
+                  <span className={cn("truncate", !done && "text-ink-2")}>{t}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="surface-card flex flex-col gap-1 rounded-[14px] p-4">
+            <span className="text-12 text-ink-2">Solved</span>
+            <span className="num text-[40px]">
+              <NumberTicker value={412} />
+            </span>
+            <span className="font-mono text-11 text-signal-text">+1 just now</span>
+            <svg
+              viewBox="0 0 120 28"
+              preserveAspectRatio="none"
+              className="mt-auto h-7 w-full"
+              aria-hidden="true"
+            >
+              <polyline
+                points="0,24 20,22 40,20 60,15 80,14 100,8 120,4"
+                fill="none"
+                stroke="var(--signal)"
+                strokeWidth={1.6}
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+          </div>
+          <div className="surface-card flex flex-col gap-2.5 rounded-[14px] p-4 sm:col-span-3">
+            <span className="flex justify-between text-[12.5px] font-[600]">
+              Activity <span className="font-normal text-ink-3">streak 47 days</span>
+            </span>
+            <div
+              className="grid grid-flow-col grid-rows-7 gap-[3px] max-sm:[&>i:nth-child(-n+140)]:hidden"
+              aria-hidden="true"
+            >
+              {levels.map((l, i) => (
+                <i
+                  key={i}
+                  className="aspect-square animate-[pop-in_500ms_var(--ease-out)_backwards] rounded-[3px]"
+                  style={{
+                    background: `var(--heat-${l})`,
+                    animationDelay: `${300 + Math.floor(i / 7) * 22}ms`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------- platforms
+
+function Platforms() {
   const items: { label: string; site?: "leetcode" | "codeforces" | "gfg" | "tuf" | "neetcode" }[] =
     [
       { label: "LeetCode", site: "leetcode" },
@@ -150,15 +331,18 @@ function Marquee() {
       { label: "Striver SDE", site: "tuf" },
     ];
   return (
-    <div aria-label="Supported platforms and sheets" className="border-y border-line py-5">
+    <div
+      aria-label="Supported platforms and sheets"
+      className="mt-20 border-y border-line bg-surface/60 py-5"
+    >
       <VelocityMarquee>
         <Ticker speed={40}>
           {items.map((t) => (
             <span
               key={t.label}
-              className="group inline-flex items-center gap-2.5 text-[20px] font-semibold tracking-[-0.03em] whitespace-nowrap text-ink-3 transition-colors hover:text-ink"
+              className="inline-flex items-center gap-2.5 text-[18px] font-semibold tracking-[-0.03em] whitespace-nowrap text-ink-3 transition-colors hover:text-ink"
             >
-              {t.site && <PlatformMark site={t.site} size={20} />}
+              {t.site && <PlatformMark site={t.site} size={18} />}
               {t.label}
             </span>
           ))}
@@ -168,456 +352,197 @@ function Marquee() {
   );
 }
 
-// ---------------------------------------------------------------- features
+// ---------------------------------------------------------------- how it works
 
 function SectionHead({
   eyebrow,
+  title,
   soft,
-  em,
   children,
+  id,
+  center,
+  dot = "var(--signal)",
 }: {
   eyebrow: string;
-  soft: string;
-  em: string;
-  children: ReactNode;
+  title: ReactNode;
+  soft?: ReactNode;
+  children?: ReactNode;
+  id: string;
+  center?: boolean;
+  dot?: string;
 }) {
   return (
-    <div className="mb-10 flex flex-col items-start gap-4 sm:mb-12">
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <h2 className="max-w-[18ch] font-display text-[clamp(36px,5.4vw,64px)] leading-[1] tracking-[-0.02em]">
-        <span className="text-ink">{soft}</span> <em>{em}</em>
+    <div
+      className={cn(
+        "mb-10 flex flex-col gap-4 sm:mb-12",
+        center ? "items-center text-center" : "items-start",
+      )}
+    >
+      <span className="flex items-center gap-2 label-mono">
+        <span
+          className="size-1.5 rounded-full"
+          style={{
+            background: dot,
+            boxShadow: `0 0 0 3px color-mix(in srgb, ${dot} 18%, transparent)`,
+          }}
+        />
+        {eyebrow}
+      </span>
+      <h2
+        id={id}
+        className="max-w-[20ch] text-[clamp(32px,4.6vw,56px)] leading-[1] font-[630] tracking-[-0.045em] text-balance"
+      >
+        {title} {soft && <span className="text-ink-3">{soft}</span>}
       </h2>
-      <p className="max-w-[56ch] text-[15.5px] leading-relaxed text-ink-2">{children}</p>
+      {children && (
+        <p className="max-w-[56ch] text-[15.5px] leading-relaxed text-ink-2">{children}</p>
+      )}
     </div>
   );
 }
 
-function Bento({
-  className,
-  title,
-  children,
-  visual,
-}: {
-  className?: string;
-  title: string;
-  children: ReactNode;
-  visual: ReactNode;
-}) {
-  return (
-    <article
-      data-spotlight
-      className={cn(
-        cardClasses({ interactive: true, spotlight: true }),
-        "flex min-h-[300px] flex-col",
-        className,
-      )}
-    >
-      <PlayOnView className="flex-1">{visual}</PlayOnView>
-      <h3 className="mt-5 text-[17px] font-semibold tracking-[-0.02em]">{title}</h3>
-      <p className="mt-1.5 max-w-[46ch] text-[14px] leading-relaxed text-ink-2">{children}</p>
-    </article>
-  );
-}
-
-function Features() {
-  return (
-    <section id="features" className={cn(WRAP, "scroll-mt-24 pt-28")}>
-      <SectionHead eyebrow="Features" soft="Not another counter." em="A coach.">
-        Everything other trackers miss: real time per problem, an honest solved count, sheets that
-        tick themselves, and revision that proves you still remember.
-      </SectionHead>
-
-      <div className="grid gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-        <Bento
-          className="lg:col-span-2"
-          title="A timer that runs itself"
-          visual={
-            <div className="grid gap-3 sm:grid-cols-[1.4fr_1fr]">
-              <div className="overflow-hidden rounded-[14px] border border-line bg-bg-2">
-                <div className="flex items-center gap-2 border-b border-line px-3 py-2 font-mono text-[11px] text-ink-3">
-                  <span className="size-2 rounded-full bg-line-3" /> …/problems/koko-eating-bananas
-                </div>
-                <TimerDemo />
-              </div>
-              <dl className="flex flex-col justify-center gap-2 font-mono text-[12px]">
-                {[
-                  ["active", "18m 42s"],
-                  ["idle (paused)", "4m 10s"],
-                  ["submits", "3"],
-                  ["how you solved it", "solo"],
-                ].map(([k, v]) => (
-                  <div
-                    key={k}
-                    className="flex justify-between border-b border-dashed border-line-2 pb-2"
-                  >
-                    <dt className="text-ink-3">{k}</dt>
-                    <dd>{v}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          }
-        >
-          The Chrome extension starts timing when you open a LeetCode or GFG problem, pauses when
-          you switch tabs or go idle, catches every verdict and asks one honest question after
-          Accepted.
-        </Bento>
-
-        <Bento
-          title="All your history, deduplicated"
-          visual={
-            <div>
-              <span className="mb-3 block font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                One heatmap · every platform
-              </span>
-              <div className="mb-3 flex items-center gap-3 rounded-[12px] border border-line bg-bg-2 px-3 py-2.5">
-                <span className="text-[12.5px] font-medium">1. Two Sum</span>
-                <span aria-hidden="true" className="relative ml-auto h-4 w-[84px]">
-                  <i className="demo-t absolute top-0 left-0 size-4 translate-x-[34px] rounded-[4px] bg-heat-3 armed:translate-x-0" />
-                  <i className="demo-t absolute top-0 left-0 size-4 translate-x-[34px] rounded-[4px] bg-heat-3 opacity-0 armed:translate-x-[68px] armed:opacity-100" />
-                </span>
-                <Swap
-                  className="w-[78px] text-right font-mono text-[10.5px] text-ink-3"
-                  from="LC + GFG"
-                  to="counts once"
-                />
-              </div>
-              <PixelHeatmap levels={demoLevels(18 * 7, 3)} weeks={18} label="Example heatmap" />
-            </div>
-          }
-        >
-          LeetCode, Codeforces and GFG in one place. Two Sum solved on two sites counts once.
-        </Bento>
-
-        <Bento
-          title="Solo, hint, or solution?"
-          visual={
-            <div>
-              <span className="font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                Honest solved count
-              </span>
-              <span className="num mt-2 block text-[48px]">
-                412<small className="ml-1 text-[.42em] font-normal text-ink-3">solved</small>
-              </span>
-              <div className="mt-2 flex h-2.5 gap-[3px] overflow-hidden rounded-full">
-                {(
-                  [
-                    [281, "bg-ink", 0],
-                    [86, "bg-ink-3", 250],
-                    [45, "hatch bg-surface-3", 500],
-                  ] as const
-                ).map(([n, tone, delay]) => (
-                  <i
-                    key={n}
-                    className={cn("demo-t origin-left rounded-[3px] armed:scale-x-0", tone)}
-                    style={{ flex: n, transitionDelay: `${delay}ms` }}
-                  />
-                ))}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-x-3 font-mono text-[11px] text-ink-3">
-                <span>281 solo</span>
-                <span>86 hint</span>
-                <span>45 saw solution</span>
-              </div>
-            </div>
-          }
-        >
-          One tap after Accepted. Your stats, topic mastery and revision schedule stop lying to you.
-        </Bento>
-
-        <Bento
-          title="Revision you have to prove"
-          visual={
-            <div className="flex flex-col gap-2">
-              <span className="mb-1 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                Due today · 5
-              </span>
-              <div className="rounded-[12px] border border-line bg-bg-2 p-3">
-                <span className="mb-2.5 flex items-center justify-between gap-2">
-                  <b className="truncate text-[13px] font-medium">Coin Change</b>
-                  <span
-                    className="demo-t rounded-full bg-ok-soft px-2 py-0.5 font-mono text-[10.5px] text-ok armed:opacity-0"
-                    style={{ transitionDelay: "500ms" }}
-                  >
-                    remembered ✓
-                  </span>
-                </span>
-                <div aria-hidden="true" className="relative grid grid-cols-6 gap-1">
-                  {[1, 3, 7, 16, 35, 90].map((d) => (
-                    <span
-                      key={d}
-                      className="grid h-7 place-items-center rounded-[7px] border border-line font-mono text-[10.5px] text-ink-3"
-                    >
-                      {d}d
-                    </span>
-                  ))}
-                  <span className="demo-t absolute inset-y-0 left-0 w-[calc((100%-20px)/6)] translate-x-[calc(300%+12px)] rounded-[7px] bg-primary-soft ring-1 ring-primary/60 armed:translate-x-[calc(200%+8px)]" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-2 rounded-[10px] border border-line bg-bg-2 px-3 py-2">
-                <b className="truncate text-[13px] font-medium">Course Schedule II</b>
-                <Tag tone="wa" mono>
-                  2d overdue
-                </Tag>
-              </div>
-            </div>
-          }
-        >
-          Spaced repetition (1 → 3 → 7 → 16 → 35 → 90 days). A re-solve the extension sees moves a
-          problem further out; needing a hint brings it back.
-        </Bento>
-
-        <Bento
-          title="Your sheets, ticked for you"
-          visual={
-            <div className="flex flex-col gap-4">
-              <span className="flex items-center justify-between gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                Solved · Koko Eating Bananas
-                <span className="demo-t text-ok normal-case armed:opacity-0">2 sheets ticked</span>
-              </span>
-              {(
-                [
-                  ["Striver A2Z", 212, 495, 0],
-                  ["NeetCode 150", 98, 150, 250],
-                ] as const
-              ).map(([name, done, total, delay]) => (
-                <div key={name}>
-                  <div className="mb-1.5 flex justify-between text-[13px]">
-                    <b className="font-medium">{name}</b>
-                    <span className="font-mono text-ink-3">
-                      <Swap from={String(done)} to={String(done + 1)} delay={delay} />/{total}
-                    </span>
-                  </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-surface-3">
-                    <div
-                      className="h-full rounded-full bg-ink"
-                      style={{ width: `${((done + 1) / total) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          }
-        >
-          Solve on LeetCode or GFG and every sheet with that problem ticks itself.
-        </Bento>
-
-        <Bento
-          className="md:col-span-2 lg:col-span-3 lg:min-h-0"
-          title="Contests, then upsolve"
-          visual={
-            <div className="grid gap-4 sm:grid-cols-[1.2fr_auto_auto] sm:items-end">
-              <div className="flex flex-col gap-2">
-                <span className="font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-                  Weekly Contest 421
-                </span>
-                <div className="flex gap-1.5">
-                  <Tag tone="ac" mono>
-                    <Check size={10} /> Q1
-                  </Tag>
-                  <Tag tone="ac" mono>
-                    <Check size={10} /> Q2
-                  </Tag>
-                  <span className="relative inline-grid">
-                    <Tag mono className="demo-t [grid-area:1/1] opacity-0 armed:opacity-100">
-                      Q3
-                    </Tag>
-                    <Tag tone="ac" mono className="demo-t [grid-area:1/1] armed:opacity-0">
-                      <Check size={10} /> Q3
-                    </Tag>
-                  </span>
-                  <Tag mono>Q4</Tag>
-                </div>
-              </div>
-              <span className="num text-[28px] text-ok">+38</span>
-              <span className="font-mono text-[12px] text-ink-3">
-                <Swap from="2" to="1" /> left to upsolve
-              </span>
-            </div>
-          }
-        >
-          Rating charts for Codeforces and LeetCode, and an upsolve list of every contest problem
-          you haven&apos;t finished yet.
-        </Bento>
-      </div>
-    </section>
-  );
-}
-
-/** A value that rolls from `from` to `to` when its demo plays (see PlayOnView). */
-function Swap({
-  from,
-  to,
-  delay = 0,
-  className,
-}: {
-  from: string;
-  to: string;
-  delay?: number;
-  className?: string;
-}) {
-  return (
-    <span className={cn("relative inline-grid overflow-hidden align-bottom", className)}>
-      <span
-        aria-hidden="true"
-        className="demo-t [grid-area:1/1] -translate-y-full opacity-0 armed:translate-y-0 armed:opacity-100"
-        style={{ transitionDelay: `${delay}ms` }}
-      >
-        {from}
-      </span>
-      <span
-        className="demo-t [grid-area:1/1] armed:translate-y-full armed:opacity-0"
-        style={{ transitionDelay: `${delay}ms` }}
-      >
-        {to}
-      </span>
-    </span>
-  );
-}
-
-// ---------------------------------------------------------------- how it works
+const STEP =
+  "surface-card flex flex-col gap-4 rounded-lg p-[22px] transition-[transform,border-color] duration-[var(--dur-base)] hover:-translate-y-1 hover:border-line-2";
+const STAGE =
+  "relative h-[124px] overflow-hidden rounded-[12px] bg-surface-2 shadow-[inset_0_0_0_1px_var(--line)]";
 
 function HowItWorks() {
-  const steps = [
-    {
-      icon: <UsersRound size={18} />,
-      title: "Sign in and connect",
-      body: "Google sign-in, then your LeetCode, Codeforces and GFG usernames. Your history syncs in seconds; nothing to install yet.",
-    },
-    {
-      icon: <Puzzle size={18} />,
-      title: "Add the extension",
-      body: "It times each problem, catches verdicts and imports your full LeetCode history from your own browser. No code or passwords ever leave it.",
-    },
-    {
-      icon: <Timer size={18} />,
-      title: "Just solve",
-      body: "Follow a sheet, open Revision once a day, and let the dashboard tell you what to do next.",
-    },
-  ];
   return (
-    <section id="how" className={cn(WRAP, "scroll-mt-24 pt-28")}>
-      <SectionHead eyebrow="How it works" soft="Three minutes to set up." em="Then it's automatic.">
-        No spreadsheets, no ticking boxes by hand, no remembering what you solved last month.
-      </SectionHead>
-      <div className="surface-card mb-3.5 rounded-[22px] px-4 py-6 sm:px-10">
-        <AnimatedBeam
-          height={200}
-          nodes={[
-            {
-              id: "lc",
-              label: "LeetCode",
-              icon: <PlatformMark site="leetcode" size={20} brand />,
-              x: 8,
-              y: 22,
-            },
-            {
-              id: "gfg",
-              label: "GFG",
-              icon: <PlatformMark site="gfg" size={20} brand />,
-              x: 8,
-              y: 78,
-            },
-            {
-              id: "cf",
-              label: "Codeforces",
-              icon: <PlatformMark site="codeforces" size={20} brand />,
-              x: 30,
-              y: 82,
-            },
-            { id: "ext", label: "Extension", icon: <Puzzle size={20} />, x: 38, y: 34 },
-            { id: "up", label: "DsaKaro", icon: <LogoMark size={22} />, x: 66, y: 50 },
-            {
-              id: "dash",
-              label: "Your dashboard",
-              icon: <LayoutDashboard size={20} />,
-              x: 92,
-              y: 50,
-            },
-          ]}
-          edges={[
-            ["lc", "ext"],
-            ["gfg", "ext"],
-            ["ext", "up"],
-            ["cf", "up"],
-            ["up", "dash"],
-          ]}
-        />
-      </div>
-      {/* Sticky stacked cards: each step slides over the last, which settles back. */}
-      <StackCards className="flex flex-col gap-4">
-        {steps.map((s, i) => (
-          <li
-            key={s.title}
-            data-spotlight
-            className={cn(
-              cardClasses({ spotlight: true }),
-              "sticky origin-top p-[22px] will-change-transform sm:p-7",
-            )}
-            style={{ top: `${96 + i * 18}px` }}
-          >
-            <div className="flex items-start gap-5">
-              <span className="tnum font-mono text-[44px] leading-none font-[600] text-ink-4">
-                {String(i + 1).padStart(2, "0")}
+    <section id="how" aria-labelledby="how-title" className={cn(WRAP, "scroll-mt-24 pt-28")}>
+      <SectionHead
+        id="how-title"
+        eyebrow="How it works"
+        title="Open a problem."
+        soft="The rest happens on its own."
+      />
+      <Reveal stagger>
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <li className={STEP}>
+            <span className="font-mono text-12 text-ink-3">01</span>
+            <PlayOnView className={cn(STAGE, "grid place-items-center")}>
+              <span className="demo-t flex h-9 items-center gap-2 rounded-full bg-primary-soft px-3.5 text-13 font-[600] text-primary armed:translate-y-3 armed:opacity-0">
+                <span className="size-2 animate-pulse rounded-full bg-primary" />
+                <LiveTimer startSeconds={760} className="font-mono" /> · Koko Eating Bananas
               </span>
-              <div className="min-w-0 flex-1">
-                <span className="mb-4 grid size-10 place-items-center rounded-[12px] border border-line bg-surface-2 text-ink-2">
-                  {s.icon}
-                </span>
-                <h3 className="text-[19px] font-semibold tracking-[-0.02em]">{s.title}</h3>
-                <p className="mt-1.5 max-w-[60ch] text-[14.5px] leading-relaxed text-ink-2">
-                  {s.body}
-                </p>
-              </div>
-            </div>
+            </PlayOnView>
+            <h3 className="text-17 font-[620] tracking-[-0.02em]">A timer that runs itself</h3>
+            <p className="text-14 text-ink-2">
+              The extension starts the clock when you open a problem. Nothing to press.
+            </p>
           </li>
-        ))}
-      </StackCards>
+          <li className={STEP}>
+            <span className="font-mono text-12 text-ink-3">02</span>
+            <PlayOnView className={cn(STAGE, "flex items-center gap-2.5 px-4")}>
+              <span className="demo-t h-2.5 flex-[3] origin-left rounded-full bg-primary armed:scale-x-0" />
+              <span
+                className="demo-t h-2.5 flex-1 origin-left rounded-full bg-[repeating-linear-gradient(135deg,var(--surface-4)_0_3px,var(--line-3)_3px_5px)] armed:scale-x-0"
+                style={{ transitionDelay: "450ms" }}
+              />
+              <span
+                className="demo-t h-2.5 flex-[4] origin-left rounded-full bg-primary armed:scale-x-0"
+                style={{ transitionDelay: "800ms" }}
+              />
+            </PlayOnView>
+            <h3 className="text-17 font-[620] tracking-[-0.02em]">Switch tabs, it pauses</h3>
+            <p className="text-14 text-ink-2">
+              Instagram doesn&apos;t count as study time. Striver&apos;s channel does.
+            </p>
+          </li>
+          <li className={STEP}>
+            <span className="font-mono text-12 text-ink-3">03</span>
+            <PlayOnView className={cn(STAGE, "flex flex-col items-center justify-center gap-2.5")}>
+              <span className="demo-t rounded-full bg-signal/15 px-3 py-1 text-13 font-[600] text-signal-text armed:scale-50 armed:opacity-0">
+                Accepted
+              </span>
+              <span
+                className="demo-t flex gap-1 rounded-[10px] bg-surface p-1 text-12 armed:translate-y-2 armed:opacity-0"
+                style={{ transitionDelay: "350ms" }}
+              >
+                <span className="rounded-[7px] bg-surface-4 px-2.5 py-1 font-[600]">Solo</span>
+                <span className="px-2.5 py-1 text-ink-3">Hint</span>
+                <span className="px-2.5 py-1 text-ink-3">Saw solution</span>
+              </span>
+            </PlayOnView>
+            <h3 className="text-17 font-[620] tracking-[-0.02em]">Solo, hint, or solution?</h3>
+            <p className="text-14 text-ink-2">
+              One honest tap after every accepted. Your solved count means something.
+            </p>
+          </li>
+          <li className={STEP}>
+            <span className="font-mono text-12 text-ink-3">04</span>
+            <PlayOnView className={cn(STAGE, "flex items-end gap-1.5 px-5 pb-6")}>
+              {[30, 44, 58, 72, 86, 100].map((h, i) => (
+                <span
+                  key={h}
+                  className="demo-t flex-1 origin-bottom rounded-[5px_5px_2px_2px] armed:scale-y-0"
+                  style={{
+                    height: `${h}%`,
+                    background: i < 3 ? "var(--primary)" : "var(--surface-4)",
+                    transitionDelay: `${i * 110}ms`,
+                  }}
+                />
+              ))}
+            </PlayOnView>
+            <h3 className="text-17 font-[620] tracking-[-0.02em]">Back right before you forget</h3>
+            <p className="text-14 text-ink-2">
+              Solved problems climb a revision ladder: 1, 3, 7, 16, 35, 90 days.
+            </p>
+          </li>
+        </ol>
+      </Reveal>
     </section>
   );
 }
 
-// ---------------------------------------------------------------- sheet showcase
+// ---------------------------------------------------------------- sheets
 
 const SHEETS = [
-  { slug: "striver-a2z", name: "Striver's A2Z DSA Sheet", by: "Striver (takeUforward)", n: 495 },
-  { slug: "striver-sde", name: "SDE Sheet", by: "Striver (takeUforward)", n: 156 },
-  { slug: "neetcode-150", name: "NeetCode 150", by: "NeetCode", n: 150 },
-  { slug: "blind-75", name: "Blind 75", by: "NeetCode", n: 75 },
-  { slug: "grind-75", name: "Grind 75", by: "Yangshun Tay", n: 75 },
+  { slug: "striver-a2z", name: "Striver A2Z DSA", by: "takeUforward", n: 495, done: 49 },
+  { slug: "striver-sde", name: "Striver SDE Sheet", by: "takeUforward", n: 156, done: 18 },
+  { slug: "neetcode-150", name: "NeetCode 150", by: "NeetCode", n: 150, done: 21 },
+  { slug: "blind-75", name: "Blind 75", by: "NeetCode", n: 75, done: 14 },
+  { slug: "grind-75", name: "Grind 75", by: "Yangshun Tay", n: 75, done: 16 },
 ];
 
-function SheetShowcase() {
+function Sheets() {
   return (
-    <section className={cn(WRAP, "pt-28")}>
-      <SectionHead eyebrow="Sheets" soft="Striver's sheet," em="with superpowers.">
-        Every problem with its video (playing right inside the sheet, at the right minute), the
-        article, and a button for LeetCode, GFG or takeUforward. Notes, stars and revision badges on
-        every row. We only link: the videos and articles stay with their creators.
-      </SectionHead>
-      <ul
-        aria-label="Supported sheets"
-        className="-mx-4 mb-3.5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {SHEETS.map((s) => (
-          <li
-            key={s.slug}
-            className="surface-card w-[250px] shrink-0 snap-start overflow-hidden rounded-[20px] sm:w-[270px]"
+    <section id="sheets" aria-labelledby="sheets-title" className="scroll-mt-24 pt-28">
+      <div className={WRAP}>
+        <SectionHead id="sheets-title" eyebrow="Sheets" title="Your sheets," soft="ticked for you.">
+          Solve on LeetCode or GFG and every sheet that has the problem ticks itself. Each problem
+          keeps its video at the right minute, plus notes, stars and revision badges. We only link:
+          the videos and articles stay with their creators.
+        </SectionHead>
+      </div>
+      {/* The shelf drifts sideways under the lamp as you scroll past. */}
+      <Drift distance={120} className="relative">
+        <Reveal stagger>
+          <ul
+            aria-label="Supported sheets"
+            className={cn(WRAP, "grid grid-cols-2 items-end gap-5 sm:grid-cols-3 lg:grid-cols-5")}
           >
-            <SheetCover slug={s.slug} name={s.name} className="h-[104px]" />
-            <div className="px-4 pt-1 pb-4">
-              <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">
-                {s.name}
-              </span>
-              <span className="mt-0.5 flex justify-between gap-2 text-[12.5px] text-ink-3">
-                <span className="truncate">by {s.by}</span>
-                <span className="tnum shrink-0 font-mono">{s.n}</span>
-              </span>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <SheetDemo />
+            {SHEETS.map((s, i) => (
+              <li key={s.slug} className="group/book flex flex-col gap-3">
+                <BookCover
+                  slug={s.slug}
+                  name={s.name}
+                  author={s.by}
+                  done={s.done}
+                  total={s.n}
+                  main={i === 0}
+                />
+                <span className="flex justify-between px-0.5 text-12 text-ink-3">
+                  <span className="truncate">{s.name}</span>
+                  <span className="tnum font-mono">{s.n}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Reveal>
+      </Drift>
+      <div className={cn(WRAP, "mt-12")}>
+        <SheetDemo />
+      </div>
     </section>
   );
 }
@@ -625,82 +550,52 @@ function SheetShowcase() {
 // ---------------------------------------------------------------- friends
 
 function Friends() {
-  const room = [
-    ["Asha", "Word Ladder", 24 * 60 + 10, "Hard"],
-    ["Rohan", "Rotting Oranges", 8 * 60 + 55, "Medium"],
-    ["Meera", "Top K Frequent Elements", 3 * 60 + 2, "Medium"],
-  ] as const;
-  // Before and after the week's last solves: You overtake Asha.
-  const board = [
-    { name: "You", from: 104, to: 121, was: 1, now: 0, you: true },
-    { name: "Asha", from: 118, to: 119, was: 0, now: 1, you: false },
-    { name: "Rohan", from: 87, to: 90, was: 2, now: 2, you: false },
+  const desks = [
+    { buddy: "b-scout", t: 8048, s: "Solving", level: 3 as const },
+    { buddy: "g-bun", t: 6760, s: "Watching a lecture", level: 2 as const },
+    { buddy: "b-cap", t: 2790, s: "On a break", level: "paused" as const },
   ];
-  const rowY = ["translate-y-0", "translate-y-[52px]", "translate-y-[104px]"];
-  const armedY = ["armed:translate-y-0", "armed:translate-y-[52px]", "armed:translate-y-[104px]"];
   return (
-    <section id="friends" className={cn(WRAP, "scroll-mt-24 pt-28")}>
-      <SectionHead eyebrow="Friends" soft="Grind together." em="Not alone at 1 a.m.">
-        Friend groups with a weekly leaderboard that rewards showing up, not one-night grinds, and a
-        study room that shows who&apos;s solving what right now. College and batch boards are
-        opt-in. Names below are an example.
-      </SectionHead>
-      <div className="grid gap-3.5 lg:grid-cols-2">
-        <div className="surface-card rounded-[22px] p-5">
-          <span className="mb-3 flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-            <LiveDot /> Study room · 3 solving now
-          </span>
-          <ul className="flex flex-col">
-            {room.map(([name, problem, start, diff]) => (
-              <li
-                key={name}
-                className="flex items-center gap-3 border-t border-dashed border-line-2 py-3 first:border-t-0"
-              >
-                <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-[linear-gradient(135deg,#34343a,#18181b)] text-[12px] font-semibold text-white">
-                  {name.slice(0, 1)}
-                  <i className="absolute right-0 bottom-0 size-2.5 rounded-full bg-ok ring-2 ring-[var(--surface)]" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[13.5px] font-medium">{name}</span>
-                  <span className="block truncate text-[12.5px] text-ink-2">
-                    {problem} · {diff}
-                  </span>
-                </span>
-                <LiveTimer startSeconds={start} className="num font-mono text-[15px] text-ink-2" />
-              </li>
-            ))}
-          </ul>
-        </div>
-        <PlayOnView className="surface-card rounded-[22px] p-5">
-          <span className="mb-3 flex items-center gap-2 font-mono text-[10.5px] tracking-[.08em] text-ink-3 uppercase">
-            <Trophy size={12} /> This week · honest solved count
-          </span>
-          {/* Rows sit at their rank; when the demo plays they slide into the new order. */}
-          <ol className="relative h-[156px]">
-            {board.map((r) => (
-              <li
-                key={r.name}
+    <section
+      id="friends"
+      aria-labelledby="friends-title"
+      className={cn(WRAP, "scroll-mt-24 pt-28")}
+    >
+      <div className="grid items-center gap-10 lg:grid-cols-[1.25fr_1fr]">
+        <Reveal stagger>
+          <div className="grid grid-cols-3 gap-3 rounded-[22px] bg-[radial-gradient(520px_220px_at_50%_0%,rgba(243,180,92,.16),transparent_70%),var(--surface)] p-4 shadow-[inset_0_0_0_1px_var(--line)] sm:p-6">
+            {desks.map((d) => (
+              <div
+                key={d.buddy}
                 className={cn(
-                  "demo-t absolute inset-x-0 top-0 flex h-[52px] items-center gap-3 rounded-[12px] px-3",
-                  r.you && "bg-surface-2 ring-1 ring-line-2",
-                  rowY[r.now],
-                  armedY[r.was],
+                  "flex flex-col items-center gap-2 rounded-[16px] px-2 py-4 text-center shadow-[inset_0_0_0_1px_var(--line)]",
+                  d.level === "paused"
+                    ? "bg-surface-2"
+                    : "bg-[radial-gradient(160px_100px_at_50%_0%,color-mix(in_srgb,var(--amber)_18%,transparent),transparent_70%),var(--surface-2)]",
                 )}
               >
-                <span className="num grid size-7 place-items-center rounded-[8px] bg-surface-3 text-[13px]">
-                  <Swap from={String(r.was + 1)} to={String(r.now + 1)} />
-                </span>
-                <span className="flex-1 text-[14px] font-medium">{r.name}</span>
-                <span className="num text-[16px]">
-                  <Swap from={String(r.from)} to={String(r.to)} />
-                </span>
-              </li>
+                <StudyBuddy buddy={d.buddy} level={d.level} size={84} />
+                {d.level === "paused" ? (
+                  <span className="font-mono text-[20px] font-[550] text-ink-3">paused</span>
+                ) : (
+                  <LiveTimer startSeconds={d.t} className="font-mono text-[20px] font-[550]" />
+                )}
+                <span className="text-12 text-ink-3">{d.s}</span>
+              </div>
             ))}
-          </ol>
-          <p className="mt-3 font-mono text-[11.5px] text-ink-3">
-            Weekly board · example names and numbers.
-          </p>
-        </PlayOnView>
+          </div>
+        </Reveal>
+        <div>
+          <SectionHead
+            id="friends-title"
+            eyebrow="Friends"
+            title="Study together,"
+            soft="from different hostels."
+          >
+            A live study hall with everyone&apos;s timer and buddy at their desk, a weekly
+            leaderboard, and college boards if you opt in.
+          </SectionHead>
+        </div>
       </div>
     </section>
   );
@@ -710,23 +605,24 @@ function Friends() {
 
 function ForColleges() {
   const batches = [
-    ["Topic: Graphs", 34],
-    ["Topic: DP", 22],
-    ["Topic: Trees", 58],
-    ["Topic: Arrays", 81],
+    ["Graphs", 34],
+    ["DP", 22],
+    ["Trees", 58],
+    ["Arrays", 81],
   ] as const;
+  const tone = (v: number) => (v < 25 ? "var(--hard)" : v < 60 ? "var(--medium)" : "var(--easy)");
   return (
     <section id="colleges" className={cn(WRAP, "scroll-mt-24 pt-28")}>
-      <div className="surface-card grid items-center gap-8 rounded-[28px] p-6 sm:p-10 lg:grid-cols-2">
+      <div className="surface-card lamp grid items-center gap-8 rounded-[24px] p-6 sm:p-10 lg:grid-cols-2">
         <div className="flex flex-col items-start gap-4">
           <span className="flex items-center gap-2">
-            <Eyebrow>For placement cells</Eyebrow>
-            <span className="sheen rounded-full border border-violet-line bg-violet-soft px-2.5 py-0.5 text-11 font-[600] text-violet">
+            <span className="label-mono">For placement cells</span>
+            <span className="rounded-full bg-primary-soft px-2.5 py-0.5 text-11 font-[600] text-primary">
               Coming soon
             </span>
           </span>
-          <h2 className="font-display text-[clamp(32px,4.6vw,54px)] leading-[1] tracking-[-0.02em]">
-            <span className="text-ink">See where your batch</span> <em>actually stands.</em>
+          <h2 className="text-[clamp(30px,4vw,48px)] leading-[1] font-[630] tracking-[-0.045em]">
+            See where your batch <span className="text-ink-3">actually stands.</span>
           </h2>
           <p className="text-[15px] leading-relaxed text-ink-2">
             Topic gaps across a batch, who&apos;s gone quiet before placement season, and readiness
@@ -734,35 +630,26 @@ function ForColleges() {
             only for students who opt in.
           </p>
           <a
-            href="mailto:cutubuildlabs@gmail.com?subject=DsaKaro%20for%20our%20college"
+            href={`mailto:${CONTACT_EMAIL}?subject=DsaKaro%20for%20our%20college`}
             className={buttonClasses({ variant: "secondary" })}
           >
             Pilot it at your college <ButtonArrow />
           </a>
         </div>
-        <PlayOnView className="surface-inset rounded-[20px] p-5">
+        <PlayOnView className="surface-inset rounded-[18px] p-5">
           <span className="mb-4 block label-mono">Batch 2027 · topic mastery (example)</span>
           {batches.map(([t, v], i) => (
             <div key={t} className="mb-3 last:mb-0">
               <div className="mb-1.5 flex justify-between text-[13px]">
-                <span>{t.replace("Topic: ", "")}</span>
-                <span
-                  className="tnum font-mono"
-                  style={{
-                    color: v < 25 ? "var(--hard)" : v < 60 ? "var(--medium)" : "var(--easy)",
-                  }}
-                >
+                <span>{t}</span>
+                <span className="tnum font-mono" style={{ color: tone(v) }}>
                   {v}
                 </span>
               </div>
               <div className="relative h-2 overflow-hidden rounded-full bg-surface-3">
                 <span
                   className="demo-t absolute inset-y-0 left-0 origin-left rounded-full armed:scale-x-0"
-                  style={{
-                    transitionDelay: `${i * 120}ms`,
-                    width: `${v}%`,
-                    background: `linear-gradient(90deg, transparent, ${v < 25 ? "var(--hard)" : v < 60 ? "var(--medium)" : "var(--easy)"})`,
-                  }}
+                  style={{ transitionDelay: `${i * 120}ms`, width: `${v}%`, background: tone(v) }}
                 />
               </div>
             </div>
@@ -778,85 +665,94 @@ function ForColleges() {
 function Pricing() {
   const plans = [
     {
-      name: "Students",
+      who: "Students",
       price: "Free",
-      note: "during the beta, and the core stays free",
-      cta: { label: "Start free", href: "/signup" },
-      items: [
+      sub: "during the beta, and the core stays free",
+      f: [
         "LeetCode, Codeforces and GFG sync",
         "Extension timer and verdicts",
         "All five sheets, auto-ticked",
         "Revision queue and topic mastery",
         "Groups, leaderboards, study rooms",
       ],
-      featured: true,
+      cta: "Start free",
+      href: "/signup",
+      main: true,
     },
     {
-      name: "Pro",
+      who: "Pro",
       price: "Later",
-      note: "for the extras, never the basics",
-      items: ["AI weekly review", "Interview mode", "Deeper analytics", "Unlimited revision cap"],
+      sub: "for the extras, never the basics",
+      f: ["AI weekly review", "Interview mode", "Deeper analytics", "Unlimited revision cap"],
+      cta: "Coming later",
+      href: null,
+      main: false,
     },
     {
-      name: "Colleges",
+      who: "Colleges",
       price: "Talk to us",
-      note: "free pilot for the first placement cells",
-      cta: {
-        label: "Get in touch",
-        href: "mailto:cutubuildlabs@gmail.com?subject=DsaKaro%20for%20our%20college",
-      },
-      items: ["Batch dashboards", "Topic gaps by section", "Inactive-student alerts", "CSV export"],
+      sub: "free pilot for the first placement cells",
+      f: ["Batch dashboards", "Topic gaps by section", "Inactive-student alerts", "CSV export"],
+      cta: "Get in touch",
+      href: `mailto:${CONTACT_EMAIL}?subject=DsaKaro%20for%20our%20college`,
+      main: false,
     },
   ];
   return (
-    <section className={cn(WRAP, "pt-24")}>
-      <SectionHead eyebrow="Pricing" soft="Free for students." em="Really.">
-        The things that help you practise are free. If we ever charge, it&apos;s for extras, and
-        we&apos;ll say so up front.
-      </SectionHead>
-      <div className="grid gap-3.5 lg:grid-cols-3">
+    <section
+      id="pricing"
+      aria-labelledby="pricing-title"
+      className={cn(WRAP, "scroll-mt-24 pt-28")}
+    >
+      <SectionHead
+        id="pricing-title"
+        eyebrow="Pricing"
+        title="Free for students."
+        soft="Really."
+        center
+      />
+      <div className="grid gap-4 md:grid-cols-3">
         {plans.map((p) => (
           <div
-            key={p.name}
+            key={p.who}
             className={cn(
-              "relative isolate flex flex-col overflow-hidden rounded-[22px] p-[22px]",
-              p.featured
-                ? "surface-card border-beam shadow-[var(--e2),0_0_60px_-20px_var(--signal)]"
-                : "surface-card",
+              "surface-card flex flex-col gap-5 rounded-lg p-6",
+              p.main && "shadow-[inset_0_0_0_1px_var(--signal),var(--e2)]",
             )}
           >
-            {p.price === "Later" && (
-              <span
-                aria-hidden="true"
-                className="hatch pointer-events-none absolute inset-0 -z-10 opacity-60"
-              />
-            )}
-            {p.featured && (
-              <span className="absolute top-4 right-4 rounded-full bg-signal px-2.5 py-1 text-11 font-[700] text-signal-ink">
-                Free forever for students
-              </span>
-            )}
-            <span className="label-mono">{p.name}</span>
-            <span className="num mt-3 text-[40px]">{p.price}</span>
-            <span className="text-[13px] text-ink-3">{p.note}</span>
-            <ul className="mt-5 mb-6 flex flex-col gap-2 text-[14px]">
-              {p.items.map((i) => (
-                <li key={i} className="flex gap-2">
-                  <Check size={15} className="mt-0.5 shrink-0 text-success" aria-hidden="true" />
-                  {i}
+            <span className="label-mono">{p.who}</span>
+            <div>
+              <p className="num text-[40px]">{p.price}</p>
+              <p className="mt-1 text-13 text-ink-3">{p.sub}</p>
+            </div>
+            <ul className="flex flex-1 flex-col gap-2.5 text-14">
+              {p.f.map((f) => (
+                <li key={f} className="flex items-start gap-2.5">
+                  <Check
+                    size={16}
+                    aria-hidden="true"
+                    className={cn("mt-0.5 shrink-0", p.main ? "text-signal-text" : "text-ink-3")}
+                  />
+                  {f}
                 </li>
               ))}
             </ul>
-            {p.cta && (
+            {p.href ? (
               <Link
-                href={p.cta.href}
+                href={p.href}
                 className={buttonClasses({
-                  variant: p.featured ? "signal" : "secondary",
-                  className: "mt-auto",
+                  variant: p.main ? "signal" : "secondary",
+                  className: "w-full",
                 })}
               >
-                {p.cta.label} <ButtonArrow />
+                {p.cta}
               </Link>
+            ) : (
+              <span
+                className={buttonClasses({ variant: "secondary", className: "w-full opacity-60" })}
+              >
+                {p.cta}
+              </span>
             )}
           </div>
         ))}
@@ -865,62 +761,56 @@ function Pricing() {
   );
 }
 
-// ---------------------------------------------------------------- FAQ
+// ---------------------------------------------------------------- faq
+
+const FAQ = [
+  [
+    "Do you see my code or my passwords?",
+    "No. The extension never uploads your code, and your LeetCode or GFG login never leaves your browser. We store problem names, verdicts, times and how you solved it, and that's all.",
+  ],
+  [
+    "What does the extension read?",
+    "Only LeetCode and GFG problem pages: the problem you're on, your submissions' verdicts, and (if you ask) your LeetCode submission history. It doesn't read other sites, tabs or your browsing history.",
+  ],
+  [
+    "Who can see my progress?",
+    "Only you, by default. A public profile, college leaderboards and showing what you're solving to friend groups are all separate switches you turn on yourself.",
+  ],
+  [
+    "Do I need the extension?",
+    "No. Connect your usernames and your solves, sheets, revision and contests work without it. The extension adds the timer, every verdict, and honest solo/hint answers.",
+  ],
+  [
+    "Which platforms and sheets are supported?",
+    "LeetCode, Codeforces and GeeksforGeeks today; CodeChef and AtCoder next. Sheets: Striver A2Z, Striver SDE, NeetCode 150, Blind 75 and Grind 75.",
+  ],
+  [
+    "Is it really free?",
+    "Yes. Students get everything listed above for free. We may add paid extras later, but the core stays free.",
+  ],
+] as const;
 
 function Faq() {
-  const qa: [string, ReactNode][] = [
-    [
-      "Do you see my code or my passwords?",
-      "No. The extension never uploads your code, and your LeetCode or GFG login never leaves your browser. We store problem names, verdicts, times and how you solved it, and that's all.",
-    ],
-    [
-      "What does the extension read?",
-      "Only LeetCode and GFG problem pages: the problem you're on, your submissions' verdicts, and (if you ask) your LeetCode submission history. It doesn't read other sites, tabs or your browsing history.",
-    ],
-    [
-      "Who can see my progress?",
-      "Only you, by default. A public profile, college leaderboards and showing what you're solving to friend groups are all separate switches you turn on yourself.",
-    ],
-    [
-      "Do I need the extension?",
-      "No. Connect your usernames and your solves, sheets, revision and contests work without it. The extension adds the timer, every verdict, and honest solo/hint answers.",
-    ],
-    [
-      "Which platforms and sheets are supported?",
-      "LeetCode, Codeforces and GeeksforGeeks today; CodeChef and AtCoder next. Sheets: Striver A2Z, Striver SDE, NeetCode 150, Blind 75 and Grind 75.",
-    ],
-    [
-      "Is it really free?",
-      "Yes. Students get everything listed above for free. We may add paid extras later, but the core stays free.",
-    ],
-  ];
   return (
-    <section id="faq" className={cn(WRAP, "scroll-mt-24 pt-24")}>
-      <SectionHead eyebrow="FAQ" soft="Privacy first," em="always.">
-        The questions people ask before installing anything that touches their coding accounts.
-      </SectionHead>
-      <div className="flex flex-col gap-2.5">
-        {qa.map(([q, a], i) => (
-          <details
-            key={q}
-            open={i === 0}
-            className="group surface-card relative overflow-hidden rounded-[16px] px-5 transition-shadow open:shadow-e2 before:absolute before:top-4 before:bottom-4 before:left-0 before:w-[3px] before:scale-y-0 before:rounded-r-full before:bg-signal before:transition-transform open:before:scale-y-100"
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[15px] font-medium [&::-webkit-details-marker]:hidden">
-              <span className="flex items-center gap-2.5">
-                {i < 3 && <Lock size={14} className="shrink-0 text-ink-3" aria-hidden="true" />}
+    <section id="faq" aria-labelledby="faq-title" className={cn(WRAP, "scroll-mt-24 pt-28")}>
+      <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <SectionHead id="faq-title" eyebrow="FAQ" title="Questions," soft="answered plainly." />
+        <div className="flex flex-col">
+          {FAQ.map(([q, a]) => (
+            <details key={q} className="group border-t border-line py-4 last:border-b">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15.5px] font-[600] [&::-webkit-details-marker]:hidden">
                 {q}
-              </span>
-              <span
-                aria-hidden="true"
-                className="grid size-7 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3 transition-[transform,background-color,color] duration-[var(--dur-base)] group-open:rotate-45 group-open:bg-signal group-open:text-signal-ink"
-              >
-                +
-              </span>
-            </summary>
-            <p className="max-w-[70ch] pb-5 text-[14.5px] leading-relaxed text-ink-2">{a}</p>
-          </details>
-        ))}
+                <span
+                  aria-hidden="true"
+                  className="grid size-7 shrink-0 place-items-center rounded-full border border-line-2 text-ink-3 transition-transform duration-[var(--dur-base)] group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <p className="mt-3 max-w-[60ch] text-14 leading-relaxed text-ink-2">{a}</p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -932,17 +822,18 @@ function Footer() {
   return (
     <footer className="relative mt-32 overflow-hidden">
       <div className={cn(WRAP, "flex flex-col gap-6 pb-10")}>
-        <div className="relative isolate overflow-hidden rounded-[32px] bg-[#08080d] px-6 py-16 text-center text-white ring-1 ring-white/10 sm:py-24">
-          <Aurora />
-          <span aria-hidden="true" className="starfield absolute inset-0 opacity-60" />
-          <CursorGlow />
-          <h2 className="relative mx-auto max-w-[16ch] font-display text-[clamp(40px,6vw,80px)] leading-[1] tracking-[-0.02em]">
-            Stop counting. <em>Start upsolving.</em>
+        <div className="relative isolate overflow-hidden rounded-[24px] bg-[radial-gradient(700px_320px_at_50%_0%,rgba(243,180,92,.2),transparent_70%),#111318] px-6 py-16 text-center text-[#eceef2] ring-1 ring-white/10 sm:py-24">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(rgba(255,255,255,.05)_1px,transparent_1.4px)] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_40%,#000,transparent)] bg-[length:22px_22px]"
+          />
+          <h2 className="mx-auto max-w-[16ch] text-[clamp(36px,5.4vw,72px)] leading-[1] font-[640] tracking-[-0.05em]">
+            Stop counting. <span className="text-white/50">Start upsolving.</span>
           </h2>
-          <p className="relative mx-auto mt-4 max-w-[46ch] text-15 text-white/70">
+          <p className="mx-auto mt-4 max-w-[46ch] text-15 text-white/70">
             Free for students. Sign in with Google and your history is here in seconds.
           </p>
-          <div className="relative mt-8 flex justify-center">
+          <div className="mt-8 flex justify-center">
             <Magnetic>
               <Link href="/signup" className={buttonClasses({ variant: "signal", size: "lg" })}>
                 <span data-magnetic-label className="inline-flex items-center gap-2">
@@ -953,12 +844,10 @@ function Footer() {
           </div>
         </div>
         <div className="mt-6 flex w-full flex-wrap items-center justify-between gap-4 border-t border-line pt-6 text-[13px] text-ink-3">
-          <span className="flex items-center gap-2">
-            <PixelHeart /> Built by students, for students.
-          </span>
+          <span>Built by students, for students.</span>
           <nav aria-label="Footer" className="flex flex-wrap gap-5">
-            <a href="#features" className="hover:text-ink">
-              Features
+            <a href="#how" className="hover:text-ink">
+              How it works
             </a>
             <a href="#team" className="hover:text-ink">
               Team
@@ -969,8 +858,11 @@ function Footer() {
             <Link href="/privacy" className="hover:text-ink">
               Privacy
             </Link>
-            <a href="https://github.com/shouryez/upsolve" className="hover:text-ink">
-              GitHub
+            <a
+              href="https://chromewebstore.google.com/detail/dsakaro-leetcode-tracker/mifliocgkeleaehbakobolfjmnfkikce"
+              className="hover:text-ink"
+            >
+              Chrome extension
             </a>
             <Link href="/login" className="hover:text-ink">
               Sign in
@@ -978,25 +870,8 @@ function Footer() {
           </nav>
         </div>
       </div>
-      {/* DSA करो across the full width; its headline bar fills with lime as you reach the end,
-          and the letters fade toward the bottom of the page. */}
+      {/* DSA करो across the full width; its headline bar fills with lime as you reach the end. */}
       <WordmarkFill className="mx-auto mt-6 w-[min(1180px,100%-32px)] pb-10 [mask-image:linear-gradient(180deg,#000_12%,rgba(0,0,0,.45)_42%,rgba(0,0,0,.1)_75%,transparent)] select-none" />
     </footer>
   );
 }
-
-/** A tiny heart drawn in pixels, like the heatmap. */
-function PixelHeart() {
-  const rows = ["0110110", "1111111", "1111111", "0111110", "0011100", "0001000"];
-  return (
-    <span aria-hidden="true" className="grid grid-cols-7 gap-px">
-      {rows.flatMap((r, y) =>
-        [...r].map((c, x) => (
-          <i key={`${x}-${y}`} className={c === "1" ? "size-[2px] bg-hard" : "size-[2px]"} />
-        )),
-      )}
-    </span>
-  );
-}
-
-// DsaKaro

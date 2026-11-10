@@ -166,14 +166,15 @@ export function ForgettingCurve() {
         <div className="scene:sticky scene:top-0 scene:flex scene:h-svh scene:items-center scene:pt-16">
           <div className="mx-auto w-[min(1200px,100%-32px)]">
             <div className="mb-8 flex flex-col items-start gap-4">
-              <span className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface/70 px-[11px] py-[5px] font-mono text-[11px] leading-none font-medium tracking-[.08em] text-ink-2 uppercase">
+              <span className="flex items-center gap-2 label-mono">
+                <span className="size-1.5 rounded-full bg-primary shadow-[0_0_0_3px_var(--color-primary-soft)]" />
                 Revision
               </span>
               <h2
                 id="revision-title"
-                className="max-w-[18ch] font-display text-[clamp(34px,5vw,60px)] leading-[1] tracking-[-0.02em]"
+                className="max-w-[18ch] text-[clamp(32px,4.6vw,56px)] leading-[1] font-[630] tracking-[-0.045em]"
               >
-                Revision you <em>have to prove.</em>
+                Revision you <span className="text-ink-3">have to prove.</span>
               </h2>
               <p className="max-w-[58ch] text-[15px] leading-relaxed text-ink-2">
                 You forget a solve within days. DsaKaro brings it back at 1, 3, 7, 16, 35 and 90
@@ -298,5 +299,3 @@ export function ForgettingCurve() {
     </section>
   );
 }
-
-// DsaKaro

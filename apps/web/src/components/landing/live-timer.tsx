@@ -17,13 +17,12 @@ export function LiveTimer({
     const id = setInterval(() => setS((x) => x + 1), 1000);
     return () => clearInterval(id);
   }, []);
-  const mm = String(Math.floor(s / 60)).padStart(2, "0");
+  const h = Math.floor(s / 3600);
+  const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
   const ss = String(s % 60).padStart(2, "0");
   return (
     <span className={className} aria-hidden="true" suppressHydrationWarning>
-      {mm}:{ss}
+      {h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`}
     </span>
   );
 }
-
-// DsaKaro
