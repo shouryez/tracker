@@ -62,7 +62,7 @@ export function SectionNav({ sections }: { sections: { id: string; label: string
     <nav
       ref={nav}
       aria-label="Settings sections"
-      className="sticky top-[84px] hidden flex-col gap-0.5 self-start lg:flex"
+      className="glass sticky top-[64px] z-20 -mx-1 flex gap-1 self-start overflow-x-auto rounded-[12px] p-1 lg:top-[84px] lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
     >
       {sections.map((s) => (
         <a
@@ -70,9 +70,9 @@ export function SectionNav({ sections }: { sections: { id: string; label: string
           href={`#${s.id}`}
           data-section={s.id}
           className={cn(
-            "relative rounded-[10px] px-3 py-2 text-13 text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink",
+            "relative shrink-0 rounded-[9px] px-3 py-2 text-13 whitespace-nowrap text-ink-3 transition-colors hover:bg-surface-2 hover:text-ink",
             "data-[active]:bg-surface-3 data-[active]:font-[600] data-[active]:text-ink",
-            "before:absolute before:top-2 before:bottom-2 before:left-0 before:w-[3px] before:scale-y-0 before:rounded-r-full before:bg-signal before:transition-transform data-[active]:before:scale-y-100",
+            "before:absolute before:top-2 before:bottom-2 before:left-0 max-lg:before:hidden before:w-[3px] before:scale-y-0 before:rounded-r-full before:bg-signal before:transition-transform data-[active]:before:scale-y-100",
           )}
         >
           {s.label}
@@ -82,4 +82,3 @@ export function SectionNav({ sections }: { sections: { id: string; label: string
   );
 }
 
-// DsaKaro

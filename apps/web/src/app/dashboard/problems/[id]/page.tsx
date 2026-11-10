@@ -8,6 +8,7 @@ import {
   ButtonArrow,
   Card,
   CardHeader,
+  CardSub,
   CardTitle,
   DifficultyTag,
   Skeleton,
@@ -19,6 +20,7 @@ import {
   buttonClasses,
 } from "@upsolve/ui";
 import { BackLink } from "@/components/back-link";
+import { AttemptStrip, KpiStrip } from "@/components/dashboard/lamplight";
 import { ProblemActions } from "@/components/daily/problem-actions";
 import { dueLabel, ResultTag, reviewUrl } from "@/components/learning";
 import {
@@ -130,6 +132,21 @@ async function ProblemContent({
         ["takeuforward", "neetcode", "youtube", "article"].includes(l.site) &&
         all.findIndex((y) => y.url === l.url) === i,
     );
+  // The latest timed attempt, for the strip at the top.
+  const lastSession = problem.sessions.reduce<(typeof problem.sessions)[number] | null>(
+    (a, b) => (!a || b.at > a.at ? b : a),
+    null,
+  );
+  const totalActive = problem.sessions.reduce((n, x) => n + x.activeMs, 0);
+  const VERDICT_LABEL: Record<string, string> = {
+    AC: "Accepted",
+    WA: "Wrong answer",
+    TLE: "Time limit",
+    MLE: "Memory limit",
+    RE: "Runtime error",
+    CE: "Compile error",
+    OTHER: "Other",
+  };
   const timeline = [
     ...problem.sessions.map((s) => ({ kind: "session" as const, at: s.at, s })),
     ...problem.submissions.map((s) => ({ kind: "submission" as const, at: s.at, s })),
@@ -189,6 +206,65 @@ async function ProblemContent({
         </div>
       </header>
 
+      <KpiStrip
+        items={[
+          {
+            label: "Time on it",
+            value: Math.round(totalActive / 60_000),
+            unit: "min",
+            note: `${problem.sessions.length} sitting${problem.sessions.length === 1 ? "" : "s"}`,
+          },
+          {
+            label: "Submissions",
+            value: problem.submissions.length,
+            note: `${problem.submissions.filter((x) => x.verdict === "AC").length} accepted`,
+          },
+          {
+            label: "How you solved it",
+            value: lastSession?.independence ? INDEPENDENCE[lastSession.independence] : "—",
+            note: lastSession?.independence ? "your honest answer" : "not answered yet",
+          },
+          {
+            label: "Next revision",
+            value: review
+              ? review.state.retired
+                ? "Done"
+                : dueLabel(review.state.dueAt, now, endOfToday)
+              : "—",
+            note: review
+              ? review.state.retired
+                ? "graduated"
+                : `rung ${Math.min(6, review.state.step + 1)} of 6`
+              : "after your first solve",
+          },
+        ]}
+      />
+
+      {lastSession && (
+        <Card className="p-[22px]">
+          <CardHeader>
+            <CardTitle>Latest attempt</CardTitle>
+            <CardSub>
+              <TimeAgo date={lastSession.at} />
+            </CardSub>
+          </CardHeader>
+          <AttemptStrip
+            start={lastSession.at.getTime()}
+            activeMs={lastSession.activeMs}
+            timeZone={profile?.timezone ?? "Asia/Kolkata"}
+            submissions={problem.submissions.map((x) => ({
+              at: x.at.getTime(),
+              ok: x.verdict === "AC",
+              label: VERDICT_LABEL[x.verdict] ?? x.verdict,
+            }))}
+          />
+          <p className="mt-2 text-12 text-ink-3">
+            Amber is time the extension counted; hatched is time after it, until your last
+            submission.
+          </p>
+        </Card>
+      )}
+
       <div className="grid grid-cols-12 gap-3.5">
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-8">
           <Card>
@@ -206,7 +282,7 @@ async function ProblemContent({
                             <Timer size={18} aria-hidden="true" />
                           </span>
                           <p className="text-15 font-[600]">
-                            No attempts <em className="font-display font-normal">yet.</em>
+                            No attempts <em className="text-ink-3 not-italic">yet.</em>
                           </p>
                           <p className="mt-1 max-w-[42ch] text-13 text-ink-2">
                             Open it with the extension connected and the timer starts on its own.
@@ -513,5 +589,3 @@ function ResourceTile({
     </a>
   );
 }
-
-// DsaKaro

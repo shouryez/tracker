@@ -221,7 +221,7 @@ export function KpiStrip({ items, className }: { items: KpiItem[]; className?: s
     <section
       aria-label="Key numbers"
       className={cn(
-        "surface-card grid grid-cols-2 overflow-hidden rounded-lg sm:grid-cols-3 xl:grid-cols-5",
+        "surface-card grid grid-cols-2 overflow-hidden rounded-lg sm:grid-cols-3 xl:auto-cols-fr xl:grid-flow-col xl:grid-cols-none",
         className,
       )}
     >
@@ -632,5 +632,82 @@ export function SkillMap({
         );
       })}
     </svg>
+  );
+}
+
+const clockOf = (t: number, tz: string) =>
+  new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: tz });
+
+/**
+ * One attempt as a strip: the timed stretch in amber with each submission marked where it
+ * happened (wrong in rose, accepted in lime), and clock times underneath.
+ */
+export function AttemptStrip({
+  start,
+  activeMs,
+  submissions,
+  timeZone,
+}: {
+  start: number;
+  activeMs: number;
+  submissions: { at: number; ok: boolean; label: string }[];
+  timeZone: string;
+}) {
+  const inside = submissions.filter((s) => s.at >= start - 60_000 && s.at <= start + 4 * 3_600_000);
+  const end = Math.max(start + activeMs, ...inside.map((s) => s.at)) + 60_000;
+  const span = Math.max(60_000, end - start);
+  const x = (t: number) => `${Math.min(100, Math.max(0, ((t - start) / span) * 100)).toFixed(2)}%`;
+  const ticks = Array.from({ length: 5 }, (_, i) => start + (span * i) / 4);
+  return (
+    <div className="overflow-x-auto">
+      <div className="relative min-w-[520px] px-2 pt-9 pb-1">
+        <div className="relative h-3.5">
+          <div className="absolute inset-0 flex gap-[3px]">
+            <span
+              className="rounded-[7px] bg-[var(--amber)]"
+              style={{ flex: `${Math.max(1, activeMs)} 1 0` }}
+            />
+            {end - start - activeMs > 60_000 && (
+              <span
+                className="rounded-[7px]"
+                style={{
+                  flex: `${end - start - activeMs} 1 0`,
+                  background:
+                    "repeating-linear-gradient(135deg, var(--surface-4) 0 4px, var(--surface-3) 4px 8px)",
+                }}
+              />
+            )}
+          </div>
+          {inside.map((s, i) => (
+            <span
+              key={i}
+              className="absolute -top-8 flex -translate-x-1/2 flex-col items-center gap-1"
+              style={{ left: x(s.at) }}
+            >
+              <span
+                className={cn(
+                  "rounded-full px-2 py-px text-[11px] font-[600] whitespace-nowrap",
+                  s.ok ? "bg-signal/15 text-signal-text" : "bg-bad/15 text-bad",
+                )}
+              >
+                {s.label}
+              </span>
+              <span className={cn("h-5 w-0.5 rounded-full", s.ok ? "bg-signal" : "bg-bad")} />
+            </span>
+          ))}
+        </div>
+        <div className="relative mt-2 h-4 font-mono text-11 text-ink-3">
+          {ticks.map((t, i) => (
+            <span
+              key={i}
+              className="absolute -translate-x-1/2 first:translate-x-0 last:-translate-x-full"
+              style={{ left: x(t) }}
+            >
+              {clockOf(t, timeZone)}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
