@@ -172,7 +172,7 @@
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Consolas, monospace;
-  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --radius-xs: 6px;
   --radius-sm: 10px;
@@ -393,20 +393,17 @@
 
 /* Standard card surface: vertical gradient + hairline + top highlight + e1. */
 @utility surface-card {
-  background: var(--card-fill);
-  border: 1px solid var(--line);
+  background: var(--card-fill) padding-box, var(--card-rim) border-box;
+  border: 1px solid transparent;
   box-shadow: var(--e1);
 }
 
 /* Hero card surface (one per page). Text on it is always light. */
 @utility surface-hero {
-  background: var(--hero-fill);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    var(--e2),
-    0 30px 80px -40px rgba(0, 0, 0, 0.6);
-  color: #f4f4f6;
+  background: var(--hero-fill) padding-box, var(--card-rim) border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--e2);
+  color: var(--ink);
 }
 
 /* Recessed surface for nested content. */
@@ -1220,44 +1217,42 @@
   }
 }
 
-/* ---------- Lamplight ---------- */
+/* ---------- Orbit ---------- */
 
-/* App ground: ink with one warm lamp up and to the left, and a faint cool fill on the right. */
+/* App ground: ink with a faint ember light up-left and a cool mint fill bottom-right. */
 @utility desk {
   background:
-    radial-gradient(1100px 640px at 16% -14%, var(--lamp), transparent 62%),
-    radial-gradient(900px 620px at 104% -6%, var(--lamp-2), transparent 60%), var(--bg);
+    radial-gradient(760px 560px at 22% -6%, var(--lamp), transparent 62%),
+    radial-gradient(900px 640px at 100% 100%, var(--lamp-2), transparent 60%), var(--bg);
   /* Not fixed: a fixed background repaints the whole page on every scroll frame. */
   background-repeat: no-repeat;
   background-color: var(--bg);
 }
 
-/* Dot field that fades downward; sits behind page headers. */
+/* Faint dot field that fades downward. */
 @utility dotfield {
   background-image: radial-gradient(var(--dots) 1px, transparent 1.4px);
   background-size: 20px 20px;
   mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
 }
 
-/* The shirorekha: the headline bar of करो, used as a progress line under headings.
-   <div class="rekha"><i style="width: 40%"></i></div> */
+/* A thin progress line. <div class="rekha"><i style="width: 40%"></i></div> */
 @utility rekha {
   position: relative;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--line-2);
+  height: 4px;
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
   overflow: hidden;
   & > i {
     position: absolute;
     inset: 0 auto 0 0;
-    border-radius: 2px;
+    border-radius: 99px;
     background: var(--signal);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--signal) 40%, transparent);
     transition: width var(--dur-slow) var(--ease-out);
   }
 }
 
-/* A warm lamp spot in a card's top-right corner. */
+/* A faint ember light in a card's top-left corner. */
 @utility lamp {
   position: relative;
   overflow: hidden;
@@ -1266,18 +1261,112 @@
     position: absolute;
     width: 420px;
     height: 420px;
-    right: -160px;
-    top: -220px;
+    left: -180px;
+    top: -240px;
     border-radius: 50%;
     background: radial-gradient(circle, var(--color-primary-soft), transparent 65%);
     pointer-events: none;
   }
 }
 
-/* Headlines are Geist now; old serif accents read as a dimmed word, not italics. */
+/* The ember gloss: the one primary action per screen. */
+@utility gloss {
+  position: relative;
+  isolation: isolate;
+  background: var(--ember-gloss);
+  color: var(--primary-ink);
+  box-shadow: var(--ember-gloss-shadow);
+  &::after {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 2px;
+    height: 44%;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+}
+
+/* Glass control (secondary buttons, segmented controls, chips). */
+@utility glass-control {
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+  box-shadow: inset 0 0 0 1px var(--line-2), var(--highlight);
+}
+
+/* Light sweep across a card on hover. Put on the card; it needs overflow hidden. */
+@utility sheen {
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    top: -20%;
+    left: -70%;
+    width: 40%;
+    height: 140%;
+    background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--ink) 7%, transparent), transparent);
+    transform: skewX(-18deg);
+    transition: left 1.1s var(--ease-out);
+    pointer-events: none;
+  }
+  &:hover::after {
+    left: 130%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      display: none;
+    }
+  }
+}
+
+/* The live dot: ember with a soft ping. */
+@utility live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: orbit-ping 1.8s ease-out infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* The focus orb surface. */
+@utility orb {
+  border-radius: 50%;
+  background: var(--orb-fill);
+  box-shadow:
+    inset -16px -24px 46px rgba(80, 25, 5, 0.42),
+    inset 10px 14px 30px rgba(255, 255, 255, 0.26),
+    0 0 0 1px rgba(255, 220, 195, 0.22),
+    0 30px 80px -24px rgba(240, 136, 79, 0.5);
+  color: #2a1205;
+}
+
+@keyframes orbit-ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+@keyframes orbit-breathe {
+  50% {
+    transform: scale(1.018);
+  }
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Headlines are Inter Tight; old serif accents read as a dimmed word, not italics. */
 .font-display {
-  font-weight: 640;
-  letter-spacing: -0.045em;
+  font-weight: 650;
+  letter-spacing: -0.035em;
 }
 em.font-display,
 .font-display.italic,

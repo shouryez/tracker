@@ -2,9 +2,10 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../cn";
 
 /**
- * signal  = the one primary CTA per view (lime)
- * primary = strong neutral (ink), for secondary-but-important actions
- * indigo  = kept for older call sites; now a calm violet-tinted secondary, never a CTA
+ * Orbit buttons are pills.
+ * signal  = the one primary action per view: glossy ember
+ * primary = an emphasised glass button, for important secondary actions
+ * indigo  = kept for older call sites; same as secondary
  */
 export type ButtonVariant =
   | "signal"
@@ -19,7 +20,7 @@ export type ButtonVariant =
 export type ButtonSize = "sm" | "md" | "lg" | "icon" | "icon-sm";
 
 const base =
-  "group/btn relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[10px] font-[550] tracking-[-0.005em] select-none " +
+  "group/btn relative isolate inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-[600] tracking-[-0.005em] select-none " +
   "transition-[transform,background-color,box-shadow,border-color,color,opacity] duration-[var(--dur-base)] ease-[var(--ease-out)] " +
   "active:scale-[.97] active:duration-[var(--dur-instant)] " +
   "disabled:pointer-events-none disabled:opacity-40 aria-busy:pointer-events-none " +
@@ -29,34 +30,27 @@ const base =
   "[&_[data-nudge=plus]]:transition-transform [&_[data-nudge=plus]]:duration-[var(--dur-base)] hover:[&_[data-nudge=plus]]:rotate-90";
 
 const sizes: Record<ButtonSize, string> = {
-  sm: "h-[32px] px-3 text-[12.5px] rounded-[8px]",
-  md: "h-[38px] px-3.5 text-[13.5px]",
-  lg: "h-[46px] px-5 text-[14.5px] rounded-[12px]",
-  icon: "size-[38px] p-0",
-  "icon-sm": "size-[32px] p-0 rounded-[8px]",
+  sm: "h-[32px] px-3.5 text-[13px]",
+  md: "h-[40px] px-4 text-[14px]",
+  lg: "h-[48px] px-6 text-[15px]",
+  icon: "size-[40px] p-0",
+  "icon-sm": "size-[32px] p-0",
 };
 
-/** Lamplight buttons stay put on hover: only colour and shadow change. */
-const lift = "";
+/** Orbit buttons lift 1px on hover and press in on click. */
+const lift = "hover:-translate-y-px";
+const glass =
+  "text-ink bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] shadow-[inset_0_0_0_1px_var(--line-2),var(--highlight)] hover:bg-[color-mix(in_srgb,var(--ink)_10%,transparent)]";
 
 const variants: Record<ButtonVariant, string> = {
-  signal: cn(
-    "bg-signal text-signal-ink shadow-[inset_0_0_0_1px_rgba(0,0,0,.15),0_8px_22px_-10px_color-mix(in_srgb,var(--signal)_60%,transparent)] hover:bg-signal-2",
-    lift,
-  ),
-  primary: cn("bg-ink text-bg hover:shadow-e2", lift),
-  indigo: cn(
-    "border border-violet-line bg-violet-soft text-ink hover:border-violet hover:shadow-glow-violet",
-    lift,
-  ),
-  secondary: cn(
-    "border border-line-2 bg-surface-3 text-ink hover:border-line-3 hover:bg-[color-mix(in_srgb,var(--surface-3)_70%,var(--ink)_6%)]",
-    lift,
-  ),
-  outline: "border border-line-2 bg-transparent text-ink hover:border-ink-3 hover:bg-surface-2",
-  ghost: "text-ink-2 hover:bg-surface-2 hover:text-ink",
+  signal: cn("gloss hover:brightness-105", lift),
+  primary: cn(glass, "bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] hover:bg-[color-mix(in_srgb,var(--ink)_14%,transparent)]", lift),
+  indigo: cn(glass, lift),
+  secondary: cn(glass, lift),
+  outline: "text-ink shadow-[inset_0_0_0_1px_var(--line-2)] hover:shadow-[inset_0_0_0_1px_var(--line-3)] hover:bg-[color-mix(in_srgb,var(--ink)_5%,transparent)]",
+  ghost: "text-ink-2 hover:bg-[color-mix(in_srgb,var(--ink)_7%,transparent)] hover:text-ink",
   danger: cn("bg-bad text-white hover:shadow-glow-danger", lift),
-  success: cn("bg-success text-[#06210f] hover:shadow-[0_8px_24px_-10px_var(--success)]", lift),
+  success: cn("bg-success text-signal-ink hover:shadow-glow-signal", lift),
   link:
     "h-auto rounded-sm px-0 text-ink active:scale-100 " +
     "bg-[linear-gradient(currentColor,currentColor)] bg-[length:0%_1px] bg-left-bottom bg-no-repeat pb-px " +

@@ -1,14 +1,14 @@
 /*
- * DsaKaro design tokens: "Lamplight". A desk at night: ink surfaces, one warm lamp.
+ * DsaKaro design tokens: "Orbit". Smoked glass on ink, one warm ember and one cool mint.
  * Components use these through Tailwind (see index.css), never raw hex.
  *
  * Each colour has one job:
- *   lime  = progress, accepted, the one primary action (signal)
- *   amber = focus time, revision, streaks, the lamp glow (primary; "violet" is a legacy alias)
- *   rose  = wrong answers, Hard, overdue
- *   mint  = Easy
- *   sky   = hints and solutions you looked at, info
- * Every role (difficulty, status, verdict, heatmap, charts) maps onto these.
+ *   ember (primary) = the one primary action, the live focus orb, the live dot. Nothing else.
+ *   mint  (signal)  = data: progress, Accepted, Easy, rings, bars, the heatmap
+ *   sand  (amber)   = Medium, attempted, warnings
+ *   rose            = wrong answers, Hard
+ *   sky             = hints and solutions you looked at, info
+ * Legacy names (signal, lime, amber, violet, lamp) are kept and point at these roles.
  */
 
 :root {
@@ -32,62 +32,63 @@
   --dur-slower: 700ms;
 
   /* same in both themes */
-  --signal: #c6f16b;
-  --signal-2: #b2e04f;
-  --signal-ink: #10160a;
+  --ember-gloss: radial-gradient(120% 90% at 22% 0%, rgba(255, 255, 255, 0.45), transparent 55%), linear-gradient(165deg, #ffc39e, #f59b66 45%, #e2753f);
+  --ember-gloss-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), inset 0 -3px 8px rgba(120, 40, 0, 0.22), 0 10px 26px -10px rgba(240, 136, 79, 0.6);
+  --orb-fill: radial-gradient(circle at 34% 27%, #ffebdc 0%, #ffcdaa 10%, #f7ab7b 30%, #ea8a55 56%, #be6233 82%, #7e3a1b 100%);
 }
 
 :root,
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0b0c0f;
-  --bg-2: #0e1013;
-  --surface: #111318;
-  --surface-2: #15171d;
-  --surface-3: #1b1e25;
-  --surface-4: #232731;
-  --surface-inset: #0d0e12;
-  --overlay: rgba(11, 12, 15, 0.74);
-  --line: rgba(255, 255, 255, 0.068);
+  --bg: #0b0b0c;
+  --bg-2: #0f0f11;
+  --surface: #141416;
+  --surface-2: #18181b;
+  --surface-3: #1e1e22;
+  --surface-4: #26262b;
+  --surface-inset: #0e0e10;
+  --overlay: rgba(11, 11, 12, 0.74);
+  --line: rgba(255, 255, 255, 0.07);
   --line-2: rgba(255, 255, 255, 0.12);
   --line-3: rgba(255, 255, 255, 0.2);
-  --ink: #eceef2;
-  --ink-2: #a7acb7;
-  /* AA (≥4.5:1) on surface and surface-2. */
-  --ink-3: #838996;
+  --ink: #f5f3f0;
+  --ink-2: #bab6b0;
+  /* AA (>=4.5:1) on every surface. */
+  --ink-3: #8f8b85;
   /* Decorative only (axis ticks, disabled). */
-  --ink-4: #5b606b;
+  --ink-4: #5e5b57;
 
-  /* The four accents. Every role below maps onto one of them. */
-  --lime: #c6f16b;
-  --sky: #8ab9ff;
-  --amber: #f3b45c;
-  --rose: #f47d8c;
+  --signal: #86d9c2;
+  --signal-2: #6cc4ac;
+  --signal-ink: #0b2a22;
 
-  --primary: var(--amber);
-  --primary-2: #e09c3c;
-  --primary-ink: #1d1306;
-  --primary-soft: rgba(243, 180, 92, 0.13);
-  /* Legacy name: the old violet role is now sky. */
+  --lime: #86d9c2;
+  --sky: #9db5e8;
+  --amber: #e2c27d;
+  --rose: #e58a8f;
+
+  --primary: #f0884f;
+  --primary-2: #e2753f;
+  --primary-ink: #2a1205;
+  --primary-soft: rgba(240, 136, 79, 0.14);
   --violet: var(--primary);
-  --violet-2: #e09c3c;
-  --signal-text: #c6f16b;
-  /* Lime for chart marks (darker on paper so it reads). */
-  --signal-mark: #c6f16b;
+  --violet-2: #e2753f;
+  --signal-text: #86d9c2;
+  --signal-mark: #86d9c2;
 
   --easy: var(--mint);
   --medium: var(--amber);
   --hard: var(--rose);
   --success: var(--lime);
-  --revise: var(--amber);
-  --overdue: var(--rose);
+  --revise: var(--primary);
+  --overdue: var(--primary);
   --attempted: var(--amber);
   --ok: var(--lime);
   --warn: var(--amber);
   --bad: var(--rose);
   --info: var(--sky);
-  --ember: var(--amber);
+  --ember: var(--primary);
 
   --v-ac: var(--lime);
   --v-wa: var(--rose);
@@ -95,46 +96,44 @@
   --v-ce: var(--ink-3);
   --v-err: var(--rose);
 
-  /* Heatmap: one lime ramp, each step clearly distinct. */
-  --heat-0: #1a1d23;
-  --heat-1: #2f3d1f;
-  --heat-2: #4f6d26;
-  --heat-3: #86b23a;
-  --heat-4: #c6f16b;
+  --heat-0: #19191c;
+  --heat-1: #1c3832;
+  --heat-2: #2c6255;
+  --heat-3: #52a08a;
+  --heat-4: #86d9c2;
 
-  /* Categorical charts: the four accents, then a deeper shade of each. */
-  --chart-1: var(--amber);
-  --chart-2: #c6f16b;
-  --chart-3: var(--sky);
-  --chart-4: var(--rose);
-  --chart-5: #b8873f;
-  --chart-6: #86b23a;
-  --chart-7: #5a86c4;
+  --chart-1: #86d9c2;
+  --chart-2: #f0884f;
+  --chart-3: #9db5e8;
+  --chart-4: #e2c27d;
+  --chart-5: #52a08a;
+  --chart-6: #e2753f;
+  --chart-7: #6f8fd0;
   --chart-8: var(--ink-3);
   --chart-grid: rgba(255, 255, 255, 0.06);
   --chart-axis: var(--ink-3);
 
-  --hatch: rgba(255, 255, 255, 0.09);
+  --hatch: rgba(255, 255, 255, 0.08);
   --pixel-off: rgba(255, 255, 255, 0.05);
-  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  --card-fill: linear-gradient(180deg, #15171c 0%, #111318 120px);
-  --hero-fill: radial-gradient(110% 130% at 0% 0%, rgba(243, 180, 92, 0.09), transparent 55%), radial-gradient(80% 100% at 100% 100%, rgba(198, 241, 107, 0.05), transparent 60%), linear-gradient(180deg, #171a20 0%, #101216 100%);
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  /* Smoked glass: a faint white veil over ink, brighter at the top-left. */
+  --card-fill: linear-gradient(160deg, #1a1a1d, #141416);
+  --card-rim: linear-gradient(140deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.05) 35%, rgba(255, 255, 255, 0.02) 60%, rgba(255, 255, 255, 0.1));
+  --hero-fill: radial-gradient(110% 130% at 0% 0%, rgba(240, 136, 79, 0.1), transparent 55%), radial-gradient(80% 100% at 100% 100%, rgba(134, 217, 194, 0.05), transparent 60%), linear-gradient(160deg, #1b1b1e, #141416);
   --grain-opacity: 0.05;
 
-  /* Elevation e0–e4: highlight + layered shadow. */
   --e0: none;
-  --e1: var(--highlight), 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 30px -16px rgba(0, 0, 0, 0.7);
+  --e1: var(--highlight), 0 30px 60px -40px rgba(0, 0, 0, 0.9);
   --e2:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 2px 4px rgba(0, 0, 0, 0.35),
-    0 24px 50px -22px rgba(0, 0, 0, 0.85);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.35),
+    0 40px 70px -40px rgba(0, 0, 0, 0.95);
   --e3:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 16px -8px rgba(0, 0, 0, 0.5),
     0 40px 80px -30px rgba(0, 0, 0, 0.9);
   --e4:
-    inset 0 1px 0 rgba(255, 255, 255, 0.09), 0 12px 24px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 24px -10px rgba(0, 0, 0, 0.55),
     0 70px 140px -40px rgba(0, 0, 0, 0.95);
-  --e-inset: inset 0 2px 6px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
-  /* Legacy names, mapped onto the elevation scale. */
+  --e-inset: inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-xs: var(--highlight), 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sm: var(--e1);
   --shadow: var(--e1);
@@ -142,98 +141,106 @@
   --shadow-lg: var(--e3);
   --shadow-xl: var(--e4);
 
-  --glow-primary: 0 0 0 1px rgba(243, 180, 92, 0.3), 0 12px 40px -10px rgba(243, 180, 92, 0.4);
+  --glow-primary: 0 0 0 1px rgba(240, 136, 79, 0.3), 0 12px 40px -10px rgba(240, 136, 79, 0.45);
   --glow-violet: var(--glow-primary);
-  --glow-signal: 0 0 0 4px rgba(198, 241, 107, 0.18), 0 12px 40px -8px rgba(198, 241, 107, 0.45);
-  --glow-danger: 0 0 0 1px rgba(242, 109, 130, 0.35), 0 12px 36px -10px rgba(242, 109, 130, 0.45);
+  --glow-signal: 0 0 0 4px rgba(134, 217, 194, 0.16), 0 12px 40px -8px rgba(134, 217, 194, 0.4);
+  --glow-danger: 0 0 0 1px rgba(229, 138, 143, 0.35), 0 12px 36px -10px rgba(229, 138, 143, 0.45);
   --spotlight: rgba(255, 255, 255, 0.06);
-  --glow-a: rgba(243, 180, 92, 0.35);
-  --glow-b: rgba(198, 241, 107, 0.18);
-  --aurora-1: rgba(243, 180, 92, 0.24);
-  --aurora-2: rgba(138, 185, 255, 0.14);
-  --aurora-3: rgba(198, 241, 107, 0.12);
+  --glow-a: rgba(240, 136, 79, 0.3);
+  --glow-b: rgba(134, 217, 194, 0.16);
+  --aurora-1: rgba(240, 136, 79, 0.2);
+  --aurora-2: rgba(157, 181, 232, 0.12);
+  --aurora-3: rgba(134, 217, 194, 0.12);
   --scrollbar: rgba(255, 255, 255, 0.14);
-  --mint: #5fd6b2;
-  --lamp: rgba(243, 180, 92, 0.085);
-  --lamp-2: rgba(120, 150, 255, 0.05);
-  --dots: rgba(255, 255, 255, 0.05);
+  --mint: #86d9c2;
+  --lamp: rgba(240, 136, 79, 0.085);
+  --lamp-2: rgba(134, 217, 194, 0.045);
+  --dots: rgba(255, 255, 255, 0.04);
 }
-/* Light: warm paper, ink text, accents darkened to keep AA. Designed, not inverted. */
+/* Light: warm bone paper, ink text, ember and mint deepened to keep AA. */
 [data-theme="light"] {
   color-scheme: light;
-  --bg: #f5f5f2;
-  --bg-2: #ecece8;
+  --bg: #f4f2ee;
+  --bg-2: #ece9e4;
   --surface: #ffffff;
-  --surface-2: #fbfbf9;
-  --surface-3: #f0f0ec;
+  --surface-2: #fbfaf8;
+  --surface-3: #f1eee9;
   --surface-4: #ffffff;
-  --surface-inset: #efefeb;
+  --surface-inset: #efece7;
   --overlay: rgba(255, 255, 255, 0.8);
-  --line: rgba(16, 18, 24, 0.075);
-  --line-2: rgba(16, 18, 24, 0.13);
-  --line-3: rgba(16, 18, 24, 0.24);
-  --ink: #15171c;
-  --ink-2: #4a4f59;
-  --ink-3: #646973;
-  --ink-4: #9da1aa;
+  --line: rgba(20, 20, 22, 0.08);
+  --line-2: rgba(20, 20, 22, 0.14);
+  --line-3: rgba(20, 20, 22, 0.24);
+  --ink: #141416;
+  --ink-2: #47443f;
+  --ink-3: #625f59;
+  --ink-4: #a19d96;
 
-  --lime: #476a00;
-  --sky: #2f6fd6;
-  --amber: #94560a;
-  --rose: #b42c43;
+  --signal: #1e8c72;
+  --signal-2: #187a63;
+  --signal-ink: #ffffff;
 
-  --primary: var(--amber);
-  --primary-2: #7a4608;
-  --primary-ink: #ffffff;
-  --primary-soft: rgba(233, 162, 62, 0.15);
+  --lime: #1e8c72;
+  --sky: #3b66c4;
+  --amber: #9a6a12;
+  --rose: #b9434c;
+
+  --primary: #dd6e31;
+  --primary-2: #c45a20;
+  --primary-ink: #2a1205;
+  --primary-soft: rgba(221, 110, 49, 0.12);
   --violet: var(--primary);
-  --violet-2: #7a4608;
-  --signal-text: #476a00;
-  --signal-mark: #7fb81f;
+  --violet-2: #c45a20;
+  --signal-text: #187a63;
+  --signal-mark: #1e8c72;
+  --mint: #1e8c72;
 
-  --heat-0: #e9e9e4;
-  --heat-1: #dcefb5;
-  --heat-2: #bde27a;
-  --heat-3: #93c93b;
-  --heat-4: #5f9a12;
+  --heat-0: #e9e6e0;
+  --heat-1: #cdebe1;
+  --heat-2: #94d3bf;
+  --heat-3: #4fae93;
+  --heat-4: #1e8c72;
 
-  --chart-2: #7fb81f;
-  --chart-5: #c79a55;
-  --chart-6: #5f9a12;
-  --chart-7: #6f9bd8;
-  --chart-grid: rgba(16, 18, 24, 0.07);
+  --chart-1: #1e8c72;
+  --chart-2: #dd6e31;
+  --chart-3: #3b66c4;
+  --chart-4: #b88a2a;
+  --chart-5: #4fae93;
+  --chart-6: #c45a20;
+  --chart-7: #6f8fd0;
+  --chart-grid: rgba(20, 20, 22, 0.07);
 
   --hatch: rgba(32, 28, 18, 0.1);
   --pixel-off: rgba(32, 28, 18, 0.06);
   --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --card-fill: linear-gradient(180deg, #ffffff 0%, #fdfdfb 100%);
+  --card-fill: linear-gradient(160deg, #ffffff, #fcfbf9);
+  --card-rim: linear-gradient(140deg, #fff, rgba(255, 255, 255, 0.5) 35%, rgba(20, 20, 22, 0.06) 60%, rgba(255, 255, 255, 0.9));
   --hero-fill:
-    radial-gradient(110% 130% at 0% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
-    radial-gradient(80% 100% at 100% 100%, rgba(198, 241, 107, 0.07), transparent 60%),
-    linear-gradient(180deg, #1b1b1e 0%, #111113 100%);
-  --grain-opacity: 0.035;
+    radial-gradient(110% 130% at 0% 0%, rgba(221, 110, 49, 0.08), transparent 55%),
+    radial-gradient(80% 100% at 100% 100%, rgba(30, 140, 114, 0.06), transparent 60%),
+    linear-gradient(160deg, #ffffff, #fbfaf8);
+  --grain-opacity: 0.03;
 
-  --e1: var(--highlight), 0 1px 2px rgba(32, 28, 18, 0.05), 0 8px 22px -14px rgba(32, 28, 18, 0.16);
+  --e1: var(--highlight), 0 1px 2px rgba(32, 28, 18, 0.05), 0 20px 40px -28px rgba(60, 30, 10, 0.25);
   --e2:
-    var(--highlight), 0 2px 4px rgba(32, 28, 18, 0.05), 0 22px 44px -22px rgba(32, 28, 18, 0.24);
+    var(--highlight), 0 2px 4px rgba(32, 28, 18, 0.05), 0 26px 50px -26px rgba(60, 30, 10, 0.3);
   --e3: 0 4px 10px -4px rgba(32, 28, 18, 0.1), 0 36px 70px -30px rgba(32, 28, 18, 0.3);
   --e4: 0 8px 16px -6px rgba(32, 28, 18, 0.12), 0 60px 120px -40px rgba(32, 28, 18, 0.36);
   --e-inset: inset 0 1px 3px rgba(32, 28, 18, 0.08), inset 0 0 0 1px rgba(32, 28, 18, 0.04);
   --shadow-xs: 0 1px 2px rgba(32, 28, 18, 0.05);
 
-  --glow-primary: 0 0 0 1px rgba(148, 86, 10, 0.25), 0 12px 32px -12px rgba(148, 86, 10, 0.35);
+  --glow-primary: 0 0 0 1px rgba(221, 110, 49, 0.25), 0 12px 32px -12px rgba(221, 110, 49, 0.35);
   --glow-violet: var(--glow-primary);
-  --glow-signal: 0 0 0 4px rgba(170, 214, 0, 0.25), 0 12px 32px -10px rgba(140, 180, 0, 0.45);
-  --glow-danger: 0 0 0 1px rgba(207, 36, 72, 0.25), 0 12px 32px -12px rgba(207, 36, 72, 0.35);
+  --glow-signal: 0 0 0 4px rgba(30, 140, 114, 0.18), 0 12px 32px -10px rgba(30, 140, 114, 0.35);
+  --glow-danger: 0 0 0 1px rgba(185, 67, 76, 0.25), 0 12px 32px -12px rgba(185, 67, 76, 0.35);
   --spotlight: rgba(32, 28, 18, 0.04);
-  --glow-a: rgba(233, 162, 62, 0.28);
-  --glow-b: rgba(127, 184, 31, 0.18);
-  --aurora-1: rgba(233, 162, 62, 0.2);
-  --aurora-2: rgba(47, 111, 214, 0.1);
-  --aurora-3: rgba(127, 184, 31, 0.16);
+  --glow-a: rgba(221, 110, 49, 0.22);
+  --glow-b: rgba(30, 140, 114, 0.16);
+  --aurora-1: rgba(221, 110, 49, 0.16);
+  --aurora-2: rgba(59, 102, 196, 0.08);
+  --aurora-3: rgba(30, 140, 114, 0.12);
   --scrollbar: rgba(32, 28, 18, 0.18);
-  --mint: #0c7556;
-  --lamp: rgba(243, 180, 92, 0.16);
-  --lamp-2: rgba(120, 150, 255, 0.08);
-  --dots: rgba(16, 18, 24, 0.07);
+  --lamp: rgba(240, 136, 79, 0.12);
+  --lamp-2: rgba(30, 140, 114, 0.06);
+  --dots: rgba(20, 20, 22, 0.06);
 }
