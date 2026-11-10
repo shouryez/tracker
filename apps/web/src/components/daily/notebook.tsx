@@ -87,45 +87,58 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
         </Button>
       </div>
 
-      {groups.map(([t, list]) => (
-        <section key={t} className="surface-card break-inside-avoid rounded-lg p-[18px]">
-          <h2 className="mb-3 flex items-center gap-2 text-16 font-[600]">
-            {label(t || null)}
-            <span className="tnum text-12 font-normal text-ink-3">{list.length}</span>
-          </h2>
-          <ul className="flex flex-col gap-2">
-            {list.map((e) => (
-              <li key={e.problemId} className="surface-inset rounded-[12px] px-3.5 py-2.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Link
-                    href={`/dashboard/problems/${e.problemId}`}
-                    className="text-[13.5px] font-[600] hover:underline"
-                  >
-                    {e.title}
-                  </Link>
-                  {e.difficulty && <DifficultyTag difficulty={e.difficulty} />}
-                  {e.mistakes.map((m) => (
-                    <Tag key={m} tone="wa" className="h-5 px-1.5 text-11">
-                      {m.replace(/-/g, " ")}
-                    </Tag>
-                  ))}
-                </div>
-                {e.takeaway && (
-                  <p className="mt-1.5 text-13 text-ink">
-                    <span className="mr-1.5 text-signal-text">→</span>
-                    {e.takeaway}
-                  </p>
-                )}
-                {e.note && (
-                  <p className="mt-1 line-clamp-3 text-12 whitespace-pre-line text-ink-2">
-                    {e.note}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+      {/* Index cards, one per topic, laid out like a notebook spread. */}
+      <div className="columns-1 gap-4 md:columns-2 xl:columns-3">
+        {groups.map(([t, list]) => (
+          <section
+            key={t}
+            className="surface-card mb-4 break-inside-avoid rounded-lg p-[18px] [background-image:repeating-linear-gradient(180deg,transparent_0_27px,var(--line)_27px_28px)] [background-position:0_64px] [background-repeat:no-repeat] [background-size:100%_calc(100%-64px)]"
+          >
+            <div className="mb-3 flex flex-col gap-2">
+              <span className="flex items-center gap-2">
+                <span className="label-mono">{label(t || null)}</span>
+                <span className="ml-auto tnum text-12 text-ink-3">
+                  {list.length} problem{list.length === 1 ? "" : "s"}
+                </span>
+              </span>
+              <span className="rekha">
+                <i style={{ width: `${Math.min(100, list.length * 20)}%` }} />
+              </span>
+            </div>
+            <ul className="flex flex-col">
+              {list.map((e) => (
+                <li key={e.problemId} className="border-t border-line py-2.5 first:border-t-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link
+                      href={`/dashboard/problems/${e.problemId}`}
+                      className="text-[13.5px] font-[600] hover:underline"
+                    >
+                      {e.title}
+                    </Link>
+                    {e.difficulty && <DifficultyTag difficulty={e.difficulty} />}
+                    {e.mistakes.map((m) => (
+                      <Tag key={m} tone="wa" className="h-5 px-1.5 text-11">
+                        {m.replace(/-/g, " ")}
+                      </Tag>
+                    ))}
+                  </div>
+                  {e.takeaway && (
+                    <p className="mt-1.5 text-13 text-ink">
+                      <span className="mr-1.5 text-signal-text">→</span>
+                      {e.takeaway}
+                    </p>
+                  )}
+                  {e.note && (
+                    <p className="mt-1 line-clamp-3 text-12 whitespace-pre-line text-ink-2">
+                      {e.note}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
       {groups.length === 0 && <p className="text-13 text-ink-3">Nothing matches.</p>}
     </div>
   );
@@ -246,5 +259,3 @@ export function MistakeJournal({
     </div>
   );
 }
-
-// DsaKaro
