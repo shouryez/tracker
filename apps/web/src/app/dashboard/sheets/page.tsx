@@ -1,13 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ExternalLink, Play, Puzzle } from "lucide-react";
-import { ButtonArrow, Card, ProgressRing, SkeletonCard, buttonClasses } from "@upsolve/ui";
-import { TiltCard } from "@/components/fx/pointer";
+import { Play, Puzzle } from "lucide-react";
+import {
+  ButtonArrow,
+  Card,
+  CardHeader,
+  CardSub,
+  CardTitle,
+  ProgressRing,
+  SkeletonCard,
+  buttonClasses,
+} from "@upsolve/ui";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { formatEta } from "@/components/progress";
-import { SheetCover, sheetIdentity } from "@/components/sheet-identity";
+import { BookCover, sheetIdentity } from "@/components/sheet-identity";
 import { FollowButton } from "@/components/sheets";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getSheetSummaries, type SheetSummary } from "@/lib/sheets-data";
@@ -43,7 +51,6 @@ async function SheetsContent() {
   const followed = sheets.filter((s) => s.following);
   const others = sheets.filter((s) => !s.following);
   const hero = followed[0];
-  const rest = [...followed.slice(1), ...others];
   const doneAll = sheets.reduce((n, s) => n + s.done, 0);
 
   return (
@@ -90,11 +97,39 @@ async function SheetsContent() {
         </p>
       )}
 
-      <div className="stagger-in grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
-        {rest.map((s) => (
-          <SheetCard key={s.id} s={s} />
-        ))}
-      </div>
+      <Card className="lamp p-6">
+        <CardHeader>
+          <CardTitle>Your shelf</CardTitle>
+          <CardSub>
+            {followed.length} following · {sheets.length} sheets
+          </CardSub>
+        </CardHeader>
+        <ul className="grid grid-cols-2 items-end gap-5 sm:grid-cols-3 lg:grid-cols-5">
+          {[...followed, ...others].map((s) => (
+            <li key={s.id} className="group/book relative flex flex-col gap-3">
+              <Link
+                href={`/dashboard/sheets/${s.slug}`}
+                aria-label={`${s.name}: ${s.done} of ${s.total} done`}
+              >
+                <BookCover
+                  slug={s.slug}
+                  name={s.name}
+                  author={s.author}
+                  done={s.done}
+                  total={s.total}
+                  main={s.id === hero?.id}
+                />
+              </Link>
+              <div className="flex items-center justify-between gap-2 px-0.5">
+                <span className="tnum font-mono text-12 text-ink-2">
+                  {s.done} / {s.total}
+                </span>
+                <FollowButton sheetId={s.id} following={s.following} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </>
   );
 }
@@ -146,67 +181,3 @@ function ContinueHero({ s }: { s: SheetSummary }) {
     </Card>
   );
 }
-
-function SheetCard({ s }: { s: SheetSummary }) {
-  const { color } = sheetIdentity(s.slug, s.name);
-  const pct = Math.round((s.done / Math.max(1, s.total)) * 100);
-  return (
-    <TiltCard className="rounded-lg">
-      <Card interactive spotlight className="flex h-full flex-col gap-4 p-0">
-        <SheetCover
-          slug={s.slug}
-          name={s.name}
-          className="h-24 rounded-t-[inherit] border-b border-line"
-        />
-        <div className="flex flex-1 flex-col gap-4 px-[18px] pb-[18px]">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <Link
-                href={`/dashboard/sheets/${s.slug}`}
-                className="block text-17 font-[600] tracking-[-0.02em] after:absolute after:inset-0 hover:underline"
-              >
-                {s.name}
-              </Link>
-              {s.author && (
-                <a
-                  href={s.sourceUrl ?? undefined}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="relative z-10 inline-flex items-center gap-1 text-12 text-ink-3 hover:text-ink"
-                >
-                  by {s.author} <ExternalLink size={10} aria-hidden="true" />
-                </a>
-              )}
-            </div>
-            <span className="relative z-10">
-              <FollowButton sheetId={s.id} following={s.following} />
-            </span>
-          </div>
-          <div className="mt-auto flex items-center gap-4" data-tilt-layer>
-            <ProgressRing
-              total={Math.max(1, s.total)}
-              size={76}
-              stroke={8}
-              segments={[{ label: "Done", value: s.done, color }]}
-              aria-label={`${s.done} of ${s.total} done`}
-            >
-              <span className="num text-17">{pct}%</span>
-            </ProgressRing>
-            <div className="min-w-0">
-              <p className="num text-24">
-                <NumberTicker value={s.done} />
-                <span className="text-[.6em] text-ink-3"> / {s.total}</span>
-              </p>
-              <p className="mt-1 text-12 text-ink-3">
-                {s.autoTracked} tick automatically
-                {s.eta ? ` · est. ${formatEta(s.eta)}` : ""}
-              </p>
-            </div>
-          </div>
-        </div>
-      </Card>
-    </TiltCard>
-  );
-}
-
-// DsaKaro

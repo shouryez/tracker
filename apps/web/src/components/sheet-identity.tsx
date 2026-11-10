@@ -78,3 +78,77 @@ export function SheetCover({
 }
 
 // DsaKaro
+
+/**
+ * A sheet drawn as a book: deep cover in the sheet's colour, a spine line, faint
+ * cloth hatching, the title set large and a progress line along the bottom.
+ * Stays dark in both themes, like a real book on a desk.
+ */
+export function BookCover({
+  slug,
+  name,
+  author,
+  done,
+  total,
+  main,
+  className,
+}: {
+  slug: string;
+  name: string;
+  author?: string | null;
+  done: number;
+  total: number;
+  main?: boolean;
+  className?: string;
+}) {
+  const { color } = sheetIdentity(slug, name);
+  const words = name.replace(/'s\b/, "").split(/\s+/);
+  const pct = Math.min(100, (done / Math.max(1, total)) * 100);
+  return (
+    <div
+      className={cn(
+        "relative isolate flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-[12px] p-3.5 text-white",
+        "shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_18px_30px_-18px_rgba(0,0,0,.7)]",
+        "transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover/book:-translate-y-1.5",
+        className,
+      )}
+      style={{
+        background: `linear-gradient(160deg, color-mix(in srgb, ${color} 34%, #0c0d10), color-mix(in srgb, ${color} 12%, #07080a) 70%)`,
+      }}
+    >
+      <span aria-hidden="true" className="absolute inset-y-0 left-2.5 w-px bg-white/20" />
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.035)_0_2px,transparent_2px_9px)]"
+      />
+      <div className="flex items-center justify-between gap-2 pl-2">
+        <span className="truncate font-mono text-[10px] tracking-[.1em] uppercase opacity-80">
+          {author ?? "sheet"}
+        </span>
+        {main && (
+          <span className="rounded-full bg-white/90 px-1.5 py-px text-[10px] font-[650] text-[#111]">
+            Main
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 pl-2">
+        <span className="text-[clamp(20px,2vw,26px)] leading-[.95] font-[680] tracking-[-0.03em] break-words">
+          {words.slice(0, 2).join(" ")}
+          {words.length > 2 && (
+            <>
+              <br />
+              {words.slice(2).join(" ")}
+            </>
+          )}
+        </span>
+        <span className="relative h-[3px] overflow-hidden rounded-[2px] bg-white/20">
+          <span
+            className="absolute inset-y-0 left-0 rounded-[2px]"
+            style={{ width: `${pct}%`, background: color }}
+          />
+        </span>
+        <span className="font-mono text-[11px] opacity-85">{total} problems</span>
+      </div>
+    </div>
+  );
+}
