@@ -167,7 +167,7 @@ export function ForgettingCurve() {
           <div className="mx-auto w-[min(1200px,100%-32px)]">
             <div className="mb-8 flex flex-col items-start gap-4">
               <span className="flex items-center gap-2 label-mono">
-                <span className="size-1.5 rounded-full bg-primary shadow-[0_0_0_3px_var(--color-primary-soft)]" />
+                <span className="size-1.5 rounded-full bg-signal shadow-[0_0_0_3px_var(--color-primary-soft)]" />
                 Revision
               </span>
               <h2
@@ -189,7 +189,7 @@ export function ForgettingCurve() {
                   <i className="h-[2px] w-5 rounded-full bg-ink-3" /> without revision
                 </span>
                 <span className="flex items-center gap-2">
-                  <i className="h-[3px] w-5 rounded-full bg-primary" /> with the ladder
+                  <i className="h-[3px] w-5 rounded-full bg-signal" /> with the ladder
                 </span>
                 <span className="ml-auto">example · how much you still remember</span>
               </div>
@@ -233,7 +233,7 @@ export function ForgettingCurve() {
                   ))}
                 </svg>
                 <CurveReveal ref={grey} d={FORGET} stroke="var(--ink-3)" width={2} opacity={0.7} />
-                <CurveReveal ref={sky} d={REVISED} stroke="var(--primary)" width={3} />
+                <CurveReveal ref={sky} d={REVISED} stroke="var(--signal)" width={3} />
                 <svg
                   viewBox={`0 0 ${W} ${H}`}
                   aria-hidden="true"
@@ -247,8 +247,8 @@ export function ForgettingCurve() {
                         i < step ? "scale-100 opacity-100" : "scale-50 opacity-0",
                       )}
                     >
-                      <circle cx={xOf(d)} cy={yOf(1)} r="11" fill="var(--primary)" opacity="0.18" />
-                      <circle cx={xOf(d)} cy={yOf(1)} r="5" fill="var(--primary)" />
+                      <circle cx={xOf(d)} cy={yOf(1)} r="11" fill="var(--signal)" opacity="0.18" />
+                      <circle cx={xOf(d)} cy={yOf(1)} r="5" fill="var(--signal)" />
                     </g>
                   ))}
                 </svg>
@@ -263,7 +263,7 @@ export function ForgettingCurve() {
                       className={cn(
                         "grid h-8 place-items-center rounded-[9px] border font-mono text-[11.5px] transition-colors duration-300",
                         i < step
-                          ? "border-[color-mix(in_srgb,var(--primary)_45%,transparent)] bg-primary-soft text-primary"
+                          ? "border-[color-mix(in_srgb,var(--signal)_45%,transparent)] bg-mint-soft text-signal-text"
                           : "border-line text-ink-3",
                       )}
                     >

@@ -433,13 +433,13 @@ function HowItWorks() {
           <li className={STEP}>
             <span className="font-mono text-12 text-ink-3">02</span>
             <PlayOnView className={cn(STAGE, "flex items-center gap-2.5 px-4")}>
-              <span className="demo-t h-2.5 flex-[3] origin-left rounded-full bg-primary armed:scale-x-0" />
+              <span className="demo-t h-2.5 flex-[3] origin-left rounded-full bg-signal armed:scale-x-0" />
               <span
                 className="demo-t h-2.5 flex-1 origin-left rounded-full bg-[repeating-linear-gradient(135deg,var(--surface-4)_0_3px,var(--line-3)_3px_5px)] armed:scale-x-0"
                 style={{ transitionDelay: "450ms" }}
               />
               <span
-                className="demo-t h-2.5 flex-[4] origin-left rounded-full bg-primary armed:scale-x-0"
+                className="demo-t h-2.5 flex-[4] origin-left rounded-full bg-signal armed:scale-x-0"
                 style={{ transitionDelay: "800ms" }}
               />
             </PlayOnView>
@@ -477,7 +477,7 @@ function HowItWorks() {
                   className="demo-t flex-1 origin-bottom rounded-[5px_5px_2px_2px] armed:scale-y-0"
                   style={{
                     height: `${h}%`,
-                    background: i < 3 ? "var(--primary)" : "var(--surface-4)",
+                    background: i < 3 ? "var(--signal)" : "var(--surface-4)",
                     transitionDelay: `${i * 110}ms`,
                   }}
                 />
