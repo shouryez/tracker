@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { RotateCw } from "lucide-react";
 import { Button, ErrorState, buttonClasses } from "@upsolve/ui";
 
@@ -13,6 +13,7 @@ export default function DashboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [pending, start] = useTransition();
   useEffect(() => {
     console.error("[dashboard]", error);
   }, [error]);
@@ -23,7 +24,12 @@ export default function DashboardError({
           mascot="thinking"
           action={
             <div className="flex flex-wrap justify-center gap-2">
-              <Button variant="signal" size="sm" onClick={reset}>
+              <Button
+                variant="signal"
+                size="sm"
+                state={pending ? "loading" : "idle"}
+                onClick={() => start(() => reset())}
+              >
                 <RotateCw size={14} aria-hidden="true" data-nudge="spin" /> Try again
               </Button>
               <Link
@@ -45,5 +51,3 @@ export default function DashboardError({
     </div>
   );
 }
-
-// DsaKaro

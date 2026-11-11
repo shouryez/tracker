@@ -14,6 +14,7 @@ import {
   type ActionResult,
 } from "@/app/actions/platforms";
 import { TimeAgo } from "./time-ago";
+import { MultiStepLoader } from "@/components/fx/multi-step-loader";
 
 export type PlatformRowAccount = {
   id: string;
@@ -47,6 +48,8 @@ export function PlatformRow({
   const [feedback, setFeedback] = useState<ActionResult | null>(null);
   const [handle, setHandle] = useState("");
   const [confirmRemove, setConfirmRemove] = useState(false);
+  // A connect in flight: show what the import is doing, step by step.
+  const [connecting, setConnecting] = useState(false);
 
   function run(action: () => Promise<ActionResult>) {
     setFeedback(null);
@@ -55,7 +58,14 @@ export function PlatformRow({
 
   function connect(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (handle.trim()) run(() => connectPlatform(platform, handle));
+    if (!handle.trim()) return;
+    setFeedback(null);
+    setConnecting(true);
+    startTransition(async () => {
+      setFeedback(await connectPlatform(platform, handle));
+      // Let the last step tick before the loader goes.
+      window.setTimeout(() => setConnecting(false), 1100);
+    });
   }
 
   return (
@@ -157,6 +167,19 @@ export function PlatformRow({
           </form>
         )}
       </div>
+
+      {connecting && (
+        <MultiStepLoader
+          className="mt-3.5 pl-1"
+          done={!pending}
+          steps={[
+            `Finding ${handle.trim() || "your profile"} on ${label}`,
+            "Fetching your solved problems",
+            "Matching them to your sheets",
+            "Building your revision queue",
+          ]}
+        />
+      )}
 
       {/* The confirm step gets its own line: inline beside Sync it was wider than a phone
           screen, and the dashboard clips overflow, so "Remove" couldn't be tapped. */}

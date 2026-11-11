@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ButtonArrow, Logo, Stacky, Starfield, buttonClasses } from "@upsolve/ui";
 import { Meteors } from "@/components/fx/decor";
 import { SignalType } from "@/components/fx/signal-type";
+import { InkTrail } from "@/components/fx/dot-field";
 import { DecodeText } from "@/components/fx/text";
 
 /** Site-wide 404: Stacky thinking it over, chrome numerals that decode on load, a verdict chip, a neon headline, meteors. */
@@ -9,6 +10,7 @@ export default function NotFound() {
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden bg-[#08080d] px-4 text-white">
       <Starfield className="opacity-60" />
+      <InkTrail />
       <Meteors count={6} />
       <div
         aria-hidden="true"

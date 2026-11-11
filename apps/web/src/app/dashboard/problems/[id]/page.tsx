@@ -39,7 +39,7 @@ import { getProfile } from "@/lib/data";
 import { getLearning } from "@/lib/learning";
 import { getMyGroups } from "@/lib/social-data";
 import type { SheetItemLink } from "@upsolve/db";
-import { getProblemDetail, type ProblemDetail } from "@/lib/problem-data";
+import { getProblemDetail, getSolveMedian, type ProblemDetail } from "@/lib/problem-data";
 import { formatDuration } from "@/lib/sessions-data";
 import { localDay, requestNow } from "@/lib/time";
 
@@ -96,11 +96,12 @@ async function ProblemContent({
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your problems.</p>;
 
-  const [problem, learning, profile, myGroups] = await Promise.all([
+  const [problem, learning, profile, myGroups, median] = await Promise.all([
     getProblemDetail(user.id, id),
     getLearning(user.id),
     getProfile(user.id),
     getMyGroups(user.id),
+    getSolveMedian(id),
   ]);
   if (!problem) notFound();
   const review = learning.find((p) => p.problemId === id) ?? null;
@@ -108,6 +109,10 @@ async function ProblemContent({
   const { end: endOfToday } = localDay(profile?.timezone ?? "Asia/Kolkata", now);
   const topics = topicsOf(problem.topics).map(topicLabel);
   const mistakes = countMistakes(problem.sessions);
+  const solvedTimes = problem.sessions
+    .filter((x) => x.outcome === "solved" && x.activeMs > 30_000)
+    .map((x) => x.activeMs);
+  const solvedBest = solvedTimes.length ? Math.min(...solvedTimes) : null;
   const solveUrl = problem.versions[0]?.url ?? problem.sheets[0]?.links[0]?.url ?? null;
   const firstVersion = problem.versions[0];
   const firstMark = firstVersion ? platformMarkId(firstVersion.platform) : null;
@@ -329,13 +334,13 @@ async function ProblemContent({
                           </p>
                         </div>
                       ) : (
-                        <ol className="relative ml-2 border-l border-line-2">
+                        <ol className="trace-beam relative ml-2 border-l border-line-2">
                           {timeline.slice(0, 60).map((t) =>
                             t.kind === "session" ? (
                               <li key={`s-${t.s.id}`} className="relative py-3 pl-5">
                                 <span
                                   aria-hidden="true"
-                                  className={`absolute top-[17px] -left-[5px] size-[9px] rounded-full border-2 border-surface ${t.s.outcome === "solved" ? "bg-success shadow-[0_0_8px_var(--success)]" : "bg-violet"}`}
+                                  className={`absolute top-[17px] -left-[5px] size-[9px] rounded-full border-2 border-surface ${t.s.outcome === "solved" ? "bg-signal shadow-[0_0_8px_var(--signal)]" : "bg-[var(--sky)]"}`}
                                 />
                                 <p className="flex flex-wrap items-center gap-2 text-[13.5px]">
                                   <span className="font-medium">
@@ -358,7 +363,7 @@ async function ProblemContent({
                                 </p>
                                 <span className="mt-2 flex h-1.5 max-w-[320px] overflow-hidden rounded-full bg-line">
                                   <span
-                                    className="h-full origin-left animate-[grow-x_700ms_var(--ease-out)_backwards] rounded-full bg-violet"
+                                    className="h-full origin-left animate-[grow-x_700ms_var(--ease-out)_backwards] rounded-full bg-[var(--sky)]"
                                     style={{
                                       width: `${Math.max(3, (t.s.activeMs / maxActive) * 100)}%`,
                                     }}
@@ -367,7 +372,14 @@ async function ProblemContent({
                                 {t.s.takeaway && (
                                   <p className="mt-2 text-13">
                                     <span className="mr-1.5 text-signal-text">→</span>
-                                    {t.s.takeaway}
+                                    {/* Blurred until hovered or focused: recall it first. */}
+                                    <span
+                                      tabIndex={0}
+                                      title="Your key insight: try to recall it, then hover"
+                                      className="insight-blur"
+                                    >
+                                      {t.s.takeaway}
+                                    </span>
                                   </p>
                                 )}
                                 {t.s.note && (
@@ -550,24 +562,44 @@ async function ProblemContent({
             </Card>
           )}
 
+          {median && solvedBest !== null && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Your time vs everyone</CardTitle>
+                <CardSub>{median.solvers} solvers</CardSub>
+              </CardHeader>
+              <TimeVsMedian mine={solvedBest} median={median.medianMs} />
+            </Card>
+          )}
+
           {problem.similar.length > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle>Same idea</CardTitle>
                 <CardSub>not solved yet</CardSub>
               </CardHeader>
-              <ul className="flex flex-col gap-2">
-                {problem.similar.map((s) => (
-                  <li key={s.id}>
+              {/* A snap carousel: swipe, scroll or tab through. */}
+              <ul className="-mx-1 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-1 pb-2 [scrollbar-width:thin]">
+                {problem.similar.map((sim) => (
+                  <li key={sim.id} className="w-[72%] shrink-0 snap-start">
                     <Link
-                      href={`/dashboard/problems/${s.id}`}
-                      className="surface-inset group/sim flex items-center gap-3 rounded-[12px] px-3 py-2.5 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
+                      href={`/dashboard/problems/${sim.id}`}
+                      className="surface-inset group/sim flex h-full flex-col justify-between gap-4 rounded-[16px] p-3.5 transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
                     >
-                      <span className="min-w-0 flex-1 truncate text-13 font-[550] group-hover/sim:underline">
-                        {s.title}
+                      <span
+                        aria-hidden="true"
+                        className="h-1 w-10 rounded-full"
+                        style={{
+                          background: sim.difficulty ? `var(--${sim.difficulty})` : "var(--line-3)",
+                        }}
+                      />
+                      <span className="line-clamp-2 text-14 font-[600] group-hover/sim:underline">
+                        {sim.title}
                       </span>
-                      {s.difficulty && <DifficultyTag difficulty={s.difficulty} />}
-                      <ButtonArrow />
+                      <span className="flex items-center justify-between">
+                        {sim.difficulty ? <DifficultyTag difficulty={sim.difficulty} /> : <span />}
+                        <ButtonArrow />
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -617,5 +649,62 @@ function ResourceTile({
         className="text-ink-4 transition-colors group-hover:text-ink-2"
       />
     </a>
+  );
+}
+
+/**
+ * Your best solve time against everyone's median (FRONTEND-PLAN §8 Problem 2): a soft bell
+ * curve that draws in, with the median and your marker on it.
+ */
+function TimeVsMedian({ mine, median }: { mine: number; median: number }) {
+  const W = 260;
+  const H = 70;
+  const span = Math.max(mine, median) * 2;
+  const x = (ms: number) => Math.min(W, (ms / span) * W);
+  // A log-normal-ish curve peaked at the median (illustrative shape, real positions).
+  const pts = Array.from({ length: 49 }, (_, i) => {
+    const t = (i / 48) * span;
+    const z = Math.log(Math.max(1, t) / median) / 0.55;
+    return `${((i / 48) * W).toFixed(1)},${(H - Math.exp((-z * z) / 2) * (H - 6)).toFixed(1)}`;
+  });
+  const faster = mine <= median;
+  const pct = Math.round((Math.abs(median - mine) / median) * 100);
+  return (
+    <div className="flex flex-col gap-2">
+      <svg viewBox={`0 -4 ${W} ${H + 18}`} className="w-full overflow-visible" aria-hidden="true">
+        <polyline
+          points={pts.join(" ")}
+          fill="none"
+          stroke="var(--ink)"
+          strokeOpacity=".35"
+          strokeWidth="1.5"
+          pathLength={100}
+          strokeDasharray="100"
+          className="animate-[draw_1100ms_var(--ease-out)_backwards]"
+        />
+        <line
+          x1={x(median)}
+          x2={x(median)}
+          y1={0}
+          y2={H}
+          stroke="var(--ink)"
+          strokeOpacity=".3"
+          strokeDasharray="3 3"
+        />
+        <text x={x(median)} y={H + 14} textAnchor="middle" fontSize="10" fill="var(--ink-3)">
+          median {formatDuration(median)}
+        </text>
+        <line x1={x(mine)} x2={x(mine)} y1={0} y2={H} stroke="var(--signal-mark)" strokeWidth="2" />
+        <circle cx={x(mine)} cy={4} r="5" fill="var(--signal-mark)" />
+      </svg>
+      <p className="text-13 text-ink-2">
+        Your best: <span className="font-[650] text-ink">{formatDuration(mine)}</span>,{" "}
+        {pct < 5
+          ? "right at the median."
+          : faster
+            ? `${pct}% faster than the median.`
+            : `${pct}% slower than the median.`}
+      </p>
+    </div>
   );
 }

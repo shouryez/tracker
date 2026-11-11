@@ -66,6 +66,13 @@ export function ReminderSettings({ initial, best }: { initial: Values; best: num
           />
         </div>
       )}
+      {(values.remindersOn || values.dailyEmail) && (
+        <ReminderPreview
+          hour={values.reminderHour ?? best}
+          email={values.dailyEmail}
+          push={values.remindersOn}
+        />
+      )}
       <div className="h-px bg-line" />
       <SwitchField
         title="Contest alerts"
@@ -78,6 +85,45 @@ export function ReminderSettings({ initial, best }: { initial: Values; best: num
         Browser notifications and contest alerts come from the DsaKaro extension, so they need it
         installed and connected. Emails go to the address you sign in with.
       </p>
+    </div>
+  );
+}
+
+/** A live preview of the reminder: what arrives, and when, as you change the settings. */
+function ReminderPreview({ hour, email, push }: { hour: number; email: boolean; push: boolean }) {
+  return (
+    <div className="flex flex-wrap gap-3" aria-label="Preview">
+      {push && (
+        <div
+          key={`p${hour}`}
+          className="glass-overlay flex w-[min(100%,300px)] animate-[pop-open_var(--dur-base)_var(--ease-spring)] items-start gap-3 rounded-[16px] p-3"
+        >
+          <span className="grid size-8 shrink-0 place-items-center rounded-[9px] bg-[#0b0b0c] text-[11px] font-[800] text-[#86d9c2]">
+            DK
+          </span>
+          <span className="min-w-0 text-12">
+            <span className="flex justify-between gap-2 text-ink-3">
+              <span className="font-[600] text-ink">DsaKaro</span>
+              {hourLabel(hour)}
+            </span>
+            <span className="block text-ink-2">Revisions due and what&apos;s left on Today.</span>
+          </span>
+        </div>
+      )}
+      {email && (
+        <div
+          key={`e${hour}`}
+          className="flex w-[min(100%,300px)] animate-[pop-open_var(--dur-base)_var(--ease-spring)] flex-col gap-1.5 rounded-[16px] bg-[#f6f3ec] p-3 text-12 text-[#26231e] shadow-e2"
+        >
+          <span className="flex justify-between text-[#6e685e]">
+            <span>Email · {hourLabel(hour)}</span>
+            <span>Inbox</span>
+          </span>
+          <span className="font-[700]">Today on DsaKaro: what&apos;s due</span>
+          <span className="h-1.5 w-3/4 rounded-full bg-[#d9d3c6]" />
+          <span className="h-1.5 w-1/2 rounded-full bg-[#d9d3c6]" />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,12 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
-import { Dumbbell, Printer, Search } from "lucide-react";
+import { useMemo, useState, useSyncExternalStore, useTransition } from "react";
+import { flushSync } from "react-dom";
+import { Dumbbell, EyeOff, Printer, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button, Card, DifficultyTag, EmptyState, Tag, cn, inputClasses } from "@upsolve/ui";
 import { addProblemsToPlan } from "@/app/actions/daily";
 import type { MistakePattern, NotebookEntry } from "@/lib/daily-data";
+import { reducedMotion } from "@/lib/feel";
+
+const QUIZ_KEY = "dsakaro:notebook-quiz";
+const QUIZ_EVENT = "dsakaro:notebook-quiz";
+const readQuiz = () => {
+  try {
+    return localStorage.getItem(QUIZ_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+const subscribeQuiz = (cb: () => void) => {
+  window.addEventListener(QUIZ_EVENT, cb);
+  return () => window.removeEventListener(QUIZ_EVENT, cb);
+};
+
+/** Runs a state change as a View Transition (cards morph to their new places) when it can. */
+function morph(update: () => void) {
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+  if (!doc.startViewTransition || reducedMotion()) return update();
+  doc.startViewTransition(() => flushSync(update));
+}
 
 type Topic = { id: string; label: string };
 
@@ -14,6 +37,14 @@ type Topic = { id: string; label: string };
 export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; topics: Topic[] }) {
   const [q, setQ] = useState("");
   const [topic, setTopic] = useState<string>("all");
+  // Quiz me: takeaways stay blurred until you hover or focus them (remembered per browser).
+  const quiz = useSyncExternalStore(subscribeQuiz, readQuiz, () => false);
+  const setQuiz = (v: boolean) => {
+    try {
+      localStorage.setItem(QUIZ_KEY, v ? "1" : "0");
+    } catch {}
+    window.dispatchEvent(new Event(QUIZ_EVENT));
+  };
   const label = (id: string | null) => topics.find((t) => t.id === id)?.label ?? "Other";
 
   const groups = useMemo(() => {
@@ -70,7 +101,17 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
               className={inputClasses({ icon: true, className: "h-[38px]" })}
             />
           </label>
-          <Button variant="secondary" size="sm" onClick={() => window.print()} className="ml-auto">
+          <Button
+            variant={quiz ? "primary" : "ghost"}
+            size="sm"
+            aria-pressed={quiz}
+            onClick={() => setQuiz(!quiz)}
+            title="Blur every takeaway until you hover it, so you can test yourself"
+            className="ml-auto"
+          >
+            <EyeOff size={14} aria-hidden="true" /> Quiz me
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => window.print()}>
             <Printer size={14} aria-hidden="true" /> Export as PDF
           </Button>
         </div>
@@ -84,7 +125,7 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
                 key={t.id}
                 type="button"
                 aria-pressed={on}
-                onClick={() => setTopic(t.id)}
+                onClick={() => morph(() => setTopic(t.id))}
                 className={cn(
                   "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[12.5px] font-[550] transition-colors",
                   on
@@ -105,14 +146,18 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
       {/* Index cards, one per topic, laid out like a notebook spread. */}
       <div
         className={cn(
-          "columns-1 gap-4",
+          "focus-group columns-1 gap-4",
           // As many columns as topics (up to three), so a short notebook doesn't leave a gap.
           groups.length >= 2 && "md:columns-2",
           groups.length >= 3 && "xl:columns-3",
         )}
       >
         {groups.map(([t, list]) => (
-          <section key={t} className="surface-card mb-4 break-inside-avoid rounded-[24px] p-5">
+          <section
+            key={t}
+            className="surface-card mb-4 break-inside-avoid rounded-[24px] p-5"
+            style={{ viewTransitionName: `nb-${(t || "other").replace(/[^a-z0-9-]/gi, "-")}` }}
+          >
             <div className="mb-3 flex flex-col gap-2">
               <span className="flex items-center gap-2">
                 <span className="text-15 font-[650] text-ink">{label(t || null)}</span>
@@ -144,7 +189,12 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
                   {e.takeaway && (
                     <p className="mt-1.5 text-13 text-ink">
                       <span className="mr-1.5 text-signal-text">→</span>
-                      {e.takeaway}
+                      <span
+                        tabIndex={quiz ? 0 : undefined}
+                        className={quiz ? "insight-blur" : undefined}
+                      >
+                        {e.takeaway}
+                      </span>
                     </p>
                   )}
                   {e.note && (

@@ -125,3 +125,28 @@ export async function getProblemDetail(
 }
 
 // DsaKaro
+
+export type SolveMedian = { medianMs: number; solvers: number };
+
+/**
+ * Everyone's median solve time for a problem (FRONTEND-PLAN B2): active time of solved
+ * sessions across all users, only when at least 5 people have solved it (so it's never one
+ * person's number). Cached for a day per problem.
+ */
+export async function getSolveMedian(problemId: string): Promise<SolveMedian | null> {
+  "use cache";
+  cacheTag(`median:${problemId}`);
+  cacheLife("days");
+  const [row] = (await db().execute(sql`
+    select percentile_cont(0.5) within group (order by best)::int as "medianMs",
+           count(*)::int as solvers
+    from (
+      select ps.user_id, min(ps.active_ms) as best
+      from practice_sessions ps
+      join platform_problems pp on pp.id = ps.platform_problem_id
+      where pp.problem_id = ${problemId} and ps.outcome = 'solved' and ps.active_ms > 30000
+      group by ps.user_id
+    ) t`)) as unknown as { medianMs: number | null; solvers: number }[];
+  if (!row || row.solvers < 5 || !row.medianMs) return null;
+  return { medianMs: row.medianMs, solvers: row.solvers };
+}

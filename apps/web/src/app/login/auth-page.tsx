@@ -5,6 +5,7 @@ import { LiveDot, Logo, ThemeToggle } from "@upsolve/ui";
 import { isSupabaseConfigured } from "@/lib/env";
 import { LoginForm } from "./login-form";
 import { VariableProximity } from "@/components/fx/variable-proximity";
+import { DotField } from "@/components/fx/dot-field";
 
 export type AuthMode = "login" | "signup";
 
@@ -92,7 +93,8 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
         </div>
       </aside>
 
-      <div className="relative grid place-items-center px-4 py-16">
+      <div className="relative grid place-items-center overflow-hidden px-4 py-16">
+        <DotField className="pointer-events-none absolute inset-0 hidden lg:block" />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 overflow-hidden lg:hidden"
