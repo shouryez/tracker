@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Brain, Clock, Info } from "lucide-react";
+import { topicLabel, type TopicId } from "@upsolve/core";
 import {
   Card,
   CardHeader,
@@ -12,7 +13,8 @@ import {
   buttonClasses,
 } from "@upsolve/ui";
 import { TopicRadar } from "@/components/charts/insights";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
+import { PracticeTopicButton } from "@/components/daily/practice-topic";
 import { RangeControl } from "@/components/range-control";
 import { MasteryBars } from "@/components/learning";
 import { KpiStrip, SkillMap } from "@/components/dashboard/lamplight";
@@ -132,7 +134,6 @@ async function AnalyticsContent({
       <SectionTabs tabs={INSIGHTS_TABS} />
       <PageHeader
         eyebrow={`Analytics · ${RANGE_LABEL[range].toLowerCase()}`}
-        glow={PAGE_GLOW.analytics}
         title={
           <>
             Analytics <em>· {RANGE_LABEL[range].toLowerCase()}</em>
@@ -447,17 +448,12 @@ async function AnalyticsContent({
           </div>
         </Card>
 
-        <Card className="col-span-12">
-          <CardHeader>
-            <CardTitle>Mistakes you tagged</CardTitle>
-            <CardSub>after a wrong answer</CardSub>
-          </CardHeader>
-          {a.mistakes.length === 0 ? (
-            <p className="text-13 text-ink-3">
-              None in this range. When the extension asks what went wrong, your answers collect
-              here.
-            </p>
-          ) : (
+        {a.mistakes.length > 0 && (
+          <Card className="col-span-12">
+            <CardHeader>
+              <CardTitle>Mistakes you tagged</CardTitle>
+              <CardSub>after a wrong answer</CardSub>
+            </CardHeader>
             <div className="flex flex-wrap gap-2">
               {a.mistakes.map((m) => (
                 <span
@@ -469,15 +465,23 @@ async function AnalyticsContent({
                 </span>
               ))}
             </div>
-          )}
-        </Card>
+          </Card>
+        )}
 
         <Card id="mastery" className="col-span-12 scroll-mt-24">
           <CardHeader>
             <CardTitle icon={icon(Brain)} tint="var(--easy)">
               Topic mastery
             </CardTitle>
-            <CardSub>all time · decays without practice</CardSub>
+            <span className="flex flex-wrap items-center gap-2">
+              <CardSub>all time · decays without practice</CardSub>
+              {weakestTopic && (
+                <PracticeTopicButton
+                  topic={weakestTopic}
+                  label={topicLabel(weakestTopic as TopicId)}
+                />
+              )}
+            </span>
           </CardHeader>
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
             <TopicRadar topics={radarTopics} size={280} />

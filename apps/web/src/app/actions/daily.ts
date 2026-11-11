@@ -3,7 +3,15 @@
 import { and, eq, isNotNull, isNull, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { z } from "zod";
-import { suggestNext, topicLabel, type Difficulty } from "@upsolve/core";
+import {
+  TOPICS,
+  comfortableLevel,
+  suggestNext,
+  topicLabel,
+  topicsOf,
+  type Difficulty,
+  type TopicId,
+} from "@upsolve/core";
 import {
   focusSessions,
   groupMembers,
@@ -304,6 +312,62 @@ export async function addUpsolveToPlan(keys: string[]): Promise<AddResult> {
     );
   updateTag(userTag(user.id));
   return { ok: true, added: fresh.length };
+}
+
+const TopicIdSchema = z.enum(TOPICS.map((t) => t.id) as [string, ...string[]]);
+
+/**
+ * "Practice my weakest topic": puts the next three unsolved problems in one topic from your
+ * sheets on today's list, at your comfortable level (or a step up) where there are enough.
+ */
+export async function addTopicPracticeToPlan(topic: string): Promise<AddResult> {
+  const user = await me();
+  if (!user) return { ok: false, error: "Sign in first." };
+  const t = TopicIdSchema.safeParse(topic);
+  if (!t.success) return { ok: false, error: "Unknown topic." };
+  const id = t.data as TopicId;
+  const [learning, candidates] = await Promise.all([
+    getLearning(user.id),
+    getNextCandidates(user.id),
+  ]);
+  const solvedBy: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
+  for (const p of learning) if (p.difficulty) solvedBy[p.difficulty]++;
+  const level = comfortableLevel(solvedBy);
+  const order: Difficulty[] = ["easy", "medium", "hard"];
+  const allowed = new Set(order.slice(order.indexOf(level), order.indexOf(level) + 2));
+  const day = await today(user.id);
+  const onList = (await db().execute(sql`
+    select pi.problem_id as "problemId" from plan_items pi
+    where pi.user_id = ${user.id} and ${ON_LIST(day)} and pi.problem_id is not null`)) as unknown as {
+    problemId: string;
+  }[];
+  const have = new Set(onList.map((r) => r.problemId));
+  const inTopic = candidates.filter((c) => !have.has(c.problemId) && topicsOf(c.tags).includes(id));
+  // Comfortable level first, then anything in the topic, keeping sheet order.
+  const picked = [
+    ...inTopic.filter((c) => c.difficulty && allowed.has(c.difficulty)),
+    ...inTopic.filter((c) => !c.difficulty || !allowed.has(c.difficulty)),
+  ].slice(0, 3);
+  if (picked.length === 0) {
+    return { ok: false, error: `No unsolved ${topicLabel(id)} problems left on your sheets.` };
+  }
+  const start = await nextPosition(user.id, day);
+  await db()
+    .insert(planItems)
+    .values(
+      picked.map((c, i) => ({
+        userId: user.id,
+        day,
+        kind: "next",
+        problemId: c.problemId,
+        title: c.title,
+        url: c.url,
+        detail: `Weakest topic · ${topicLabel(id)} · ${c.sheet}`,
+        position: start + i,
+      })),
+    );
+  updateTag(userTag(user.id));
+  return { ok: true, added: picked.length };
 }
 
 // ---------------------------------------------------------------- next problem
