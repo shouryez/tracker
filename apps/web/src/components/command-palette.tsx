@@ -167,7 +167,11 @@ export function CommandPalette() {
           <Search size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
           <Command.Input
             value={query}
-            onValueChange={setQuery}
+            onValueChange={(v) => {
+              setQuery(v);
+              // A new query starts at its top result (and the preview follows it).
+              setSelected("");
+            }}
             placeholder="Search problems, jump to a page, or run a command…"
             className="h-14 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-3"
           />

@@ -126,6 +126,12 @@ export function CurveHover({
   const Tag = as;
   const place = (e: React.PointerEvent) => {
     if (e.pointerType !== "mouse") return;
+    // On the problem link itself the peek card speaks; the curve steps aside.
+    if ((e.target as Element).closest('a[href^="/dashboard/problems/"]')) {
+      cancelAnimationFrame(raf.current);
+      setAt(null);
+      return;
+    }
     const { clientX, clientY } = e;
     cancelAnimationFrame(raf.current);
     raf.current = requestAnimationFrame(() => setAt({ x: clientX, y: clientY }));
