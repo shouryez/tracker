@@ -302,6 +302,7 @@ async function GroupContent({
             rows={board}
             metric={metric}
             viewerId={user.id}
+            boardKey={`group:${group.id}`}
             empty={
               metric === "rating"
                 ? "Nobody here has a contest rating yet."

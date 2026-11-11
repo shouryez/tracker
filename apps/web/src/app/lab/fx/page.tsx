@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Card, CardHeader, CardTitle } from "@upsolve/ui";
 import { BadgeShelf } from "@/components/badges";
+import { DailyChart, WeekCompare } from "@/components/charts/daily-linked";
 import { SessionReceipt } from "@/components/daily/session-receipt";
+import { HallOrbit } from "@/components/hall-orbit";
 import { HoloCard } from "@/components/holo-card";
 import { deriveBadges } from "@/lib/badges";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
@@ -14,6 +16,12 @@ import { BookCover } from "@/components/sheet-identity";
 export const metadata: Metadata = { title: "Effects lab", robots: { index: false } };
 
 const DAY = 86_400_000;
+const LAB_DAYS = Array.from({ length: 30 }, (_, i) => ({
+  date: new Date(Date.UTC(2026, 9, 13 + i)).toISOString().slice(0, 10),
+  ac: (i * 7) % 5,
+  wa: (i * 3) % 3,
+  other: i % 4 === 0 ? 1 : 0,
+}));
 
 /**
  * Dev-only bench for the FRONTEND-PLAN effects that live on signed-in pages, with fake data,
@@ -42,6 +50,35 @@ export default function FxLab() {
   return (
     <main id="main" className="mx-auto flex w-[min(1100px,100%-32px)] flex-col gap-6 py-10">
       <h1 className="font-display text-[40px]">Effects lab</h1>
+      <Card className="flex items-center gap-6">
+        <HallOrbit
+          label="Hostel B"
+          size={160}
+          members={["a", "b", "c", "d", "e", "f", "g"].map((id, i) => ({
+            userId: id,
+            name: id,
+            avatar: null,
+            dayStart: 0,
+            doneMs: 0,
+            live: i < 3 ? { startedAt: 0, pausedAt: null, pausedMs: 0 } : null,
+          }))}
+        />
+        <p className="text-14 text-ink-2">Study hall orbit: 3 studying inside, 4 idle outside.</p>
+      </Card>
+      <div className="grid gap-6 xl:grid-cols-[2fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Submissions per day (scrub)</CardTitle>
+          </CardHeader>
+          <DailyChart days={LAB_DAYS} />
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>This week vs last</CardTitle>
+          </CardHeader>
+          <WeekCompare days={LAB_DAYS} />
+        </Card>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Split-flap countdown</CardTitle>

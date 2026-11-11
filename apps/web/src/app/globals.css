@@ -1078,3 +1078,40 @@ li[data-next] {
     animation: none;
   }
 }
+
+/* Study hall orbit (components/hall-orbit.tsx): rings turn, buddies counter-turn. */
+.hall-ring {
+  animation: orbit-spin var(--dur, 60s) linear infinite;
+}
+.hall-upright {
+  animation: orbit-spin var(--dur, 60s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hall-ring,
+  .hall-upright {
+    animation: none;
+  }
+}
+
+/* Leaderboards (components/board-motion.tsx): "near you" hides far rows; moved rows get a
+   ▲/▼ badge for this visit. */
+.board-frame[data-near] li[data-far] {
+  display: none;
+}
+li[data-delta] {
+  position: relative;
+}
+li[data-delta]::after {
+  content: attr(data-delta);
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--signal-text);
+  animation: rise-in 500ms var(--ease-out) 700ms backwards;
+}
+li[data-dir="down"]::after {
+  color: var(--bad);
+}

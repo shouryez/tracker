@@ -202,6 +202,7 @@ async function CollegeContent({
             rows={rows}
             metric={metric}
             viewerId={user.id}
+            boardKey={`college:${scope}`}
             empty={
               rows.length === 0
                 ? "Nobody else is on this board yet. Share DsaKaro with your batch."

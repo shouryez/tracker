@@ -9,6 +9,7 @@ import { CreateGroupForm, JoinGroupForm } from "@/components/social";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { BOARD_TZ, getGroup, getGroupBoard, getMyGroups } from "@/lib/social-data";
 import { getStudyHall } from "@/lib/daily-data";
+import { HallOrbit } from "@/components/hall-orbit";
 import { localWeekStart, requestNow } from "@/lib/time";
 import { StudyBuddy } from "@/components/study-buddy";
 import { PEOPLE_TABS, SectionTabs } from "@/components/orbit/section-tabs";
@@ -156,18 +157,19 @@ async function GroupsContent() {
                 </Pill>
               </span>
             </div>
-            <div className="flex items-center">
-              {hall.slice(0, 5).map((m, k) => (
-                <span key={m.userId} className={k ? "-ml-2" : ""}>
-                  <StudyBuddy
-                    buddy={m.avatar}
-                    level={m.live ? (m.live.pausedAt ? "paused" : 1) : "idle"}
-                    size={38}
-                  />
-                </span>
-              ))}
-              <span className="ml-4 text-13 text-ink-3">
+            <div className="flex items-center gap-4">
+              <HallOrbit members={hall} label={g.name} size={120} />
+              <span className="text-13 text-ink-3">
                 {g.members} member{g.members === 1 ? "" : "s"}
+                <br />
+                {studying > 0 ? (
+                  <span className="text-ink-2">
+                    <span className="mr-1.5 inline-block size-1.5 rounded-full bg-primary align-middle" />
+                    {studying} on the inner ring now
+                  </span>
+                ) : (
+                  "Everyone's on the outer ring"
+                )}
               </span>
             </div>
             <div className="flex items-center justify-between gap-2 text-13">

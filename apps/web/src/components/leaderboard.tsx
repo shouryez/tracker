@@ -1,6 +1,7 @@
 import { CalendarCheck, Crown, Layers, RotateCcw, Timer } from "lucide-react";
 import { MAX_SCORE, SCORE_PARTS } from "@upsolve/core";
 import { cn } from "@upsolve/ui";
+import { BoardFrame } from "@/components/board-motion";
 import { NumberTicker } from "@/components/fx/number-ticker";
 import { RangeControl } from "@/components/range-control";
 import { VerifiedBadge } from "@/components/verified-badge";
@@ -65,13 +66,19 @@ export function Leaderboard({
   metric,
   viewerId,
   empty,
+  boardKey,
 }: {
   rows: BoardRow[];
   metric: BoardMetric;
   viewerId: string;
   empty: string;
+  /** Names this board, so rank changes between visits can be shown (and animated). */
+  boardKey?: string;
 }) {
   const ranked = rankBoard(rows, metric);
+  const meAt = ranked.findIndex((r) => r.userId === viewerId);
+  // Big boards open on the people near you (comparisons that mean something).
+  const nearYou = ranked.length > 8 && meAt >= 0;
   if (ranked.length === 0) {
     return (
       <div className="flex flex-col items-center py-8 text-center">
@@ -142,56 +149,65 @@ export function Leaderboard({
           })}
         </div>
       )}
-      <ol className="flex flex-col gap-1">
-        {ranked.map((r, i) => {
-          const me = r.userId === viewerId;
-          return (
-            <li
-              key={r.userId}
-              className={cn(
-                "grid grid-cols-[28px_auto_1fr_auto] items-center gap-x-3 gap-y-1.5 rounded-[12px] px-2.5 py-2.5 transition-colors",
-                me
-                  ? "bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] shadow-[inset_0_0_0_1px_var(--line-2)]"
-                  : "hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]",
-              )}
-              style={{ animation: `rise-in 420ms var(--ease-out) ${i * 40}ms backwards` }}
-            >
-              <span
+      <BoardFrame
+        boardKey={`${boardKey ?? "board"}:${metric}`}
+        ranks={Object.fromEntries(ranked.map((r) => [r.userId, r.rank]))}
+        nearYou={nearYou}
+        total={ranked.length}
+      >
+        <ol className="flex flex-col gap-1">
+          {ranked.map((r, i) => {
+            const me = r.userId === viewerId;
+            return (
+              <li
+                key={r.userId}
+                data-rank-user={r.userId}
+                data-far={nearYou && Math.abs(i - meAt) > 2 && r.rank > 3 ? "" : undefined}
                 className={cn(
-                  "num grid size-7 place-items-center rounded-[8px] text-[14px]",
-                  r.rank <= 3 ? "text-bg" : "text-ink-3",
+                  "grid grid-cols-[28px_auto_1fr_auto] items-center gap-x-3 gap-y-1.5 rounded-[12px] px-2.5 py-2.5 transition-colors",
+                  me
+                    ? "bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] shadow-[inset_0_0_0_1px_var(--line-2)]"
+                    : "hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]",
                 )}
-                style={r.rank <= 3 ? { background: MEDAL[r.rank - 1] } : undefined}
+                style={{ animation: `rise-in 420ms var(--ease-out) ${i * 40}ms backwards` }}
               >
-                {r.rank}
-              </span>
-              <Avatar r={r} />
-              <span className="min-w-0">
-                <span className="block truncate text-[13.5px] font-[550]">
-                  {r.name ?? r.handle ?? "Someone"}
-                  {r.verified && <VerifiedBadge size={13} className="ml-1" />}
-                  {me && <span className="ml-1.5 text-11 text-ink-3">you</span>}
-                </span>
-                <span className="tnum block truncate text-11 text-ink-3">
-                  {r.activeDays}/7 days · {r.reviews} revised · {formatDuration(r.focusMs)} focus ·{" "}
-                  {r.solved} solved
-                </span>
-              </span>
-              <span className="num text-right text-[18px]">{label(r, metric)}</span>
-              <span className="relative col-span-3 col-start-2 h-1.5 overflow-hidden rounded-full bg-line">
                 <span
-                  className="absolute inset-y-0 left-0 origin-left animate-[grow-x_800ms_var(--ease-out)_backwards] rounded-full"
-                  style={{
-                    width: `${Math.max(2, (value(r, metric) / top) * 100)}%`,
-                    // Your bar in mint (data); everyone else's neutral.
-                    background: me ? "var(--signal)" : "var(--line-3)",
-                  }}
-                />
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+                  className={cn(
+                    "num grid size-7 place-items-center rounded-[8px] text-[14px]",
+                    r.rank <= 3 ? "text-bg" : "text-ink-3",
+                  )}
+                  style={r.rank <= 3 ? { background: MEDAL[r.rank - 1] } : undefined}
+                >
+                  {r.rank}
+                </span>
+                <Avatar r={r} />
+                <span className="min-w-0">
+                  <span className="block truncate text-[13.5px] font-[550]">
+                    {r.name ?? r.handle ?? "Someone"}
+                    {r.verified && <VerifiedBadge size={13} className="ml-1" />}
+                    {me && <span className="ml-1.5 text-11 text-ink-3">you</span>}
+                  </span>
+                  <span className="tnum block truncate text-11 text-ink-3">
+                    {r.activeDays}/7 days · {r.reviews} revised · {formatDuration(r.focusMs)} focus
+                    · {r.solved} solved
+                  </span>
+                </span>
+                <span className="num text-right text-[18px]">{label(r, metric)}</span>
+                <span className="relative col-span-3 col-start-2 h-1.5 overflow-hidden rounded-full bg-line">
+                  <span
+                    className="absolute inset-y-0 left-0 origin-left animate-[grow-x_800ms_var(--ease-out)_backwards] rounded-full"
+                    style={{
+                      width: `${Math.max(2, (value(r, metric) / top) * 100)}%`,
+                      // Your bar in mint (data); everyone else's neutral.
+                      background: me ? "var(--signal)" : "var(--line-3)",
+                    }}
+                  />
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </BoardFrame>
     </div>
   );
 }
@@ -262,5 +278,3 @@ export function ScoreExplainer() {
     </div>
   );
 }
-
-// DsaKaro
