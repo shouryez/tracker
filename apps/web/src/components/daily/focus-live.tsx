@@ -79,7 +79,7 @@ export function ActivityLine({
         <TriangleAlert size={14} aria-hidden="true" className="shrink-0" />
         <span className="truncate">
           {now.label ?? "Off-task tab"}
-          {live.autoPauseOn ? " · pausing in 30s" : " · off-task"}
+          {" · off-task, not counted"}
         </span>
       </p>
     );

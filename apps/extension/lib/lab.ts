@@ -1,8 +1,8 @@
 // Lab mode: while a focus session runs, time on coding sites counts as focus and
 // everything else as away. Only the two totals and a switch count are kept; no URL,
 // title or tab content is ever stored or uploaded. What you're on right now is shown
-// live on your own DsaKaro page (never saved), and a while on a non-study tab can
-// pause the session (auto-pause).
+// live on your own DsaKaro page (never saved). The session never pauses itself: off-task
+// time is shown and kept out of focus, and only you pause or stop it.
 
 export type LabCategory = "focus" | "away";
 
@@ -91,9 +91,6 @@ const STUDY_CHANNELS = [
 /** Short names only match exactly (as a part they'd catch unrelated channels). */
 const STUDY_CHANNELS_EXACT = ["luv", "fraz", "cp with sahil", "priyansh agarwal"];
 
-/** Pausing waits this long on a non-study tab, so a quick look elsewhere doesn't pause. */
-export const AUTO_PAUSE_MS = 30_000;
-
 /** Video titles that count as studying when the tab is YouTube. */
 const DSA_WORDS =
   /\b(dsa|leetcode|gfg|potd|algorithms?|data structures?|arrays?|strings?|substrings?|subarrays?|subsequences?|subsets?|linked ?lists?|trees?|binary trees?|bst|graphs?|bfs|dfs|dp|dynamic programming|memoi[sz]ation|tabulation|recursion|backtracking|binary search|sliding window|two pointers?|heaps?|priority queue|stacks?|queues?|tries?|greedy|bit manipulation|bitmask(ing)?|hashing|hash ?maps?|prefix sums?|matrix|sorting|kadane|dijkstra|bellman|floyd|topo(logical)? sort|union find|disjoint set|dsu|segment trees?|fenwick|kruskal|prims?|mst|knapsack|lis|lcs|time complexity|big o|striver|neetcode|codeforces|codechef|coding interview|interview questions?|placements?|competitive programming|sde sheet|a2z|blind 75|g-\d+|dp-?\s?\d+|l-?\d+\.)(?=\W|$)/i;
@@ -117,8 +114,7 @@ export type YoutubeInfo = { channel: string | null; title: string | null };
 
 /**
  * Classifies a tab. `sure` is false when it can't tell (no browser window has focus, or a
- * YouTube video whose channel couldn't be read yet): time then counts as away, but it never
- * auto-pauses.
+ * YouTube video whose channel couldn't be read yet): time then counts as away.
  */
 export function classify(
   url: string | null | undefined,
@@ -208,11 +204,6 @@ export function describe(
   if (cat === "away") return { kind: "page", label: host };
   if (hostMatches(host, "youtube.com")) return { kind: "video", label: clean || "YouTube" };
   return { kind: "problem", label: clean || host };
-}
-
-/** Whether a known non-study tab has been active long enough to pause. */
-export function shouldAutoPause(awaySince: number | null | undefined, now: number) {
-  return awaySince != null && now - awaySince >= AUTO_PAUSE_MS;
 }
 
 export function newLab(focusId: string, startedAt: number, cat: LabCategory): LabState {

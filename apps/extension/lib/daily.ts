@@ -3,12 +3,10 @@
 import { browser } from "wxt/browser";
 import type { ExtProblemContext, ExtTodayResponse } from "@upsolve/contracts";
 import {
-  AUTO_PAUSE_MS,
   advance,
   classify,
   describe,
   newLab,
-  shouldAutoPause,
   totals,
   type AutoPaused,
   type LabActivity,
@@ -92,8 +90,8 @@ let api: Api | null = null;
 
 /**
  * Advances the running Lab session to now. Cheap; called on every tab or window change.
- * With auto-pause on: a known non-study tab for AUTO_PAUSE_MS pauses the session; the next
- * study tab resumes a session paused that way.
+ * The timer never pauses itself: off-task tabs are shown live and counted as away time
+ * (which never counts as focus), and only you pause or stop a session.
  */
 export function labStep(): Promise<LabLive> {
   const run = chain.then(step);
@@ -104,26 +102,19 @@ export function labStep(): Promise<LabLive> {
 async function step(): Promise<LabLive> {
   const now = Date.now();
   const seen = await activeTab();
-  const on = await store.autoPauseOn();
   const s = await store.lab();
 
   if (!s) {
+    // A session an older version auto-paused: a study tab still picks it up again.
     const auto = await store.autoPaused();
-    if (auto && on && seen.known && seen.cat === "focus") await autoResume(auto);
+    if (auto && seen.known && seen.cat === "focus") await autoResume(auto);
     return live(seen);
   }
 
   const next = advance(s, now, seen.cat);
-  // Only a tab we can see counts toward auto-pause: another app (an IDE, a PDF) never does.
+  // Only a tab we can see counts as away: another app (an IDE, a PDF) never does.
   next.awaySince = seen.known && seen.cat === "away" ? (s.awaySince ?? now) : null;
   await store.setLab(next);
-
-  if (on && shouldAutoPause(next.awaySince, now)) {
-    await autoPause(next, seen);
-  } else if (on && next.awaySince != null) {
-    // Check again when the grace period ends, even if no tab event comes.
-    await browser.alarms.create(AWAY_ALARM, { when: next.awaySince + AUTO_PAUSE_MS + 500 });
-  }
   return live(seen);
 }
 
@@ -133,7 +124,8 @@ async function live(seen: LabActivity): Promise<LabLive> {
     ...totals(s),
     now: seen,
     autoPaused: Boolean(await store.autoPaused()),
-    autoPauseOn: await store.autoPauseOn(),
+    // Auto-pause was removed: the timer only pauses when you pause it.
+    autoPauseOn: false,
   };
 }
 
@@ -145,29 +137,6 @@ async function post(path: string, body: object): Promise<number | null> {
   } catch {
     return null; // Offline: try again on the next step.
   }
-}
-
-async function autoPause(s: LabState, seen: LabActivity) {
-  const stored = await post("/api/ext/focus/pause", {
-    focusId: s.focusId,
-    focusMs: s.focusMs,
-    awayMs: s.awayMs,
-    switches: s.switches,
-  });
-  if (stored === null) return;
-  await store.setLab(null);
-  await browser.alarms.clear(AWAY_ALARM);
-  // 0: already paused or ended elsewhere; nothing to resume then.
-  if (stored === 0) return;
-  const host = seen.kind === "page" ? seen.label : null;
-  await store.setAutoPaused({ focusId: s.focusId, startedAt: s.startedAt, at: Date.now(), host });
-  await browser.notifications.create(`autopause:${s.focusId}:${Date.now()}`, {
-    type: "basic",
-    iconUrl: browser.runtime.getURL("/icon/128.png"),
-    title: "Study timer paused",
-    message: `${host ? `You're on ${host}. ` : ""}Open a study tab and it picks up again.`,
-    priority: 0,
-  });
 }
 
 async function autoResume(auto: AutoPaused) {
@@ -216,7 +185,7 @@ export async function labStatusForPopup(): Promise<
 > {
   const s = await store.lab();
   const auto = await store.autoPaused();
-  const autoPauseOn = await store.autoPauseOn();
+  const autoPauseOn = false;
   const lab = s ? { ...(await labStep()), focusId: s.focusId, startedAt: s.startedAt } : null;
   return {
     lab: lab && {
@@ -402,10 +371,8 @@ export function handleDaily(api: Api, msg: Message): Promise<unknown> | undefine
     case "lab:stop":
       return labStop(msg.report);
     case "lab:auto":
-      return store.setAutoPauseOn(msg.on).then(() => {
-        if (!msg.on) void browser.alarms.clear(AWAY_ALARM);
-        return labStep();
-      });
+      // Older popups still send this; auto-pause no longer exists.
+      return labStep();
     case "save:tab":
       return saveActiveTab(api);
     default:

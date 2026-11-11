@@ -11,16 +11,7 @@ import {
   submissionIdFromPath,
   titleFromDocument,
 } from "./leetcode.ts";
-import {
-  AUTO_PAUSE_MS,
-  advance,
-  categorize,
-  classify,
-  describe,
-  newLab,
-  shouldAutoPause,
-  totals,
-} from "./lab.ts";
+import { advance, categorize, classify, describe, newLab, totals } from "./lab.ts";
 import {
   isTufProgressUrl,
   parseTufSheet,
@@ -456,12 +447,6 @@ test("lab: live labels show study titles, but only the site for off-task tabs", 
     kind: "page",
     label: "instagram.com",
   });
-});
-
-test("lab: auto-pause waits out the grace period", () => {
-  assert.equal(shouldAutoPause(null, T0), false);
-  assert.equal(shouldAutoPause(T0, T0 + AUTO_PAUSE_MS - 1), false);
-  assert.equal(shouldAutoPause(T0, T0 + AUTO_PAUSE_MS), true);
 });
 
 test("lab: Striver videos count as study even with plain titles", () => {

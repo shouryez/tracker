@@ -160,29 +160,6 @@ function render(s: Status) {
     );
   }
 
-  if (s.lab || s.autoPaused) {
-    const box = h("input");
-    box.type = "checkbox";
-    box.checked = s.autoPauseOn;
-    box.addEventListener("change", () => void send({ type: "lab:auto", on: box.checked }));
-    children.push(
-      h(
-        "label",
-        { class: "card row toggle" },
-        box,
-        h(
-          "span",
-          {},
-          h("span", { text: "Auto-pause on non-study tabs" }),
-          h("span", {
-            class: "sub",
-            text: " 30 s on another site pauses the study timer; a study tab resumes it.",
-          }),
-        ),
-      ),
-    );
-  }
-
   const saved = h("p", { class: "sub" });
   children.push(
     h(
