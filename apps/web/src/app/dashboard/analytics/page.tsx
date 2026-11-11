@@ -15,6 +15,7 @@ import {
 import { TopicRadar } from "@/components/charts/insights";
 import { PageHeader } from "@/components/page-header";
 import { BadgesCard } from "./badges-card";
+import { DailyChart, WeekCompare } from "@/components/charts/daily-linked";
 import { PracticeTopicButton } from "@/components/daily/practice-topic";
 import { RangeControl } from "@/components/range-control";
 import { MasteryBars } from "@/components/learning";
@@ -96,7 +97,6 @@ async function AnalyticsContent({
   // Verdicts, first-try rate and solve times come from the extension; without it they're
   // empty or misleading (platform sync only reports Accepted), so those cards hide.
   const extData = a.firstTry.total > 0 || timed.length > 0;
-  const dayMax = Math.max(3, ...a.daily.map((d) => d.ac + d.wa + d.other));
   const hourMax = Math.max(1, ...a.byHour);
   const bestHour = a.byHour.some((n) => n > 0)
     ? a.byHour.reduce((best, _n, h, arr) => {
@@ -202,7 +202,7 @@ async function AnalyticsContent({
           ]}
         />
 
-        <Card className="col-span-12 p-[22px]">
+        <Card className="col-span-12 p-[22px] xl:col-span-8">
           <CardHeader>
             <CardTitle>Submissions per day</CardTitle>
             <span className="flex gap-3 text-12 text-ink-3">
@@ -217,58 +217,18 @@ async function AnalyticsContent({
               </span>
             </span>
           </CardHeader>
-          <div className="grid grid-cols-[24px_minmax(0,1fr)] gap-2">
-            <div className="flex h-40 flex-col justify-between text-right font-mono text-11 text-ink-3">
-              <span>{dayMax}</span>
-              <span>{Math.round(dayMax / 2)}</span>
-              <span>0</span>
-            </div>
-            <div className="flex h-40 items-end gap-1 border-b border-line-2 bg-[linear-gradient(var(--line)_1px,transparent_1px)] bg-[length:100%_50%]">
-              {a.daily.map((d, i) => (
-                <div
-                  key={d.date}
-                  title={`${d.date}: ${d.ac} accepted, ${d.wa} wrong, ${d.other} other`}
-                  className="flex h-full flex-1 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] flex-col-reverse gap-0.5"
-                  style={{ animationDelay: `${i * 15}ms` }}
-                >
-                  {d.ac > 0 && (
-                    <span
-                      className="rounded-[2px] bg-signal"
-                      style={{ height: `${(d.ac / dayMax) * 100}%` }}
-                    />
-                  )}
-                  {d.wa > 0 && (
-                    <span
-                      className="rounded-[2px] bg-[var(--rose)]"
-                      style={{ height: `${(d.wa / dayMax) * 100}%` }}
-                    />
-                  )}
-                  {d.other > 0 && (
-                    <span
-                      className="rounded-[2px] bg-line-3"
-                      style={{ height: `${(d.other / dayMax) * 100}%` }}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-2 flex justify-between pl-8 font-mono text-11 text-ink-3">
-            {[0, 7, 14, 21, 29].map((i) => (
-              <span key={i}>
-                {i === 29
-                  ? "Today"
-                  : new Date(`${a.daily[i]!.date}T12:00:00Z`).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      timeZone: "UTC",
-                    })}
-              </span>
-            ))}
-          </div>
+          <DailyChart days={a.daily} />
           <p className="mt-2 text-12 text-ink-3">
             Last 30 days. LeetCode and GFG sync only report Accepted; the extension sees the rest.
           </p>
+        </Card>
+
+        <Card className="col-span-12 p-[22px] xl:col-span-4">
+          <CardHeader>
+            <CardTitle>This week vs last</CardTitle>
+            <CardSub>drag to compare</CardSub>
+          </CardHeader>
+          <WeekCompare days={a.daily} />
         </Card>
 
         <Card className="lamp col-span-12 p-[22px]">
