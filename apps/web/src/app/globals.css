@@ -1023,3 +1023,58 @@ li[data-next] {
 [data-dir-hover]:focus-visible > .dir-tint {
   transform: none;
 }
+
+/* Session receipt (components/daily/session-receipt.tsx): prints out of the slot in steps,
+   with a torn zig-zag bottom edge. */
+.receipt::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -7px;
+  height: 8px;
+  background:
+    linear-gradient(135deg, #f6f3ec 33%, transparent 33%) 0 0 / 12px 8px repeat-x,
+    linear-gradient(225deg, #f6f3ec 33%, transparent 33%) 0 0 / 12px 8px repeat-x;
+}
+.receipt-print {
+  animation: receipt-print 1.5s steps(16, end) both;
+}
+@keyframes receipt-print {
+  from {
+    transform: translateY(-100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .receipt-print {
+    animation: none;
+  }
+}
+
+/* Break breathing on the focus screen: 4 s in, 7 s hold, 8 s out. */
+.breathe {
+  animation: breathe 19s ease-in-out infinite;
+}
+@keyframes breathe {
+  0% {
+    transform: scale(0.55);
+    opacity: 0.35;
+  }
+  21% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  58% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.55);
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .breathe {
+    animation: none;
+  }
+}

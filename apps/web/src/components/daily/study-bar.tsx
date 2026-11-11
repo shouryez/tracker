@@ -30,7 +30,7 @@ import {
 } from "./focus-live";
 import { FocusPopout } from "./focus-popout";
 import { FocusScreen, enterFullscreen } from "./focus-screen";
-import { StudyContentsList, studyCounts } from "./study-session";
+import { SessionReceipt } from "./session-receipt";
 
 const mins = (ms: number) => `${Math.round(ms / 60_000)}m`;
 const clock = (ms: number) => {
@@ -41,7 +41,15 @@ const clock = (ms: number) => {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 };
 
-export type StudyEnd = { wall: number; totals: LabTotals | null; contents: StudyContents | null };
+export type StudyEnd = {
+  wall: number;
+  totals: LabTotals | null;
+  contents: StudyContents | null;
+  /** The session's name, printed on the receipt. */
+  label?: string | null;
+  /** When it ended (ms). */
+  at?: number;
+};
 
 /** What a study session added up to, with Save / Discard. Shared by the Lab and the study bar. */
 export function StudySummaryModal({
@@ -68,36 +76,15 @@ export function StudySummaryModal({
     >
       {summary && (
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              [
-                "Focus",
-                summary.totals ? mins(summary.totals.focusMs) : mins(summary.wall),
-                "text-success",
-              ],
-              ["Away", summary.totals ? mins(summary.totals.awayMs) : "—", "text-medium"],
-              ["Switches", summary.totals ? String(summary.totals.switches) : "—", "text-ink"],
-            ].map(([k, v, c]) => (
-              <div key={k} className="surface-inset rounded-[14px] p-3 text-center">
-                <p className="label-mono">{k}</p>
-                <p className={cn("num mt-1 text-24", c)}>{v}</p>
-              </div>
-            ))}
-          </div>
-          {summary.contents && (
-            <div className="flex flex-col gap-2">
-              <p className="label-mono">
-                In this session
-                {studyCounts(summary.contents).length
-                  ? ` · ${studyCounts(summary.contents).join(" · ")}`
-                  : ""}
-              </p>
-              <StudyContentsList
-                contents={summary.contents}
-                className="max-h-[40vh] overflow-y-auto"
-              />
-            </div>
-          )}
+          <SessionReceipt
+            label={summary.label ?? null}
+            at={summary.at ?? summary.wall}
+            wall={summary.wall}
+            focusMs={summary.totals?.focusMs ?? null}
+            awayMs={summary.totals?.awayMs ?? null}
+            switches={summary.totals?.switches ?? null}
+            contents={summary.contents}
+          />
           {summary.totals && summary.totals.awayMs > 10 * 60_000 && (
             <p className="text-13 text-ink-2">
               You were away for {mins(summary.totals.awayMs)}. Away time never counts as focus.
@@ -136,6 +123,8 @@ export async function endStudy(active: ActiveFocus): Promise<StudyEnd> {
     wall,
     totals: totals.tracking ? { ...totals, focusMs: totals.focusMs + unseen } : null,
     contents,
+    label: active.label,
+    at: Date.now(),
   };
 }
 

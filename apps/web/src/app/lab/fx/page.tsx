@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Card, CardHeader, CardTitle } from "@upsolve/ui";
+import { SessionReceipt } from "@/components/daily/session-receipt";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
 import { CurveHover } from "@/components/memory-curve";
 import { RatingChart } from "@/components/rating-chart";
@@ -83,6 +84,55 @@ export default function FxLab() {
           </ul>
         </Card>
       </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Session receipt</CardTitle>
+        </CardHeader>
+        <SessionReceipt
+          label="Striver A2Z · Binary search"
+          at={now}
+          wall={84 * 60_000}
+          focusMs={71 * 60_000}
+          awayMs={9 * 60_000}
+          switches={14}
+          contents={{
+            problems: [
+              {
+                title: "Koko Eating Bananas",
+                url: "a",
+                platform: "leetcode",
+                difficulty: "medium",
+                outcome: "solved",
+                activeMs: 18 * 60_000,
+                independence: "solo",
+                at: now,
+              },
+              {
+                title: "Search in Rotated Sorted Array",
+                url: "b",
+                platform: "leetcode",
+                difficulty: "medium",
+                outcome: "solved",
+                activeMs: 22 * 60_000,
+                independence: "hint",
+                at: now,
+              },
+              {
+                title: "Median of Two Sorted Arrays",
+                url: "c",
+                platform: "leetcode",
+                difficulty: "hard",
+                outcome: "open",
+                activeMs: 25 * 60_000,
+                independence: null,
+                at: now,
+              },
+            ],
+            videos: [{ title: "BS-1", url: "v", sheet: null, watchedMs: 600_000, at: now }],
+            ticks: [],
+          }}
+        />
+      </Card>
     </main>
   );
 }

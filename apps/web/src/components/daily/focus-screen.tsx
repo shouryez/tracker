@@ -2,10 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { Coffee, Minimize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
+import {
+  AudioLines,
+  Coffee,
+  Minimize2,
+  Pause,
+  PictureInPicture2,
+  Play,
+  Square,
+} from "lucide-react";
 import { cn } from "@upsolve/ui";
 import type { LabLive } from "@/lib/ext-bridge";
 import type { ActiveFocus } from "@/lib/daily-data";
+import { savedVolume, setNoiseVolume, startNoise, stopNoise } from "@/lib/noise";
 import { breakState, focusClock, focusElapsed, focusPhase, focusTotals } from "@/lib/focus";
 import { ActivityLine } from "./focus-live";
 
@@ -62,6 +71,10 @@ export function FocusScreen({
 }) {
   const [now, setNow] = useState(() => Date.now());
   const [idle, setIdle] = useState(false);
+  // Brown noise: off until you turn it on; stops when you leave focus mode.
+  const [noise, setNoise] = useState(false);
+  const [volume, setVolume] = useState(savedVolume);
+  useEffect(() => () => stopNoise(), []);
   const idleTimer = useRef(0);
   const paused = active.pausedAt !== null;
 
@@ -94,10 +107,17 @@ export function FocusScreen({
     const nav = navigator as Navigator & {
       wakeLock?: { request: (t: "screen") => Promise<{ release: () => Promise<void> }> };
     };
-    nav.wakeLock
-      ?.request("screen")
-      .then((l) => (lock = l))
-      .catch(() => {});
+    const acquire = () =>
+      nav.wakeLock
+        ?.request("screen")
+        .then((l) => (lock = l))
+        .catch(() => {});
+    void acquire();
+    // The browser drops the lock when the tab is hidden; take it again on return.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void acquire();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     const overflow = document.documentElement.style.overflow;
     document.documentElement.style.overflow = "hidden";
     let wasFull = Boolean(fsElement());
@@ -110,6 +130,7 @@ export function FocusScreen({
     document.addEventListener("webkitfullscreenchange", onFs);
     return () => {
       void lock?.release().catch(() => {});
+      document.removeEventListener("visibilitychange", onVisible);
       document.documentElement.style.overflow = overflow;
       document.removeEventListener("fullscreenchange", onFs);
       document.removeEventListener("webkitfullscreenchange", onFs);
@@ -159,8 +180,18 @@ export function FocusScreen({
   const progress = Math.min(1, done / span);
   const lit = Math.floor(progress * TICKS);
   const seconds = Math.floor(elapsed / 1000);
-  // Lamplight: focus is the lamp (amber), a break is mint, paused dims to grey.
-  const tone = onBreak ? "#5fd6b2" : paused ? "#9aa0ab" : "#f3b45c";
+  // Orbit: focus is the ember orb, a break is mint, paused dims to grey.
+  const tone = onBreak ? "#86d9c2" : paused ? "#9aa0ab" : "#f0884f";
+  // Break breathing: 4 in, 7 hold, 8 out (19 s), shown while a break is running.
+  const breath = brk && brk.left > 0 ? now % 19_000 : null;
+  const breathCue =
+    breath === null
+      ? null
+      : breath < 4000
+        ? "Breathe in"
+        : breath < 11_000
+          ? "Hold"
+          : "Breathe out";
   const status = brk
     ? brk.left > 0
       ? "Break · stretch, drink water"
@@ -223,6 +254,42 @@ export function FocusScreen({
       >
         <span className="font-mono text-12 tracking-[.12em] text-white/50 uppercase">{wall}</span>
         <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 py-1 pr-1 pl-1">
+            <button
+              type="button"
+              aria-pressed={noise}
+              onClick={() => {
+                if (noise) {
+                  stopNoise();
+                  setNoise(false);
+                } else setNoise(startNoise(volume));
+              }}
+              title="Brown noise: a soft rumble that masks distractions"
+              className={cn(
+                "flex items-center gap-2 rounded-full px-3 py-1 text-13 transition-colors",
+                noise ? "bg-white/15 text-white" : "text-white/75 hover:text-white",
+              )}
+            >
+              <AudioLines size={14} aria-hidden="true" />
+              <span className="max-sm:hidden">Brown noise</span>
+            </button>
+            {noise && (
+              <input
+                type="range"
+                min={0.05}
+                max={1}
+                step={0.05}
+                value={volume}
+                aria-label="Brown noise volume"
+                onChange={(e) => {
+                  const v = Number(e.target.value);
+                  setVolume(v);
+                  setNoiseVolume(v);
+                }}
+                className="mr-2 w-20 accent-[var(--tone)]"
+              />
+            )}
+          </div>
           {onPopout && (
             <button
               type="button"
@@ -327,6 +394,12 @@ export function FocusScreen({
               <circle cx="200" cy="62" r="4" fill="#ffffff" opacity={paused ? 0.3 : 0.85} />
             </g>
           </svg>
+          {breathCue && (
+            <div
+              aria-hidden="true"
+              className="breathe pointer-events-none absolute inset-[22%] rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--tone)_26%,transparent),transparent_70%)]"
+            />
+          )}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
             <span className="flex items-center gap-2 font-mono text-[11px] tracking-[.18em] text-white/55 uppercase sm:text-12">
               {onBreak ? (
@@ -351,8 +424,14 @@ export function FocusScreen({
             >
               {brk ? focusClock(Math.max(0, brk.left)) : focusClock(p ? p.left : elapsed)}
             </span>
-            <span className="mt-3 text-13 text-white/45">
-              {p ? `${focusClock(elapsed)} total` : `${Math.round(progress * 100)}% of this hour`}
+            <span className="mt-3 text-13 text-white/45" aria-live="polite">
+              {breathCue ? (
+                <span className="font-[600] text-[var(--tone)]">{breathCue}</span>
+              ) : p ? (
+                `${focusClock(elapsed)} total`
+              ) : (
+                `${Math.round(progress * 100)}% of this hour`
+              )}
             </span>
           </div>
         </div>
@@ -382,7 +461,7 @@ export function FocusScreen({
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-500",
                   i < p.round - 1
-                    ? "w-6 bg-[#f3b45c]"
+                    ? "w-6 bg-[#f0884f]"
                     : i === p.round - 1
                       ? "w-10 bg-white/70"
                       : "w-6 bg-white/12",
@@ -392,7 +471,7 @@ export function FocusScreen({
           {shown.tracking && (
             <span className="ml-2 flex gap-3 font-mono text-12 text-white/55">
               <span>
-                <span className="text-[#f3b45c]">●</span> focus {mins(shown.focusMs)}
+                <span className="text-[#f0884f]">●</span> focus {mins(shown.focusMs)}
               </span>
               <span>
                 <span className="text-medium">●</span> away {mins(shown.awayMs)}
