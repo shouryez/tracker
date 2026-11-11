@@ -218,24 +218,47 @@ export type KpiItem = {
   href?: string;
 };
 
-/** One bordered strip of key numbers, split by hairlines, each with an optional sparkline. */
+/**
+ * Key numbers as a row of small glass cards (Orbit): label, a pill note, the big number and
+ * an optional sparkline. Cards share one height so the row reads as one band.
+ */
 export function KpiStrip({ items, className }: { items: KpiItem[]; className?: string }) {
+  const cols =
+    items.length >= 5
+      ? "sm:grid-cols-3 xl:grid-cols-5"
+      : items.length === 4
+        ? "sm:grid-cols-4"
+        : items.length === 3
+          ? "sm:grid-cols-3"
+          : "sm:grid-cols-2";
   return (
     <section
       aria-label="Key numbers"
       className={cn(
-        "surface-card grid grid-cols-2 overflow-hidden rounded-lg sm:grid-cols-3 xl:auto-cols-fr xl:grid-flow-col xl:grid-cols-none",
+        "grid grid-cols-2 gap-3 max-sm:[&>*:last-child:nth-child(odd)]:col-span-2",
+        cols,
+        items.length > 5 && "xl:grid-cols-6",
         className,
       )}
     >
       {items.map((k) => {
         const body = (
           <>
-            <span className="text-[12.5px] text-ink-2">{k.label}</span>
-            <span className="num text-[30px]">
+            <span className="flex min-h-6 items-center justify-between gap-2">
+              <span className="truncate text-[13px] font-[550] text-ink-2">{k.label}</span>
+              {k.href && (
+                <span
+                  aria-hidden="true"
+                  className="text-ink-4 transition-colors group-hover:text-ink-2"
+                >
+                  &rarr;
+                </span>
+              )}
+            </span>
+            <span className="num font-display text-[30px] leading-none tracking-[-0.04em]">
               {k.value}
               {k.unit && (
-                <small className="ml-0.5 text-[.5em] font-[500] tracking-[-0.01em] text-ink-3">
+                <small className="ml-1 text-[.48em] font-[500] tracking-[-0.01em] text-ink-3">
                   {k.unit}
                 </small>
               )}
@@ -244,12 +267,12 @@ export function KpiStrip({ items, className }: { items: KpiItem[]; className?: s
             {k.note && (
               <span
                 className={cn(
-                  "font-mono text-11",
+                  "mt-auto w-fit max-w-full truncate rounded-full px-2 py-0.5 text-[11.5px] font-[550]",
                   k.tone === "up"
-                    ? "text-signal-text"
+                    ? "bg-[color-mix(in_srgb,var(--signal)_14%,transparent)] text-signal-text"
                     : k.tone === "down"
-                      ? "text-bad"
-                      : "text-ink-3",
+                      ? "bg-[color-mix(in_srgb,var(--bad)_14%,transparent)] text-bad"
+                      : "bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] text-ink-3",
                 )}
               >
                 {k.note}
@@ -258,12 +281,15 @@ export function KpiStrip({ items, className }: { items: KpiItem[]; className?: s
           </>
         );
         const cls =
-          "flex min-w-0 flex-col gap-1.5 border-line px-[18px] py-4 [&:not(:last-child)]:border-r max-sm:border-b";
+          "surface-card group flex min-w-0 flex-col gap-2.5 rounded-[20px] px-[18px] py-4";
         return k.href ? (
           <Link
             key={k.label}
             href={k.href}
-            className={cn(cls, "transition-colors duration-[var(--dur-base)] hover:bg-surface-2")}
+            className={cn(
+              cls,
+              "sheen transition-transform duration-[var(--dur-base)] hover:-translate-y-0.5",
+            )}
           >
             {body}
           </Link>

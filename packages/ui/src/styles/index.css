@@ -383,13 +383,13 @@
   font-variant-numeric: tabular-nums slashed-zero;
 }
 
-/* Mono micro-label: 11px, uppercase, +0.06em, AA colour. */
+/* Small section label: sentence case, readable, AA colour (Orbit has no tiny caps). */
 @utility label-mono {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
   line-height: 1.4;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   color: var(--ink-3);
 }
 

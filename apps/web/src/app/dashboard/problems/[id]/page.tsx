@@ -172,17 +172,10 @@ async function ProblemContent({
           <span>{problem.sheets[0].step}</span>
         </nav>
       )}
-      <header className="relative isolate flex flex-wrap items-end justify-between gap-4">
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-24 -left-16 -z-10 h-56 w-[min(520px,90vw)] scale-[1.6] opacity-[.14]"
-          style={{
-            background: `radial-gradient(closest-side, ${problem.difficulty ? `var(--${problem.difficulty})` : "var(--violet)"}, transparent)`,
-          }}
-        />
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
-          <p className="mb-2 label-mono">Problem</p>
-          <h1 className="text-[clamp(28px,3.6vw,42px)] leading-[1.05] font-[600] tracking-[-0.04em]">
+          <p className="mb-2.5 text-[13.5px] text-ink-3">Problem</p>
+          <h1 className="font-display text-[clamp(32px,3.4vw,48px)] leading-[1.02] text-balance">
             {problem.title}
           </h1>
           <div className="mt-3 flex flex-wrap items-center gap-2">
