@@ -142,7 +142,14 @@ async function ReviewContent() {
           <CardTitle>1 · Look back</CardTitle>
           <CardSub>vs the week before</CardSub>
         </CardHeader>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 max-lg:[&>*:last-child]:col-span-full">
+        <div
+          className={cn(
+            "grid gap-3 sm:grid-cols-2",
+            // One tile per number plus focus: no empty slot at the end of the row.
+            compare.length + 1 >= 5 ? "lg:grid-cols-5" : "lg:grid-cols-4",
+            (compare.length + 1) % 2 === 1 && "max-lg:[&>*:last-child]:col-span-full",
+          )}
+        >
           {compare.map((c) => {
             const top = Math.max(1, c.now, c.prev);
             const d = c.now - c.prev;
@@ -205,28 +212,37 @@ async function ReviewContent() {
             </span>
           </div>
         </div>
-        <div className="mt-4 grid h-[110px] grid-cols-7 items-end gap-2 border-t border-line pt-4">
-          {week.days.map((d) => (
-            <div key={d.date} className="flex h-full flex-col items-center justify-end gap-1.5">
-              <span className="tnum text-11 text-ink-3">{d.solved || ""}</span>
-              <span
-                className={cn(
-                  "w-full max-w-9 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[6px]",
-                  !d.solved && "h-1",
-                )}
-                style={{
-                  height: d.solved ? `${Math.max(10, (d.solved / max) * 100)}%` : undefined,
-                  background: d.solved
-                    ? week.bestDay?.date === d.date
-                      ? "var(--signal)"
-                      : "color-mix(in srgb, var(--signal) 45%, transparent)"
-                    : "var(--line-2)",
-                }}
-              />
-              <span className="text-11 text-ink-3">{fmtDay(d.date, { weekday: "narrow" })}</span>
-            </div>
-          ))}
-        </div>
+        {week.days.every((d) => !d.solved) ? (
+          <p className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-13 text-ink-3">
+            No new problems solved this week yet.
+            <Link href="/dashboard" className="font-[600] text-ink-2 hover:text-ink">
+              Plan today &rarr;
+            </Link>
+          </p>
+        ) : (
+          <div className="mt-4 grid h-[110px] grid-cols-7 items-end gap-2 border-t border-line pt-4">
+            {week.days.map((d) => (
+              <div key={d.date} className="flex h-full flex-col items-center justify-end gap-1.5">
+                <span className="tnum text-11 text-ink-3">{d.solved || ""}</span>
+                <span
+                  className={cn(
+                    "w-full max-w-9 origin-bottom animate-[grow-y_700ms_var(--ease-out)_backwards] rounded-[6px]",
+                    !d.solved && "h-1",
+                  )}
+                  style={{
+                    height: d.solved ? `${Math.max(10, (d.solved / max) * 100)}%` : undefined,
+                    background: d.solved
+                      ? week.bestDay?.date === d.date
+                        ? "var(--signal)"
+                        : "color-mix(in srgb, var(--signal) 45%, transparent)"
+                      : "var(--line-2)",
+                  }}
+                />
+                <span className="text-11 text-ink-3">{fmtDay(d.date, { weekday: "narrow" })}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
 
       <div className="grid gap-3.5 xl:grid-cols-2">

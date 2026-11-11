@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Crown, Link2, Plus } from "lucide-react";
 import { Card, CardHeader, CardSub, CardTitle, Pill, SkeletonCard, cn } from "@upsolve/ui";
 import { CopyLinkButton } from "@/components/orbit/copy-link";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { CreateGroupForm, JoinGroupForm } from "@/components/social";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { BOARD_TZ, getGroup, getGroupBoard, getMyGroups } from "@/lib/social-data";
@@ -30,7 +30,6 @@ export default function GroupsPage() {
       <SectionTabs tabs={PEOPLE_TABS} />
       <PageHeader
         eyebrow="Groups · friends only"
-        glow={PAGE_GLOW.groups}
         title="Groups"
         subtitle="A weekly leaderboard and a live study room for your circle."
       />
@@ -131,10 +130,14 @@ async function GroupsContent() {
   const first = details[0]!;
   const invite = await getGroup(user.id, first.g.id);
   const maxSolved = Math.max(1, ...first.board.map((r) => r.solved));
+  // The "New group" tile takes whatever is left of the last row, so the grid never has a hole.
+  const tiles = details.length + 1;
+  const xlLeft = 3 - ((tiles - 1) % 3); // columns left for the tile in its xl row
+  const mdLeft = 2 - ((tiles - 1) % 2);
 
   return (
     <>
-      <section aria-label="Your groups" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section aria-label="Your groups" className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
         {details.map(({ g, hall, studying, rank, me }) => (
           <div
             key={g.id}
@@ -172,7 +175,7 @@ async function GroupsContent() {
                 {rank ? `You're ${ordinal(rank)} this week` : "Not ranked yet"}
               </span>
               {me && (
-                <span className="font-mono text-ink-2">
+                <span className="tnum text-ink-2">
                   {me.solved} solved · {(me.focusMs / 3_600_000).toFixed(1)} h
                 </span>
               )}
@@ -182,10 +185,46 @@ async function GroupsContent() {
             </div>
           </div>
         ))}
+        <div
+          className={cn(
+            "surface-card flex flex-col gap-5 rounded-[24px] p-[22px]",
+            mdLeft === 2 && "md:col-span-2",
+            xlLeft === 3 ? "xl:col-span-3" : xlLeft === 2 ? "xl:col-span-2" : "xl:col-span-1",
+          )}
+        >
+          <div
+            className={cn(
+              "grid gap-5",
+              xlLeft >= 2 && "xl:grid-cols-2 xl:gap-8",
+              mdLeft === 2 && "md:grid-cols-2 md:gap-8",
+            )}
+          >
+            <div className="flex min-w-0 flex-col gap-3">
+              <p className="flex items-center gap-2 text-15 font-[620]">
+                <span className="glass-control grid size-8 place-items-center rounded-[10px]">
+                  {icon(Plus)}
+                </span>
+                Start a group
+              </p>
+              <p className="text-13 text-ink-2">For your hostel wing, lab batch or coding club.</p>
+              <CreateGroupForm />
+            </div>
+            <div className="flex min-w-0 flex-col gap-3">
+              <p className="flex items-center gap-2 text-15 font-[620]">
+                <span className="glass-control grid size-8 place-items-center rounded-[10px]">
+                  {icon(Link2)}
+                </span>
+                Join with a code
+              </p>
+              <p className="text-13 text-ink-2">Paste the invite link or code a friend sent you.</p>
+              <JoinGroupForm />
+            </div>
+          </div>
+        </div>
       </section>
 
-      <div className="flex flex-wrap items-start gap-4">
-        <Card className="min-w-0 flex-[2_1_560px] p-[22px]">
+      <div className="grid gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <Card className="min-w-0 p-[22px]">
           <CardHeader>
             <CardTitle>{first.g.name} · this week</CardTitle>
             <CardSub>resets Monday</CardSub>
@@ -202,12 +241,12 @@ async function GroupsContent() {
                     key={r.userId}
                     className={cn(
                       "grid grid-cols-[28px_40px_minmax(0,160px)_minmax(0,1fr)_56px] items-center gap-3 rounded-[12px] px-2 py-2.5",
-                      mine && "bg-surface-3",
+                      mine && "bg-[color-mix(in_srgb,var(--ink)_6%,transparent)]",
                     )}
                   >
                     <span
                       className={cn(
-                        "font-mono text-13 font-[600]",
+                        "tnum text-13 font-[650]",
                         i === 0 ? "text-[var(--amber)]" : "text-ink-3",
                       )}
                     >
@@ -223,7 +262,7 @@ async function GroupsContent() {
                         {(r.focusMs / 3_600_000).toFixed(1)} h
                       </span>
                     </span>
-                    <span className="h-2 overflow-hidden rounded-full bg-surface-4">
+                    <span className="h-2 overflow-hidden rounded-full bg-line">
                       <span
                         className="block h-full rounded-full"
                         style={{
@@ -233,7 +272,7 @@ async function GroupsContent() {
                         }}
                       />
                     </span>
-                    <span className="tnum text-right font-mono text-14 font-[600]">{r.solved}</span>
+                    <span className="tnum text-right font-display text-[18px]">{r.solved}</span>
                   </li>
                 );
               })}
@@ -247,42 +286,25 @@ async function GroupsContent() {
           </Link>
         </Card>
 
-        <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-4">
-          {invite && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Invite to {invite.name}</CardTitle>
-              </CardHeader>
-              <div className="flex items-center gap-2 rounded-[14px] bg-[color-mix(in_srgb,var(--ink)_5%,transparent)] px-3.5 py-3 shadow-[inset_0_0_0_1px_var(--line-2)]">
-                <span className="font-mono text-[20px] font-[600] tracking-[.16em]">
-                  {invite.inviteCode}
-                </span>
-              </div>
-              <p className="mt-2 text-12 text-ink-3">
-                Share {`dsakaro.site/join/${invite.inviteCode}`}. Anyone with the link can join.
-              </p>
-              <CopyLinkButton
-                url={`https://dsakaro.site/join/${invite.inviteCode}`}
-                className="mt-3"
-              />
-            </Card>
-          )}
-          <Card>
+        {invite && (
+          <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle>Start a group</CardTitle>
+              <CardTitle>Invite to {invite.name}</CardTitle>
             </CardHeader>
-            <p className="mb-3 text-13 text-ink-2">
-              For your hostel wing, lab batch or coding club.
+            <div className="flex items-center gap-2 rounded-[16px] bg-[color-mix(in_srgb,var(--ink)_5%,transparent)] px-3.5 py-3 shadow-[inset_0_0_0_1px_var(--line-2)]">
+              <span className="font-mono text-[20px] font-[600] tracking-[.16em]">
+                {invite.inviteCode}
+              </span>
+            </div>
+            <p className="mt-2 text-12 text-ink-3">
+              Share {`dsakaro.site/join/${invite.inviteCode}`}. Anyone with the link can join.
             </p>
-            <CreateGroupForm />
+            <CopyLinkButton
+              url={`https://dsakaro.site/join/${invite.inviteCode}`}
+              className="mt-3 self-start"
+            />
           </Card>
-          <Card tier="inset">
-            <CardHeader>
-              <CardTitle>Join with a code</CardTitle>
-            </CardHeader>
-            <JoinGroupForm />
-          </Card>
-        </aside>
+        )}
       </div>
     </>
   );

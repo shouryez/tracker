@@ -103,7 +103,14 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
       </div>
 
       {/* Index cards, one per topic, laid out like a notebook spread. */}
-      <div className="columns-1 gap-4 md:columns-2 xl:columns-3">
+      <div
+        className={cn(
+          "columns-1 gap-4",
+          // As many columns as topics (up to three), so a short notebook doesn't leave a gap.
+          groups.length >= 2 && "md:columns-2",
+          groups.length >= 3 && "xl:columns-3",
+        )}
+      >
         {groups.map(([t, list]) => (
           <section key={t} className="surface-card mb-4 break-inside-avoid rounded-[24px] p-5">
             <div className="mb-3 flex flex-col gap-2">
