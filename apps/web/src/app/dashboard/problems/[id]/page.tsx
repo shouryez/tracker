@@ -285,11 +285,11 @@ async function ProblemContent({
             </CardHeader>
             <div className="mb-4 grid gap-3 sm:grid-cols-2">
               <div className="surface-inset rounded-[12px] p-3.5">
-                <p className="label-mono">Pattern</p>
+                <p className="text-12 font-[600] text-ink-3">Pattern</p>
                 <p className="mt-1.5 font-[600]">{wrap.pattern ?? topics[0] ?? "Not noted yet"}</p>
               </div>
               <div className="surface-inset rounded-[12px] p-3.5">
-                <p className="label-mono text-bad">What went wrong</p>
+                <p className="text-12 font-[600] text-bad">What went wrong</p>
                 <p className="mt-1.5 text-[13.5px]">
                   {mistakes.length
                     ? mistakes
@@ -301,7 +301,7 @@ async function ProblemContent({
             </div>
             {wrap.takeaway && (
               <div className="mb-4">
-                <p className="label-mono">Key idea</p>
+                <p className="text-12 font-[600] text-ink-3">Key idea</p>
                 <p className="mt-1.5 text-14">{wrap.takeaway}</p>
               </div>
             )}
@@ -318,7 +318,7 @@ async function ProblemContent({
                     <>
                       {timeline.length === 0 ? (
                         <div className="flex flex-col items-center py-8 text-center">
-                          <span className="mb-3 grid size-11 place-items-center rounded-[13px] border border-line-2 bg-surface-2 text-ink-2">
+                          <span className="mb-3 grid size-11 place-items-center glass-control rounded-[14px] text-ink-2">
                             <Timer size={18} aria-hidden="true" />
                           </span>
                           <p className="text-15 font-[600]">
@@ -341,7 +341,7 @@ async function ProblemContent({
                                   <span className="font-medium">
                                     {t.s.mode === "review" ? "Review session" : "Timed session"}
                                   </span>
-                                  <span className="font-mono text-[11.5px] text-ink-2">
+                                  <span className="tnum text-12 text-ink-2">
                                     {formatDuration(t.s.activeMs)} active · {t.s.submits} submit
                                     {t.s.submits === 1 ? "" : "s"}
                                   </span>
@@ -356,7 +356,7 @@ async function ProblemContent({
                                     <Tag mono>{INDEPENDENCE[t.s.independence]}</Tag>
                                   )}
                                 </p>
-                                <span className="mt-2 flex h-1.5 max-w-[320px] overflow-hidden rounded-full bg-surface-3">
+                                <span className="mt-2 flex h-1.5 max-w-[320px] overflow-hidden rounded-full bg-line">
                                   <span
                                     className="h-full origin-left animate-[grow-x_700ms_var(--ease-out)_backwards] rounded-full bg-violet"
                                     style={{
@@ -375,7 +375,7 @@ async function ProblemContent({
                                     {t.s.note}
                                   </p>
                                 )}
-                                <p className="mt-0.5 font-mono text-[11px] text-ink-3">
+                                <p className="mt-0.5 tnum text-12 text-ink-3">
                                   <TimeAgo date={t.s.at} />
                                   {t.s.mistakeTags.length > 0 && ` · ${t.s.mistakeTags.join(", ")}`}
                                 </p>
@@ -390,7 +390,7 @@ async function ProblemContent({
                                   className="absolute top-[13px] -left-[3.5px] size-1.5 rounded-full bg-line-3"
                                 />
                                 <VerdictChip verdict={t.s.verdict} />
-                                <span className="font-mono text-[11px] text-ink-3">
+                                <span className="tnum text-12 text-ink-3">
                                   {PLATFORM_LABEL[t.s.platform]}
                                   {t.s.language ? ` · ${t.s.language}` : ""}
                                   {t.s.runtimeMs !== null ? ` · ${t.s.runtimeMs} ms` : ""} ·{" "}
@@ -410,7 +410,7 @@ async function ProblemContent({
         </div>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
-          <Card glow={review && !review.state.retired ? "var(--violet)" : undefined}>
+          <Card>
             <CardHeader>
               <CardTitle>On the ladder</CardTitle>
               {review && !review.state.retired && (
@@ -436,17 +436,17 @@ async function ProblemContent({
                           height: 18 + i * 10,
                           background:
                             on || (review.state.retired && i === 5)
-                              ? "var(--amber)"
-                              : "var(--surface-4)",
+                              ? "var(--signal)"
+                              : "var(--line-2)",
                           boxShadow: on
-                            ? "0 6px 16px -6px color-mix(in srgb, var(--amber) 60%, transparent)"
+                            ? "0 6px 16px -6px color-mix(in srgb, var(--signal) 55%, transparent)"
                             : undefined,
                         }}
                       />
                     );
                   })}
                 </div>
-                <div className="mt-1.5 grid grid-cols-6 text-center font-mono text-[10.5px] text-ink-3">
+                <div className="mt-1.5 grid grid-cols-6 text-center tnum text-11 text-ink-3">
                   {INTERVAL_DAYS.map((d) => (
                     <span key={d}>{d}d</span>
                   ))}
@@ -470,7 +470,7 @@ async function ProblemContent({
                       .map((h) => (
                         <li key={h.at} className="flex items-center justify-between gap-2 py-1.5">
                           <ResultTag entry={h} />
-                          <span className="font-mono text-[11px] text-ink-3">
+                          <span className="tnum text-12 text-ink-3">
                             <TimeAgo date={new Date(h.at)} />
                           </span>
                         </li>
@@ -524,10 +524,10 @@ async function ProblemContent({
                     <li key={s.slug}>
                       <Link
                         href={`/dashboard/sheets/${s.slug}`}
-                        className="group/sh flex items-center gap-3 rounded-[12px] p-2 transition-colors hover:bg-surface-2"
+                        className="group/sh flex items-center gap-3 rounded-[14px] p-2 transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]"
                       >
                         <span
-                          className="grid h-8 min-w-8 place-items-center rounded-[9px] border px-1 font-mono text-[10.5px] font-[700]"
+                          className="grid h-8 min-w-8 place-items-center rounded-[10px] border px-1 tnum text-[11px] font-[700]"
                           style={{
                             color,
                             borderColor: `color-mix(in srgb, ${color} 40%, transparent)`,

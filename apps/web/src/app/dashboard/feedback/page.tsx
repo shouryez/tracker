@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { desc, eq } from "drizzle-orm";
 import { feedback, profiles } from "@upsolve/db";
 import { Card, CardSub, Tag, type TagTone } from "@upsolve/ui";
+import { PageHeader } from "@/components/page-header";
 import { TimeAgo } from "@/components/time-ago";
 import { isAdmin } from "@/lib/admin";
 import { getCurrentUser } from "@/lib/auth";
@@ -17,10 +18,12 @@ const TONE: Record<string, TagTone> = { bug: "wa", confusing: "tle", idea: "ac",
 export default function FeedbackPage() {
   return (
     <div className="flex flex-col gap-5">
-      <h1 className="text-[clamp(26px,3.4vw,38px)] leading-[1.02] font-[550] tracking-[-0.04em]">
-        Feedback<span className="block text-ink-3">From the feedback button</span>
-      </h1>
-      <Suspense fallback={<div className="h-96 skeleton rounded-lg" />}>
+      <PageHeader
+        eyebrow="Admin"
+        title="Feedback"
+        subtitle="Everything sent through the feedback button, newest first."
+      />
+      <Suspense fallback={<div className="h-96 skeleton rounded-[24px]" />}>
         <FeedbackList />
       </Suspense>
     </div>
@@ -61,7 +64,7 @@ async function FeedbackList() {
           </Tag>
         ))}
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="grid gap-3.5 lg:grid-cols-2">
         {rows.map((r) => (
           <Card key={r.id}>
             <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -80,5 +83,3 @@ async function FeedbackList() {
     </>
   );
 }
-
-// DsaKaro

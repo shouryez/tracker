@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Check } from "lucide-react";
+import { Check, Search } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -11,8 +11,10 @@ import {
   EmptyState,
   SkeletonCard,
   Tag,
+  cn,
+  inputClasses,
 } from "@upsolve/ui";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { search } from "@/lib/search-data";
 
@@ -41,7 +43,6 @@ async function Results({
   const title = (
     <PageHeader
       eyebrow="Search"
-      glow={PAGE_GLOW.overview}
       title={
         q ? (
           <>
@@ -53,10 +54,48 @@ async function Results({
           </>
         )
       }
-      subtitle={q ? undefined : "Press Ctrl K anywhere, or type in the box above."}
+      subtitle={q ? undefined : "Problems, sheets and topics. Ctrl K opens this from anywhere."}
     />
   );
-  if (q.length < 2) return title;
+  const box = (
+    <form action="/dashboard/search" role="search" className="flex flex-col gap-3">
+      <label className="relative block max-w-[640px]">
+        <span className="sr-only">Search</span>
+        <Search
+          size={16}
+          aria-hidden="true"
+          className="absolute top-1/2 left-4 -translate-y-1/2 text-ink-3"
+        />
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Search a problem, sheet or topic"
+          autoFocus={!q}
+          className={cn(inputClasses(), "h-12 rounded-full pl-11 text-15")}
+        />
+      </label>
+      {!q && (
+        <div className="flex flex-wrap gap-1.5">
+          {["subarray", "linked list", "binary search", "dp", "graphs", "two pointers"].map((t) => (
+            <Link
+              key={t}
+              href={`/dashboard/search?q=${encodeURIComponent(t)}`}
+              className="glass-control rounded-full px-3 py-1.5 text-13 text-ink-2 transition-colors hover:text-ink"
+            >
+              {t}
+            </Link>
+          ))}
+        </div>
+      )}
+    </form>
+  );
+  if (q.length < 2)
+    return (
+      <>
+        {title}
+        {box}
+      </>
+    );
 
   const r = await search(user.id, q);
   const empty = r.problems.length + r.sheets.length + r.topics.length === 0;
@@ -64,6 +103,7 @@ async function Results({
   return (
     <>
       {title}
+      {box}
       {empty ? (
         <Card>
           <EmptyState
@@ -79,7 +119,9 @@ async function Results({
         </Card>
       ) : (
         <div className="grid grid-cols-12 gap-3.5">
-          <Card className="col-span-12 xl:col-span-8">
+          <Card
+            className={cn("col-span-12", r.sheets.length + r.topics.length > 0 && "xl:col-span-8")}
+          >
             <CardHeader>
               <CardTitle>Problems</CardTitle>
               <CardSub>{r.problems.length === 30 ? "first 30" : r.problems.length}</CardSub>
@@ -91,14 +133,14 @@ async function Results({
                 {r.problems.map((p) => (
                   <li
                     key={p.id}
-                    className="flex items-center gap-3 border-t border-dashed border-line-2 py-2.5 first:border-t-0 first:pt-0"
+                    className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0 first:pt-0"
                   >
                     <span
                       aria-label={p.solved ? "Solved" : undefined}
                       className={
                         p.solved
                           ? "grid size-[18px] shrink-0 place-items-center rounded-[5px] bg-success text-[#06210f]"
-                          : "size-[18px] shrink-0 rounded-[5px] border-[1.5px] border-line-3 bg-surface-2"
+                          : "size-[18px] shrink-0 rounded-[5px] border-[1.5px] border-line-3"
                       }
                     >
                       {p.solved && <Check size={12} strokeWidth={3} aria-hidden="true" />}
@@ -110,7 +152,7 @@ async function Results({
                       {p.title}
                     </Link>
                     {p.sheets > 0 && (
-                      <span className="hidden font-mono text-[11px] text-ink-3 sm:inline">
+                      <span className="hidden text-12 text-ink-3 sm:inline">
                         in {p.sheets} sheet{p.sheets === 1 ? "" : "s"}
                       </span>
                     )}
@@ -120,52 +162,50 @@ async function Results({
               </ul>
             )}
           </Card>
-          <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
-            {r.sheets.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sheets</CardTitle>
-                </CardHeader>
-                <ul>
-                  {r.sheets.map((s) => (
-                    <li
-                      key={s.slug}
-                      className="border-t border-dashed border-line-2 py-2 first:border-t-0 first:pt-0"
-                    >
-                      <Link
-                        href={`/dashboard/sheets/${s.slug}`}
-                        className="text-[13.5px] font-medium hover:underline"
+          {r.sheets.length + r.topics.length > 0 && (
+            <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
+              {r.sheets.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Sheets</CardTitle>
+                  </CardHeader>
+                  <ul>
+                    {r.sheets.map((s) => (
+                      <li
+                        key={s.slug}
+                        className="border-t border-line py-2 first:border-t-0 first:pt-0"
                       >
-                        {s.name}
+                        <Link
+                          href={`/dashboard/sheets/${s.slug}`}
+                          className="text-[13.5px] font-medium hover:underline"
+                        >
+                          {s.name}
+                        </Link>
+                        {s.author && <p className="text-12 text-ink-3">by {s.author}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              )}
+              {r.topics.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Topics</CardTitle>
+                    <CardSub>your mastery</CardSub>
+                  </CardHeader>
+                  <div className="flex flex-wrap gap-1.5">
+                    {r.topics.map((t) => (
+                      <Link key={t.id} href="/dashboard/analytics#mastery">
+                        <Tag className="hover:border-ink-3">{t.label}</Tag>
                       </Link>
-                      {s.author && (
-                        <p className="font-mono text-[11px] text-ink-3">by {s.author}</p>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            )}
-            {r.topics.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Topics</CardTitle>
-                  <CardSub>your mastery</CardSub>
-                </CardHeader>
-                <div className="flex flex-wrap gap-1.5">
-                  {r.topics.map((t) => (
-                    <Link key={t.id} href="/dashboard/analytics#mastery">
-                      <Tag className="hover:border-ink-3">{t.label}</Tag>
-                    </Link>
-                  ))}
-                </div>
-              </Card>
-            )}
-          </div>
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
         </div>
       )}
     </>
   );
 }
-
-// DsaKaro
