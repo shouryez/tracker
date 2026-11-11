@@ -3,18 +3,21 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowLeft, Link2, Radio, Send, Settings2, Trophy, UsersRound } from "lucide-react";
+import { ArrowLeft, Clock3, Radio, Send, Settings2, Trophy, UsersRound } from "lucide-react";
 import {
   Card,
   CardHeader,
   CardSub,
   CardTitle,
   DifficultyTag,
+  Pill,
   SkeletonCard,
   Tag,
 } from "@upsolve/ui";
+import { CopyLinkButton } from "@/components/orbit/copy-link";
+import { PEOPLE_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 import { NudgeButton } from "@/components/daily/nudge-button";
-import { Dot, PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { Dot, PageHeader } from "@/components/page-header";
 import { Leaderboard, MetricTabs, ScoreExplainer } from "@/components/leaderboard";
 import {
   AutoRefresh,
@@ -50,7 +53,7 @@ import { localDate, localWeekStart, requestNow, studyDay } from "@/lib/time";
 export const metadata: Metadata = { title: "Group" };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const icon = (Icon: typeof Trophy) => <Icon size={13} strokeWidth={2} />;
+const icon = (Icon: typeof Trophy) => <Icon size={14} strokeWidth={2} />;
 
 export default function GroupPage({ params, searchParams }: PageProps<"/dashboard/groups/[id]">) {
   return (
@@ -118,14 +121,10 @@ async function GroupContent({
   return (
     <>
       <AutoRefresh seconds={15} />
+      <SectionTabs tabs={PEOPLE_TABS} />
       <PageHeader
-        eyebrow="Group"
-        glow={PAGE_GLOW.groups}
-        title={
-          <>
-            {group.name} <em>· study hall</em>
-          </>
-        }
+        eyebrow="Group · study hall"
+        title={group.name}
         subtitle={
           <>
             <span>
@@ -134,18 +133,23 @@ async function GroupContent({
             {liveCount > 0 && (
               <>
                 <Dot />
-                <span className="inline-flex items-center gap-1.5 text-signal-text">
-                  <span className="pulse-ring size-2 rounded-full bg-signal text-signal" />
+                <span className="inline-flex items-center gap-2 text-ink">
+                  <span className="live-dot" aria-hidden="true" />
                   {liveCount} solving now
                 </span>
               </>
             )}
           </>
         }
-        actions={<LeaveGroupButton groupId={group.id} owner={owner} />}
+        actions={
+          <>
+            <CopyLinkButton url={inviteUrl} />
+            <LeaveGroupButton groupId={group.id} owner={owner} />
+          </>
+        }
       />
 
-      {/* The study hall comes first, across the page, then today by hour. */}
+      {/* The study hall comes first, across the page. */}
       <StudyHallCard
         groupName={group.name}
         members={hall}
@@ -154,24 +158,115 @@ async function GroupContent({
         active={active}
         buddy={profile?.avatar ?? null}
       />
-      <Card className="p-[22px]">
-        <CardHeader>
-          <CardTitle>Today, by hour</CardTitle>
-          <CardSub>each row is one person · last 12 hours</CardSub>
-        </CardHeader>
-        <DayLanes
-          lanes={lanes}
-          from={now - 12 * 3_600_000}
-          now={now}
-          timeZone={profile?.timezone ?? "Asia/Kolkata"}
-          viewerId={user.id}
-        />
-      </Card>
 
       <div className="stagger-in grid grid-cols-12 gap-3.5">
+        {/* Today: who's on, then the day by hour. */}
+        <Card className="col-span-12 xl:col-span-5">
+          <CardHeader>
+            <CardTitle icon={icon(Radio)}>Study room</CardTitle>
+            <Pill tone={liveCount > 0 ? "ember" : "neutral"}>
+              {liveCount > 0 && <span className="live-dot" aria-hidden="true" />}
+              {liveCount > 0 ? `${liveCount} live` : "updates every 20 s"}
+            </Pill>
+          </CardHeader>
+          <ul className="flex flex-col">
+            {room.map((m) => {
+              const me = m.userId === user.id;
+              const solving = !!m.live && !m.live.solved;
+              return (
+                <li
+                  key={m.userId}
+                  className="flex items-start gap-3 rounded-[14px] px-2 py-2.5 transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]"
+                >
+                  <span className="mt-1.5 grid size-2.5 place-items-center">
+                    <span
+                      aria-label={solving ? "Solving now" : m.live?.solved ? "Just solved" : "Idle"}
+                      className={
+                        solving
+                          ? "live-dot"
+                          : m.live?.solved
+                            ? "block size-2.5 rounded-full bg-signal"
+                            : "block size-2.5 rounded-full bg-line-3"
+                      }
+                    />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13.5px] font-[550]">
+                      {m.name ?? m.handle ?? "Someone"}
+                      {me && <span className="ml-1.5 text-11 font-normal text-ink-3">you</span>}
+                    </span>
+                    {m.live ? (
+                      <span className="flex items-center gap-2 text-[12.5px] text-ink-2">
+                        <a
+                          href={m.live.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="min-w-0 truncate hover:underline"
+                        >
+                          {m.live.solved ? "Just solved " : ""}
+                          {m.live.title}
+                        </a>
+                        {solving && (
+                          <LiveClock
+                            activeMs={m.live.activeMs}
+                            ageSeconds={m.live.ageSeconds}
+                            running
+                          />
+                        )}
+                      </span>
+                    ) : (
+                      <span className="block text-12 text-ink-3">
+                        {m.lastActiveAt ? (
+                          <>
+                            active <TimeAgo date={m.lastActiveAt} />
+                          </>
+                        ) : (
+                          "no activity yet"
+                        )}
+                      </span>
+                    )}
+                  </span>
+                  <span className="tnum flex flex-col items-end gap-1 text-right text-12 text-ink-3">
+                    <span>
+                      {m.solvedToday} today · {formatDuration(m.focusTodayMs)}
+                    </span>
+                    {!me && m.solvedToday === 0 && !solving && (
+                      <NudgeButton
+                        groupId={group.id}
+                        toUser={m.userId}
+                        name={m.name ?? m.handle ?? "them"}
+                        already={nudged.includes(m.userId)}
+                      />
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-3 border-t border-line pt-3 text-12 leading-relaxed text-ink-3">
+            Open a problem with the extension and your group sees it here. You can turn this off in
+            Settings.
+          </p>
+        </Card>
+
+        <Card className="col-span-12 xl:col-span-7">
+          <CardHeader>
+            <CardTitle icon={icon(Clock3)}>Today, by hour</CardTitle>
+            <CardSub>one row per person · last 12 hours</CardSub>
+          </CardHeader>
+          <DayLanes
+            lanes={lanes}
+            from={now - 12 * 3_600_000}
+            now={now}
+            timeZone={profile?.timezone ?? "Asia/Kolkata"}
+            viewerId={user.id}
+          />
+        </Card>
+
+        {/* This week: the board, then the people. */}
         <Card className="col-span-12 xl:col-span-7">
           <CardHeader className="flex-wrap">
-            <CardTitle>This week</CardTitle>
+            <CardTitle icon={icon(Trophy)}>This week</CardTitle>
             <MetricTabs
               metric={metric}
               href={(m) =>
@@ -200,14 +295,12 @@ async function GroupContent({
           {shares.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle icon={<Send size={14} />} tint="var(--info)">
-                  Solve this together
-                </CardTitle>
+                <CardTitle icon={icon(Send)}>Solve this together</CardTitle>
                 <CardSub>shared problems</CardSub>
               </CardHeader>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-2.5">
                 {shares.map((sh) => (
-                  <li key={sh.id} className="surface-inset rounded-[14px] p-3">
+                  <li key={sh.id} className="surface-inset rounded-[16px] p-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/dashboard/problems/${sh.problemId}`}
@@ -217,7 +310,7 @@ async function GroupContent({
                       </Link>
                       {sh.difficulty && <DifficultyTag difficulty={sh.difficulty} />}
                     </div>
-                    <p className="mt-0.5 text-11 text-ink-3">
+                    <p className="mt-0.5 text-12 text-ink-3">
                       from {sh.from}
                       {sh.note ? ` · “${sh.note}”` : ""}
                     </p>
@@ -225,14 +318,14 @@ async function GroupContent({
                       <ul className="mt-2 flex flex-wrap gap-1.5">
                         {sh.members.map((mm) => (
                           <li key={mm.userId}>
-                            <Tag tone={mm.solved ? "success" : "neutral"} className="h-6 text-11">
+                            <Pill tone={mm.solved ? "mint" : "neutral"} className="h-6 text-11">
                               {mm.name}
                               {mm.solved
                                 ? mm.bestMs
                                   ? ` · ${formatDuration(mm.bestMs)}`
                                   : " · solved"
                                 : ` · ${mm.attempts} tries`}
-                            </Tag>
+                            </Pill>
                           </li>
                         ))}
                       </ul>
@@ -245,110 +338,7 @@ async function GroupContent({
             </Card>
           )}
 
-          <Card glow={liveCount > 0 ? "var(--signal-mark)" : undefined}>
-            <CardHeader>
-              <CardTitle icon={icon(Radio)} tint="var(--signal-mark)">
-                Study room
-              </CardTitle>
-              <CardSub>live · updates every 20 s</CardSub>
-            </CardHeader>
-            <ul>
-              {room.map((m) => {
-                const me = m.userId === user.id;
-                return (
-                  <li
-                    key={m.userId}
-                    className="flex items-start gap-3 rounded-[12px] px-2 py-2.5 transition-colors hover:bg-surface-2/60"
-                  >
-                    <span className="mt-1.5">
-                      <span
-                        aria-label={
-                          m.live && !m.live.solved
-                            ? "Solving now"
-                            : m.live?.solved
-                              ? "Just solved"
-                              : "Idle"
-                        }
-                        className={`block size-2.5 rounded-full ${
-                          m.live && !m.live.solved
-                            ? "pulse-ring bg-signal text-signal"
-                            : m.live?.solved
-                              ? "bg-success"
-                              : "bg-line-3"
-                        }`}
-                      />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13.5px] font-medium">
-                        {m.name ?? m.handle ?? "Someone"}
-                        {me && (
-                          <span className="ml-1.5 font-mono text-[10.5px] text-ink-3">you</span>
-                        )}
-                      </span>
-                      {m.live ? (
-                        <span className="flex items-center gap-2 text-[12.5px] text-ink-2">
-                          <a
-                            href={m.live.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="min-w-0 truncate hover:underline"
-                          >
-                            {m.live.solved ? "Just solved " : ""}
-                            {m.live.title}
-                          </a>
-                          {!m.live.solved && (
-                            <LiveClock
-                              activeMs={m.live.activeMs}
-                              ageSeconds={m.live.ageSeconds}
-                              running
-                            />
-                          )}
-                        </span>
-                      ) : (
-                        <span className="block font-mono text-[11px] text-ink-3">
-                          {m.lastActiveAt ? (
-                            <>
-                              active <TimeAgo date={m.lastActiveAt} />
-                            </>
-                          ) : (
-                            "no activity yet"
-                          )}
-                        </span>
-                      )}
-                    </span>
-                    <span className="flex flex-col items-end gap-1 text-right font-mono text-[11px] text-ink-3">
-                      <span>
-                        {m.solvedToday} today · {formatDuration(m.focusTodayMs)}
-                      </span>
-                      {!me && m.solvedToday === 0 && !(m.live && !m.live.solved) && (
-                        <NudgeButton
-                          groupId={group.id}
-                          toUser={m.userId}
-                          name={m.name ?? m.handle ?? "them"}
-                          already={nudged.includes(m.userId)}
-                        />
-                      )}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-            <p className="mt-3 border-t border-line pt-3 text-12 leading-relaxed text-ink-3">
-              Open a problem with the extension and your group sees it here. You can turn this off
-              in Settings.
-            </p>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle icon={icon(Link2)} tint="var(--violet)">
-                Invite
-              </CardTitle>
-            </CardHeader>
-            <InviteLink groupId={group.id} url={inviteUrl} canReset={manager} />
-          </Card>
-
-          <Card>
+          <Card className="flex-1">
             <CardHeader>
               <CardTitle icon={icon(UsersRound)}>Members</CardTitle>
               <CardSub>{group.members.length} of 50</CardSub>
@@ -357,16 +347,21 @@ async function GroupContent({
               {group.members.map((m) => (
                 <li
                   key={m.userId}
-                  className="flex items-center gap-2 rounded-[10px] px-2 py-2 hover:bg-surface-2/60"
+                  className="flex items-center gap-2 rounded-[12px] px-2 py-2 transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]"
                 >
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--ink)_8%,transparent)] text-11 font-[650] text-ink-2">
+                    {(m.name ?? m.handle ?? "?")[0]?.toUpperCase()}
+                  </span>
                   <span className="min-w-0 flex-1 truncate text-[13.5px]">
                     {m.name ?? m.handle ?? "Someone"}
-                    {m.handle && (
-                      <span className="ml-1.5 font-mono text-[11px] text-ink-3">@{m.handle}</span>
-                    )}
+                    {m.handle && <span className="ml-1.5 text-11 text-ink-3">@{m.handle}</span>}
                   </span>
-                  {m.userId === user.id && <Tag className="h-5 px-1.5 text-11">you</Tag>}
-                  {m.role === "owner" && <Tag tone="signal">owner</Tag>}
+                  {m.userId === user.id && <Pill className="h-5 px-2 text-11">you</Pill>}
+                  {m.role === "owner" && (
+                    <Pill tone="mint" className="h-5 px-2 text-11">
+                      owner
+                    </Pill>
+                  )}
                   {m.role === "admin" && <Tag tone="info">admin</Tag>}
                   <MemberMenu
                     groupId={group.id}
@@ -377,6 +372,10 @@ async function GroupContent({
                 </li>
               ))}
             </ul>
+            <div className="mt-4 border-t border-line pt-4">
+              <p className="mb-2.5 text-13 font-[600] text-ink-2">Invite</p>
+              <InviteLink groupId={group.id} url={inviteUrl} canReset={manager} />
+            </div>
           </Card>
 
           {manager && (

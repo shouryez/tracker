@@ -1270,7 +1270,11 @@
     left: -180px;
     top: -240px;
     border-radius: 50%;
-    background: radial-gradient(circle, var(--color-primary-soft), transparent 65%);
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--ink) 6%, transparent),
+      transparent 65%
+    );
     pointer-events: none;
   }
 }
