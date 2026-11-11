@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   type CSSProperties,
   type PointerEvent as RPointerEvent,
@@ -62,7 +62,9 @@ function reviewUrl(url: string) {
  */
 export function RevisionDeck({ cards }: { cards: DeckCard[] }) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  // ?deck=1 (from the command palette) opens it straight away.
+  const params = useSearchParams();
+  const [open, setOpen] = useState(() => params.get("deck") === "1");
   const [graded, setGraded] = useState(0);
   if (cards.length === 0) return null;
   return (

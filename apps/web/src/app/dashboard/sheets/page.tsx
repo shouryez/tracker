@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { Play, Puzzle } from "lucide-react";
 import {
   ButtonArrow,
@@ -100,14 +100,17 @@ async function SheetsContent() {
                 href={`/dashboard/sheets/${s.slug}`}
                 aria-label={`${s.name}: ${s.done} of ${s.total} done`}
               >
-                <BookCover
-                  slug={s.slug}
-                  name={s.name}
-                  author={s.author}
-                  done={s.done}
-                  total={s.total}
-                  main={s.id === hero?.id}
-                />
+                {/* Morphs into the sheet page's cover (View Transitions). */}
+                <ViewTransition name={`cover-${s.slug}`} share="morph" default="none">
+                  <BookCover
+                    slug={s.slug}
+                    name={s.name}
+                    author={s.author}
+                    done={s.done}
+                    total={s.total}
+                    main={s.id === hero?.id}
+                  />
+                </ViewTransition>
               </Link>
               <div className="flex items-center justify-between gap-2 px-0.5">
                 <span className="tnum font-mono text-12 text-ink-2">

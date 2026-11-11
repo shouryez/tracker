@@ -243,6 +243,8 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   const [now, setNow] = useState(() => active?.startedAt ?? 0);
   const [end, setEnd] = useState<StudyEnd | null>(null);
   const [full, setFull] = useState(false);
+  // The notch: compact until hovered, focused or tapped.
+  const [open, setOpen] = useState(false);
   const pip = useSharedPip();
   const [pending, start] = useTransition();
   const canPopout = useCanPopout();
@@ -339,63 +341,93 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
           slot && "lg:hidden",
         )}
       >
-        <div className="flex max-w-full items-center gap-3 rounded-full border border-line-2 bg-surface-3/95 py-1.5 pr-1.5 pl-4 shadow-e2 backdrop-blur-xl">
-          <span
-            className={cn(
-              "size-2 shrink-0 rounded-full",
-              paused ? "bg-medium" : "pulse-ring bg-success text-success",
-            )}
-          />
-          <span className="min-w-0 truncate text-13">
-            <span className="font-[600]">{paused ? "Paused" : "Studying"}</span>
-            {active.label && <span className="text-ink-3"> · {active.label}</span>}
-          </span>
-          <span
-            className={cn("num font-mono text-15", paused && "text-ink-3")}
-            suppressHydrationWarning
+        {/* The live session notch (FRONTEND-PLAN §7.2): dot, label and clock; hover, focus or
+            tap to open the controls. */}
+        <div
+          role="group"
+          aria-label="Study session"
+          data-open={open || undefined}
+          onPointerEnter={(e) => e.pointerType === "mouse" && setOpen(true)}
+          onPointerLeave={(e) => e.pointerType === "mouse" && setOpen(false)}
+          onFocus={() => setOpen(true)}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) setOpen(false);
+          }}
+          className="glass-chrome group/notch flex max-w-full items-center gap-3 rounded-full py-1.5 pr-1.5 pl-4 transition-[padding] duration-300"
+        >
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? "Hide session controls" : "Show session controls"}
+            className="flex min-w-0 items-center gap-3 text-left"
           >
-            {clock(elapsed)}
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label="Focus mode (full screen)"
-            title="Focus mode"
-            onClick={() => {
-              enterFullscreen();
-              setFull(true);
-            }}
-          >
-            <Maximize2 size={13} aria-hidden="true" />
-          </Button>
-          {canPopout && (
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label="Pop out: float the timer over other tabs"
-              title="Pop out over other tabs"
-              onClick={() => void popout()}
+            <span
+              className={cn(
+                "size-2 shrink-0 rounded-full",
+                paused ? "bg-medium" : "pulse-ring bg-primary text-primary",
+              )}
+            />
+            <span className="min-w-0 truncate text-13">
+              <span className="font-[600]">{paused ? "Paused" : "Studying"}</span>
+              {active.label && (
+                <span className="hidden text-ink-3 group-data-[open]/notch:inline">
+                  {" "}
+                  · {active.label}
+                </span>
+              )}
+            </span>
+            <span
+              className={cn("num font-mono text-15", paused && "text-ink-3")}
+              suppressHydrationWarning
             >
-              <PictureInPicture2 size={13} aria-hidden="true" />
-            </Button>
-          )}
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={pending}
-            aria-label={paused ? "Resume study session" : "Pause study session"}
-            onClick={togglePause}
-          >
-            {paused ? (
-              <Play size={12} className="fill-current" aria-hidden="true" />
-            ) : (
-              <Pause size={12} className="fill-current" aria-hidden="true" />
-            )}
-            {paused ? "Resume" : "Pause"}
-          </Button>
-          <Button variant="danger" size="sm" loading={pending && !end} onClick={stop}>
-            <Square size={12} className="fill-current" aria-hidden="true" /> Stop
-          </Button>
+              {clock(elapsed)}
+            </span>
+          </button>
+          <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-300 ease-[var(--ease-out)] group-data-[open]/notch:grid-cols-[1fr]">
+            <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label="Focus mode (full screen)"
+                title="Focus mode"
+                onClick={() => {
+                  enterFullscreen();
+                  setFull(true);
+                }}
+              >
+                <Maximize2 size={13} aria-hidden="true" />
+              </Button>
+              {canPopout && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label="Pop out: float the timer over other tabs"
+                  title="Pop out over other tabs"
+                  onClick={() => void popout()}
+                >
+                  <PictureInPicture2 size={13} aria-hidden="true" />
+                </Button>
+              )}
+              <Button
+                variant="secondary"
+                size="sm"
+                disabled={pending}
+                aria-label={paused ? "Resume study session" : "Pause study session"}
+                onClick={togglePause}
+              >
+                {paused ? (
+                  <Play size={12} className="fill-current" aria-hidden="true" />
+                ) : (
+                  <Pause size={12} className="fill-current" aria-hidden="true" />
+                )}
+                {paused ? "Resume" : "Pause"}
+              </Button>
+              <Button variant="danger" size="sm" loading={pending && !end} onClick={stop}>
+                <Square size={12} className="fill-current" aria-hidden="true" /> Stop
+              </Button>
+            </span>
+          </span>
         </div>
       </div>
       {full && (

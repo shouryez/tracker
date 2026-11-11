@@ -2,7 +2,16 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { memo, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import {
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type ReactNode,
+  ViewTransition,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   CalendarPlus,
@@ -775,12 +784,14 @@ const ItemRow = memo(function ItemRowView({
         )}
         <span className="flex min-w-0 flex-1 basis-[calc(100%-2rem)] flex-wrap items-center gap-x-2 gap-y-1 sm:basis-auto sm:flex-nowrap">
           {item.problemId ? (
-            <Link
-              href={`/dashboard/problems/${item.problemId}`}
-              className="min-w-0 truncate hover:underline"
-            >
-              {title}
-            </Link>
+            <ViewTransition name={`problem-${item.problemId}`} share="morph" default="none">
+              <Link
+                href={`/dashboard/problems/${item.problemId}`}
+                className="min-w-0 truncate hover:underline"
+              >
+                {title}
+              </Link>
+            </ViewTransition>
           ) : (
             <span className="min-w-0 truncate">{title}</span>
           )}

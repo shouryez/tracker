@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense, type CSSProperties } from "react";
+import { Suspense, type CSSProperties, ViewTransition } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Pill, Skeleton, SkeletonCard, cn } from "@upsolve/ui";
 import { Rekha } from "@/components/dashboard/lamplight";
@@ -99,13 +99,15 @@ async function SheetContent({
         className="surface-card flex flex-wrap items-center gap-6 rounded-[24px] p-6"
       >
         <div className="w-[96px] shrink-0">
-          <BookCover
-            slug={sheet.slug}
-            name={sheet.name}
-            author={sheet.author}
-            done={sheet.done}
-            total={sheet.total}
-          />
+          <ViewTransition name={`cover-${sheet.slug}`} share="morph" default="none">
+            <BookCover
+              slug={sheet.slug}
+              name={sheet.name}
+              author={sheet.author}
+              done={sheet.done}
+              total={sheet.total}
+            />
+          </ViewTransition>
         </div>
         <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-2">
           <span className="flex flex-wrap gap-1.5">

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { CircleCheck, CircleX, History, Play, RotateCcw } from "lucide-react";
 import { topicLabel, topicsOf } from "@upsolve/core";
 import {
@@ -150,6 +150,20 @@ async function RevisionContent() {
       {problems.length === 0 ? (
         <Card>
           <EmptyState
+            demo={
+              <div className="flex flex-col gap-2 text-left">
+                {[
+                  ["Koko Eating Bananas", "Ring 3 · due today"],
+                  ["Merge Intervals", "Ring 2 · due tomorrow"],
+                ].map(([t, d]) => (
+                  <div key={t} className="surface-inset flex items-center gap-3 rounded-[14px] p-3">
+                    <span className="size-2 rounded-full bg-[var(--signal-mark)]" />
+                    <span className="flex-1 text-13 font-[600]">{t}</span>
+                    <span className="text-11 text-ink-3">{d}</span>
+                  </div>
+                ))}
+              </div>
+            }
             mascot="idle"
             title={
               <>
@@ -563,17 +577,21 @@ function ReviewRow({
       as="li"
       curve={{ lastAt: p.state.lastAt, dueAt: p.state.dueAt, now }}
       data-rung={Math.min(5, Math.max(0, p.state.step))}
+      data-krow=""
+      data-problem-id={p.problemId}
       className="surface-inset flex flex-col gap-3 rounded-[16px] p-3.5 transition-[border-color,opacity,filter] duration-[var(--dur-base)] hover:border-line-2 sm:flex-row sm:items-center"
       style={{ animation: `rise-in 420ms var(--ease-out) ${index * 50}ms backwards` }}
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <Link
-            href={`/dashboard/problems/${p.problemId}`}
-            className="truncate text-15 font-[600] tracking-[-0.01em] hover:underline"
-          >
-            {p.title}
-          </Link>
+          <ViewTransition name={`problem-${p.problemId}`} share="morph" default="none">
+            <Link
+              href={`/dashboard/problems/${p.problemId}`}
+              className="truncate text-15 font-[600] tracking-[-0.01em] hover:underline"
+            >
+              {p.title}
+            </Link>
+          </ViewTransition>
           {p.difficulty && <DifficultyTag difficulty={p.difficulty} />}
           {overdue >= 1 && (
             <StatusBadge status="overdue" label={`${overdue}d overdue`} pulse={overdue > 7} />

@@ -26,6 +26,7 @@ import { TodayPlanList } from "@/components/daily/today-plan";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
 import { BadgeWatcher } from "@/components/dashboard/badge-watcher";
 import { GettingStarted } from "@/components/dashboard/getting-started";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 import { getBadges, platformsWithSolves } from "@/lib/badges";
 import { FocusOrb } from "@/components/orbit/focus-orb";
 import { PageHeader } from "@/components/page-header";
@@ -223,6 +224,7 @@ async function Today() {
   return (
     <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} solved={stats.solved.total} />
+      <PullToRefresh />
       <Suspense fallback={null}>
         <Badges
           userId={user.id}

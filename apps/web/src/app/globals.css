@@ -1184,3 +1184,55 @@ li[data-dir="down"]::after {
     filter: blur(1px) saturate(0.8);
   }
 }
+
+/* Page morphs (View Transitions): a sheet cover or a problem title flies into its page. */
+::view-transition-group(.morph) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-image-pair(.morph) {
+  animation-name: via-blur;
+}
+@keyframes via-blur {
+  30% {
+    filter: blur(3px);
+  }
+}
+
+/* Keyboard-first rows (components/keyboard-list.tsx): a sliding focus ring and a selected look. */
+[data-krow] {
+  outline: none;
+  transition: box-shadow 160ms ease;
+}
+[data-krow]:focus-visible,
+[data-krow]:focus {
+  box-shadow: 0 0 0 2px var(--signal-mark);
+}
+[data-krow][data-selected] {
+  box-shadow: 0 0 0 2px var(--signal-mark);
+  background: color-mix(in srgb, var(--signal-mark) 8%, transparent);
+}
+
+/* Swipe rows on Today (touch): a tinted label shows under the row while you swipe. */
+li[data-swipe]::after {
+  content: attr(data-swipe-label);
+  position: absolute;
+  inset: 0;
+  z-index: -20;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 650;
+}
+li[data-swipe="done"]::after {
+  justify-content: flex-start;
+  background: color-mix(in srgb, var(--signal-mark) 18%, transparent);
+  color: var(--signal-text);
+}
+li[data-swipe="skip"]::after {
+  justify-content: flex-end;
+  background: color-mix(in srgb, var(--amber) 18%, transparent);
+  color: var(--medium);
+}

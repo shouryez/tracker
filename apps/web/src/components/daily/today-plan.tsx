@@ -9,6 +9,7 @@ import {
   useState,
   useSyncExternalStore,
   useTransition,
+  type CSSProperties,
   type KeyboardEvent,
   type PointerEvent,
   type ReactNode,
@@ -179,6 +180,36 @@ export function TodayPlanList({
   const rows = useRef(new Map<string, HTMLLIElement>());
   const before = useRef<Map<string, number> | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
+  // Phones: swipe a row right to tick it, left to skip it (FRONTEND-PLAN §7.7).
+  const swipeStart = useRef<{ id: string; x: number; y: number; passed: boolean } | null>(null);
+  const [swipe, setSwipe] = useState<{ id: string; dx: number } | null>(null);
+  const onSwipeDown = (item: PlanItem, e: PointerEvent<HTMLLIElement>) => {
+    if (e.pointerType !== "touch" || compact) return;
+    // Grips reorder; buttons, links and boxes keep their own taps.
+    if ((e.target as Element).closest("[data-grip], button, a, input")) return;
+    swipeStart.current = { id: item.id, x: e.clientX, y: e.clientY, passed: false };
+  };
+  const onSwipeMove = (e: PointerEvent<HTMLLIElement>) => {
+    const s = swipeStart.current;
+    if (!s) return;
+    const dx = e.clientX - s.x;
+    // Mostly vertical: it's a scroll, not a swipe.
+    if (Math.abs(e.clientY - s.y) > Math.abs(dx) && Math.abs(dx) < 16) return;
+    if (Math.abs(dx) > 90 && !s.passed) {
+      s.passed = true;
+      feel.tick();
+    }
+    setSwipe({ id: s.id, dx: Math.max(-140, Math.min(140, dx)) });
+  };
+  const onSwipeEnd = (item: PlanItem, el: HTMLElement) => {
+    const s = swipeStart.current;
+    swipeStart.current = null;
+    const dx = swipe?.id === item.id ? swipe.dx : 0;
+    setSwipe(null);
+    if (!s) return;
+    if (dx > 90 && !item.auto) toggle(item, el);
+    else if (dx < -90) remove(item);
+  };
   const snapshot = () => {
     const m = new Map<string, number>();
     rows.current.forEach((el, id) => m.set(id, el.getBoundingClientRect().top));
@@ -391,13 +422,36 @@ export function TodayPlanList({
               if (el) rows.current.set(item.id, el);
               else rows.current.delete(item.id);
             }}
+            onPointerDown={(e) => onSwipeDown(item, e)}
+            onPointerMove={onSwipeMove}
+            onPointerUp={(e) => onSwipeEnd(item, e.currentTarget)}
+            onPointerCancel={(e) => onSwipeEnd(item, e.currentTarget)}
+            data-swipe={
+              swipe?.id === item.id && Math.abs(swipe.dx) > 24
+                ? swipe.dx > 0
+                  ? "done"
+                  : "skip"
+                : undefined
+            }
+            data-swipe-label={
+              swipe?.id === item.id
+                ? swipe.dx > 0
+                  ? item.done
+                    ? "Undo"
+                    : "Done ✓"
+                  : "Skip"
+                : undefined
+            }
+            style={
+              swipe?.id === item.id ? ({ "--dx": `${swipe.dx}px` } as CSSProperties) : undefined
+            }
             data-cut={
               item.id === cutId ? `Past your ${fmtMin(budget ?? 0)}, these can wait` : undefined
             }
             className={cn(
               "data-[cut]:mt-7 data-[cut]:before:absolute data-[cut]:before:-top-6 data-[cut]:before:left-2.5 data-[cut]:before:text-12 data-[cut]:before:font-[600] data-[cut]:before:text-ink-3 data-[cut]:before:content-[attr(data-cut)]",
               beyond.has(item.id) && "opacity-55",
-              "group/item relative isolate flex flex-wrap items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
+              "group/item relative isolate flex touch-pan-y flex-wrap items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60 [&>*]:translate-x-[var(--dx,0px)]",
               item.id === currentId && "border-line bg-surface-2/60",
               dragId === item.id &&
                 "z-10 scale-[1.015] border-line-2 bg-surface-2 shadow-e2 transition-[transform,box-shadow]",

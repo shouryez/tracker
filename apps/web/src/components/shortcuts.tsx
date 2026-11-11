@@ -23,6 +23,8 @@ const GO: { key: string; href: string; label: string }[] = [
 const OTHER: { keys: string[]; label: string }[] = [
   { keys: ["Ctrl", "K"], label: "Search and commands" },
   { keys: ["n"], label: "Pick my next problem" },
+  { keys: ["j", "k"], label: "Move through a list (Revision)" },
+  { keys: ["x"], label: "Select the row, for bulk actions" },
   { keys: ["/"], label: "Search this sheet (on a sheet page)" },
   { keys: ["?"], label: "This list" },
 ];

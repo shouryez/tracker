@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, ViewTransition } from "react";
 import { ExternalLink, Play, Timer } from "lucide-react";
 import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
 import {
@@ -180,9 +180,11 @@ async function ProblemContent({
       <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">
           <p className="mb-2.5 text-[13.5px] text-ink-3">Problem</p>
-          <h1 className="font-display text-[clamp(32px,3.4vw,48px)] leading-[1.02] text-balance">
-            {problem.title}
-          </h1>
+          <ViewTransition name={`problem-${problem.id}`} share="morph" default="none">
+            <h1 className="font-display text-[clamp(32px,3.4vw,48px)] leading-[1.02] text-balance">
+              {problem.title}
+            </h1>
+          </ViewTransition>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <StatusBadge status={status} />
             {problem.difficulty && <DifficultyTag difficulty={problem.difficulty} />}

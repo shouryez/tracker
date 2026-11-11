@@ -69,6 +69,17 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
       <Card>
         <EmptyState
           icon={<Search size={18} />}
+          demo={
+            <div className="surface-card rounded-[18px] p-4 text-left">
+              <p className="text-13 font-[650]">Binary search</p>
+              <p className="mt-2 text-12">
+                <span className="text-signal-text">→</span> Search the answer space, not the array.
+              </p>
+              <p className="mt-1.5 text-12">
+                <span className="text-signal-text">→</span> lo + (hi - lo) / 2 avoids overflow.
+              </p>
+            </div>
+          }
           title={
             <>
               Your notebook builds <em>itself.</em>

@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { LogoMark, SpotlightTracker, ThemeToggle } from "@upsolve/ui";
 import { NavHistory } from "@/components/back-link";
 import { CommandPalette } from "@/components/command-palette";
+import { KeyboardList } from "@/components/keyboard-list";
+import { ProblemMenu } from "@/components/problem-menu";
 import { Shortcuts } from "@/components/shortcuts";
 import { NextProblemPicker } from "@/components/daily/next-problem";
 import { FeedbackButton, FeedbackTrigger } from "./_components/feedback-button";
@@ -57,6 +59,8 @@ export default function DashboardLayout({ children }: LayoutProps<"/dashboard">)
       </Suspense>
       <CommandPalette />
       <Shortcuts />
+      <ProblemMenu />
+      <KeyboardList />
       <NextProblemPicker />
       <SpotlightTracker />
     </div>

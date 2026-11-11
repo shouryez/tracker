@@ -71,6 +71,7 @@ export function EmptyState({
   title,
   children,
   action,
+  demo,
   className,
 }: {
   icon?: ReactNode;
@@ -78,10 +79,23 @@ export function EmptyState({
   title: ReactNode;
   children?: ReactNode;
   action?: ReactNode;
+  /**
+   * A ghost of what will appear here (e.g. a faded example row), shown above the message
+   * with a soft shimmer, so an empty page explains itself.
+   */
+  demo?: ReactNode;
   className?: string;
 }) {
   return (
     <div className={cn("flex flex-col items-center px-4 py-8 text-center", className)}>
+      {demo && (
+        <div
+          aria-hidden="true"
+          className="empty-demo pointer-events-none relative mb-6 w-full max-w-[420px] select-none"
+        >
+          {demo}
+        </div>
+      )}
       {mascot ? (
         <Stacky mood={mascot} size={96} className="mb-4" />
       ) : (
@@ -143,5 +157,3 @@ export function Kbd({ children, className }: { children: ReactNode; className?: 
     </kbd>
   );
 }
-
-// DsaKaro

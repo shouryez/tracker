@@ -433,8 +433,9 @@ export function MobileNav({
   const pill = (id: string) => (
     <motion.span
       layoutId={id}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className="absolute inset-0 -z-10 rounded-full bg-[color-mix(in_srgb,var(--ink)_9%,transparent)] shadow-[inset_0_0_0_1px_var(--line)]"
+      // A springy blob that slides (and stretches a little) between tabs.
+      transition={{ type: "spring", stiffness: 420, damping: 26, mass: 0.8 }}
+      className="absolute inset-0 -z-10 rounded-full bg-[color-mix(in_srgb,var(--signal-mark)_14%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--signal-mark)_30%,transparent)]"
     />
   );
 
@@ -505,7 +506,7 @@ export function MobileNav({
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          className="glass fixed inset-x-2 bottom-2 z-50 animate-[sheet-up_var(--dur-slow)_var(--ease-spring)] touch-none rounded-[28px] border border-line-2 px-3 pt-2 pb-[96px] shadow-e4 lg:hidden"
+          className="glass-overlay fixed inset-x-2 bottom-2 z-50 animate-[sheet-up_var(--dur-slow)_var(--ease-spring)] touch-none rounded-[28px] px-3 pt-2 pb-[96px] lg:hidden"
         >
           <span
             aria-hidden="true"
@@ -559,7 +560,7 @@ export function MobileNav({
       )}
       <nav
         aria-label="Main"
-        className="glass fixed inset-x-3 bottom-3 z-50 flex items-center justify-around gap-1 rounded-full border border-line-2 px-1.5 py-1.5 shadow-e3 lg:hidden"
+        className="glass-chrome fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-50 flex items-center justify-around gap-1 rounded-full px-1.5 py-1.5 lg:hidden"
       >
         {left.map(tab)}
         {next ? (
