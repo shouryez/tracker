@@ -27,7 +27,7 @@ export function TiltFrame({ children, className }: { children: ReactNode; classN
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-[10%] -bottom-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(243,180,92,.28),transparent)] blur-2xl"
+        className="pointer-events-none absolute inset-x-[10%] -bottom-10 h-32 rounded-full bg-[radial-gradient(closest-side,rgba(240,136,79,.24),transparent)] blur-2xl"
         style={{ opacity: "calc(.45 + var(--hp) * .55)" }}
       />
       <div

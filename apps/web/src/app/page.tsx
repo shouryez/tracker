@@ -132,7 +132,7 @@ function Hero() {
       {/* The lamp, and a dot field that fades out around the headline. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[900px] bg-[radial-gradient(900px_520px_at_50%_18%,rgba(243,180,92,.14),transparent_65%)]"
+        className="pointer-events-none absolute inset-x-0 -top-24 -z-10 h-[900px] bg-[radial-gradient(900px_520px_at_50%_18%,rgba(240,136,79,.12),transparent_65%)]"
       />
       <div
         aria-hidden="true"
@@ -563,7 +563,7 @@ function Friends() {
     >
       <div className="grid items-center gap-10 lg:grid-cols-[1.25fr_1fr]">
         <Reveal stagger>
-          <div className="grid grid-cols-3 gap-3 rounded-[22px] bg-[radial-gradient(520px_220px_at_50%_0%,rgba(243,180,92,.16),transparent_70%),var(--surface)] p-4 shadow-[inset_0_0_0_1px_var(--line)] sm:p-6">
+          <div className="grid grid-cols-3 gap-3 rounded-[22px] bg-[radial-gradient(520px_220px_at_50%_0%,rgba(240,136,79,.14),transparent_70%),var(--surface)] p-4 shadow-[inset_0_0_0_1px_var(--line)] sm:p-6">
             {desks.map((d) => (
               <div
                 key={d.buddy}
@@ -571,7 +571,7 @@ function Friends() {
                   "flex flex-col items-center gap-2 rounded-[16px] px-2 py-4 text-center shadow-[inset_0_0_0_1px_var(--line)]",
                   d.level === "paused"
                     ? "bg-surface-2"
-                    : "bg-[radial-gradient(160px_100px_at_50%_0%,color-mix(in_srgb,var(--amber)_18%,transparent),transparent_70%),var(--surface-2)]",
+                    : "bg-[radial-gradient(160px_100px_at_50%_0%,color-mix(in_srgb,var(--primary)_16%,transparent),transparent_70%),var(--surface-2)]",
                 )}
               >
                 <StudyBuddy buddy={d.buddy} level={d.level} size={84} />
@@ -822,7 +822,7 @@ function Footer() {
   return (
     <footer className="relative mt-32 overflow-hidden">
       <div className={cn(WRAP, "flex flex-col gap-6 pb-10")}>
-        <div className="relative isolate overflow-hidden rounded-[24px] bg-[radial-gradient(700px_320px_at_50%_0%,rgba(243,180,92,.2),transparent_70%),#111318] px-6 py-16 text-center text-[#eceef2] ring-1 ring-white/10 sm:py-24">
+        <div className="relative isolate overflow-hidden rounded-[24px] bg-[radial-gradient(700px_320px_at_50%_0%,rgba(240,136,79,.18),transparent_70%),#0b0b0c] px-6 py-16 text-center text-[#eceef2] ring-1 ring-white/10 sm:py-24">
           <div
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-[radial-gradient(rgba(255,255,255,.05)_1px,transparent_1.4px)] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_40%,#000,transparent)] bg-[length:22px_22px]"

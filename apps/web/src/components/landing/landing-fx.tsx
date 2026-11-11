@@ -120,7 +120,7 @@ export function SheetDemo() {
         <span className="tnum ml-auto hidden text-12 text-ink-3 sm:block">~3h left</span>
         <span className="h-1.5 w-28 overflow-hidden rounded-full bg-surface-3">
           <span
-            className="block h-full rounded-full bg-[linear-gradient(90deg,color-mix(in_srgb,var(--violet)_55%,transparent),var(--violet))] transition-[width] duration-[var(--dur-slower)] ease-[var(--ease-out)]"
+            className="block h-full rounded-full bg-[linear-gradient(90deg,color-mix(in_srgb,var(--signal)_45%,transparent),var(--signal))] transition-[width] duration-[var(--dur-slower)] ease-[var(--ease-out)]"
             style={{ width: `${pct}%` }}
           />
         </span>
