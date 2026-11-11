@@ -58,19 +58,39 @@ import { StreakFreezes } from "./streak-freezes";
 
 export const metadata: Metadata = { title: "Settings" };
 
-const SECTIONS = [
-  { id: "profile", label: "Profile" },
-  { id: "password", label: "Password" },
-  { id: "verify", label: "College verification" },
-  { id: "platforms", label: "Platforms" },
-  { id: "extension", label: "Extension" },
-  { id: "learning", label: "Revision & email" },
-  { id: "buddy", label: "Study buddy" },
-  { id: "reminders", label: "Reminders" },
-  { id: "social", label: "Social & privacy" },
-  { id: "streak", label: "Streak freeze" },
-  { id: "public", label: "Public profile" },
-  { id: "account", label: "Account" },
+const GROUPS = [
+  {
+    label: "You",
+    sections: [
+      { id: "profile", label: "Profile" },
+      { id: "password", label: "Password" },
+      { id: "verify", label: "College verification" },
+    ],
+  },
+  {
+    label: "Platforms & extension",
+    sections: [
+      { id: "platforms", label: "Platforms" },
+      { id: "extension", label: "Extension" },
+    ],
+  },
+  {
+    label: "Study",
+    sections: [
+      { id: "learning", label: "Revision & email" },
+      { id: "buddy", label: "Study buddy" },
+      { id: "reminders", label: "Reminders" },
+    ],
+  },
+  {
+    label: "Privacy & account",
+    sections: [
+      { id: "social", label: "Social & privacy" },
+      { id: "streak", label: "Streak freeze" },
+      { id: "public", label: "Public profile" },
+      { id: "account", label: "Account" },
+    ],
+  },
 ];
 
 export default function SettingsPage() {
@@ -80,11 +100,11 @@ export default function SettingsPage() {
         eyebrow="Settings"
         glow={PAGE_GLOW.settings}
         title="Settings"
-        subtitle="Profile, platforms, revision and privacy. Everything saves as you change it."
+        subtitle="Everything saves as you change it."
       />
-      <div className="grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)]">
-        <SectionNav sections={SECTIONS} />
-        <div className="flex max-w-[880px] min-w-0 flex-col gap-4">
+      <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <SectionNav groups={GROUPS} />
+        <div className="flex max-w-[1000px] min-w-0 flex-col gap-4">
           <Suspense
             fallback={
               <>

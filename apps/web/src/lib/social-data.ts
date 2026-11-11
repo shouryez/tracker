@@ -109,6 +109,7 @@ export function rankBoard(rows: BoardRow[], metric: BoardMetric) {
 export type GroupSummary = {
   id: string;
   name: string;
+  inviteCode: string;
   role: GroupRole;
   members: number;
 };
@@ -124,7 +125,7 @@ export async function getMyGroups(userId: string): Promise<GroupSummary[]> {
   cacheLife("minutes");
 
   return (await db().execute(sql`
-    select g.id, g.name, gm.role,
+    select g.id, g.name, g.invite_code as "inviteCode", gm.role,
            (select count(*)::int from group_members x where x.group_id = g.id) as members
     from group_members gm join groups g on g.id = gm.group_id
     where gm.user_id = ${userId}

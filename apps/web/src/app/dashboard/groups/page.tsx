@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Crown, Link2, Plus } from "lucide-react";
-import { Card, CardHeader, CardSub, CardTitle, SkeletonCard, Tag, cn } from "@upsolve/ui";
+import { Card, CardHeader, CardSub, CardTitle, Pill, SkeletonCard, cn } from "@upsolve/ui";
+import { CopyLinkButton } from "@/components/orbit/copy-link";
 import { PAGE_GLOW, PageHeader } from "@/components/page-header";
 import { CreateGroupForm, JoinGroupForm } from "@/components/social";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -134,25 +135,22 @@ async function GroupsContent() {
   return (
     <>
       <section aria-label="Your groups" className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {details.map(({ g, hall, studying, rank, me }, i) => (
-          <Link
+        {details.map(({ g, hall, studying, rank, me }) => (
+          <div
             key={g.id}
-            href={`/dashboard/groups/${g.id}`}
-            className={cn(
-              "surface-card flex flex-col gap-4 rounded-lg p-[18px] transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-1 hover:border-line-2",
-              i === 0 && "lamp",
-            )}
+            className="surface-card sheen relative flex flex-col gap-4 rounded-[24px] p-[22px] transition-[transform,box-shadow] duration-[var(--dur-base)] hover:-translate-y-[3px] hover:shadow-e2"
           >
+            <Link
+              href={`/dashboard/groups/${g.id}`}
+              aria-label={`Open ${g.name}`}
+              className="absolute inset-0 rounded-[inherit]"
+            />
             <div className="flex items-center gap-2.5">
-              <h2 className="truncate text-17 font-[620] tracking-[-0.02em]">{g.name}</h2>
+              <h2 className="truncate text-[17px] font-[620] tracking-[-0.02em]">{g.name}</h2>
               <span className="ml-auto shrink-0">
-                {studying > 0 ? (
-                  <span className="flex items-center gap-1.5 rounded-full bg-signal-soft px-2.5 py-0.5 text-12 font-[600] text-signal-text">
-                    <span className="size-1.5 rounded-full bg-signal" /> {studying} studying
-                  </span>
-                ) : (
-                  <Tag>nobody live</Tag>
-                )}
+                <Pill tone={studying > 0 ? "mint" : "neutral"}>
+                  {studying > 0 ? `${studying} studying` : "Nobody live"}
+                </Pill>
               </span>
             </div>
             <div className="flex items-center">
@@ -165,11 +163,11 @@ async function GroupsContent() {
                   />
                 </span>
               ))}
-              <span className="ml-4 text-12 text-ink-3">
+              <span className="ml-4 text-13 text-ink-3">
                 {g.members} member{g.members === 1 ? "" : "s"}
               </span>
             </div>
-            <div className="mt-auto flex items-center justify-between gap-2 text-12">
+            <div className="flex items-center justify-between gap-2 text-13">
               <span className="text-ink-3">
                 {rank ? `You're ${ordinal(rank)} this week` : "Not ranked yet"}
               </span>
@@ -179,7 +177,10 @@ async function GroupsContent() {
                 </span>
               )}
             </div>
-          </Link>
+            <div className="relative z-10 mt-auto flex gap-2 border-t border-line pt-4">
+              <CopyLinkButton url={`https://dsakaro.site/join/${g.inviteCode}`} />
+            </div>
+          </div>
         ))}
       </section>
 
@@ -252,7 +253,7 @@ async function GroupsContent() {
               <CardHeader>
                 <CardTitle>Invite to {invite.name}</CardTitle>
               </CardHeader>
-              <div className="flex items-center gap-2 rounded-[12px] bg-surface-2 px-3.5 py-3 shadow-[inset_0_0_0_1px_var(--line-2)]">
+              <div className="flex items-center gap-2 rounded-[14px] bg-[color-mix(in_srgb,var(--ink)_5%,transparent)] px-3.5 py-3 shadow-[inset_0_0_0_1px_var(--line-2)]">
                 <span className="font-mono text-[20px] font-[600] tracking-[.16em]">
                   {invite.inviteCode}
                 </span>
@@ -260,6 +261,10 @@ async function GroupsContent() {
               <p className="mt-2 text-12 text-ink-3">
                 Share {`dsakaro.site/join/${invite.inviteCode}`}. Anyone with the link can join.
               </p>
+              <CopyLinkButton
+                url={`https://dsakaro.site/join/${invite.inviteCode}`}
+                className="mt-3"
+              />
             </Card>
           )}
           <Card>
