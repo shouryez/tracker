@@ -939,3 +939,87 @@ li[data-next] {
   box-shadow: inset 3px 0 0 var(--signal-mark);
   background: color-mix(in srgb, var(--signal-mark) 5%, transparent);
 }
+
+/* Split-flap digits (components/fx/split-flap.tsx). */
+.flap {
+  box-shadow:
+    0 8px 18px -10px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 1px var(--line);
+}
+.flap-top,
+.flap-bottom {
+  color: var(--ink);
+  backface-visibility: hidden;
+}
+.flap-top {
+  border-radius: 8px 8px 0 0;
+  background: linear-gradient(180deg, var(--surface-4), var(--surface-3));
+}
+.flap-bottom {
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(180deg, var(--surface-3), var(--surface-2));
+}
+.flap-ch {
+  display: grid;
+  place-items: center;
+  height: 200%;
+  line-height: 1;
+}
+.flap-ch-low {
+  transform: translateY(-50%);
+}
+.flap-fall {
+  z-index: 2;
+  transform-origin: 50% 100%;
+  animation: flap-fall 260ms ease-in forwards;
+}
+.flap-land {
+  z-index: 2;
+  transform-origin: 50% 0;
+  animation: flap-land 260ms 200ms ease-out backwards;
+}
+@keyframes flap-fall {
+  to {
+    transform: rotateX(-90deg);
+  }
+}
+@keyframes flap-land {
+  from {
+    transform: rotateX(90deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flap-fall,
+  .flap-land {
+    display: none;
+  }
+}
+
+/* Direction-aware hover (components/fx/experience.tsx sets data-from): the tint slides in
+   from the side the pointer entered, and out the side it left. */
+[data-dir-hover] {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+[data-dir-hover] > .dir-tint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  transition: transform 260ms var(--ease-out);
+  transform: translateX(-101%);
+}
+[data-dir-hover][data-from="right"] > .dir-tint {
+  transform: translateX(101%);
+}
+[data-dir-hover][data-from="top"] > .dir-tint {
+  transform: translateY(-101%);
+}
+[data-dir-hover][data-from="bottom"] > .dir-tint {
+  transform: translateY(101%);
+}
+[data-dir-hover]:hover > .dir-tint,
+[data-dir-hover]:focus-visible > .dir-tint {
+  transform: none;
+}

@@ -27,7 +27,8 @@ function CurveCard({ c }: { c: Curve }) {
   const H = 70;
   const span = Math.max(interval * 1.6, t * 1.15, 1);
   const x = (d: number) => (d / span) * W;
-  const y = (r: number) => H - r * H;
+  // Zoomed to 50–100%: that's where the curve moves between reviews.
+  const y = (r: number) => H - Math.min(1, Math.max(0, (r - 0.5) / 0.5)) * H;
   const pts = Array.from({ length: 41 }, (_, i) => {
     const d = (i / 40) * span;
     return `${x(d).toFixed(1)},${y(Math.exp(-d / S)).toFixed(1)}`;
@@ -57,6 +58,9 @@ function CurveCard({ c }: { c: Curve }) {
           strokeOpacity=".18"
           strokeDasharray="3 4"
         />
+        <text x={W} y={y(0.8) - 4} textAnchor="end" fontSize="9" fill="var(--ink)" opacity=".4">
+          80%
+        </text>
         <polyline
           points={pts.join(" ")}
           fill="none"

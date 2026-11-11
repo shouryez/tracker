@@ -113,7 +113,7 @@ export function SheetConstellation({ steps }: { steps: StepCount[] }) {
   const cell = 130;
   const rows = Math.ceil(live.length / cols);
   const W = cols * cell;
-  const H = rows * cell;
+  const H = rows * cell + 16;
   const golden = Math.PI * (3 - Math.sqrt(5));
   return (
     <div className="relative">
@@ -128,7 +128,7 @@ export function SheetConstellation({ steps }: { steps: StepCount[] }) {
           points={live
             .map((_, i) => {
               const r = Math.floor(i / cols);
-              const c = r % 2 ? cols - 1 - (i % cols) : i % cols;
+              const c = i % cols;
               return `${c * cell + cell / 2},${r * cell + cell / 2}`;
             })
             .join(" ")}
@@ -140,7 +140,7 @@ export function SheetConstellation({ steps }: { steps: StepCount[] }) {
         />
         {live.map((s, i) => {
           const r = Math.floor(i / cols);
-          const c = r % 2 ? cols - 1 - (i % cols) : i % cols;
+          const c = i % cols;
           const cx = c * cell + cell / 2;
           const cy = r * cell + cell / 2;
           const spread = Math.min(46, 7 * Math.sqrt(s.total));

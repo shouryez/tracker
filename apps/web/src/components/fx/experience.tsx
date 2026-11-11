@@ -7,7 +7,8 @@ import { SERVER_FEEL, getFeel, reducedMotion, subscribeFeel } from "@/lib/feel";
  * Site-wide feel, mounted once in the root layout (FRONTEND-PLAN §0.2–0.3):
  * - the halo cursor (desktop, fine pointer, on by default; Settings → Feel → Cursor);
  * - click sparks on the primary (ember, `.gloss`) action;
- * - tilt and glare on anything marked `data-tilt` (sheet covers, holo cards).
+ * - tilt and glare on anything marked `data-tilt` (sheet covers, holo cards);
+ * - direction-aware hover tints on `[data-dir-hover]`.
  * Both stay out of the way: no layout work per frame, paused when the tab is hidden, and off
  * for reduced motion. The system cursor is never hidden.
  */
@@ -18,6 +19,7 @@ export function Experience() {
       {prefs.cursor === "halo" && <HaloCursor />}
       <ClickSparks />
       <TiltGlare />
+      <DirectionAware />
     </>
   );
 }
@@ -315,6 +317,36 @@ function TiltGlare() {
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerout", onOut);
+    };
+  }, []);
+  return null;
+}
+
+/* -------------------------------------------------------- direction hover */
+
+/** Which edge the pointer crossed: sets data-from on `[data-dir-hover]` (see globals.css). */
+function DirectionAware() {
+  useEffect(() => {
+    const side = (el: HTMLElement, x: number, y: number) => {
+      const r = el.getBoundingClientRect();
+      const d = { left: x - r.left, right: r.right - x, top: y - r.top, bottom: r.bottom - y };
+      return (Object.keys(d) as (keyof typeof d)[]).reduce((a, b) => (d[a] <= d[b] ? a : b));
+    };
+    const onOver = (e: PointerEvent) => {
+      const el = (e.target as Element | null)?.closest<HTMLElement>("[data-dir-hover]");
+      const from = (e.relatedTarget as Element | null)?.closest?.("[data-dir-hover]");
+      if (el && from !== el) el.dataset.from = side(el, e.clientX, e.clientY);
+    };
+    const onOut = (e: PointerEvent) => {
+      const el = (e.target as Element | null)?.closest<HTMLElement>("[data-dir-hover]");
+      const to = (e.relatedTarget as Element | null)?.closest?.("[data-dir-hover]");
+      if (el && to !== el) el.dataset.from = side(el, e.clientX, e.clientY);
+    };
+    document.addEventListener("pointerover", onOver);
+    document.addEventListener("pointerout", onOut);
+    return () => {
+      document.removeEventListener("pointerover", onOver);
       document.removeEventListener("pointerout", onOut);
     };
   }, []);

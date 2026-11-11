@@ -16,8 +16,10 @@ export const CF_BANDS = [
 ];
 
 /**
- * Rating over time: gradient area, a line that draws in, a marker per contest, a crosshair
- * and glass tooltip on hover. Optional rank `bands` tint the background by rating range.
+ * Rating over time: gradient area, a line that draws in, a marker per contest. Scrub it
+ * (FRONTEND-PLAN §8 Contests 2): drag or hover anywhere along the chart, or use the arrow
+ * keys, and a crosshair snaps to the nearest contest with a frosted readout beside it.
+ * Optional rank `bands` tint the background by rating range.
  */
 export function RatingChart({
   points,
@@ -31,6 +33,7 @@ export function RatingChart({
   const [hover, setHover] = useState<number | null>(null);
   const [w, setW] = useState(600);
   const box = useRef<HTMLDivElement>(null);
+  const svg = useRef<SVGSVGElement>(null);
   const gid = useId();
   // Draw at the container's real width so axis text stays 10px at any card size.
   useEffect(() => {
@@ -63,15 +66,59 @@ export function RatingChart({
   const fmt = (t: number) =>
     new Date(t).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "2-digit" });
   const mono = "var(--font-geist-mono), monospace";
+  // Nearest contest to a pointer x (in the SVG's own units).
+  const pick = (clientX: number) => {
+    const r = svg.current?.getBoundingClientRect();
+    if (!r) return;
+    const px = ((clientX - r.left) / r.width) * w;
+    let best = 0;
+    points.forEach((p, i) => {
+      if (Math.abs(x(p.at) - px) < Math.abs(x(points[best]!.at) - px)) best = i;
+    });
+    setHover(best);
+  };
+  const hx = hp ? (x(hp.at) / w) * 100 : 0;
 
   return (
-    <div ref={box} className="relative">
+    <div
+      ref={box}
+      tabIndex={0}
+      role="group"
+      aria-label={`Rating chart, ${points.length} contests. Use the arrow keys to step through them.`}
+      data-cursor="crosshair"
+      onKeyDown={(e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight" && e.key !== "Home" && e.key !== "End")
+          return;
+        e.preventDefault();
+        const last = points.length - 1;
+        setHover((h) =>
+          e.key === "Home"
+            ? 0
+            : e.key === "End"
+              ? last
+              : Math.min(last, Math.max(0, (h ?? last) + (e.key === "ArrowLeft" ? -1 : 1))),
+        );
+      }}
+      onBlur={() => setHover(null)}
+      className="relative rounded-[12px] outline-none focus-visible:ring-2 focus-visible:ring-[var(--signal-mark)]"
+    >
       <svg
+        ref={svg}
         viewBox={`0 0 ${w} ${h}`}
-        className="h-auto w-full"
+        className="h-auto w-full touch-pan-y"
         role="img"
         aria-label={`Rating from ${points[0]!.rating} to ${points.at(-1)!.rating} over ${points.length} contests`}
-        onMouseLeave={() => setHover(null)}
+        onPointerMove={(e) => pick(e.clientX)}
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          pick(e.clientX);
+        }}
+        onPointerLeave={(e) => {
+          if (!e.currentTarget.hasPointerCapture(e.pointerId)) setHover(null);
+        }}
+        onPointerUp={(e) => {
+          if (e.pointerType !== "mouse") setHover(null);
+        }}
       >
         <defs>
           <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
@@ -147,13 +194,6 @@ export function RatingChart({
               stroke={stroke}
               strokeWidth="1.6"
             />
-            <circle
-              cx={x(p.at)}
-              cy={y(p.rating)}
-              r="11"
-              fill="transparent"
-              onMouseEnter={() => setHover(i)}
-            />
           </g>
         ))}
         <text x={pad.l} y={h - 4} fontSize="10" fill="var(--ink-3)" fontFamily={mono}>
@@ -173,7 +213,9 @@ export function RatingChart({
       {hp && (
         <div
           role="status"
-          className="glass pointer-events-none absolute top-0 right-0 rounded-[10px] border border-line-2 px-3 py-2 text-right shadow-e3"
+          className="glass-overlay pointer-events-none absolute top-0 rounded-[12px] px-3 py-2 text-left transition-[left] duration-100"
+          // Follows the crosshair, kept inside the chart.
+          style={{ left: `clamp(0px, calc(${hx}% - 110px), calc(100% - 230px))` }}
         >
           <p className="max-w-[240px] truncate text-12 font-[600]">{hp.name}</p>
           <p className="tnum text-12 text-ink-2">
@@ -192,5 +234,3 @@ export function RatingChart({
     </div>
   );
 }
-
-// DsaKaro

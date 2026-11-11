@@ -393,6 +393,7 @@ function UpsolveRow({ c, contests }: { c: ContestUpsolve; contests: ContestRow[]
             target="_blank"
             rel="noreferrer"
             title={p.title}
+            data-dir-hover=""
             className={cn(
               "flex min-w-0 flex-col gap-0.5 rounded-[12px] px-3 py-2 transition-transform hover:-translate-y-0.5",
               p.status === "contest"
@@ -402,6 +403,7 @@ function UpsolveRow({ c, contests }: { c: ContestUpsolve; contests: ContestRow[]
                   : "surface-inset",
             )}
           >
+            <span aria-hidden="true" className="dir-tint" />
             <span
               className={cn(
                 "text-[11px] font-[600]",
