@@ -1,10 +1,29 @@
 # DsaKaro: Frontend plan
 
-> **Status:** planned, **not started**. Build begins only when the owner says "start" and names a phase or page.
+> **Status:** in progress (see the progress log). The owner said start on 2026-11-11.
 > This file is the single source of context for that work. It replaces `design/UX-ADDONS-PLAN.md`.
 > Last updated: 2026-11-11 (sound and haptics spec §6 0.9, backend list §11).
 
 ---
+
+## Progress log
+
+| Phase                                              | Status  | Commit  | Notes                                                                                                                                                                                                                      |
+| -------------------------------------------------- | ------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0 Design language                                  | Done    | eb304eb | Frosted tiers on header, palette, modals, menus, toasts; halo cursor; click sparks; Feel settings (sound, haptics, cursor, motion); springs; blur-in; large-title pill; variable proximity; hold-to-leave; stateful button |
+| Revision and Recall                                | Done    | 153db3c | Swipe deck, memory-curve card, ring focus, flight to orb, rolling counts, Recall flip and combo                                                                                                                            |
+| Today                                              | Done    | 8c45459 | Drag and arrow reorder (B1, saved), time ribbon, vanish input, rotating ideas, Up next, neon All done, Getting started (B13), streak cue                                                                                   |
+| Sheets                                             | Done    | 465874f | Tilt and glare covers, strike and pixel flight on tick, floating progress strip, Next marker, sheet map                                                                                                                    |
+| Contests                                           | Done    | 2965395 | Split-flap countdown and starting-soon bar, rating scrubber, direction-aware upsolve tiles; dev lab at /lab/fx                                                                                                             |
+| Sessions                                           | Done    | b0b8e12 | Orbit colours, wake lock re-acquire, brown noise, 4-7-8 breathing, session receipt                                                                                                                                         |
+| Game layer                                         | Done    | 1327a03 | 11 badges (B4 as Perfect Five, B6), holo stat card, heatmap draw-in, Weekly Wrapped with server images (B7)                                                                                                                |
+| Insights                                           | Next    |         |                                                                                                                                                                                                                            |
+| People                                             | Pending |         |                                                                                                                                                                                                                            |
+| Problem, Library, Settings, Onboarding, Login, 404 | Pending |         |                                                                                                                                                                                                                            |
+| Phase G (global)                                   | Pending |         |                                                                                                                                                                                                                            |
+
+Not verified live yet: signed-in pages (the dsakaro.site session in Chrome had logged out). Public pieces were checked
+locally, and signed-in effects through the /lab/fx bench.
 
 ## 0. Decisions log
 
