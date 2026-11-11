@@ -25,6 +25,21 @@
   --ease-out: var(--ease-out-expo);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Named springs (motion.ts has the JS versions): snap for UI toggles (no bounce), settle for
+     cards and lists (a little bounce), float for slow decor. */
+  --spring-snap: linear(0, 0.42 6%, 0.8 14%, 0.96 24%, 1.005 34%, 1.002 50%, 1);
+  --spring-settle: linear(
+    0,
+    0.3 8%,
+    0.72 18%,
+    1.02 32%,
+    1.07 40%,
+    1.04 50%,
+    0.995 66%,
+    1.002 80%,
+    1
+  );
+  --spring-float: cubic-bezier(0.37, 0, 0.63, 1);
   --dur-instant: 90ms;
   --dur-fast: 160ms;
   --dur-base: 240ms;
@@ -61,6 +76,17 @@
   --surface-4: #26262b;
   --surface-inset: #0e0e10;
   --overlay: rgba(11, 11, 12, 0.74);
+  /* Frosted glass (FRONTEND-PLAN §0.1): chrome floats over content, overlays sit above it. */
+  --glass-chrome: rgba(20, 20, 22, 0.62);
+  --glass-overlay: rgba(22, 22, 25, 0.78);
+  --glass-rim: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0.03)
+  );
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glass-solid: #18181b;
   --line: rgba(255, 255, 255, 0.07);
   --line-2: rgba(255, 255, 255, 0.12);
   --line-3: rgba(255, 255, 255, 0.2);
@@ -190,6 +216,16 @@
   --surface-4: #ffffff;
   --surface-inset: #efece7;
   --overlay: rgba(255, 255, 255, 0.8);
+  --glass-chrome: rgba(255, 255, 255, 0.66);
+  --glass-overlay: rgba(255, 255, 255, 0.84);
+  --glass-rim: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(32, 28, 18, 0.08) 45%,
+    rgba(32, 28, 18, 0.1)
+  );
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-solid: #fbfaf8;
   --line: rgba(20, 20, 22, 0.08);
   --line-2: rgba(20, 20, 22, 0.14);
   --line-3: rgba(20, 20, 22, 0.24);

@@ -5,6 +5,7 @@ import { Archive, ArchiveRestore, Check, Clock3, Minus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import { logReview, undoReview, type ReviewActionName } from "@/app/actions/learning";
+import { feel } from "@/lib/feel";
 import { burstFrom } from "@/components/dashboard/celebrate";
 
 const MANUAL: {
@@ -49,6 +50,8 @@ export function ManualReview({ problemId, className }: { problemId: string; clas
     startTransition(async () => {
       setDone(action);
       if (action === "remembered") void burstFrom(el);
+      else if (action === "shaky") feel.tick();
+      else feel.soft();
       await logReview(problemId, action);
       toast.success(
         action === "remembered"
@@ -141,6 +144,7 @@ export function SnoozeButton({ problemId }: { problemId: string }) {
       title="Not today: bring it back tomorrow"
       onClick={() =>
         startTransition(async () => {
+          feel.soft();
           await logReview(problemId, "snooze");
           toast("Back tomorrow, same rung", {
             action: { label: "Undo", onClick: () => void undoReview(problemId, "snooze") },

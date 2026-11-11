@@ -3,7 +3,10 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@upsolve/ui";
 
-/** Sticky top bar: transparent at the top, frosted glass with a border once you scroll. */
+/**
+ * Sticky top bar: transparent at the top, frosted glass with a border once you scroll, and a
+ * soft progressive blur under it.
+ */
 export function StickyHeader({ children, className }: { children: ReactNode; className?: string }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -29,6 +32,15 @@ export function StickyHeader({ children, className }: { children: ReactNode; cla
       )}
     >
       {children}
+      {/* Progressive blur: content softens as it slides under the bar instead of a hard edge. */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "pointer-events-none absolute inset-x-0 top-full h-6 transition-opacity duration-[var(--dur-slow)] pointer-coarse:hidden",
+          "[mask-image:linear-gradient(#000,transparent)] backdrop-blur-[6px]",
+          scrolled ? "opacity-100" : "opacity-0",
+        )}
+      />
     </header>
   );
 }

@@ -39,7 +39,7 @@ export function Modal({
       }}
       aria-labelledby="modal-title"
       className={cn(
-        "glass m-auto w-[min(520px,calc(100vw-32px))] rounded-[24px] border border-line-2 p-0 text-ink shadow-e4",
+        "glass-overlay m-auto w-[min(520px,calc(100vw-32px))] rounded-[24px] p-0 text-ink",
         "backdrop:bg-[rgba(4,4,8,.55)] backdrop:backdrop-blur-[6px]",
         "open:animate-[modal-in_var(--dur-slow)_var(--ease-spring)]",
         className,
@@ -132,5 +132,3 @@ export function HoldToConfirm({
     </button>
   );
 }
-
-// DsaKaro

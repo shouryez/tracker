@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { SignalType } from "@/components/fx/signal-type";
+import { feel } from "@/lib/feel";
 
 const MILESTONES = [7, 14, 30, 50, 75, 100, 150, 200, 365];
 const SOLVED = [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000];
@@ -36,6 +37,7 @@ function offerCard(title: string, kind: "streak" | "solved") {
  * Lazy-loads canvas-confetti. Skipped for reduced motion. `small` is for row-level wins.
  */
 export async function burst(opts: { origin?: { x: number; y: number }; small?: boolean } = {}) {
+  feel.success();
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const confetti = (await import("canvas-confetti")).default;
   confetti({
@@ -47,7 +49,7 @@ export async function burst(opts: { origin?: { x: number; y: number }; small?: b
     shapes: ["square"],
     flat: true,
     origin: opts.origin ?? { x: 0.5, y: 0.35 },
-    colors: ["#c6f16b", "#7cb7ff", "#f5b94d", "#ffffff"],
+    colors: ["#86d9c2", "#9db5e8", "#e2c27d", "#f0884f", "#ffffff"],
     disableForReducedMotion: true,
   });
 }

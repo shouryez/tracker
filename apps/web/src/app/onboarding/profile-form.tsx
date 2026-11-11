@@ -17,6 +17,7 @@ import {
 } from "@/lib/profile-options";
 import { CollegePicker, inputClass, type CollegeChoice } from "./college-picker";
 import { OnboardingSteps } from "./steps";
+import { VariableProximity } from "@/components/fx/variable-proximity";
 
 type Defaults = {
   name: string;
@@ -342,7 +343,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
 function Heading({ muted, main }: { muted: string; main: string }) {
   return (
     <h1 className="mb-8 font-display text-[clamp(36px,6vw,52px)] leading-none tracking-[-0.02em]">
-      {muted} <em className="text-ink-3 not-italic">{main}</em>
+      <VariableProximity text={muted} /> <em className="text-ink-3 not-italic">{main}</em>
     </h1>
   );
 }

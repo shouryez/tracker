@@ -16,6 +16,12 @@ export const EASE = {
 } as const;
 
 export const SPRING = {
+  /** UI toggles and selections: fast, no bounce. CSS: var(--spring-snap). */
+  snap: { type: "spring", stiffness: 520, damping: 40 },
+  /** Cards and list items settling into place: a little bounce. CSS: var(--spring-settle). */
+  settle: { type: "spring", stiffness: 300, damping: 22 },
+  /** Slow decorative drift. CSS: var(--spring-float). */
+  float: { type: "spring", stiffness: 60, damping: 14 },
   snappy: { type: "spring", stiffness: 500, damping: 30 },
   soft: { type: "spring", stiffness: 200, damping: 24 },
   bouncy: { type: "spring", stiffness: 400, damping: 15 },
@@ -23,5 +29,3 @@ export const SPRING = {
 
 /** Stagger between siblings entering (cards, list rows). */
 export const STAGGER = 0.05;
-
-// DsaKaro

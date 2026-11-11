@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@upsolve/ui";
+import { CompactTitle } from "@/components/compact-title";
 
 /**
  * Lamplight has one light source: every page header sits under the same warm lamp.
@@ -45,7 +46,7 @@ export function PageHeader({
             {eyebrow}
           </p>
         )}
-        <h1 className="font-display text-[clamp(32px,3.4vw,48px)] leading-[1.02] text-balance text-ink [&_em]:font-[inherit] [&_em]:text-ink-3 [&_em]:not-italic">
+        <h1 className="page-title font-display text-[clamp(32px,3.4vw,48px)] leading-[1.02] text-balance text-ink [&_em]:font-[inherit] [&_em]:text-ink-3 [&_em]:not-italic">
           {title}
         </h1>
         {subtitle && (
@@ -55,6 +56,7 @@ export function PageHeader({
         )}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2.5">{actions}</div>}
+      <CompactTitle />
     </header>
   );
 }

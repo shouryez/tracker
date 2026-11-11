@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter_Tight } from "next/font/google";
 import { themeScript } from "@upsolve/ui";
+import { Experience } from "@/components/fx/experience";
 import { Toaster } from "@/components/toaster";
+import { feelScript } from "@/lib/feel";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,10 +12,11 @@ const geistSans = Geist({
 });
 
 // Display face for headings and big numbers.
+// Variable (every weight in one file): headings can ease their weight, e.g. the
+// variable-proximity headline (components/fx/variable-proximity.tsx).
 const interTight = Inter_Tight({
   variable: "--font-inter-tight",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
 });
 
 // Mono is for timers, counts and small labels: not preloaded, so it doesn't compete with
@@ -48,6 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* We ship our own dark theme; this stops Dark Reader rewriting SVGs (hydration mismatch). */}
         <meta name="darkreader-lock" />
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: feelScript }} />
       </head>
       <body className="min-h-full">
         <a
@@ -58,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         {children}
         <Toaster />
+        <Experience />
       </body>
     </html>
   );

@@ -13,7 +13,11 @@ export function ThemeToggle({ className }: { className?: string }) {
     const root = document.documentElement;
     const next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
     const doc = document as ViewTransitionDoc;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // The site's own Motion setting (Settings → Feel) wins over the OS.
+    const site = root.dataset.motion;
+    const reduced =
+      site === "reduced" ||
+      (site !== "full" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
     if (doc.startViewTransition && !reduced) {
       // Circular reveal from the toggle: the new theme grows out of the button.
@@ -40,6 +44,14 @@ export function ThemeToggle({ className }: { className?: string }) {
       root.setAttribute("data-theme", next);
       window.setTimeout(() => root.classList.remove("theme-transition"), 400);
     }
+    // The browser's own chrome (mobile address bar, PWA title bar) follows the theme.
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    meta.content = next === "light" ? "#f4f2ee" : "#0b0b0c";
     try {
       localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {

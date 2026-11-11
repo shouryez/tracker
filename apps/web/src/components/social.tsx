@@ -18,6 +18,7 @@ import {
   transferOwnership,
   type SocialResult,
 } from "@/app/actions/social";
+import { HoldToConfirm } from "@/components/fx/overlay";
 import { formatDuration } from "@/lib/format";
 
 const inputClass = inputClasses({ className: "min-w-0 flex-1 rounded-full" });
@@ -204,51 +205,18 @@ export function InviteLink({
   );
 }
 
-/** Asks once more before acting (no browser dialogs). */
-function ConfirmButton({
-  label,
-  confirm,
-  onConfirm,
-  pending,
-}: {
-  label: string;
-  confirm: string;
-  onConfirm: () => void;
-  pending: boolean;
-}) {
-  const [armed, setArmed] = useState(false);
-  useEffect(() => {
-    if (!armed) return;
-    const t = setTimeout(() => setArmed(false), 4000);
-    return () => clearTimeout(t);
-  }, [armed]);
-  return (
-    <button
-      type="button"
-      disabled={pending}
-      onClick={() => (armed ? onConfirm() : setArmed(true))}
-      className={cn(
-        "rounded-full px-3 py-1.5 text-12 font-[550] transition-colors duration-[var(--dur-base)]",
-        armed
-          ? "bg-bad/15 text-bad ring-1 ring-bad/40"
-          : "text-ink-3 hover:bg-surface-2 hover:text-ink",
-      )}
-    >
-      {armed ? confirm : label}
-    </button>
-  );
-}
-
 export function LeaveGroupButton({ groupId, owner }: { groupId: string; owner: boolean }) {
   const { pending, error, run } = useAction();
   return (
     <span className="inline-flex flex-col items-end gap-1">
-      <ConfirmButton
-        label="Leave group"
-        confirm={owner ? "Leave? Ownership passes on" : "Tap again to leave"}
-        pending={pending}
+      {/* Hold to confirm (FRONTEND-PLAN §0.8): an accidental tap can't leave. */}
+      <HoldToConfirm
+        disabled={pending}
         onConfirm={() => run(() => leaveGroup(groupId))}
-      />
+        className="h-8 px-3.5 text-12"
+      >
+        {owner ? "Hold to leave (ownership passes on)" : "Hold to leave group"}
+      </HoldToConfirm>
       {error && <span className="text-[12px] text-bad">{error}</span>}
     </span>
   );

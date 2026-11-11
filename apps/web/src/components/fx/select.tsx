@@ -126,7 +126,7 @@ export function Select({
         />
       </button>
       {open && (
-        <div className="glass absolute top-full left-0 z-50 mt-1.5 w-full min-w-[220px] origin-top animate-[pop-open_var(--dur-base)_var(--ease-spring)] overflow-hidden rounded-[14px] border border-line-2 shadow-e3">
+        <div className="glass-overlay absolute top-full left-0 z-50 mt-1.5 w-full min-w-[220px] origin-top animate-[pop-open_var(--dur-base)_var(--ease-spring)] overflow-hidden rounded-[14px]">
           {searchable && (
             <div className="relative border-b border-line p-1.5">
               <Search
@@ -187,5 +187,3 @@ export function Select({
     </div>
   );
 }
-
-// DsaKaro

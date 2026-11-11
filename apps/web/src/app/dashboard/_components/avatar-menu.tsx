@@ -95,7 +95,7 @@ export function AvatarMenu({ user }: { user: AvatarUser }) {
       {open && (
         <div
           role="menu"
-          className="glass absolute top-full right-0 z-50 mt-2 w-60 origin-top-right animate-[pop-open_var(--dur-base)_var(--ease-spring)] rounded-[16px] border border-line-2 p-1.5 shadow-e3"
+          className="glass-overlay absolute top-full right-0 z-50 mt-2 w-60 origin-top-right animate-[pop-open_var(--dur-base)_var(--ease-spring)] rounded-[16px] p-1.5"
         >
           <div className="flex items-center gap-2.5 border-b border-line px-2.5 pt-1.5 pb-3">
             <Avatar user={user} size={34} />
@@ -172,5 +172,3 @@ export function AvatarMenu({ user }: { user: AvatarUser }) {
     </div>
   );
 }
-
-// DsaKaro

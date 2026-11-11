@@ -18,6 +18,7 @@ import {
   RotateCcw,
   ShieldCheck,
   Smile,
+  Volume2,
   Target,
   Timer,
   UserRound,
@@ -48,6 +49,7 @@ import { getMyVerification } from "@/lib/verification";
 import { CollegeVerification } from "@/components/college-verification";
 import { localDate, requestNow } from "@/lib/time";
 import { BuddySettings } from "./buddy-settings";
+import { FeelSettings } from "./feel-settings";
 import { ExtensionTokens } from "./extension-tokens";
 import { LearningSettings } from "./learning-settings";
 import { PasswordSettings } from "./password-settings";
@@ -79,6 +81,7 @@ const GROUPS = [
     sections: [
       { id: "learning", label: "Revision & email" },
       { id: "buddy", label: "Study buddy" },
+      { id: "feel", label: "Feel" },
       { id: "reminders", label: "Reminders" },
     ],
   },
@@ -299,6 +302,13 @@ async function SettingsContent() {
           <BuddySettings initial={{ avatar: profile.avatar, dayResetHour: profile.dayResetHour }} />
         </Card>
       )}
+
+      <Card id="feel" className="scroll-mt-24">
+        <CardHeader>
+          <CardTitle icon={icon(Volume2)}>Feel: sound, haptics, cursor &amp; motion</CardTitle>
+        </CardHeader>
+        <FeelSettings />
+      </Card>
 
       {profile && (
         <Card id="reminders" className="scroll-mt-24">

@@ -76,19 +76,27 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
   /** Briefly shows a drawn check in place of the label (e.g. after "Saved"). */
   done?: boolean;
+  /**
+   * Stateful shorthand (FRONTEND-PLAN §0.7): "loading" → spinner, "done" → drawn ✓, in place,
+   * width locked. The caller returns it to "idle" (about 1.4 s after done reads well).
+   */
+  state?: "idle" | "loading" | "done";
 };
 
 export function Button({
   variant,
   size,
-  loading,
-  done,
+  loading: loadingProp,
+  done: doneProp,
+  state,
   className,
   type = "button",
   disabled,
   children,
   ...props
 }: ButtonProps) {
+  const loading = loadingProp || state === "loading";
+  const done = doneProp || state === "done";
   const swapped = loading || done;
   return (
     <button

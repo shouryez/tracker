@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { LiveDot, Logo, ThemeToggle } from "@upsolve/ui";
 import { isSupabaseConfigured } from "@/lib/env";
 import { LoginForm } from "./login-form";
+import { VariableProximity } from "@/components/fx/variable-proximity";
 
 export type AuthMode = "login" | "signup";
 
@@ -109,7 +110,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           <h1 className="mb-2 font-display text-[44px] leading-none [&_em]:text-ink-3 [&_em]:not-italic">
             {mode === "login" ? (
               <>
-                Welcome back. <em>Chalo,&nbsp;DSA&nbsp;karo.</em>
+                <VariableProximity text="Welcome back." /> <em>Chalo,&nbsp;DSA&nbsp;karo.</em>
               </>
             ) : (
               <>

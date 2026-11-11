@@ -364,6 +364,50 @@
   }
 }
 
+/* Frosted glass, tier 1 (FRONTEND-PLAN §0.1): chrome floating over content (sticky header once
+   scrolled, the command palette, the session notch, the mobile tab bar, the bulk-action bar).
+   A lit rim, a top highlight and a soft shadow. Text on it stays readable at 62% fill. */
+@utility glass-chrome {
+  background:
+    linear-gradient(var(--glass-chrome), var(--glass-chrome)) padding-box,
+    var(--glass-rim) border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--glass-hi), var(--e3);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background:
+      linear-gradient(var(--glass-solid), var(--glass-solid)) padding-box,
+      var(--glass-rim) border-box;
+  }
+}
+
+/* Frosted glass, tier 2: overlays (modals, popovers, menus, tooltips, toasts). A little more
+   opaque than chrome, so long text on it reads like a card. */
+@utility glass-overlay {
+  background:
+    linear-gradient(var(--glass-overlay), var(--glass-overlay)) padding-box,
+    var(--glass-rim) border-box;
+  border: 1px solid transparent;
+  box-shadow: var(--glass-hi), var(--e3);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background:
+      linear-gradient(var(--glass-solid), var(--glass-solid)) padding-box,
+      var(--glass-rim) border-box;
+  }
+}
+
+/* Content entering: fades up out of a soft blur (skeleton → content, lists). Stagger with
+   style={{ animationDelay }}. Reduced motion: appears at once. */
+@utility animate-blur-in {
+  animation: blur-in 520ms var(--ease-out) backwards;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Faint dot grid for hero and feature backgrounds. */
 @utility dots {
   background-image: radial-gradient(var(--line-2) 1px, transparent 1px);
@@ -720,6 +764,13 @@
 @keyframes ring-in {
   from {
     stroke-dasharray: 0 var(--ring-from, 100);
+  }
+}
+@keyframes blur-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(6px);
   }
 }
 @keyframes rise-in {

@@ -105,7 +105,7 @@ export function DateRangePicker({
         <div
           role="dialog"
           aria-label={label}
-          className="glass absolute top-full left-0 z-50 mt-1.5 w-[300px] origin-top-left animate-[pop-open_var(--dur-base)_var(--ease-spring)] rounded-[16px] border border-line-2 p-3 shadow-e3"
+          className="glass-overlay absolute top-full left-0 z-50 mt-1.5 w-[300px] origin-top-left animate-[pop-open_var(--dur-base)_var(--ease-spring)] rounded-[16px] p-3"
         >
           <div className="mb-2 flex items-center justify-between">
             <button
@@ -183,5 +183,3 @@ export function DateRangePicker({
     </div>
   );
 }
-
-// DsaKaro

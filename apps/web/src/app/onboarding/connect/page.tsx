@@ -11,6 +11,7 @@ import { getSheetSummaries } from "@/lib/sheets-data";
 import { MainSheetPicker } from "@/components/main-sheet-picker";
 import { CollegeVerification } from "@/components/college-verification";
 import { OnboardingSteps } from "../steps";
+import { VariableProximity } from "@/components/fx/variable-proximity";
 
 export const metadata: Metadata = { title: "Connect your platforms" };
 
@@ -19,7 +20,8 @@ export default function ConnectPage() {
     <div className="mx-auto max-w-[760px] animate-[slide-in-r_var(--dur-slow)_var(--ease-out)]">
       <OnboardingSteps current={2} />
       <h1 className="mb-3 font-display text-[clamp(36px,6vw,52px)] leading-none tracking-[-0.02em]">
-        Bring your history. <em className="text-ink-3 not-italic">Pick your sheet.</em>
+        <VariableProximity text="Bring your history." />{" "}
+        <em className="text-ink-3 not-italic">Pick your sheet.</em>
       </h1>
       <p className="mb-8 max-w-[52ch] text-ink-2">
         Start with your LeetCode username: we pull your solved problems, ratings and activity from

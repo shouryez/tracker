@@ -125,7 +125,7 @@ export function CommandPalette() {
         label="Command menu"
         shouldFilter
         overlayClassName="fixed inset-0 z-[90] bg-[rgba(4,4,8,.55)] backdrop-blur-[6px] data-[state=open]:animate-[fade-in-pop_var(--dur-base)_var(--ease-out)]"
-        contentClassName="glass fixed top-[14vh] left-1/2 z-[91] w-[min(640px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[22px] border border-line-2 shadow-e4 data-[state=open]:animate-[modal-in_var(--dur-slow)_var(--ease-spring)]"
+        contentClassName="glass-chrome fixed top-[14vh] left-1/2 z-[91] w-[min(640px,calc(100vw-24px))] -translate-x-1/2 overflow-hidden rounded-[22px] data-[state=open]:animate-[modal-in_var(--dur-slow)_var(--ease-spring)]"
       >
         <div className="flex items-center gap-3 border-b border-line px-4">
           <Search size={16} className="shrink-0 text-ink-3" aria-hidden="true" />
@@ -354,5 +354,3 @@ function Item({
     </Command.Item>
   );
 }
-
-// DsaKaro
