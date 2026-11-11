@@ -84,8 +84,9 @@
   --primary-2: #e2753f;
   --primary-ink: #2a1205;
   --primary-soft: rgba(240, 136, 79, 0.14);
-  --violet: var(--primary);
-  --violet-2: #e2753f;
+  /* Secondary accent for data: sky, so ember stays the one action colour. */
+  --violet: var(--sky);
+  --violet-2: #7f9bd8;
   --signal-text: #86d9c2;
   --signal-mark: #86d9c2;
 
@@ -163,7 +164,7 @@
   --shadow-xl: var(--e4);
 
   --glow-primary: 0 0 0 1px rgba(240, 136, 79, 0.3), 0 12px 40px -10px rgba(240, 136, 79, 0.45);
-  --glow-violet: var(--glow-primary);
+  --glow-violet: 0 0 0 1px rgba(157, 181, 232, 0.3), 0 12px 40px -10px rgba(157, 181, 232, 0.4);
   --glow-signal: 0 0 0 4px rgba(134, 217, 194, 0.16), 0 12px 40px -8px rgba(134, 217, 194, 0.4);
   --glow-danger: 0 0 0 1px rgba(229, 138, 143, 0.35), 0 12px 36px -10px rgba(229, 138, 143, 0.45);
   --spotlight: rgba(255, 255, 255, 0.06);
@@ -210,8 +211,8 @@
   --primary-2: #c45a20;
   --primary-ink: #2a1205;
   --primary-soft: rgba(221, 110, 49, 0.12);
-  --violet: var(--primary);
-  --violet-2: #c45a20;
+  --violet: var(--sky);
+  --violet-2: #2d559f;
   --signal-text: #187a63;
   --signal-mark: #1e8c72;
   --mint: #1e8c72;
@@ -257,7 +258,7 @@
   --shadow-xs: 0 1px 2px rgba(32, 28, 18, 0.05);
 
   --glow-primary: 0 0 0 1px rgba(221, 110, 49, 0.25), 0 12px 32px -12px rgba(221, 110, 49, 0.35);
-  --glow-violet: var(--glow-primary);
+  --glow-violet: 0 0 0 1px rgba(59, 102, 196, 0.25), 0 12px 32px -12px rgba(59, 102, 196, 0.3);
   --glow-signal: 0 0 0 4px rgba(30, 140, 114, 0.18), 0 12px 32px -10px rgba(30, 140, 114, 0.35);
   --glow-danger: 0 0 0 1px rgba(185, 67, 76, 0.25), 0 12px 32px -12px rgba(185, 67, 76, 0.35);
   --spotlight: rgba(32, 28, 18, 0.04);

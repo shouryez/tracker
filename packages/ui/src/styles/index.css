@@ -1304,7 +1304,7 @@
 }
 
 /* Light sweep across a card on hover. Put on the card; it needs overflow hidden. */
-@utility sheen {
+@utility card-sheen {
   overflow: hidden;
   &::after {
     content: "";

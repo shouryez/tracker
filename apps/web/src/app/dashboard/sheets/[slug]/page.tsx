@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import { Skeleton, SkeletonCard, cn } from "@upsolve/ui";
+import { Pill, Skeleton, SkeletonCard, cn } from "@upsolve/ui";
 import { Rekha } from "@/components/dashboard/lamplight";
 import { formatEta } from "@/components/progress";
 import { SheetBrowser, type ItemReview } from "@/components/sheet-browser";
@@ -93,7 +93,7 @@ async function SheetContent({
 
   return (
     <>
-      <header className="surface-card lamp flex flex-wrap items-center gap-6 rounded-lg p-[22px]">
+      <header className="surface-card flex flex-wrap items-center gap-6 rounded-[24px] p-6">
         <div className="w-[96px] shrink-0">
           <BookCover
             slug={sheet.slug}
@@ -104,16 +104,19 @@ async function SheetContent({
           />
         </div>
         <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-2">
-          <span className="label-mono">
-            {sheet.following ? "Following" : "Sheet"} · {steps.length} steps
+          <span className="flex flex-wrap gap-1.5">
+            <Pill tone={sheet.following ? "mint" : "neutral"}>
+              {sheet.following ? "Following" : "Sheet"}
+            </Pill>
+            <Pill>{steps.length} steps</Pill>
+            <Pill>{pct}% done</Pill>
           </span>
-          <h1 className="text-[clamp(26px,3vw,34px)] leading-[1.05] font-[620] tracking-[-0.035em]">
+          <h1 className="font-display text-[clamp(30px,3.2vw,44px)] leading-[1.02] text-balance">
             {sheet.name}
           </h1>
           <p className="flex flex-wrap gap-x-4 gap-y-1 text-13 text-ink-2">
             <span>
-              <b className="tnum font-mono font-[600] text-ink">{sheet.done}</b> / {sheet.total}{" "}
-              solved
+              <b className="tnum font-[650] text-ink">{sheet.done}</b> / {sheet.total} solved
             </span>
             {currentStep >= 0 && (
               <span>
@@ -146,9 +149,9 @@ async function SheetContent({
       <div className="flex flex-wrap items-start gap-4">
         <nav
           aria-label="Steps"
-          className="surface-card flex-[1_1_260px] rounded-lg px-3.5 py-[18px] lg:sticky lg:top-8 lg:max-w-[340px]"
+          className="surface-card flex-[1_1_260px] rounded-[24px] px-3.5 py-[18px] lg:sticky lg:top-8 lg:max-w-[340px]"
         >
-          <span className="block px-2 pb-2.5 label-mono">Route</span>
+          <span className="block px-2 pb-2.5 text-13 font-[600] text-ink-2">Route</span>
           <ol>
             {steps.map((st, i) => {
               const full = st.total > 0 && st.done === st.total;
@@ -159,8 +162,8 @@ async function SheetContent({
                   <a
                     href={`#step-${i + 1}`}
                     className={cn(
-                      "grid grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-3 rounded-[10px] px-2 transition-colors hover:bg-surface-2",
-                      cur && "bg-surface-3",
+                      "grid grid-cols-[22px_minmax(0,1fr)_auto] items-center gap-3 rounded-[12px] px-2 transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]",
+                      cur && "bg-[color-mix(in_srgb,var(--ink)_7%,transparent)]",
                     )}
                   >
                     <span className="flex h-11 flex-col items-center">
@@ -208,14 +211,12 @@ async function SheetContent({
                         cur ? "font-[600] text-ink" : any ? "text-ink" : "text-ink-2",
                       )}
                     >
-                      <span className="mr-2 font-mono text-11 text-ink-3">
+                      <span className="tnum mr-2 text-11 text-ink-3">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       {st.name.replace(/^Step\s*\d+\s*[:·.-]?\s*/i, "")}
                     </span>
-                    <span
-                      className={cn("font-mono text-11", full ? "text-signal-text" : "text-ink-3")}
-                    >
+                    <span className={cn("tnum text-11", full ? "text-signal-text" : "text-ink-3")}>
                       {st.done}/{st.total}
                     </span>
                   </a>

@@ -138,7 +138,7 @@ async function GroupsContent() {
         {details.map(({ g, hall, studying, rank, me }) => (
           <div
             key={g.id}
-            className="surface-card sheen relative flex flex-col gap-4 rounded-[24px] p-[22px] transition-[transform,box-shadow] duration-[var(--dur-base)] hover:-translate-y-[3px] hover:shadow-e2"
+            className="surface-card card-sheen relative flex flex-col gap-4 rounded-[24px] p-[22px] transition-[transform,box-shadow] duration-[var(--dur-base)] hover:-translate-y-[3px] hover:shadow-e2"
           >
             <Link
               href={`/dashboard/groups/${g.id}`}

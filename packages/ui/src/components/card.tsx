@@ -41,7 +41,7 @@ export function cardClasses({
     padded && "p-[22px]",
     tiers[tier],
     "transition-[transform,box-shadow,border-color] duration-[var(--dur-base)] ease-[var(--ease-out)]",
-    interactive && "sheen hover:-translate-y-[3px] hover:shadow-e2",
+    interactive && "card-sheen hover:-translate-y-[3px] hover:shadow-e2",
     (spotlight || beam) && "overflow-hidden",
     spotlight &&
       // Fill light + a border ring lit only near the cursor (masked to the 1px edge).

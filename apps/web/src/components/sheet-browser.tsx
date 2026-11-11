@@ -189,53 +189,80 @@ export function SheetBrowser({
   return (
     <div className="flex flex-col gap-3.5">
       {continueItem && (
-        <button
-          type="button"
-          onClick={() => {
-            setQuery("");
-            setStatus("all");
-            setTiers([]);
-            setOpen((prev) => new Set([...prev, continueItem.step]));
-            setClosedSections((prev) => {
-              const next = new Set(prev);
-              next.delete(`${continueItem.step}::${continueItem.section ?? ""}`);
-              return next;
-            });
-            setHighlight(continueItem.itemKey);
-          }}
-          className="group/continue surface-card relative isolate flex items-center gap-4 overflow-hidden rounded-lg px-[18px] py-3.5 text-left transition-[border-color,transform] duration-[var(--dur-base)] hover:-translate-y-0.5 hover:border-line-2"
-        >
-          <span
-            aria-hidden="true"
-            className="absolute inset-0 -z-10 animate-aurora bg-[radial-gradient(60%_120%_at_0%_50%,color-mix(in_srgb,var(--signal)_14%,transparent),transparent_70%),radial-gradient(50%_120%_at_100%_50%,color-mix(in_srgb,var(--violet)_16%,transparent),transparent_70%)] motion-reduce:animate-none"
-          />
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-signal text-signal-ink shadow-glow-signal transition-transform duration-[var(--dur-base)] group-hover/continue:scale-110">
-            <Play size={16} aria-hidden="true" className="translate-x-px fill-current" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block label-mono">Continue where you left off</span>
-            <span className="block truncate text-16 font-[600]">{continueItem.title}</span>
-            <span className="block truncate text-12 text-ink-3">
-              {continueItem.step}
-              {continueItem.section ? ` › ${continueItem.section}` : ""}
-            </span>
-          </span>
-          <ProgressRing
-            total={Math.max(1, items.length)}
-            size={52}
-            stroke={6}
-            className="hidden sm:grid"
-            segments={[{ label: "Done", value: doneAll, color: "var(--violet)" }]}
-            aria-label={`${doneAll} of ${items.length} done`}
+        <div className="surface-card flex flex-wrap items-center gap-3 rounded-[24px] p-2.5 pr-3.5">
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setStatus("all");
+              setTiers([]);
+              setOpen((prev) => new Set([...prev, continueItem.step]));
+              setClosedSections((prev) => {
+                const next = new Set(prev);
+                next.delete(`${continueItem.step}::${continueItem.section ?? ""}`);
+                return next;
+              });
+              setHighlight(continueItem.itemKey);
+            }}
+            className="group/continue flex min-w-0 flex-[1_1_320px] items-center gap-4 rounded-[18px] px-2 py-1.5 text-left transition-colors duration-[var(--dur-base)] hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]"
           >
-            <span className="tnum text-[10px] text-ink-2">
-              {Math.round((doneAll / Math.max(1, items.length)) * 100)}%
+            <span className="gloss grid size-11 shrink-0 place-items-center rounded-full transition-transform duration-[var(--dur-base)] group-hover/continue:scale-105">
+              <Play size={16} aria-hidden="true" className="translate-x-px fill-current" />
             </span>
-          </ProgressRing>
-        </button>
+            <span className="min-w-0 flex-1">
+              <span className="block text-12 font-[600] text-ink-3">
+                Continue where you left off
+              </span>
+              <span className="block truncate text-16 font-[600]">{continueItem.title}</span>
+              <span className="block truncate text-12 text-ink-3">
+                {continueItem.step}
+                {continueItem.section ? ` › ${continueItem.section}` : ""}
+              </span>
+            </span>
+            <ProgressRing
+              total={Math.max(1, items.length)}
+              size={52}
+              stroke={6}
+              className="hidden sm:grid"
+              segments={[{ label: "Done", value: doneAll, color: "var(--signal)" }]}
+              aria-label={`${doneAll} of ${items.length} done`}
+            >
+              <span className="tnum text-[10px] text-ink-2">
+                {Math.round((doneAll / Math.max(1, items.length)) * 100)}%
+              </span>
+            </ProgressRing>
+          </button>
+          {nextUp.length > 0 && (
+            <button
+              type="button"
+              disabled={adding}
+              onClick={() => {
+                const keys = nextUp.slice(0, 3);
+                startAdding(async () => {
+                  const res = await addSheetItemsToPlan(sheetId, keys);
+                  if (!res.ok) {
+                    toast.error(res.error);
+                    return;
+                  }
+                  setOnToday((prev) => new Set([...prev, ...keys]));
+                  toast.success(
+                    res.added === 1 ? "Added to today" : `Added ${res.added} to today`,
+                    {
+                      action: { label: "Open Today", onClick: () => router.push("/dashboard") },
+                    },
+                  );
+                });
+              }}
+              className="glass-control inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-13 font-[600] text-ink transition-[transform,opacity] duration-[var(--dur-base)] hover:-translate-y-px active:scale-[.97] disabled:opacity-50 max-sm:w-full max-sm:justify-center"
+            >
+              <CalendarPlus size={14} aria-hidden="true" className="text-signal-text" />
+              Add next {Math.min(3, nextUp.length)} to Today
+            </button>
+          )}
+        </div>
       )}
 
-      <div className="glass z-30 -mx-1 flex flex-wrap items-center gap-2.5 rounded-[18px] border border-line px-2.5 py-2 shadow-e1 md:sticky md:top-[64px]">
+      <div className="surface-card z-30 flex flex-wrap items-center gap-2.5 rounded-full px-2.5 py-2 md:sticky md:top-[64px] max-md:rounded-[22px]">
         <label className="relative min-w-[200px] flex-1">
           <span className="sr-only">Search problems</span>
           <Search
@@ -249,7 +276,7 @@ export function SheetBrowser({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search problems or topics"
-            className="h-[36px] w-full rounded-full border border-line-2 bg-surface-2 pr-10 pl-9 text-13 text-ink shadow-inset outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-4 focus:border-signal-2 focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--signal)_16%,transparent)]"
+            className="h-[36px] w-full rounded-full border border-line-2 bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] pr-10 pl-9 text-13 text-ink outline-none transition-[border-color,box-shadow] duration-[var(--dur-base)] placeholder:text-ink-4 focus:border-signal-2 focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--signal)_16%,transparent)]"
           />
           <Kbd className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2">/</Kbd>
         </label>
@@ -280,12 +307,12 @@ export function SheetBrowser({
               )}
               {STATUS_LABEL[s]}
               {s === "starred" && stars.size > 0 && (
-                <span className="tnum rounded-full bg-medium-soft px-1.5 font-mono text-[10.5px] text-medium">
+                <span className="tnum rounded-full bg-medium-soft px-1.5 text-[10.5px] font-[650] text-medium">
                   {stars.size}
                 </span>
               )}
               {s === "due" && dueCount > 0 && (
-                <span className="tnum rounded-full bg-violet-soft px-1.5 font-mono text-[10.5px] text-violet">
+                <span className="tnum rounded-full bg-primary-soft px-1.5 text-[10.5px] font-[650] text-primary">
                   {dueCount}
                 </span>
               )}
@@ -306,7 +333,7 @@ export function SheetBrowser({
                   className={cn(
                     "h-[28px] rounded-full border px-3 text-12 font-[550] capitalize transition-colors duration-[var(--dur-base)]",
                     on
-                      ? "border-violet-line bg-violet-soft text-ink"
+                      ? "border-line-3 bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] text-ink"
                       : "border-line-2 text-ink-2 hover:border-line-3 hover:text-ink",
                   )}
                 >
@@ -324,18 +351,16 @@ export function SheetBrowser({
             setPicking((on) => !on);
             setPicked(new Set());
           }}
-          // Lime-tinted so it's easy to find; solid lime while you're picking.
+          // Glass so it's easy to find; the ember gloss while you're picking.
           className={cn(
-            "ml-auto inline-flex h-[32px] items-center gap-1.5 rounded-full border px-3.5 text-13 font-[650] transition-[background-color,border-color,color,transform] duration-[var(--dur-base)] active:scale-[.97]",
-            picking
-              ? "border-transparent bg-signal text-signal-ink"
-              : "border-[color-mix(in_srgb,var(--signal)_55%,transparent)] bg-[color-mix(in_srgb,var(--signal)_14%,transparent)] text-ink shadow-[0_0_0_3px_color-mix(in_srgb,var(--signal)_8%,transparent)] hover:border-signal hover:bg-[color-mix(in_srgb,var(--signal)_24%,transparent)]",
+            "ml-auto inline-flex h-[32px] items-center gap-1.5 rounded-full px-3.5 text-13 font-[650] transition-transform duration-[var(--dur-base)] active:scale-[.97]",
+            picking ? "gloss" : "glass-control text-ink hover:-translate-y-px",
           )}
         >
           <CalendarPlus
             size={14}
             aria-hidden="true"
-            className={picking ? undefined : "text-[var(--signal-mark)]"}
+            className={picking ? undefined : "text-signal-text"}
           />
           {picking ? "Done picking" : "Add to today"}
         </button>
@@ -401,7 +426,7 @@ export function SheetBrowser({
             key={step.name}
             id={`step-${stepIndex + 1}`}
             className={cn(
-              "surface-card scroll-mt-24 overflow-clip rounded-lg transition-shadow duration-[var(--dur-base)] hover:shadow-e2",
+              "surface-card scroll-mt-24 overflow-clip rounded-[24px] transition-shadow duration-[var(--dur-base)] hover:shadow-e2",
               pct === 100 && "border-success-line shadow-[var(--e1),0_0_30px_-14px_var(--success)]",
             )}
           >
@@ -410,7 +435,7 @@ export function SheetBrowser({
               aria-expanded={isOpen}
               onClick={() => toggle(setOpen, step.name)}
               className={cn(
-                "flex w-full items-center gap-3 rounded-t-lg px-[18px] py-3.5 text-left transition-colors duration-[var(--dur-base)] hover:bg-surface-2/50",
+                "flex w-full items-center gap-3 rounded-t-[24px] px-[18px] py-3.5 text-left transition-colors duration-[var(--dur-base)] hover:bg-[color-mix(in_srgb,var(--ink)_3%,transparent)]",
                 // Stays visible under the top bar (and toolbar) while you scroll a long step.
                 isOpen && "glass sticky top-[64px] z-20 border-b border-line md:top-[122px]",
               )}
@@ -423,7 +448,7 @@ export function SheetBrowser({
                   isOpen && "rotate-90",
                 )}
               />
-              <span className="tnum hidden w-9 font-mono text-24 leading-none font-[600] text-ink-4 sm:block">
+              <span className="tnum hidden w-9 font-display text-24 leading-none text-ink-4 sm:block">
                 {String(stepIndex + 1).padStart(2, "0")}
               </span>
               <span className="min-w-0 flex-1 truncate text-15 font-[600]">{step.name}</span>
@@ -445,7 +470,7 @@ export function SheetBrowser({
                     background:
                       pct === 100
                         ? "var(--success)"
-                        : "linear-gradient(90deg, color-mix(in srgb, var(--violet) 55%, transparent), var(--violet))",
+                        : "linear-gradient(90deg, color-mix(in srgb, var(--signal) 45%, transparent), var(--signal))",
                   }}
                 />
               </span>
@@ -545,7 +570,7 @@ export function SheetBrowser({
                               background:
                                 sectionDone === section.items.length
                                   ? "var(--success)"
-                                  : "var(--violet)",
+                                  : "var(--signal)",
                             }}
                           />
                         </span>
@@ -619,12 +644,12 @@ export function SheetBrowser({
                 toast.success(res.added === 1 ? "Added to today" : `Added ${res.added} to today`, {
                   action: {
                     label: "Open Today",
-                    onClick: () => router.push("/dashboard/today"),
+                    onClick: () => router.push("/dashboard"),
                   },
                 });
               });
             }}
-            className="inline-flex h-[36px] items-center gap-1.5 rounded-full bg-signal px-4 text-13 font-[650] text-signal-ink transition-[opacity,transform] active:scale-95 disabled:opacity-40"
+            className="gloss inline-flex h-[36px] items-center gap-1.5 rounded-full px-4 text-13 font-[650] transition-[opacity,transform] active:scale-95 disabled:opacity-40"
           >
             <CalendarPlus size={14} aria-hidden="true" /> Add to today
           </button>
@@ -1006,7 +1031,7 @@ function accentOf(tier: string | null) {
   if (tier === "easy" || tier === "basic") return "var(--easy)";
   if (tier === "medium" || tier === "core") return "var(--medium)";
   if (tier === "hard" || tier === "pro") return "var(--hard)";
-  return "var(--violet)";
+  return "var(--line-3)";
 }
 
 function IconButton({

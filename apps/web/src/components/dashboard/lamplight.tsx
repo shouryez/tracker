@@ -281,14 +281,14 @@ export function KpiStrip({ items, className }: { items: KpiItem[]; className?: s
           </>
         );
         const cls =
-          "surface-card group flex min-w-0 flex-col gap-2.5 rounded-[20px] px-[18px] py-4";
+          "surface-card group relative flex min-w-0 flex-col gap-2.5 rounded-[20px] px-[18px] py-4";
         return k.href ? (
           <Link
             key={k.label}
             href={k.href}
             className={cn(
               cls,
-              "sheen transition-transform duration-[var(--dur-base)] hover:-translate-y-0.5",
+              "card-sheen transition-transform duration-[var(--dur-base)] hover:-translate-y-0.5",
             )}
           >
             {body}
