@@ -43,6 +43,9 @@ export async function GET(request: Request) {
       stats,
     );
   }
+  // A milestone headline, worked out here from the real numbers (never text from the URL).
+  const kind = params.get("milestone");
+  if (kind === "streak" || kind === "solved") data.milestone = milestoneLabel(kind, data);
   return shareCard(data, {
     download: params.get("download") ? "dsakaro-card.png" : undefined,
   });
@@ -68,4 +71,14 @@ function toCard(
   };
 }
 
-// DsaKaro
+const STREAK_MILESTONES = [7, 14, 30, 50, 75, 100, 150, 200, 365];
+const SOLVED_MILESTONES = [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000];
+
+function milestoneLabel(kind: "streak" | "solved", d: ShareCardData): string | null {
+  if (kind === "streak") {
+    const hit = [...STREAK_MILESTONES].reverse().find((m) => d.streak >= m);
+    return hit ? `${hit}-day streak` : null;
+  }
+  const hit = [...SOLVED_MILESTONES].reverse().find((m) => d.solved >= m);
+  return hit ? `${hit} problems solved` : null;
+}

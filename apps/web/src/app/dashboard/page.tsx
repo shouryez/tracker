@@ -18,6 +18,7 @@ import {
 import { AddFromSheet } from "@/components/daily/add-from-sheet";
 import { NextProblemButton } from "@/components/daily/next-problem";
 import { NudgeBanner } from "@/components/daily/nudge-banner";
+import { ReviewSessionButton } from "@/components/daily/review-session";
 import { NowSolving } from "@/components/daily/now-solving";
 import { PlanSuggestions, SheetPicks } from "@/components/daily/plan-suggestions";
 import { StartStudyButton } from "@/components/daily/study-bar";
@@ -162,7 +163,7 @@ async function Today() {
 
   return (
     <div className="flex flex-col gap-6">
-      <StreakCelebration streak={stats.streak} />
+      <StreakCelebration streak={stats.streak} solved={stats.solved.total} />
       <PageHeader
         eyebrow={`${new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: tz })} · study day ends ${String(profile.dayResetHour).padStart(2, "0")}:00`}
         title={`${greeting(tz, now)}, ${firstName}`}
@@ -332,16 +333,21 @@ async function Today() {
                 Nothing due. {rungs.reduce((a, b) => a + b, 0)} problems are on the ladder.
               </p>
             )}
-            <Link
-              href="/dashboard/revision"
-              className={buttonClasses({
-                variant: "secondary",
-                size: "sm",
-                className: "mt-4 self-start",
-              })}
-            >
-              Open revision <ButtonArrow />
-            </Link>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <ReviewSessionButton
+                sessionRunning={Boolean(active)}
+                problems={queue.today
+                  .slice(0, 3)
+                  .filter((p) => p.url)
+                  .map((p) => ({ title: p.title, url: p.url }))}
+              />
+              <Link
+                href="/dashboard/revision"
+                className={buttonClasses({ variant: "ghost", size: "sm" })}
+              >
+                Open revision <ButtonArrow />
+              </Link>
+            </div>
           </Card>
 
           <Card className="flex flex-col">

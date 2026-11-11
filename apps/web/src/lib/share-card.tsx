@@ -2,8 +2,8 @@ import "server-only";
 import { ImageResponse } from "next/og";
 import { WORDMARK } from "@upsolve/ui/brand";
 
-// Share card (DESIGN.md §9.5): dark, serif name, heatmap, three big numbers,
-// the DSA करो wordmark. 1200×630, rendered by next/og (flexbox only, no grid).
+// Share card in the Orbit look: ink ground, Inter Tight name, a mint heatmap, three big
+// numbers and the DSA करो wordmark; optionally a milestone headline. 1200×630, next/og.
 
 export type ShareCardData = {
   name: string;
@@ -15,14 +15,17 @@ export type ShareCardData = {
   third: { value: string; label: string };
   /** Activity level 0–4 per day, oldest first (26 weeks). */
   heatmap: number[];
+  /** A milestone to celebrate, e.g. "100 problems solved". */
+  milestone?: string | null;
 };
 
-const INK = "#f4f4f6";
-const MUTED = "#a3a3b5";
-const LIME = "#c6f16b";
-// Same 5-step ramp as the app heatmap (tokens.css heat-0..4): empty → violet → lime.
-const PIXELS = ["rgba(255,255,255,0.07)", "#2f3b15", "#50691d", "#8fb52b", LIME];
-const STAT_TINT = ["#7cb7ff", "#f5b94d", "#c6f16b"];
+const INK = "#f3f1ec";
+const MUTED = "#a19e98";
+const MINT = "#86d9c2";
+const EMBER = "#f0884f";
+// The app's heatmap ramp: empty → deep mint → mint.
+const PIXELS = ["rgba(255,255,255,0.07)", "#1f3a33", "#2f6355", "#56a08b", MINT];
+const STAT_TINT = [MINT, EMBER, "#9db5e8"];
 
 /** Fetches a Google Font as TTF (older user agents get TTF, which next/og needs). */
 async function googleFont(family: string, weight: number): Promise<ArrayBuffer | null> {
@@ -45,12 +48,12 @@ let fonts: Promise<
 > | null = null;
 function loadFonts() {
   fonts ??= Promise.all([
-    googleFont("Instrument Serif", 400),
+    googleFont("Inter Tight", 600),
     googleFont("Geist", 400),
     googleFont("Geist", 600),
   ]).then(([serif, regular, bold]) => {
     const out: { name: string; data: ArrayBuffer; weight: 400 | 600; style: "normal" }[] = [];
-    if (serif) out.push({ name: "Serif", data: serif, weight: 400, style: "normal" });
+    if (serif) out.push({ name: "Display", data: serif, weight: 600, style: "normal" });
     if (regular) out.push({ name: "Geist", data: regular, weight: 400, style: "normal" });
     if (bold) out.push({ name: "Geist", data: bold, weight: 600, style: "normal" });
     if (out.length === 0) fonts = null; // offline: retry next time, render with the default font
@@ -84,8 +87,7 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
             fontFamily: "Geist",
             fontSize: 18,
             color: MUTED,
-            letterSpacing: 2,
-            textTransform: "uppercase",
+            letterSpacing: 0,
           }}
         >
           {label}
@@ -103,9 +105,9 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
         flexDirection: "column",
         justifyContent: "space-between",
         padding: 64,
-        backgroundColor: "#08080b",
+        backgroundColor: "#0b0b0c",
         backgroundImage:
-          "radial-gradient(circle at 0% 0%, rgba(255,255,255,0.08) 0%, rgba(8,8,11,0) 45%), radial-gradient(circle at 100% 100%, rgba(198, 241, 107,0.18) 0%, rgba(8,8,11,0) 40%), radial-gradient(circle at 85% 10%, rgba(124,183,255,0.14) 0%, rgba(8,8,11,0) 40%)",
+          "radial-gradient(circle at 0% 0%, rgba(255,255,255,0.07) 0%, rgba(11,11,12,0) 45%), radial-gradient(circle at 100% 100%, rgba(134,217,194,0.16) 0%, rgba(11,11,12,0) 40%), radial-gradient(circle at 88% 8%, rgba(240,136,79,0.16) 0%, rgba(11,11,12,0) 40%)",
         color: INK,
         fontFamily: "Geist",
       }}
@@ -121,7 +123,7 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
             <path d={WORDMARK.dsa} fill={INK} />
             <path d={WORDMARK.karo} fill={INK} />
             <rect {...WORDMARK.bar} fill={INK} />
-            <rect {...WORDMARK.bar} width={WORDMARK.bar.width * WORDMARK.fill} fill={LIME} />
+            <rect {...WORDMARK.bar} width={WORDMARK.bar.width * WORDMARK.fill} fill={MINT} />
           </svg>
         </div>
         <div
@@ -148,12 +150,31 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 560 }}>
+          {d.milestone && (
+            <div
+              style={{
+                display: "flex",
+                alignSelf: "flex-start",
+                padding: "8px 18px",
+                marginBottom: 18,
+                borderRadius: 999,
+                background: "rgba(240,136,79,0.16)",
+                border: "1px solid rgba(240,136,79,0.45)",
+                color: EMBER,
+                fontSize: 24,
+                fontWeight: 600,
+              }}
+            >
+              {d.milestone}
+            </div>
+          )}
           <div
             style={{
-              fontFamily: "Serif",
-              fontSize: 100,
+              fontFamily: "Display",
+              fontWeight: 600,
+              fontSize: d.milestone ? 84 : 96,
               lineHeight: 1,
-              letterSpacing: -2,
+              letterSpacing: -4,
               color: INK,
             }}
           >
@@ -175,7 +196,7 @@ export async function shareCard(d: ShareCardData, init: { download?: string } = 
                     borderRadius: 3,
                     background: PIXELS[Math.min(4, level)],
                     border:
-                      w === weeks - 1 && day === 6 ? `2px solid ${LIME}` : "2px solid transparent",
+                      w === weeks - 1 && day === 6 ? `2px solid ${MINT}` : "2px solid transparent",
                   }}
                 />
               ))}

@@ -1,8 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 const MILESTONES = [7, 14, 30, 50, 75, 100, 150, 200, 365];
+const SOLVED = [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000];
+
+/** "Share your card" for a milestone: the image is drawn on the server from your numbers. */
+function offerCard(title: string, kind: "streak" | "solved") {
+  toast.success(title, {
+    description: "Your share card is ready.",
+    duration: 10_000,
+    action: {
+      label: "Get the card",
+      onClick: () => window.open(`/api/share-card?download=1&milestone=${kind}`, "_blank"),
+    },
+  });
+}
 
 /**
  * Pixel confetti: square particles in brand colours (the logo's pixel motif).
@@ -39,7 +53,7 @@ export function burstFrom(el: Element | null, small = true) {
 }
 
 /** Celebrates each streak milestone once (remembered per browser). */
-export function StreakCelebration({ streak }: { streak: number }) {
+export function StreakCelebration({ streak, solved }: { streak: number; solved?: number }) {
   useEffect(() => {
     const hit = [...MILESTONES].reverse().find((m) => streak >= m);
     if (!hit) return;
@@ -51,7 +65,22 @@ export function StreakCelebration({ streak }: { streak: number }) {
       return; // can't remember it, so don't risk celebrating on every visit
     }
     void burst();
+    offerCard(`${hit}-day streak`, "streak");
   }, [streak]);
+  useEffect(() => {
+    if (solved === undefined) return;
+    const hit = [...SOLVED].reverse().find((m) => solved >= m);
+    if (!hit) return;
+    const key = `upsolve:solved-celebrated:${hit}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      return;
+    }
+    void burst();
+    offerCard(`${hit} problems solved`, "solved");
+  }, [solved]);
   return null;
 }
 
