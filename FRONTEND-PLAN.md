@@ -2,19 +2,19 @@
 
 > **Status:** planned, **not started**. Build begins only when the owner says "start" and names a phase or page.
 > This file is the single source of context for that work. It replaces `design/UX-ADDONS-PLAN.md`.
-> Last updated: 2026-11-11.
+> Last updated: 2026-11-11 (sound and haptics spec §6 0.9, backend list §11).
 
 ---
 
 ## 0. Decisions log
 
-| # | Question | Decision |
-|---|---|---|
-| D1 | Liquid (refractive) glass or frosted? | **Frosted glass everywhere**, the same look in every browser. No SVG displacement and no refraction. |
-| D2 | Cursor halo: default or opt-in? | **On by default** on desktop (fine pointer). It can be switched off in Settings. The system cursor is never hidden. |
-| D3 | Light game layer (badges, Wrapped, holo card, combos)? | **Yes, add it**, with the guardrails in §9. |
-| D4 | Landing page | Out of scope until the owner asks. Only colour work and the existing Ghost Type footer are done. |
-| D5 | Effects from React Bits Pro, Aceternity and others | **Built from scratch** in our codebase and our tokens. No paid registries, no new UI kits. `components.json` holds the React Bits registries, but they're unused because there's no license key. |
+| #   | Question                                               | Decision                                                                                                                                                                                         |
+| --- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | Liquid (refractive) glass or frosted?                  | **Frosted glass everywhere**, the same look in every browser. No SVG displacement and no refraction.                                                                                             |
+| D2  | Cursor halo: default or opt-in?                        | **On by default** on desktop (fine pointer). It can be switched off in Settings. The system cursor is never hidden.                                                                              |
+| D3  | Light game layer (badges, Wrapped, holo card, combos)? | **Yes, add it**, with the guardrails in §9.                                                                                                                                                      |
+| D4  | Landing page                                           | Out of scope until the owner asks. Only colour work and the existing Ghost Type footer are done.                                                                                                 |
+| D5  | Effects from React Bits Pro, Aceternity and others     | **Built from scratch** in our codebase and our tokens. No paid registries, no new UI kits. `components.json` holds the React Bits registries, but they're unused because there's no license key. |
 
 ---
 
@@ -70,42 +70,42 @@
 
 **Routes (`apps/web/src/app`)**
 
-| Route | Main files |
-|---|---|
-| Today | `dashboard/page.tsx`, `components/daily/today-plan.tsx`, `daily/next-problem.tsx`, `daily/plan-suggestions.tsx` |
-| Revision | `dashboard/revision/page.tsx`, `components/review-actions.tsx`, `components/revision-deck.tsx` *(new)*, `components/learning.tsx` |
-| Recall | `dashboard/recall/page.tsx`, `components/daily/recall-quiz.tsx` |
-| Weekly review | `dashboard/review` |
-| Sheets | `dashboard/sheets/page.tsx`, `sheets/[slug]`, `components/sheets.tsx`, `sheet-browser.tsx`, `sheet-identity.tsx` (BookCover) |
-| Problem | `dashboard/problems/[id]`, `components/note-editor.tsx` |
-| Contests | `dashboard/contests/page.tsx`, `components/rating-chart.tsx`, `daily/upcoming-contests.tsx`, `daily/add-upsolve.tsx` |
-| Sessions / focus | `dashboard/sessions/page.tsx`, `components/sessions.tsx`, `daily/focus-screen.tsx`, `focus-live.tsx`, `focus-popout.tsx`, `lab-timer.tsx`, `study-session.tsx`, `study-bar.tsx` |
-| Library | `dashboard/notebook/page.tsx`, `daily/notebook.tsx` |
-| Insights | `dashboard/analytics/page.tsx`, `components/analytics-charts.tsx`, `components/charts/*` |
-| People | `dashboard/groups/page.tsx`, `groups/[id]`, `components/study-hall.tsx`, `leaderboard.tsx`, `social.tsx` |
-| College | `dashboard/college` |
-| Settings | `dashboard/settings/page.tsx` and the section components beside it |
-| Public profile | `u/[handle]/page.tsx` |
-| Onboarding | `onboarding/*`, `components/main-sheet-picker.tsx` |
-| Login | `login/auth-page.tsx`, `login-form.tsx` |
-| 404 | `not-found.tsx` |
-| App shell | `dashboard/layout.tsx`, `dashboard/_components/*` (nav-links, sticky-header, search-box, user-menu), `components/command-palette.tsx`, `components/shortcuts.tsx`, `components/toaster.tsx` |
+| Route            | Main files                                                                                                                                                                                  |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Today            | `dashboard/page.tsx`, `components/daily/today-plan.tsx`, `daily/next-problem.tsx`, `daily/plan-suggestions.tsx`                                                                             |
+| Revision         | `dashboard/revision/page.tsx`, `components/review-actions.tsx`, `components/revision-deck.tsx` _(new)_, `components/learning.tsx`                                                           |
+| Recall           | `dashboard/recall/page.tsx`, `components/daily/recall-quiz.tsx`                                                                                                                             |
+| Weekly review    | `dashboard/review`                                                                                                                                                                          |
+| Sheets           | `dashboard/sheets/page.tsx`, `sheets/[slug]`, `components/sheets.tsx`, `sheet-browser.tsx`, `sheet-identity.tsx` (BookCover)                                                                |
+| Problem          | `dashboard/problems/[id]`, `components/note-editor.tsx`                                                                                                                                     |
+| Contests         | `dashboard/contests/page.tsx`, `components/rating-chart.tsx`, `daily/upcoming-contests.tsx`, `daily/add-upsolve.tsx`                                                                        |
+| Sessions / focus | `dashboard/sessions/page.tsx`, `components/sessions.tsx`, `daily/focus-screen.tsx`, `focus-live.tsx`, `focus-popout.tsx`, `lab-timer.tsx`, `study-session.tsx`, `study-bar.tsx`             |
+| Library          | `dashboard/notebook/page.tsx`, `daily/notebook.tsx`                                                                                                                                         |
+| Insights         | `dashboard/analytics/page.tsx`, `components/analytics-charts.tsx`, `components/charts/*`                                                                                                    |
+| People           | `dashboard/groups/page.tsx`, `groups/[id]`, `components/study-hall.tsx`, `leaderboard.tsx`, `social.tsx`                                                                                    |
+| College          | `dashboard/college`                                                                                                                                                                         |
+| Settings         | `dashboard/settings/page.tsx` and the section components beside it                                                                                                                          |
+| Public profile   | `u/[handle]/page.tsx`                                                                                                                                                                       |
+| Onboarding       | `onboarding/*`, `components/main-sheet-picker.tsx`                                                                                                                                          |
+| Login            | `login/auth-page.tsx`, `login-form.tsx`                                                                                                                                                     |
+| 404              | `not-found.tsx`                                                                                                                                                                             |
+| App shell        | `dashboard/layout.tsx`, `dashboard/_components/*` (nav-links, sticky-header, search-box, user-menu), `components/command-palette.tsx`, `components/shortcuts.tsx`, `components/toaster.tsx` |
 
 **Data functions to reuse (no new queries unless stated)**
 
-| File | Functions |
-|---|---|
-| `lib/stats.ts` | `localCalendar`, `currentStreak`, `activeDays`, `heatmapLevels`, `sumSolved`, `topTopics` |
-| `lib/learning.ts` | `getLearning`, `masteryOf`, `revisionQueue`, `reviewHistory`, `getNextCandidates`, `getTopicTargets` |
-| `lib/daily-data.ts` | `getActiveFocus`, `getFocusSummary`, `getStudyHall`, `getFriendsStudying`, `getWeekReview`, `getRecallDeck`, `getRecallStats`, `getNotebook`, `bestHour` |
-| `lib/contests-data.ts` | `getContests`, `getContestProblems`, `getUpsolve` |
-| `lib/social-data.ts` | `getMyGroups`, `getGroup`, `getGroupBoard`, `rankBoard`, `getCollegeBoards`, `getStreakFreezes` |
-| `lib/analytics-data.ts` | `getAnalytics` |
-| `lib/sessions-data.ts` | `getSessions`, `getSessionStats`, `getLiveSession` |
-| `lib/sheets-data.ts` | `getSheetSummaries`, `getSheetDetail`, `getLatestSolveAcrossSheets` |
-| `lib/problem-data.ts` | `getProblemDetail` |
-| `lib/focus.ts` | `focusElapsed`, `focusTotals`, `focusPhase`, `breakState`, `focusClock` |
-| `lib/share-card.tsx` and `api/share-card` | Share image (next/og) with `?milestone=` |
+| File                                      | Functions                                                                                                                                                |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/stats.ts`                            | `localCalendar`, `currentStreak`, `activeDays`, `heatmapLevels`, `sumSolved`, `topTopics`                                                                |
+| `lib/learning.ts`                         | `getLearning`, `masteryOf`, `revisionQueue`, `reviewHistory`, `getNextCandidates`, `getTopicTargets`                                                     |
+| `lib/daily-data.ts`                       | `getActiveFocus`, `getFocusSummary`, `getStudyHall`, `getFriendsStudying`, `getWeekReview`, `getRecallDeck`, `getRecallStats`, `getNotebook`, `bestHour` |
+| `lib/contests-data.ts`                    | `getContests`, `getContestProblems`, `getUpsolve`                                                                                                        |
+| `lib/social-data.ts`                      | `getMyGroups`, `getGroup`, `getGroupBoard`, `rankBoard`, `getCollegeBoards`, `getStreakFreezes`                                                          |
+| `lib/analytics-data.ts`                   | `getAnalytics`                                                                                                                                           |
+| `lib/sessions-data.ts`                    | `getSessions`, `getSessionStats`, `getLiveSession`                                                                                                       |
+| `lib/sheets-data.ts`                      | `getSheetSummaries`, `getSheetDetail`, `getLatestSolveAcrossSheets`                                                                                      |
+| `lib/problem-data.ts`                     | `getProblemDetail`                                                                                                                                       |
+| `lib/focus.ts`                            | `focusElapsed`, `focusTotals`, `focusPhase`, `breakState`, `focusClock`                                                                                  |
+| `lib/share-card.tsx` and `api/share-card` | Share image (next/og) with `?milestone=`                                                                                                                 |
 
 ---
 
@@ -187,13 +187,14 @@
 ## 6. Phase 0: design language (build first; every page depends on it)
 
 ### 0.1 Frosted glass system (D1: frosted everywhere)
+
 Three depth tiers as `@utility` classes in `packages/ui/src/styles/index.css`, with tokens in `tokens.css`.
 
-| Utility | Used for | Recipe |
-|---|---|---|
-| `glass-chrome` | Floating chrome: mobile tab bar, session notch, command palette, floating bulk-action bar, sticky header (when scrolled) | `backdrop-filter: blur(24px) saturate(160%)`; background `color-mix(in srgb, var(--surface) 62%, transparent)`; 1px rim `--glass-rim` (top-lit gradient border via padding-box/border-box); inner highlight `inset 0 1px 0 rgb(255 255 255 / .08)`; shadow `--e3`; grain overlay at 4 %. |
-| `glass-overlay` | Modals, popovers, menus, tooltips, toasts | Like chrome but blur 18px, a little more opaque (72 %), smaller shadow. |
-| `surface-card` | Content | Unchanged and solid. Text never sits on a blurred background without ≥ 72 % fill. |
+| Utility         | Used for                                                                                                                 | Recipe                                                                                                                                                                                                                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `glass-chrome`  | Floating chrome: mobile tab bar, session notch, command palette, floating bulk-action bar, sticky header (when scrolled) | `backdrop-filter: blur(24px) saturate(160%)`; background `color-mix(in srgb, var(--surface) 62%, transparent)`; 1px rim `--glass-rim` (top-lit gradient border via padding-box/border-box); inner highlight `inset 0 1px 0 rgb(255 255 255 / .08)`; shadow `--e3`; grain overlay at 4 %. |
+| `glass-overlay` | Modals, popovers, menus, tooltips, toasts                                                                                | Like chrome but blur 18px, a little more opaque (72 %), smaller shadow.                                                                                                                                                                                                                  |
+| `surface-card`  | Content                                                                                                                  | Unchanged and solid. Text never sits on a blurred background without ≥ 72 % fill.                                                                                                                                                                                                        |
 
 - **Pointer sheen:** an optional `data-sheen` on chrome elements adds a soft radial highlight at `--mx/--my`
   (reuse `SpotlightTracker`). It's static under reduced motion.
@@ -210,6 +211,7 @@ Three depth tiers as `@utility` classes in `packages/ui/src/styles/index.css`, w
   - Safari behaves the same (no refraction anywhere).
 
 ### 0.2 Cursor halo (D2: on by default, desktop)
+
 - **File:** `components/fx/halo-cursor.tsx`, mounted once in `dashboard/layout.tsx`, plus public pages if wanted.
 - **Architecture:**
   - One fixed `div` (`pointer-events:none`, z top) follows the pointer with a rAF lerp. Use spring constants from
@@ -218,15 +220,15 @@ Three depth tiers as `@utility` classes in `packages/ui/src/styles/index.css`, w
   - The **system cursor stays visible** (we never set `cursor:none`); the halo is a soft companion ring.
 - **States:**
 
-| `data-cursor` | Halo |
-|---|---|
-| none (default) | 28px soft ring, `--ink` at 25 %, `mix-blend-mode: difference` off (keep it calm) |
+| `data-cursor`                                          | Halo                                                                                                     |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| none (default)                                         | 28px soft ring, `--ink` at 25 %, `mix-blend-mode: difference` off (keep it calm)                         |
 | `button` (auto for `button`, `[role=button]`, `a.btn`) | Morphs to the element's rect + 6px padding with its border radius (magnetic wrap); slight scale on press |
-| `open` (problem rows, card links) | Shrinks to a 6px dot with a tiny "Open ↗" label pill |
-| `crosshair` (heatmap, charts) | Thin crosshair lines plus a frosted date bubble (the chart supplies the label via `data-cursor-label`) |
-| `grab` (deck cards, plan items, covers) | Ring that stretches along the drag velocity; filled while dragging |
-| `text` (inputs, textareas, contenteditable) | Fades out; native I-beam only |
-| `disabled` | Faint, with a small ⊘ |
+| `open` (problem rows, card links)                      | Shrinks to a 6px dot with a tiny "Open ↗" label pill                                                     |
+| `crosshair` (heatmap, charts)                          | Thin crosshair lines plus a frosted date bubble (the chart supplies the label via `data-cursor-label`)   |
+| `grab` (deck cards, plan items, covers)                | Ring that stretches along the drag velocity; filled while dragging                                       |
+| `text` (inputs, textareas, contenteditable)            | Fades out; native I-beam only                                                                            |
+| `disabled`                                             | Faint, with a small ⊘                                                                                    |
 
 - **Off when:**
   - `(pointer: coarse)`, reduced motion (static ring hidden), or Settings → Cursor = System.
@@ -237,11 +239,13 @@ Three depth tiers as `@utility` classes in `packages/ui/src/styles/index.css`, w
 - **Acceptance:** no input lag felt; zero layout work per frame; screenshot each state.
 
 ### 0.3 Click spark
+
 - `components/fx/click-spark.ts`: imperative `spark(x, y)` draws 4–6 ember strokes on a pooled canvas in 300 ms.
 - Triggered only by `variant="signal"` buttons (in `@upsolve/ui` `Button`, opt-out prop `spark={false}`).
 - Off under reduced motion.
 
 ### 0.4 Motion tokens
+
 - Extend `packages/ui/src/motion.ts` with three named springs:
   - **snap** for UI toggles (stiff, no bounce).
   - **settle** for cards and lists (a little bounce).
@@ -250,35 +254,113 @@ Three depth tiers as `@utility` classes in `packages/ui/src/styles/index.css`, w
 - Replace ad-hoc durations as pages are touched.
 
 ### 0.5 Content entrance
+
 - A **Blur Fade** utility (`animate-blur-in`: opacity 0 → 1, `filter: blur(6px)` → 0, translateY 6px → 0).
 - Skeleton → content cross-fade in `Suspense` fallbacks. A list stagger uses `STAGGER`.
 
 ### 0.6 iOS-style large titles
+
 - `PageHeader` gets `collapse` behaviour: the H1 scales and fades as it leaves the viewport, and a compact title
   fades into the sticky header.
 - Uses one shared `IntersectionObserver` sentinel, no scroll listeners.
 
 ### 0.7 Stateful buttons
+
 - `Button` prop `state?: "idle" | "loading" | "done"`. The label cross-fades to a spinner, then to `CheckDraw` ✓,
   then back after 1.4 s.
 - Width is locked during the transition. Use it for Save, Sync and Mark done.
 
 ### 0.8 Hold to confirm (exists)
+
 - Reuse `HoldToConfirm` from `fx/overlay.tsx` for every destructive action:
   - Delete account, leave group, revoke token (already used), reset sheet progress.
 - Remove the remaining confirm dialogs.
 
-### 0.9 Sound and haptics *(built)*
-- `lib/feel.ts`. Add `feel.combo(n)`, a rising pitch for streaks of correct answers (Recall, deck).
-- Optional brown noise lives in Sessions (§8 Sessions).
+### 0.9 Sound and haptics _(core built, not committed)_
+
+**What exists now**
+
+- `apps/web/src/lib/feel.ts` is a client module, pure Web Audio with **no audio files**.
+- Exports: `getFeel()`, `setFeel(patch)`, `subscribeFeel(cb)`, `SERVER_FEEL`, and
+  `feel.tick() / success() / soft() / whoosh()`.
+- **Prefs:**
+  - Stored in localStorage `dsakaro:feel` as `{ sound: boolean, haptics: boolean }`.
+  - Defaults: **sound off, haptics on**.
+  - Saved per device; changes broadcast through the `dsakaro:feel` window event, read by `useSyncExternalStore`.
+- **Settings card:** `dashboard/settings/feel-settings.tsx`, mounted as `#feel` ("Sound & haptics") in the Study
+  group. Turning a switch on plays a preview.
+- **Already hooked up:**
+  - `burst()` → `success`, which covers every confetti moment (plan done, queue cleared, milestones, deck cleared).
+  - ManualReview: shaky → `tick`, forgot → `soft`.
+  - Snooze → `soft`.
+  - The swipe deck: fly-out → `whoosh` plus the grade sound.
+
+**Sound palette (keep it small and calm)**
+
+| Sound                            | Recipe                                                          | Meaning                                                               |
+| -------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `tick`                           | 1900 Hz triangle, 30 ms, gain .035                              | light confirm: toggles, selections, small steps                       |
+| `success`                        | sine 784 Hz → 1175 Hz (G5 → D6), 120 ms + 200 ms                | something went right: solved, remembered, all done                    |
+| `soft`                           | sine 260 → 180 Hz glide, 140 ms                                 | gentle "noted": forgot, snoozed, removed. **Never a "wrong" buzzer.** |
+| `whoosh`                         | band-passed noise sweep 600 → 4000 Hz, 350 ms                   | something flew away or dissolved                                      |
+| `combo(n)` _(to add)_            | `success` transposed up a semitone per step, capped at +7       | consecutive correct answers (Recall, deck "remembered" streak)        |
+| `flap` _(to add)_                | 2 ms noise click with a fast decay                              | split-flap digits (Contests), only while the countdown is on screen   |
+| `print` _(to add)_               | 3–4 soft clicks in 40 ms steps                                  | session receipt printing                                              |
+| Brown noise _(to add, Sessions)_ | brown-filtered noise loop, its own volume slider (default 30 %) | focus ambience; starts only from a click, never auto-plays            |
+
+**Haptic patterns** (`navigator.vibrate`, so Android Chrome and Firefox only; iOS Safari ignores it silently)
+
+| Event                              | Pattern (ms)            |
+| ---------------------------------- | ----------------------- |
+| tick / selection / long-press open | `8`                     |
+| success / solved / remembered      | `[10, 40, 16]`          |
+| soft (forgot, snooze, remove)      | `14`                    |
+| whoosh (swipe away)                | `6`                     |
+| swipe-row threshold crossed        | `10` (once per gesture) |
+| milestone / badge earned           | `[12, 50, 12, 50, 24]`  |
+
+**Event map (where each sound or haptic fires)**
+
+| Where         | Event                                                     | Feel                                           |
+| ------------- | --------------------------------------------------------- | ---------------------------------------------- |
+| Today         | plan item ticked / all done                               | `tick` / `success` (via burst)                 |
+| Today         | item removed, task vanishes into particles                | `soft` / `whoosh`                              |
+| Revision      | grade remembered / shaky / forgot / not today             | `success` / `tick` / `soft` / `soft`           |
+| Revision deck | card thrown; consecutive remembered                       | `whoosh` plus grade sound; `combo(n)`          |
+| Recall        | right / wrong answer; perfect round                       | `combo(n)` / `soft`; `success` + badge pattern |
+| Sheets        | problem ticked; pixel lands in the progress bar           | `tick`; `success` at 100 %                     |
+| Contests      | split-flap digit changes                                  | `flap` (sound only, visible only)              |
+| Sessions      | start / pause / stop; receipt prints; break starts        | `tick`; `print`; `soft`                        |
+| Global        | context menu long-press; swipe-row threshold; bulk action | haptic `8` / `10`; `tick`                      |
+| Celebrations  | streak, solved and badge milestones                       | `success` + milestone haptic                   |
+| Settings      | switching sound or haptics on                             | preview `success` / `tick`                     |
+
+**Rules**
+
+- **Sound is opt-in** (off by default); haptics are on by default.
+- Never play sound on page load, on hover or from a timer the user didn't start. The only exception is
+  split-flap ticks while visible, and only if sound is on.
+- One sound at a time (debounce 40 ms). The AudioContext is created lazily on the first user gesture and
+  resumed if suspended.
+- Volume stays at most gain 0.06. Silent when the tab is hidden.
+- Reduced motion doesn't mute sound (they're separate preferences). The **Motion** setting (Full / Reduced) lives
+  in the same Feel card.
+- **Phase 0 adds:**
+  - `feel.combo`, `feel.flap`, `feel.print`.
+  - A `cursor: "halo" | "system"` pref (default `"halo"`) and a `motion: "full" | "reduced" | "system"` pref.
+  - The card is renamed **Feel**, with Sounds, Haptics, Cursor and Motion.
+- **[backend, optional]** Sync Feel prefs across devices with a `profiles.feel jsonb` column. Not needed now;
+  per-device is the intended default.
 
 ### 0.10 Typography
+
 - **Variable proximity** headings (`fx/variable-proximity.tsx`): letters' `font-variation-settings: "wght"` rises
   near the pointer.
   - Use it only on empty-state headlines, the onboarding title and the 404 page.
 - **NumberFlow** (`NumberTicker`) for every live number; `tnum` everywhere.
 
 ### 0.11 Theme switch circular reveal
+
 - `ThemeToggle` uses `document.startViewTransition` with a `clip-path: circle()` that grows from the toggle's
   centre. Fall back to an instant switch.
 - Also update `<meta name="theme-color">`.
@@ -333,46 +415,47 @@ Three depth tiers as `@utility` classes in `packages/ui/src/styles/index.css`, w
 For each item: **What**, **Data**, **Files**, **Done when**.
 
 ### Today (`dashboard/page.tsx`)
+
 1. **Vanishing task input:**
-   - *What:*
+   - _What:_
      - The placeholder cycles real suggestions every 3 s (sheet next-ups and due revisions: "Revise Koko Eating
        Bananas…").
      - On Enter the typed text dissolves into particles. A canvas snapshot of the text breaks into pixels that
        drift up and fade, with `feel.whoosh()`.
      - The new task springs into the list.
-   - *Data:* existing plan suggestions and the `addPlanTask` action.
-   - *Files:* `fx/vanish-input.tsx`, `daily/today-plan.tsx`.
-   - *Done when:* works by keyboard; reduced motion = instant.
+   - _Data:_ existing plan suggestions and the `addPlanTask` action.
+   - _Files:_ `fx/vanish-input.tsx`, `daily/today-plan.tsx`.
+   - _Done when:_ works by keyboard; reduced motion = instant.
 2. **Drag to reorder** plan items:
-   - *What:* pointer drag with the halo `grab` state; FLIP for siblings; the top item gets an "Up next" beam.
+   - _What:_ pointer drag with the halo `grab` state; FLIP for siblings; the top item gets an "Up next" beam.
      Keyboard: `Alt+↑/↓`.
-   - *Data:* order is kept per day in localStorage `dsakaro:order:${day}`. **[backend]** optional server
-     persistence later.
+   - _Data:_ saved to the existing `plan_items.position` through a new action (**B1**, no migration).
 3. **Budget ribbon:**
-   - *What:* replace the 30m–3h chips with a draggable ribbon (snaps every 15 min) showing the total estimate; the
+   - _What:_ replace the 30m–3h chips with a draggable ribbon (snaps every 15 min) showing the total estimate; the
      "these can wait" line moves live.
-   - *Data:* the existing `estimate()` and the `dsakaro:budget:${day}` key.
+   - _Data:_ the existing `estimate()` and the `dsakaro:budget:${day}` key.
 4. **Day complete:** when the ring closes, "All done" shows as `SignalType`, then one `burst()` and a chime
    (already partly there via `CelebrateOnce`).
 5. **Getting started checklist** (new users):
-   - *What:* steps are platform linked, extension connected, main sheet followed, first problem solved, first
+   - _What:_ steps are platform linked, extension connected, main sheet followed, first problem solved, first
      review graded. Each tick animates with `CheckDraw`; finished, it collapses into a ✓ pill and then disappears
      after 3 days.
-   - *Data:* existing platform accounts, extension tokens, `getSheetSummaries`, stats and review history.
+   - _Data:_ existing platform accounts, extension tokens, `getSheetSummaries`, stats and review history.
 6. **Gentle streak-at-risk cue:**
-   - *What:* after 20:00 local with nothing solved today, the streak chip breathes ember once per visit and reads
+   - _What:_ after 20:00 local with nothing solved today, the streak chip breathes ember once per visit and reads
      "One easy problem keeps it". No modal, no push, no guilt copy.
    - Respects streak freezes: if a freeze is available, say "A freeze has you covered".
 
 ### Revision (`dashboard/revision/page.tsx`)
-1. **Swipe deck** *(built, uncommitted)*:
+
+1. **Swipe deck** _(built, uncommitted)_:
    - Right = remembered, left = forgot, up = shaky; arrows, buttons and `Z` to undo.
    - A coloured progress strip, stamps, fly-out, burst on clear, and `router.refresh()` on close.
    - Add the halo `grab` state and `feel.combo` for consecutive "remembered".
 2. **Memory-curve tooltip:**
-   - *What:* hover a queue row to see a `glass-overlay` tooltip that follows the pointer, holding a tiny
+   - _What:_ hover a queue row to see a `glass-overlay` tooltip that follows the pointer, holding a tiny
      exponential decay curve, "≈72 % recall now", and "drops below 80 % on Thu".
-   - *Data:* derived from `state.lastAt`, `state.step` and the interval ladder (1/3/7/16/35/90). Purely visual,
+   - _Data:_ derived from `state.lastAt`, `state.step` and the interval ladder (1/3/7/16/35/90). Purely visual,
      with the label "estimate".
 3. **Ring focus:** hovering a ladder chip or orbit ring highlights the matching rows and blurs the rest (60 %
    opacity plus `blur(1px)`).
@@ -381,12 +464,14 @@ For each item: **What**, **Data**, **Files**, **Done when**.
 5. **Ladder chips** get NumberFlow counts that tick when a grade moves a problem.
 
 ### Recall (`dashboard/recall`)
+
 1. **3D card flip** to reveal the answer (`transform-style: preserve-3d`, 500 ms).
 2. **Combo meter:** consecutive correct answers raise a mint meter and the chime pitch (`feel.combo(n)`). It resets
    softly on a miss, with no buzzer.
 3. **Perfect round:** a holo badge flies to the badge shelf (§9).
 
 ### Sheets (`dashboard/sheets`, `sheets/[slug]`)
+
 1. **Book covers with glare and tilt** (`BookCover` in `sheet-identity.tsx`): pointer tilt ±6°, a glare gradient
    at the pointer, a spine shadow. On click the cover swings open (rotateY −25°), then the page morph opens the
    sheet.
@@ -403,18 +488,20 @@ For each item: **What**, **Data**, **Files**, **Done when**.
 5. **Next-up spotlight:** the first unsolved problem in sheet order gets a `border-beam` and a "Next" pill.
 
 ### Problem page (`dashboard/problems/[id]`)
+
 1. **Attempt timeline:**
    - A vertical timeline of opens, verdicts (WA rose, AC mint), reviews and ring moves.
    - A scroll-traced beam fills as you read.
-   - *Data:* `getProblemDetail` (sessions, verdicts, review logs).
+   - _Data:_ `getProblemDetail` (sessions, verdicts, review logs).
 2. **Your time against the median:** a small distribution curve with your marker; the curve draws in on view.
-   - *Data:* if a median is available in problem data, use it. Otherwise show only your attempts' times
-     **[backend for medians]**.
+   - _Data:_ median from **B2** (server query, cached, shown when at least 5 solvers); otherwise only your
+     attempts.
 3. **Similar problems carousel:** horizontal snap cards with the same topics, unsolved first, built from
    `getNextCandidates` or the sheet data.
 4. **Notes "key insight" blur:** a note line marked as the insight stays blurred until hovered, for self-testing.
 
 ### Contests (`dashboard/contests`)
+
 1. **Split-flap countdown** (`fx/split-flap.tsx`): DD:HH:MM:SS flaps for the next contest. Each flip is a two-half
    rotateX animation; ticks are optional via `feel`.
 2. **Rating chart scrubber** (`rating-chart.tsx`): a draggable crosshair with the halo `crosshair` state; the
@@ -425,6 +512,7 @@ For each item: **What**, **Data**, **Files**, **Done when**.
    countdown and "Start a session for it".
 
 ### Sessions and Focus (`dashboard/sessions`, `daily/focus-screen.tsx`)
+
 1. **Ambient focus mode:**
    - A slow aurora (CSS gradients, paused when hidden) with grain.
    - A pomodoro ring with 60 tick marks.
@@ -436,14 +524,16 @@ For each item: **What**, **Data**, **Files**, **Done when**.
    - On stop, a paper slip "prints" (it grows from a slot with a slight jitter).
    - It lists duration, problems, idle time removed, longest focus stretch and date.
    - Buttons: "Save image" (next/og like the share card) and "Close".
-   - *Data:* the existing session summary.
+   - _Data:_ the existing session summary.
 
 ### Library (`dashboard/notebook`)
+
 1. **Masonry layout** (CSS columns) with Focus Cards: hovering one dims the others.
 2. **Key-insight blur reveal** (same as the problem page).
 3. **Search with the vanishing input;** tag chips filter with FLIP.
 
 ### Insights (`dashboard/analytics`)
+
 1. **Bento layout with linked charts:** a shared `hoverDay` store, so hovering any chart moves a crosshair on all
    of them, with the halo crosshair.
 2. **This week vs last:** a draggable comparison slider over the topic and time charts. The topic radar morphs
@@ -452,23 +542,27 @@ For each item: **What**, **Data**, **Files**, **Done when**.
 4. **Weekly Wrapped stories:** see §9.2.
 
 ### People (`dashboard/groups`, `groups/[id]`, `college`)
+
 1. **Study hall in orbit:** live members orbit the group avatar on two rings (studying inner, idle outer), with
    presence dots, avatar tooltips and their buddy art. Data: `getStudyHall` and `getFriendsStudying`.
 2. **Leaderboard reorder:** FLIP animation when ranks change between visits (previous order kept in
    sessionStorage). Each row shows ▲/▼ deltas.
    - **Segmented "near you" view by default**: the 2 above and 2 below you, with "See all".
 3. **Dotted India map** (college boards): an SVG dot-matrix map (generated once into a static SVG) with pulsing
-   dots per college sized by active members. Data: `getCollegeBoards` (needs city/state per college; if missing,
-   **[backend]** add coordinates to the colleges data).
-4. **[backend]** Cheers and pokes: floating emoji reactions on a member. Needs a table; ask before building.
+   dots per college sized by active members. Data: `getCollegeBoards` with the existing `colleges.city`/`state` and a static city → lat/lng table (**B3**, no
+   migration).
+4. **[backend B9, migration]** Cheers and pokes: floating emoji reactions on a member, built on the existing
+   `nudges` table plus a `kind` column. Ask before building.
 
 ### Settings (`dashboard/settings`)
+
 1. The theme toggle uses the circular reveal (0.11).
 2. Rename the Sound & haptics card to **Feel**: Sounds, Haptics, Cursor (Halo / System), Motion (Full / Reduced,
    which overrides OS for this site only).
 3. **Live previews:** a reminder time shows a mini email preview; the study buddy preview already exists.
 
 ### Public profile (`u/[handle]`)
+
 1. **Holographic stat card:**
    - A card with name, streak, solved, top topics and a mini heatmap.
    - A foil layer (`conic-gradient` + `repeating-linear-gradient` with `mix-blend-mode: color-dodge`) moves with
@@ -478,6 +572,7 @@ For each item: **What**, **Data**, **Files**, **Done when**.
 3. **Heatmap draw-in:** cells fill week by week, oldest first, in 900 ms, once.
 
 ### Onboarding and Login
+
 1. **Import loader** (onboarding connect): "Fetching LeetCode history → Matching your sheets → Building your
    queue". Each step ticks as the real sync promise resolves (or after a minimum display time), then shows "You're
    set" in `SignalType`.
@@ -486,46 +581,51 @@ For each item: **What**, **Data**, **Files**, **Done when**.
    motion.
 
 ### 404 and errors
+
 - 404 is already neon. Add a fluid splash-cursor easter egg (WebGL, desktop only, loads after 2 s idle).
 - `dashboard/error.tsx` gets a stateful "Try again" button and Stacky's thinking mood.
 
 ### Landing (D4: later)
+
 - Variable-proximity section headings.
 - A marquee whose speed follows scroll velocity.
 - A target-cursor variant of the halo on feature cards.
-- Ghost Type footer *(done)*.
+- Ghost Type footer _(done)_.
 
 ---
 
 ## 9. Game layer (D3: added, with guardrails)
 
 **Guardrails:**
+
 - It's never the point: no XP, no levels, no paywalled cosmetics, no aggressive notifications.
 - Rewards mark real learning (solving, revising, finishing sheets), never logins.
 - Comparisons are segmented (near-you boards).
 - Everything is derived from existing data; **no new tables** unless marked.
 
 ### 9.1 Badges (collectible holo badges)
+
 - **Files:** `lib/badges.ts` (pure derivation from stats), `components/badge.tsx` (holo foil tile),
   `components/badge-shelf.tsx`.
 - **Where they appear:** the public profile shelf, Settings → Profile (your shelf), and a toast with `SignalType`
   when newly earned (remembered per browser like milestones today).
 - **Unearned badges** show as dim outlines with "how to earn" text.
 
-| Badge | Rule (derived) | Source |
-|---|---|---|
-| Spark / Flame / Blaze / Eternal | streak ≥ 7 / 30 / 100 / 365 | `currentStreak` |
-| 50 / 100 / 250 / 500 / 1000 Club | total solved | `sumSolved` |
-| First Graduate / Ten Rings / Fifty Rings | retired (graduated) problems ≥ 1 / 10 / 50 | `getLearning` |
-| Sheet Finisher | any followed sheet at 100 % | `getSheetSummaries` |
-| Topic Master: {topic} | mastery ≥ 80 % in a topic | `masteryOf` |
-| Upsolver | upsolved ≥ 10 contest problems | `getUpsolve` |
-| Three Platforms | solved on LeetCode, Codeforces and GFG | platform stats |
-| Comeback | returned after a 7+ day gap and kept a 3-day streak | calendar |
-| Night Owl / Early Bird | ≥ 10 solves between 00–04 / 05–08 local | solve timestamps (if available, else skip) |
-| Perfect Recall | a Recall round with every answer right | recall data (if per-round is available, else **[backend]**) |
+| Badge                                    | Rule (derived)                                      | Source                                                              |
+| ---------------------------------------- | --------------------------------------------------- | ------------------------------------------------------------------- |
+| Spark / Flame / Blaze / Eternal          | streak ≥ 7 / 30 / 100 / 365                         | `currentStreak`                                                     |
+| 50 / 100 / 250 / 500 / 1000 Club         | total solved                                        | `sumSolved`                                                         |
+| First Graduate / Ten Rings / Fifty Rings | retired (graduated) problems ≥ 1 / 10 / 50          | `getLearning`                                                       |
+| Sheet Finisher                           | any followed sheet at 100 %                         | `getSheetSummaries`                                                 |
+| Topic Master: {topic}                    | mastery ≥ 80 % in a topic                           | `masteryOf`                                                         |
+| Upsolver                                 | upsolved ≥ 10 contest problems                      | `getUpsolve`                                                        |
+| Three Platforms                          | solved on LeetCode, Codeforces and GFG              | platform stats                                                      |
+| Comeback                                 | returned after a 7+ day gap and kept a 3-day streak | calendar                                                            |
+| Night Owl / Early Bird                   | ≥ 10 solves between 00–04 / 05–08 local             | `practice_sessions.ended_at` (**B6**)                               |
+| Perfect Five                             | 5 consecutive correct Recall answers                | `recall_answers` (**B4**; a true per-round badge needs a migration) |
 
 ### 9.2 Weekly Wrapped
+
 - **Where:** the weekly review page (`dashboard/review`) and a card on Insights on Mondays: "Your week, wrapped".
 - **Format:**
   - Full-screen stories, 5–7 cards, tap or arrow keys to advance, progress segments on top (Instagram-style).
@@ -538,13 +638,16 @@ For each item: **What**, **Data**, **Files**, **Done when**.
   - Focus hours.
   - Weakest topic plus a "Practice it" button.
   - A badge earned this week.
-- **Share:** a "Save image" per card through a new `api/wrapped-card` (next/og, same fonts as the share card).
+- **Share:** a "Save image" per card through a new `api/wrapped-card` (**B7**; next/og, same fonts as the share
+  card).
 - **Data:** `getWeekReview`, `getAnalytics`, `getSessionStats`, `reviewHistory`.
 
 ### 9.3 Holo stat card
+
 - See Public profile 1. Also shown in Settings → Profile as "Your card".
 
 ### 9.4 Combos and celebrations
+
 - `feel.combo(n)` in Recall and the deck.
 - Streak milestones, solved milestones and badges all use the same celebration grammar: a burst, a chime and a
   `SignalType` headline in the toast.
@@ -554,6 +657,7 @@ For each item: **What**, **Data**, **Files**, **Done when**.
 ## 10. Build order and per-page checklist
 
 **Order:**
+
 1. **Phase 0**: glass, halo, spark, motion tokens, entrance, large titles, stateful button, theme reveal.
 2. **Revision and Recall**: deck (built), curve tooltip, ring focus, promotion, flip and combo.
 3. **Today**: vanish input, reorder, budget ribbon, getting started, streak cue.
@@ -568,6 +672,7 @@ For each item: **What**, **Data**, **Files**, **Done when**.
     to sync.
 
 **Per-page checklist:**
+
 - [ ] Read this file's section and the relevant Next docs.
 - [ ] Build; keep server logic unchanged unless the item says otherwise.
 - [ ] Reduced-motion path, keyboard path, touch path.
@@ -577,14 +682,43 @@ For each item: **What**, **Data**, **Files**, **Done when**.
 - [ ] Commit and push to `upsolve` and `origin` (no co-author).
 - [ ] Note what couldn't be verified (logged-in pages are checked live on dsakaro.site).
 
-## 11. Items needing backend (ask before building)
-- Server persistence of Today's manual order (optional).
-- Problem median times, if not already stored.
-- College coordinates for the India map, if missing.
-- Per-round recall results for the "Perfect Recall" badge, if not derivable.
-- Cheers and pokes between group members (new table).
+## 11. Backend work required (ask before building; the owner runs every migration)
+
+**Legend:**
+
+- **A**: server code only (actions, queries, API routes). No schema change, so it can ship with its page.
+- **M**: needs a migration. The flow is:
+  1. Add the schema to `packages/db/src/schema.ts` and run `pnpm --filter @upsolve/db generate`.
+  2. Commit the migration SQL.
+  3. **The owner runs** `pnpm --filter @upsolve/db migrate`.
+  4. Only then push code that reads it.
+
+Checked against `packages/db/src/schema.ts` on 2026-11-11.
+
+| #   | For                                              | Type                         | What exactly                                                                                                                                                                                                                                                                                                                                                | Notes                                                                                                                                           |
+| --- | ------------------------------------------------ | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1  | Today: drag to reorder                           | **A**                        | Server action `reorderPlanItems(day, ids[])` in `app/actions/daily.ts`. It validates ownership, updates `plan_items.position` in one statement (`CASE id WHEN … THEN n`), then `updateTag` for the plan cache.                                                                                                                                              | `plan_items.position` **already exists**, so no migration. The plan's localStorage idea is replaced by this.                                    |
+| B2  | Problem page: your time against the median       | **A**                        | A query over `practice_sessions` (`active_ms` where `outcome='solved'`) grouped by problem: `percentile_cont(0.5)`. Wrap it in a `"use cache"` function with `cacheLife('days')` and `cacheTag('median:'+problemId)`, and show it only when at least 5 users have solved it.                                                                                | Uses the server db role (not RLS). Possibly an index `practice_sessions(platform_problem_id, outcome)` → **M** if the EXPLAIN shows a seq scan. |
+| B3  | People: dotted India map                         | **A**                        | `colleges.city` / `colleges.state` **already exist**. Add a static `lib/geo-in.ts` (city → lat/lng for about 300 Indian cities, falling back to the state centroid) and project to the SVG map.                                                                                                                                                             | No migration. Colleges without a city fall back to the state, otherwise they're left off the map.                                               |
+| B4  | Badge "Perfect Recall"                           | **A** (now) / **M** (better) | Now: derive "Perfect Five", meaning 5 consecutive `recall_answers.correct = true` by `at`. Better: add `recall_answers.round integer` so a real round can be checked.                                                                                                                                                                                       | Ship A first; ask about the M later.                                                                                                            |
+| B5  | Badges: earned dates across devices              | **M** (optional)             | `user_badges(user_id, badge_id text, earned_at timestamptz, primary key(user_id, badge_id))` with RLS owner-read, written when a badge is first derived on the server.                                                                                                                                                                                      | Without it, badges are derived live and the "new badge" toast is per browser (like milestones today).                                           |
+| B6  | Badges "Night Owl / Early Bird"                  | **A**                        | Count from `practice_sessions.ended_at` where `outcome='solved'`, converted to the user's timezone.                                                                                                                                                                                                                                                         | No migration. `solves` only has first/last timestamps, so sessions are the source.                                                              |
+| B7  | Weekly Wrapped share images                      | **A**                        | New route `app/api/wrapped-card/route.tsx` (next/og, same fonts and colours as `lib/share-card.tsx`), `?card=solved                                                                                                                                                                                                                                         | fastest                                                                                                                                         | …&week=YYYY-Www`, authenticated, `Cache-Control: private`. | Data from `getWeekReview`, `getAnalytics`, `getSessionStats`, `reviewHistory`. |
+| B8  | Session receipt image                            | **A**                        | New route `app/api/session-receipt/[id]/route.tsx` (next/og), owner-only. Data from `focus_sessions` (focus_ms, away_ms, switches) and the session's problems.                                                                                                                                                                                              |                                                                                                                                                 |
+| B9  | Cheers and pokes                                 | **M**                        | `nudges` **already exists** (from_user, to_user, group_id, day, seen_at). Add `kind text not null default 'nudge'` (values: nudge, cheer, fire, clap) plus an index `(to_user, created_at desc)`. Action `sendCheer(toUser, groupId, kind)` with a rate limit of 10 per day per pair. The receiver sees floating emoji on their next visit (unseen → seen). | Reuses the nudge UI plumbing (`getUnseenNudges`).                                                                                               |
+| B10 | Feel prefs synced across devices                 | **M** (optional)             | `profiles.feel jsonb` with `{sound, haptics, cursor, motion}`; local wins until the first sync.                                                                                                                                                                                                                                                             | Default stays per-device; only if asked.                                                                                                        |
+| B11 | Peek preview fallback                            | **A**                        | `getProblemPeek(problemId)`: a light server action returning difficulty, ring, last solved and best time, used only when a link has no props.                                                                                                                                                                                                               | Cached per user.                                                                                                                                |
+| B12 | Command palette "recent problems" across devices | **M** (optional)             | Not needed; localStorage is planned.                                                                                                                                                                                                                                                                                                                        | Skip unless asked.                                                                                                                              |
+| B13 | Getting-started checklist                        | **A**                        | Read-only aggregate: platform accounts, extension tokens, followed sheets, solves count, review_logs count. One cached function `getOnboardingProgress(userId)`.                                                                                                                                                                                            | No migration.                                                                                                                                   |
+
+**Order of backend work:**
+
+- B1, B3, B6, B13 ship with their pages (no migration).
+- B2, B7, B8, B11 ship with their pages (server only).
+- B4-M, B5, B9 and B10 each need the owner's go-ahead and a migration run first.
 
 ## 12. Sources
+
 - [React Bits](https://reactbits.dev/), with component names (Target Cursor, Splash Cursor, Magic Bento, Glass
   Surface, Click Spark) taken from a [community component mapping](https://glama.ai/mcp/servers/@ceorkm/reactbits-mcp-server/blob/700a32195cdd52aa2bbfcdeb2f323739d2565534/src/data/component-mappings.ts)
 - [Aceternity UI components](https://ui.aceternity.com/components)
