@@ -252,6 +252,9 @@ export type PublicProfile = {
   accounts: AccountView[];
   /** Exam-week freeze days (YYYY-MM-DD), so the public streak matches the dashboard. */
   frozenDays: string[];
+  /** Server-only: used to work out badges. Never rendered. */
+  userId: string;
+  timezone: string;
 };
 
 /** Only returns profiles their owner made public. */
@@ -284,6 +287,8 @@ export async function getPublicProfile(handle: string): Promise<PublicProfile | 
     branch: row.profile.branch,
     accounts,
     frozenDays: [...frozenDays(await getStreakFreezes(row.profile.userId))],
+    userId: row.profile.userId,
+    timezone: row.profile.timezone,
   };
 }
 

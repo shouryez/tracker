@@ -17,7 +17,7 @@ const OUTCOME: Record<string, string> = {
 };
 
 /**
- * The session receipt (FRONTEND-PLAN Â§8 Sessions 3): when a study session ends, a paper slip
+ * The session receipt (FRONTEND-PLAN §8 Sessions 3): when a study session ends, a paper slip
  * "prints" out of a slot with everything it added up to. Paper in both themes, on purpose.
  */
 export function SessionReceipt({
@@ -62,11 +62,11 @@ export function SessionReceipt({
       <div className="relative z-10 h-3 rounded-full bg-[color-mix(in_srgb,var(--ink)_14%,transparent)] shadow-[inset_0_2px_4px_rgba(0,0,0,.45)]" />
       <div className="-mt-1.5 overflow-hidden px-3 pb-3">
         <div className="receipt receipt-print relative bg-[#f6f3ec] px-5 pt-5 pb-7 font-mono text-[12px] leading-relaxed text-[#26231e] shadow-[0_18px_30px_-16px_rgba(0,0,0,.55)]">
-          <p className="text-center text-[13px] font-[700] tracking-[.18em]">DSA à¤•à¤°à¥‹</p>
+          <p className="text-center text-[13px] font-[700] tracking-[.18em]">DSA करो</p>
           <p className="text-center text-[10.5px] text-[#6e685e]">study session receipt</p>
           <p className="mt-2 text-center text-[10.5px] text-[#6e685e]">
             {now.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}{" "}
-            Â· {now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
+            · {now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
           </p>
           {label && <p className="mt-1 truncate text-center font-[700]">{label}</p>}
           <hr className="my-3 border-0 border-t border-dashed border-[#bdb6a8]" />

@@ -5,6 +5,8 @@ import type React from "react";
 import { Card, CardHeader, CardSub, CardTitle, DifficultyTag, SkeletonCard, cn } from "@upsolve/ui";
 import { GoalsForm } from "@/components/daily/goals-form";
 import { PageHeader } from "@/components/page-header";
+import { WrappedStories } from "@/components/wrapped-stories";
+import { wrappedCards } from "@/lib/wrapped";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getWeekReview } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -118,6 +120,7 @@ async function ReviewContent() {
           </>
         }
         subtitle="Look back, then set this week's targets. Targets reset every Monday and show as rings on Today."
+        actions={<WrappedStories cards={wrappedCards(week, weakest ?? null)} />}
       />
 
       <ol className="flex gap-1.5" aria-label="Steps">

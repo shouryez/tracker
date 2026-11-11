@@ -22,7 +22,11 @@ import { StreakFlame } from "@/components/fx/decor";
 import { PLATFORM_LABEL, PLATFORM_PROFILE_URL } from "@/components/platform-meta";
 import { ShareButton } from "@/components/share-button";
 import { PlatformMark, platformMarkId } from "@/components/site-icons";
+import { BadgeShelf } from "@/components/badges";
+import { HoloCard } from "@/components/holo-card";
+import { getBadges, platformsWithSolves } from "@/lib/badges";
 import { buildStats, getPublicProfile } from "@/lib/data";
+import { requestNow } from "@/lib/time";
 import { VerifiedBadge } from "@/components/verified-badge";
 import { KpiStrip } from "@/components/dashboard/lamplight";
 import type { SolvedCounts } from "@upsolve/adapters";
@@ -74,6 +78,14 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
   if (!profile) notFound();
 
   const stats = buildStats(profile.accounts, new Date(), new Set(profile.frozenDays));
+  const badges = await getBadges(profile.userId, {
+    days: stats.heatmap52,
+    solved: stats.solved.total,
+    platformsSolved: platformsWithSolves(profile.accounts),
+    tz: profile.timezone,
+    now: requestNow(),
+  });
+  const earnedCount = badges.filter((b) => b.earned).length;
   const subtitle = [profile.college, profile.gradYear ? `Batch ${profile.gradYear}` : null]
     .filter(Boolean)
     .join(" · ");
@@ -137,8 +149,28 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
           <CardTitle>The last year</CardTitle>
           <CardSub>one square per day</CardSub>
         </CardHeader>
-        <PixelHeatmap levels={stats.heatmap52} weeks={52} className="gap-[2px]" />
+        <PixelHeatmap levels={stats.heatmap52} weeks={52} drawIn className="gap-[2px]" />
       </Card>
+
+      <div className="grid gap-3.5 md:grid-cols-[300px_minmax(0,1fr)]">
+        <HoloCard
+          name={profile.name ?? profile.handle}
+          handle={profile.handle}
+          streak={stats.streak}
+          solved={stats.solved}
+          topics={stats.topics.map((t) => t.name)}
+          levels={stats.heatmap52}
+        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Badges</CardTitle>
+            <CardSub>
+              {earnedCount} of {badges.length}
+            </CardSub>
+          </CardHeader>
+          <BadgeShelf badges={badges} className="lg:grid-cols-4" />
+        </Card>
+      </div>
 
       <div className="grid gap-3.5 md:grid-cols-2">
         <Card>

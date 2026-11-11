@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Card, CardHeader, CardTitle } from "@upsolve/ui";
+import { BadgeShelf } from "@/components/badges";
 import { SessionReceipt } from "@/components/daily/session-receipt";
+import { HoloCard } from "@/components/holo-card";
+import { deriveBadges } from "@/lib/badges";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
 import { CurveHover } from "@/components/memory-curve";
 import { RatingChart } from "@/components/rating-chart";
@@ -82,6 +85,36 @@ export default function FxLab() {
               Koko Eating Bananas · ring 3 · due tomorrow
             </CurveHover>
           </ul>
+        </Card>
+      </div>
+      <div className="grid gap-6 md:grid-cols-[300px_minmax(0,1fr)]">
+        <HoloCard
+          name="Shourya Chouhan"
+          handle="shourya"
+          streak={46}
+          solved={{ total: 412, easy: 160, medium: 208, hard: 44 }}
+          topics={["Arrays", "Binary search", "Graphs"]}
+          levels={Array.from({ length: 364 }, (_, i) => ((i * 7) % 11 > 4 ? (i * 3) % 5 : 0))}
+        />
+        <Card>
+          <CardHeader>
+            <CardTitle>Badges</CardTitle>
+          </CardHeader>
+          <BadgeShelf
+            className="lg:grid-cols-4"
+            badges={deriveBadges({
+              days: Array.from({ length: 364 }, (_, i) => (i > 300 ? 1 : i % 3)),
+              solved: 412,
+              platformsSolved: ["leetcode", "codeforces"],
+              retired: 12,
+              sheetsFinished: 0,
+              topicsMastered: ["Arrays"],
+              contests: 6,
+              nightSolves: 14,
+              earlySolves: 2,
+              bestRecallRun: 5,
+            })}
+          />
         </Card>
       </div>
       <Card>

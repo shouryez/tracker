@@ -46,7 +46,7 @@ async function googleFont(family: string, weight: number): Promise<ArrayBuffer |
 let fonts: Promise<
   { name: string; data: ArrayBuffer; weight: 400 | 600; style: "normal" }[]
 > | null = null;
-function loadFonts() {
+export function loadFonts() {
   fonts ??= Promise.all([
     googleFont("Inter Tight", 600),
     googleFont("Geist", 400),

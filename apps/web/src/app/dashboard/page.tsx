@@ -24,7 +24,9 @@ import { PlanSuggestions, SheetPicks } from "@/components/daily/plan-suggestions
 import { StartStudyButton } from "@/components/daily/study-bar";
 import { TodayPlanList } from "@/components/daily/today-plan";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
+import { BadgeWatcher } from "@/components/dashboard/badge-watcher";
 import { GettingStarted } from "@/components/dashboard/getting-started";
+import { getBadges, platformsWithSolves } from "@/lib/badges";
 import { FocusOrb } from "@/components/orbit/focus-orb";
 import { PageHeader } from "@/components/page-header";
 import { SignalType } from "@/components/fx/signal-type";
@@ -221,6 +223,16 @@ async function Today() {
   return (
     <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} solved={stats.solved.total} />
+      <Suspense fallback={null}>
+        <Badges
+          userId={user.id}
+          days={stats.heatmap52}
+          solved={stats.solved.total}
+          platformsSolved={platformsWithSolves(accounts)}
+          tz={tz}
+          now={now}
+        />
+      </Suspense>
       <PageHeader
         eyebrow={`${new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: tz })} · study day ends ${String(profile.dayResetHour).padStart(2, "0")}:00`}
         title={
@@ -658,5 +670,23 @@ async function WeeklyReviewPrompt({
         Do the weekly review <ButtonArrow />
       </Link>
     </Card>
+  );
+}
+
+/** New badges get a one-time toast (the shelf lives on Insights). */
+async function Badges(props: {
+  userId: string;
+  days: number[];
+  solved: number;
+  platformsSolved: string[];
+  tz: string;
+  now: number;
+}) {
+  const { userId, ...opts } = props;
+  const badges = await getBadges(userId, opts);
+  return (
+    <BadgeWatcher
+      earned={badges.filter((b) => b.earned).map((b) => ({ id: b.id, name: b.name }))}
+    />
   );
 }

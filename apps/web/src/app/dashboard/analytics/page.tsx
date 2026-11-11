@@ -14,6 +14,7 @@ import {
 } from "@upsolve/ui";
 import { TopicRadar } from "@/components/charts/insights";
 import { PageHeader } from "@/components/page-header";
+import { BadgesCard } from "./badges-card";
 import { PracticeTopicButton } from "@/components/daily/practice-topic";
 import { RangeControl } from "@/components/range-control";
 import { MasteryBars } from "@/components/learning";
@@ -447,6 +448,10 @@ async function AnalyticsContent({
             <span>24</span>
           </div>
         </Card>
+
+        <Suspense fallback={<SkeletonCard lines={2} className="col-span-12 h-[220px]" />}>
+          <BadgesCard userId={user.id} tz={tz} now={now} />
+        </Suspense>
 
         {a.mistakes.length > 0 && (
           <Card className="col-span-12">

@@ -11,6 +11,8 @@ export type PixelHeatmapProps = {
   markToday?: boolean;
   className?: string;
   label?: string;
+  /** Fill in once, oldest week first (the heat-in keyframes; skipped for reduced motion). */
+  drawIn?: boolean;
 };
 
 /** 7-row pixel heatmap; one square = one day (DESIGN.md §8). */
@@ -20,6 +22,7 @@ export function PixelHeatmap({
   markToday = true,
   className,
   label = "Activity heatmap",
+  drawIn = false,
 }: PixelHeatmapProps) {
   const total = weeks * 7;
   return (
@@ -35,6 +38,11 @@ export function PixelHeatmap({
         return (
           <span
             key={i}
+            style={
+              drawIn
+                ? { animation: `heat-in 360ms ease-out ${Math.floor(i / 7) * 18}ms backwards` }
+                : undefined
+            }
             className={cn(
               "aspect-square rounded-[3px]",
               levelClass[level],
@@ -46,5 +54,3 @@ export function PixelHeatmap({
     </div>
   );
 }
-
-// DsaKaro

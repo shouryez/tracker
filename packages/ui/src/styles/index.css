@@ -1448,3 +1448,16 @@ em.font-display,
   font-style: normal;
   color: var(--ink-3);
 }
+
+/* PixelHeatmap drawIn: each cell pops in, a week at a time. */
+@keyframes heat-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [style*="heat-in"] {
+    animation: none !important;
+  }
+}
