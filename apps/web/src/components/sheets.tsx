@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { Button, CheckDraw, cn } from "@upsolve/ui";
 import { setSheetFollowed, setSheetItemDone } from "@/app/actions/sheets";
 import { burstFrom } from "@/components/dashboard/celebrate";
+import { SHEET_TICK, type SheetTick } from "@/components/sheet-progress";
+import { flyTo, visible } from "@/lib/fly";
 
 export function FollowButton({ sheetId, following }: { sheetId: string; following: boolean }) {
   const [pending, startTransition] = useTransition();
@@ -60,11 +62,14 @@ export function ItemTick({
   itemKey,
   status,
   title,
+  step,
 }: {
   sheetId: string;
   itemKey: string;
   status: "auto" | "manual" | null;
   title: string;
+  /** The item's step, so live counts on the page can update at once. */
+  step?: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [optimistic, setOptimistic] = useOptimistic(status);
@@ -72,6 +77,7 @@ export function ItemTick({
   if (optimistic === "auto") {
     return (
       <span
+        data-ticked=""
         title="Solved on a connected platform"
         className="grid size-5 shrink-0 place-items-center rounded-[6px] bg-success text-[#06210f] shadow-[0_0_10px_-4px_var(--success)]"
       >
@@ -87,10 +93,17 @@ export function ItemTick({
       type="button"
       role="checkbox"
       aria-checked={done}
+      data-ticked={done ? "" : undefined}
       aria-label={`Mark "${title}" ${done ? "not done" : "done"}`}
       disabled={pending}
       onClick={(e) => {
         const el = e.currentTarget;
+        if (step)
+          window.dispatchEvent(
+            new CustomEvent<SheetTick>(SHEET_TICK, { detail: { step, delta: done ? -1 : 1 } }),
+          );
+        // The tick flies into the sheet's progress bar (header, or the floating strip).
+        if (!done) flyTo(el, visible("[data-sheet-progress]"));
         startTransition(async () => {
           setOptimistic(done ? null : "manual");
           if (!done) void burstFrom(el);
@@ -109,5 +122,3 @@ export function ItemTick({
     </button>
   );
 }
-
-// DsaKaro

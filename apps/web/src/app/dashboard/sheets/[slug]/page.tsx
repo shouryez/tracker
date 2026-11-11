@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Pill, Skeleton, SkeletonCard, cn } from "@upsolve/ui";
 import { Rekha } from "@/components/dashboard/lamplight";
 import { formatEta } from "@/components/progress";
 import { SheetBrowser, type ItemReview } from "@/components/sheet-browser";
+import { SheetMapCard, SheetProgressStrip } from "@/components/sheet-progress";
 import { BookCover } from "@/components/sheet-identity";
 import { StartStudyButton } from "@/components/daily/study-bar";
 import { FollowButton } from "@/components/sheets";
@@ -93,7 +94,10 @@ async function SheetContent({
 
   return (
     <>
-      <header className="surface-card flex flex-wrap items-center gap-6 rounded-[24px] p-6">
+      <header
+        id="sheet-head"
+        className="surface-card flex flex-wrap items-center gap-6 rounded-[24px] p-6"
+      >
         <div className="w-[96px] shrink-0">
           <BookCover
             slug={sheet.slug}
@@ -127,7 +131,13 @@ async function SheetContent({
             {minutesLeft > 0 && <span>~{Math.round(minutesLeft / 60)} hours left</span>}
             {videos > 0 && <span>{videos} videos</span>}
           </p>
-          <Rekha value={pct / 100} className="max-w-[520px]" />
+          <span
+            data-sheet-progress=""
+            className="block max-w-[520px]"
+            style={{ "--fly-x": pct / 100 } as CSSProperties}
+          >
+            <Rekha value={pct / 100} />
+          </span>
           {sheet.author && (
             <a
               href={sheet.sourceUrl ?? undefined}
@@ -225,7 +235,8 @@ async function SheetContent({
             })}
           </ol>
         </nav>
-        <div className="min-w-0 flex-[999_1_520px]">
+        <div className="flex min-w-0 flex-[999_1_520px] flex-col gap-4">
+          <SheetMapCard steps={steps} />
           <SheetBrowser
             sheetId={sheet.id}
             items={sheet.items}
@@ -234,6 +245,7 @@ async function SheetContent({
           />
         </div>
       </div>
+      <SheetProgressStrip steps={steps} headId="sheet-head" />
     </>
   );
 }

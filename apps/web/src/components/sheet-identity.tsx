@@ -104,10 +104,12 @@ export function BookCover({
   const pct = Math.min(100, (done / Math.max(1, total)) * 100);
   return (
     <div
+      // Tilts towards the pointer with a moving glare (components/fx/experience.tsx).
+      data-tilt="9"
       className={cn(
-        "@container relative isolate flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-[14px] p-3.5 text-white",
+        "@container group/cover relative isolate flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-[14px] p-3.5 text-white",
         "shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_18px_30px_-18px_rgba(0,0,0,.7)]",
-        "transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover/book:-translate-y-1.5",
+        "transition-[transform,box-shadow] duration-[var(--dur-base)] ease-[var(--ease-out)] will-change-transform group-hover/book:-translate-y-1.5 data-[tilting]:shadow-[inset_0_1px_0_rgba(255,255,255,.16),0_30px_40px_-20px_rgba(0,0,0,.8)] data-[tilting]:duration-75",
         className,
       )}
       style={{
@@ -115,6 +117,20 @@ export function BookCover({
       }}
     >
       <span aria-hidden="true" className="absolute inset-y-0 left-2.5 w-px bg-white/20" />
+      {/* Glare: a soft light that follows the pointer while the cover tilts. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10 opacity-0 mix-blend-soft-light transition-opacity duration-300 group-data-[tilting]/cover:opacity-100"
+        style={{
+          background:
+            "radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255,255,255,.55), rgba(255,255,255,.08) 40%, transparent 65%)",
+        }}
+      />
+      {/* Spine shadow, so it reads as a book. */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 w-3 bg-[linear-gradient(90deg,rgba(0,0,0,.35),transparent)]"
+      />
       <span
         aria-hidden="true"
         className="absolute inset-0 -z-10 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,.035)_0_2px,transparent_2px_9px)]"

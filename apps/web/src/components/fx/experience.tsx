@@ -6,7 +6,8 @@ import { SERVER_FEEL, getFeel, reducedMotion, subscribeFeel } from "@/lib/feel";
 /**
  * Site-wide feel, mounted once in the root layout (FRONTEND-PLAN §0.2–0.3):
  * - the halo cursor (desktop, fine pointer, on by default; Settings → Feel → Cursor);
- * - click sparks on the primary (ember, `.gloss`) action.
+ * - click sparks on the primary (ember, `.gloss`) action;
+ * - tilt and glare on anything marked `data-tilt` (sheet covers, holo cards).
  * Both stay out of the way: no layout work per frame, paused when the tab is hidden, and off
  * for reduced motion. The system cursor is never hidden.
  */
@@ -16,6 +17,7 @@ export function Experience() {
     <>
       {prefs.cursor === "halo" && <HaloCursor />}
       <ClickSparks />
+      <TiltGlare />
     </>
   );
 }
@@ -263,6 +265,57 @@ function ClickSparks() {
       window.removeEventListener("click", onClick, true);
       window.removeEventListener("resize", size);
       canvas?.remove();
+    };
+  }, []);
+  return null;
+}
+
+/* ------------------------------------------------------------ tilt glare */
+
+/**
+ * One listener for every `[data-tilt]` element: it leans towards the pointer (max degrees
+ * from the attribute's value, default 8) and exposes --gx/--gy (0–100%) for a glare layer,
+ * with `data-tilting` set while active. Fine pointers only; off for reduced motion.
+ */
+function TiltGlare() {
+  useEffect(() => {
+    if (!window.matchMedia("(pointer: fine)").matches || reducedMotion()) return;
+    let active: HTMLElement | null = null;
+    let frame = 0;
+    const reset = (el: HTMLElement) => {
+      el.style.transform = "";
+      delete el.dataset.tilting;
+    };
+    const onMove = (e: PointerEvent) => {
+      const el = (e.target as Element | null)?.closest<HTMLElement>("[data-tilt]") ?? null;
+      if (active && active !== el) reset(active);
+      active = el;
+      if (!el) return;
+      const { clientX, clientY } = e;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const r = el.getBoundingClientRect();
+        const x = (clientX - r.left) / r.width - 0.5;
+        const y = (clientY - r.top) / r.height - 0.5;
+        const max = Number(el.dataset.tilt) || 8;
+        el.style.transform = `perspective(800px) rotateX(${(-y * max).toFixed(2)}deg) rotateY(${(x * max).toFixed(2)}deg) translateY(-4px)`;
+        el.style.setProperty("--gx", `${((x + 0.5) * 100).toFixed(1)}%`);
+        el.style.setProperty("--gy", `${((y + 0.5) * 100).toFixed(1)}%`);
+        el.dataset.tilting = "";
+      });
+    };
+    const onOut = (e: PointerEvent) => {
+      if (!e.relatedTarget && active) {
+        reset(active);
+        active = null;
+      }
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointerout", onOut);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerout", onOut);
     };
   }, []);
   return null;

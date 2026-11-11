@@ -501,6 +501,7 @@ export function SheetBrowser({
                           picking={picking}
                           picked={picked.has(item.itemKey)}
                           onToday={onToday.has(item.itemKey)}
+                          isNext={item.itemKey === continueItem?.itemKey}
                           onPick={() =>
                             setPicked((prev) => {
                               const next = new Set(prev);
@@ -679,6 +680,8 @@ type ItemRowProps = {
   picking: boolean;
   picked: boolean;
   onToday: boolean;
+  /** The first problem you haven't solved, in sheet order. */
+  isNext?: boolean;
   onPick: () => void;
   onStar: (on: boolean) => void;
   onNote: () => void;
@@ -700,7 +703,8 @@ function sameRow(a: ItemRowProps, b: ItemRowProps) {
     a.noteOpen === b.noteOpen &&
     a.picking === b.picking &&
     a.picked === b.picked &&
-    a.onToday === b.onToday
+    a.onToday === b.onToday &&
+    a.isNext === b.isNext
   );
 }
 
@@ -714,6 +718,7 @@ const ItemRow = memo(function ItemRowView({
   picking,
   picked,
   onToday,
+  isNext,
   onPick,
   onStar,
   onNote,
@@ -731,7 +736,7 @@ const ItemRow = memo(function ItemRowView({
   const youtube = link("youtube");
   const [, startTransition] = useTransition();
   const title = (
-    <span className={cn("text-[13.5px] font-medium", item.status && "text-ink-2")}>
+    <span className={cn("row-title text-[13.5px] font-medium", item.status && "text-ink-2")}>
       {item.title}
     </span>
   );
@@ -740,6 +745,7 @@ const ItemRow = memo(function ItemRowView({
     <>
       <li
         id={`item-${item.itemKey}`}
+        data-next={isNext ? "" : undefined}
         className={cn(
           "group/row relative flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-line px-3 py-2.5 transition-colors duration-[600ms] [contain-intrinsic-size:auto_48px] [content-visibility:auto] first:border-t-0 hover:bg-surface-2/70 sm:flex-nowrap",
           highlighted && "animate-[row-pulse_1.2s_var(--ease-out)_2] bg-signal/12",
@@ -764,6 +770,7 @@ const ItemRow = memo(function ItemRowView({
             itemKey={item.itemKey}
             status={item.status}
             title={item.title}
+            step={item.step}
           />
         )}
         <span className="flex min-w-0 flex-1 basis-[calc(100%-2rem)] flex-wrap items-center gap-x-2 gap-y-1 sm:basis-auto sm:flex-nowrap">
@@ -776,6 +783,11 @@ const ItemRow = memo(function ItemRowView({
             </Link>
           ) : (
             <span className="min-w-0 truncate">{title}</span>
+          )}
+          {isNext && (
+            <span className="inline-flex h-5 shrink-0 items-center rounded-full bg-mint-soft px-2 text-11 font-[650] text-signal-text">
+              Next
+            </span>
           )}
           <TierTag tier={item.tier} />
           {item.kind === "learning" && <Tag mono>read</Tag>}
@@ -1173,5 +1185,3 @@ function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }
     </span>
   );
 }
-
-// DsaKaro

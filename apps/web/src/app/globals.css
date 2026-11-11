@@ -925,3 +925,17 @@ main :is(.surface-card, .surface-hero):nth-child(n + 5) {
     text-shadow: 0 0 24px color-mix(in srgb, var(--primary) 45%, transparent);
   }
 }
+
+/* Sheet rows (components/sheet-browser.tsx): a ticked row's title gets an ink strike drawn
+   left to right; the next problem in order gets a mint edge. */
+.row-title {
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 58% / 0% 1.5px;
+  transition: background-size 420ms var(--ease-out);
+}
+li:has([data-ticked]) .row-title {
+  background-size: 100% 1.5px;
+}
+li[data-next] {
+  box-shadow: inset 3px 0 0 var(--signal-mark);
+  background: color-mix(in srgb, var(--signal-mark) 5%, transparent);
+}
