@@ -49,7 +49,7 @@ export function CollegePicker({
 
   if (value) {
     return (
-      <div className="flex h-[42px] items-center gap-2 rounded-sm border border-line-2 bg-surface-2 px-3.5 text-sm">
+      <div className="flex h-[42px] items-center gap-2 rounded-full border border-line-2 bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] px-3.5 text-sm">
         <span className="min-w-0 flex-1 truncate">
           {value.name}
           {value.kind === "new" && (
@@ -122,7 +122,7 @@ export function CollegePicker({
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-20 mt-1.5 w-full overflow-hidden rounded-sm border border-line-2 bg-surface-3 py-1 shadow-card"
+          className="absolute z-20 mt-1.5 w-full overflow-hidden rounded-[16px] border border-line-2 bg-surface-3 py-1 shadow-card"
         >
           {choices.map((c, i) => (
             <li

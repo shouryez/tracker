@@ -1,8 +1,8 @@
 import { cn } from "@upsolve/ui";
 
-const STEPS = ["About you", "Your goal", "Connect platforms"] as const;
+const STEPS = ["About you", "Your goal", "Platforms and sheet"] as const;
 
-/** Three bars that fill lime as you go, each labelled with its step. */
+/** Three bars that fill mint as you go, each labelled with its step. */
 export function OnboardingSteps({ current }: { current: 0 | 1 | 2 }) {
   return (
     <nav aria-label="Onboarding progress" className="mb-10">
@@ -19,13 +19,13 @@ export function OnboardingSteps({ current }: { current: 0 | 1 | 2 }) {
               <span
                 className={cn(
                   "h-[3px] rounded-full transition-colors duration-[var(--dur-slow)]",
-                  done || now ? "bg-signal" : "bg-surface-4",
+                  done || now ? "bg-signal" : "bg-line-2",
                 )}
               />
               <span className="flex items-center gap-2">
                 <span
                   className={cn(
-                    "font-mono text-11",
+                    "tnum text-12 font-[650]",
                     done || now ? "text-signal-text" : "text-ink-3",
                   )}
                 >

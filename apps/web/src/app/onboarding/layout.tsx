@@ -7,7 +7,7 @@ export default function OnboardingLayout({ children }: LayoutProps<"/onboarding"
       {/* The lamp, and a dot field that fades out down the page. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(900px_500px_at_50%_-10%,rgba(243,180,92,.12),transparent_65%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(900px_500px_at_50%_-10%,rgba(240,136,79,.1),transparent_65%)]"
       />
       <div
         aria-hidden="true"

@@ -224,7 +224,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                   className={cn(
                     "surface-card relative cursor-pointer rounded-[16px] p-4 transition-[border-color,box-shadow,transform] duration-[var(--dur-base)] hover:-translate-y-0.5",
                     goal === g.value
-                      ? "border-violet shadow-[var(--e1),0_0_0_4px_var(--color-violet-soft)]"
+                      ? "border-signal shadow-[var(--e1),0_0_0_4px_var(--color-signal-soft)]"
                       : "hover:border-line-2",
                   )}
                 >
@@ -240,7 +240,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                     <Target
                       size={15}
                       aria-hidden="true"
-                      className={goal === g.value ? "text-violet" : "text-ink-3"}
+                      className={goal === g.value ? "text-signal-text" : "text-ink-3"}
                     />
                     {g.label}
                   </span>
@@ -270,7 +270,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
                     className={cn(
                       "h-8 rounded-full border px-3 text-[13px] transition-colors duration-[var(--dur-base)]",
                       on
-                        ? "border-violet-line bg-violet-soft text-ink"
+                        ? "border-[color-mix(in_srgb,var(--signal)_45%,transparent)] bg-mint-soft text-ink"
                         : "border-line-2 text-ink-2 hover:border-line-3 hover:text-ink",
                     )}
                   >
@@ -342,7 +342,7 @@ export function ProfileForm({ defaults, editing }: { defaults: Defaults; editing
 function Heading({ muted, main }: { muted: string; main: string }) {
   return (
     <h1 className="mb-8 font-display text-[clamp(36px,6vw,52px)] leading-none tracking-[-0.02em]">
-      {muted} <em className="text-violet">{main}</em>
+      {muted} <em className="text-ink-3 not-italic">{main}</em>
     </h1>
   );
 }
@@ -459,7 +459,7 @@ function ProfilePreview({
               key={i}
               className="size-2.5 rounded-[2px]"
               style={{
-                background: i % 7 === 3 || i % 11 === 0 ? "#c6f16b" : "rgba(255,255,255,.1)",
+                background: i % 7 === 3 || i % 11 === 0 ? "#86d9c2" : "rgba(255,255,255,.1)",
               }}
             />
           ))}

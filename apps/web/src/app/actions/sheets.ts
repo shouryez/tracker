@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
 import { z } from "zod";
 import { sheetItems, sheetMarks, sheetStars, sheets, userSheets } from "@upsolve/db";
@@ -24,6 +24,25 @@ export async function setSheetFollowed(sheetId: string, follow: boolean): Promis
       .where(and(eq(userSheets.userId, user.id), eq(userSheets.sheetId, sheetId)));
   }
   updateTag(userTag(user.id));
+}
+
+/**
+ * Makes a sheet your main one: it's followed, and dated before every other sheet you follow,
+ * so Today's picks and "Continue" start from it.
+ */
+export async function setMainSheet(sheetId: string): Promise<{ ok: boolean }> {
+  const user = await getCurrentUser();
+  if (isDemoUser(user) || !Id.safeParse(sheetId).success) return { ok: false };
+  const [sheet] = await db().select({ id: sheets.id }).from(sheets).where(eq(sheets.id, sheetId));
+  if (!sheet) return { ok: false };
+  await db().execute(sql`
+    insert into user_sheets (user_id, sheet_id, created_at)
+    values (${user.id}, ${sheetId}, coalesce(
+      (select min(created_at) - interval '1 second' from user_sheets where user_id = ${user.id}),
+      now()))
+    on conflict (user_id, sheet_id) do update set created_at = excluded.created_at`);
+  updateTag(userTag(user.id));
+  return { ok: true };
 }
 
 /** Ticks or unticks an item by hand. */

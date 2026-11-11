@@ -3,17 +3,17 @@ import { cn } from "@upsolve/ui";
 
 /** Accent colour (one of the four theme accents) + monogram per curated sheet (falls back to sky + initials). */
 export const SHEET_IDENTITY: Record<string, { color: string; mono: string }> = {
-  "striver-a2z": { color: "#7cb7ff", mono: "A2Z" },
-  "striver-sde": { color: "#f5b94d", mono: "SDE" },
-  "neetcode-150": { color: "#c6f16b", mono: "150" },
-  "blind-75": { color: "#f26d82", mono: "B75" },
-  "grind-75": { color: "#7cb7ff", mono: "G75" },
+  "striver-a2z": { color: "#9db5e8", mono: "A2Z" },
+  "striver-sde": { color: "#e2c27d", mono: "SDE" },
+  "neetcode-150": { color: "#86d9c2", mono: "150" },
+  "blind-75": { color: "#e58a8f", mono: "B75" },
+  "grind-75": { color: "#f0884f", mono: "G75" },
 };
 
 export function sheetIdentity(slug: string, name: string) {
   return (
     SHEET_IDENTITY[slug] ?? {
-      color: "#7cb7ff",
+      color: "#9db5e8",
       mono: name
         .split(/\s+/)
         .map((w) => w[0])

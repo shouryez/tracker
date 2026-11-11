@@ -81,7 +81,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
   return (
     <div className="flex flex-col gap-5">
       {/* Banner: avatar inside a ring split by difficulty (easy → medium → hard). */}
-      <div className="surface-card lamp relative mb-2 overflow-hidden rounded-lg p-6 sm:p-8">
+      <div className="surface-card relative mb-2 overflow-hidden rounded-[24px] p-6 sm:p-8">
         <div className="absolute top-5 right-5 z-10">
           <ShareButton title={`@${profile.handle} on DsaKaro`} />
         </div>
@@ -92,8 +92,8 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
             solved={stats.solved}
           />
           <div className="min-w-0">
-            <p className="font-mono text-12 text-ink-3">@{profile.handle}</p>
-            <h1 className="mt-2 text-[clamp(32px,4.6vw,52px)] leading-[1] font-[640] tracking-[-0.045em]">
+            <p className="text-[13.5px] text-ink-3">@{profile.handle}</p>
+            <h1 className="mt-2 font-display text-[clamp(32px,4.6vw,52px)] leading-[1]">
               {profile.name ?? profile.handle}
             </h1>
             {subtitle && (
@@ -159,7 +159,7 @@ async function ProfileContent({ params }: { params: PageProps<"/u/[handle]">["pa
                   href={PLATFORM_PROFILE_URL[a.platform]?.(a.handle)}
                   target="_blank"
                   rel="noreferrer"
-                  className="font-mono text-[12px] font-normal text-ink-3 hover:underline"
+                  className="text-12 font-normal text-ink-3 hover:underline"
                 >
                   {a.handle}
                 </a>
@@ -219,7 +219,7 @@ function AvatarRing({
   const m = (solved.medium / total) * 360;
   const ring =
     solved.easy + solved.medium + solved.hard === 0
-      ? "var(--surface-3)"
+      ? "var(--line-2)"
       : `conic-gradient(var(--easy) 0 ${e}deg, var(--medium) ${e}deg ${e + m}deg, var(--hard) ${e + m}deg 360deg)`;
   const initials = name
     .split(/\s+/)
@@ -230,10 +230,10 @@ function AvatarRing({
     <span
       role="img"
       aria-label={`${solved.easy} easy, ${solved.medium} medium, ${solved.hard} hard`}
-      className="grid size-[112px] shrink-0 place-items-center rounded-full p-[5px] shadow-[0_0_40px_-8px_var(--violet)]"
+      className="grid size-[112px] shrink-0 place-items-center rounded-full p-[5px]"
       style={{ background: ring }}
     >
-      <span className="grid size-full place-items-center overflow-hidden rounded-full border-4 border-[var(--bg)] bg-[linear-gradient(135deg,#34343a,#18181b)] text-[28px] font-semibold text-white">
+      <span className="grid size-full place-items-center overflow-hidden rounded-full border-4 border-[var(--bg)] bg-[color-mix(in_srgb,var(--ink)_10%,var(--bg))] text-[28px] font-semibold text-ink">
         {src ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={src} alt="" referrerPolicy="no-referrer" className="size-full object-cover" />

@@ -43,7 +43,7 @@ async function Invite({ params }: { params: PageProps<"/join/[code]">["params"] 
   if (!invite) {
     return (
       <div className="surface-card rounded-[24px] p-6">
-        <h1 className="mb-2 text-[22px] font-[600] tracking-[-0.03em]">
+        <h1 className="mb-2 font-display text-[26px] leading-tight">
           This invite has <em className="text-ink-3 not-italic">expired.</em>
         </h1>
         <p className="mb-5 text-[14px] text-ink-2">
@@ -60,7 +60,7 @@ async function Invite({ params }: { params: PageProps<"/join/[code]">["params"] 
   const studying = hall.filter((m) => m.live && !m.live.pausedAt).length;
 
   return (
-    <div className="surface-card lamp relative flex flex-col items-center gap-5 overflow-hidden rounded-[24px] p-8 text-center">
+    <div className="surface-card relative flex flex-col items-center gap-5 overflow-hidden rounded-[24px] p-8 text-center">
       {/* Everyone's buddy (no names until you're in), and who's studying right now. */}
       <div className="flex items-center">
         {hall.slice(0, 6).map((m, i) => (
@@ -75,7 +75,7 @@ async function Invite({ params }: { params: PageProps<"/join/[code]">["params"] 
       </div>
       <div className="flex flex-col items-center gap-2">
         <p className="text-13 text-ink-3">You&apos;re invited to</p>
-        <h1 className="text-[34px] leading-none font-[640] tracking-[-0.04em]">{invite.name}</h1>
+        <h1 className="font-display text-[38px] leading-none">{invite.name}</h1>
         <p className="flex items-center gap-2.5 text-13 text-ink-3">
           {studying > 0 && (
             <span className="flex items-center gap-1.5 rounded-full bg-signal-soft px-2.5 py-0.5 text-12 font-[600] text-signal-text">

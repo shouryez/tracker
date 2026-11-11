@@ -72,7 +72,11 @@ export async function getSheetSummaries(userId: string): Promise<SheetSummary[]>
     from sheets sh
     join item_state st on st.sheet_id = sh.id
     group by sh.id
-    order by sh.position
+    -- Followed sheets first, in the order you followed them (the first is your main sheet,
+    -- the same one "next problem" picks from first), then the rest in catalogue order.
+    order by (select us.created_at from user_sheets us
+              where us.user_id = ${userId} and us.sheet_id = sh.id) nulls last,
+             sh.position
   `)) as unknown as (Omit<SheetSummary, "eta" | "doneBy"> & {
     doneEasy: number;
     doneMedium: number;

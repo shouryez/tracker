@@ -13,7 +13,7 @@ const HEAT = Array.from({ length: 34 * 7 }, (_, i) => {
   const p = 0.25 + (Math.floor(i / 7) / 34) * 0.5;
   return r > p ? 0 : 1 + Math.min(3, Math.floor((r / p) * 4));
 });
-const HEAT_COLORS = ["#1a1d23", "#2f3d1f", "#4f6d26", "#86b23a", "#c6f16b"];
+const HEAT_COLORS = ["#1a1a1d", "#1f3a33", "#2f6355", "#56a08b", "#86d9c2"];
 
 const POINTS: Record<AuthMode, string[]> = {
   login: [
@@ -36,7 +36,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
   const points = POINTS[mode];
   return (
     <div className="grid min-h-dvh bg-bg lg:grid-cols-[1.05fr_1fr]">
-      <aside className="relative m-3 hidden overflow-hidden rounded-[24px] bg-[radial-gradient(700px_500px_at_20%_0%,rgba(243,180,92,.18),transparent_65%),#111318] text-[#eceef2] ring-1 ring-white/10 lg:flex lg:flex-col">
+      <aside className="relative m-3 hidden overflow-hidden rounded-[24px] bg-[radial-gradient(700px_500px_at_20%_0%,rgba(240,136,79,.16),transparent_65%),#0b0b0c] text-[#eceef2] ring-1 ring-white/10 lg:flex lg:flex-col">
         {/* A year of practice, one square a day, tilted across the panel. */}
         <div
           aria-hidden="true"
@@ -48,26 +48,26 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
               className="aspect-square rounded-[4px]"
               style={{
                 background: HEAT_COLORS[l],
-                boxShadow: l === 4 ? "0 0 8px rgba(198,241,107,.25)" : undefined,
+                boxShadow: l === 4 ? "0 0 8px rgba(134,217,194,.3)" : undefined,
               }}
             />
           ))}
         </div>
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[linear-gradient(180deg,#111318_8%,transparent_40%,transparent_62%,#111318_92%)]"
+          className="absolute inset-0 bg-[linear-gradient(180deg,#0b0b0c_8%,transparent_40%,transparent_62%,#0b0b0c_92%)]"
         />
         <div className="relative z-10 p-10">
           <Link href="/" aria-label="DsaKaro home" className="inline-block text-white">
             <Logo />
           </Link>
-          <h2 className="mt-16 max-w-[13ch] text-[52px] leading-[.98] font-[640] tracking-[-0.045em]">
+          <h2 className="mt-16 max-w-[13ch] font-display text-[52px] leading-[.98]">
             Every problem you solve,{" "}
             <span className="relative whitespace-nowrap">
               remembered.
               <span
                 aria-hidden="true"
-                className="absolute right-[4%] -bottom-[.02em] left-0 h-[.07em] rounded-full bg-[#c6f16b] shadow-[0_0_24px_rgba(198,241,107,.5)]"
+                className="absolute right-[4%] -bottom-[.02em] left-0 h-[.07em] rounded-full bg-[#86d9c2] shadow-[0_0_24px_rgba(134,217,194,.45)]"
               />
             </span>
           </h2>
@@ -86,7 +86,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             ))}
           </ul>
         </div>
-        <div className="relative z-10 mt-auto flex items-center gap-2 p-10 font-mono text-[11px] tracking-[.08em] text-white/50 uppercase">
+        <div className="relative z-10 mt-auto flex items-center gap-2 p-10 text-13 text-white/55">
           <LiveDot /> Free for students
         </div>
       </aside>
@@ -106,7 +106,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           <Link href="/" aria-label="DsaKaro home" className="mb-10 inline-block lg:hidden">
             <Logo />
           </Link>
-          <h1 className="mb-2 font-display text-[44px] leading-none tracking-[-0.02em]">
+          <h1 className="mb-2 font-display text-[44px] leading-none [&_em]:text-ink-3 [&_em]:not-italic">
             {mode === "login" ? (
               <>
                 Welcome back. <em>Chalo,&nbsp;DSA&nbsp;karo.</em>
@@ -124,14 +124,14 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
           </p>
 
           {!isSupabaseConfigured && (
-            <p className="mb-6 rounded-md border border-dashed border-line-2 bg-surface-2 p-3.5 font-mono text-xs leading-relaxed text-ink-2">
+            <p className="mb-6 rounded-[16px] border border-dashed border-line-2 p-3.5 font-mono text-xs leading-relaxed text-ink-2">
               Demo mode: sign-in is off until Supabase is configured. Copy{" "}
               <code className="text-ink">apps/web/.env.example</code> to{" "}
               <code className="text-ink">.env.local</code> and fill it in (see README).
             </p>
           )}
 
-          <div className="surface-card relative overflow-hidden rounded-[20px] p-6 shadow-e3">
+          <div className="surface-card relative overflow-hidden rounded-[24px] p-6 shadow-e3">
             <Suspense>
               <LoginForm mode={mode} disabled={!isSupabaseConfigured} />
             </Suspense>
