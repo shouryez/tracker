@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import { logReview, undoReview, type ReviewActionName } from "@/app/actions/learning";
 import { feel } from "@/lib/feel";
+import { flyToOrb } from "@/lib/orbit-fx";
 import { burstFrom } from "@/components/dashboard/celebrate";
 
 const MANUAL: {
@@ -43,14 +44,25 @@ const MANUAL: {
  * (Remembered teal ✓ · Shaky amber ~ · Forgot rose ✕). The chosen segment flashes its colour.
  * Manual reviews are graded more cautiously than a re-solve the extension saw (max 16 days).
  */
-export function ManualReview({ problemId, className }: { problemId: string; className?: string }) {
+export function ManualReview({
+  problemId,
+  step,
+  className,
+}: {
+  problemId: string;
+  /** Current ladder step; with it, "Remembered" flies a dot to the next orb ring. */
+  step?: number;
+  className?: string;
+}) {
   const [pending, startTransition] = useTransition();
   const [done, setDone] = useState<ReviewActionName | null>(null);
   const run = (action: ReviewActionName, el: HTMLElement) =>
     startTransition(async () => {
       setDone(action);
-      if (action === "remembered") void burstFrom(el);
-      else if (action === "shaky") feel.tick();
+      if (action === "remembered") {
+        void burstFrom(el);
+        if (step !== undefined) flyToOrb(el, step + 1);
+      } else if (action === "shaky") feel.tick();
       else feel.soft();
       await logReview(problemId, action);
       toast.success(

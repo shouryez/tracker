@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { cn } from "@upsolve/ui";
+import { NumberTicker } from "@/components/fx/number-ticker";
 
 /**
  * The Orbit focus orb: a glossy ember sphere inside a watch bezel (60 ticks and a progress
@@ -56,6 +57,10 @@ export function FocusOrb({
     <div
       role="img"
       aria-label={label}
+      // Read by lib/orbit-fx.ts (ring promotion flights).
+      data-focus-orb=""
+      data-rings={JSON.stringify(rings)}
+      data-size={size}
       className={cn("group/orb relative shrink-0", className)}
       style={{ width: size, height: size }}
     >
@@ -87,6 +92,7 @@ export function FocusOrb({
         {rings.map((r, i) => (
           <circle
             key={r}
+            data-orb-ring={i}
             cx={c}
             cy={c}
             r={r}
@@ -181,7 +187,10 @@ export function FocusOrb({
   );
 }
 
-/** A compact row of the six revision ladder steps with their counts. */
+/**
+ * A compact row of the six revision ladder steps with their counts. Inside a `.rung-scope`,
+ * hovering or focusing a chip highlights that rung's problems and orb ring (globals.css).
+ */
 export function LadderChips({ counts, className }: { counts: number[]; className?: string }) {
   const steps = [1, 3, 7, 16, 35, 90];
   return (
@@ -192,14 +201,17 @@ export function LadderChips({ counts, className }: { counts: number[]; className
         return (
           <div
             key={d}
-            className="flex flex-col items-start gap-1.5 rounded-[14px] bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] p-3 shadow-[inset_0_0_0_1px_var(--line)]"
+            data-rung-chip={i}
+            tabIndex={0}
+            aria-label={`Day ${d}: ${n} problem${n === 1 ? "" : "s"}`}
+            className="flex cursor-default flex-col items-start gap-1.5 rounded-[14px] bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] p-3 shadow-[inset_0_0_0_1px_var(--line)] transition-[box-shadow,background-color] duration-[var(--dur-base)] outline-none hover:shadow-[inset_0_0_0_1px_var(--signal-mark)] focus-visible:shadow-[inset_0_0_0_2px_var(--signal-mark)]"
           >
             <i
               className="rounded-full bg-signal shadow-[0_0_8px_color-mix(in_srgb,var(--signal)_60%,transparent)]"
               style={{ width: s, height: s, opacity: n ? 1 - i * 0.1 : 0.25 }}
             />
             <b className="font-display text-[22px] leading-none font-[650] tracking-[-0.03em]">
-              {n}
+              <NumberTicker value={n} roll={false} />
             </b>
             <span className="text-12 font-[550] text-ink-3">Day {d}</span>
           </div>

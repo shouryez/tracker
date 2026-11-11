@@ -7,6 +7,7 @@ import { Button, ButtonArrow, DifficultyTag, cn } from "@upsolve/ui";
 import { recordRecall } from "@/app/actions/daily";
 import { burst } from "@/components/dashboard/celebrate";
 import type { RecallCard } from "@/lib/daily-data";
+import { feel } from "@/lib/feel";
 
 // Read the wall clock from event handlers only (never during render).
 const clock = () => Date.now();
@@ -22,6 +23,8 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
   const [score, setScore] = useState(0);
   // Per card: true = right, false = missed (for the progress pips).
   const [results, setResults] = useState<boolean[]>([]);
+  // Right answers in a row: drives the combo meter and the rising chime.
+  const [streak, setStreak] = useState(0);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState(0);
   const [, start] = useTransition();
@@ -35,7 +38,10 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
   }, [startedAt, finished]);
 
   useEffect(() => {
-    if (finished && score === cards.length && cards.length > 0) void burst();
+    if (finished && score === cards.length && cards.length > 0) {
+      void burst();
+      feel.milestone();
+    }
   }, [finished, score, cards.length]);
 
   const left = startedAt === null ? LIMIT_MS : Math.max(0, LIMIT_MS - (now - startedAt));
@@ -67,7 +73,15 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
     }
     setPicked(id);
     const correct = id === card.answer;
-    if (correct) setScore((s) => s + 1);
+    if (correct) {
+      setScore((s) => s + 1);
+      const n = streak + 1;
+      setStreak(n);
+      feel.combo(n);
+    } else {
+      setStreak(0);
+      feel.soft();
+    }
     setResults((r) => [...r, correct]);
     start(async () => {
       await recordRecall(card.problemId, correct);
@@ -136,6 +150,24 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
             />
           ))}
         </div>
+        {streak >= 2 && (
+          <span
+            key={streak}
+            aria-live="polite"
+            className="inline-flex animate-[pop-open_var(--dur-base)_var(--ease-spring)] items-center gap-1.5 rounded-full bg-mint-soft px-2.5 py-1 text-12 font-[650] text-signal-text"
+          >
+            <span className="flex gap-[2px]" aria-hidden="true">
+              {Array.from({ length: Math.min(streak, 6) }, (_, k) => (
+                <i
+                  key={k}
+                  className="h-2.5 w-1 rounded-full bg-current"
+                  style={{ opacity: 0.45 + k * 0.1 }}
+                />
+              ))}
+            </span>
+            Combo ×{streak}
+          </span>
+        )}
         <span
           className={cn(
             "tnum inline-flex items-center gap-1.5 font-mono text-13",
@@ -198,7 +230,8 @@ export function RecallQuiz({ cards, round }: { cards: RecallCard[]; round: numbe
         {picked && (
           <div
             className={cn(
-              "flex animate-[rise-in_var(--dur-slow)_var(--ease-out)] flex-wrap items-center gap-3 rounded-[14px] px-4 py-3.5",
+              // Flips down into view like a card turning over.
+              "flip-in flex flex-wrap items-center gap-3 rounded-[14px] px-4 py-3.5",
               correct ? "bg-signal-soft" : "bg-hard-soft",
             )}
           >

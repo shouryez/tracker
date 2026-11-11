@@ -868,3 +868,52 @@ main :is(.surface-card, .surface-hero):nth-child(n + 5) {
     animation: none;
   }
 }
+
+/* Ring focus (FRONTEND-PLAN §8 Revision 3): hovering or focusing a ladder chip dims every
+   queue row on another rung and lights that rung's orb ring. Pure CSS (:has). */
+.rung-scope [data-rung] {
+  transition:
+    opacity 240ms ease,
+    filter 240ms ease;
+}
+.rung-scope [data-orb-ring] {
+  transition:
+    stroke-opacity 240ms ease,
+    stroke 240ms ease;
+}
+.rung-scope:has([data-rung-chip="0"]:is(:hover, :focus-visible)) [data-rung]:not([data-rung="0"]),
+.rung-scope:has([data-rung-chip="1"]:is(:hover, :focus-visible)) [data-rung]:not([data-rung="1"]),
+.rung-scope:has([data-rung-chip="2"]:is(:hover, :focus-visible)) [data-rung]:not([data-rung="2"]),
+.rung-scope:has([data-rung-chip="3"]:is(:hover, :focus-visible)) [data-rung]:not([data-rung="3"]),
+.rung-scope:has([data-rung-chip="4"]:is(:hover, :focus-visible)) [data-rung]:not([data-rung="4"]),
+.rung-scope:has([data-rung-chip="5"]:is(:hover, :focus-visible)) [data-rung]:not([data-rung="5"]) {
+  opacity: 0.32;
+  filter: blur(1px) saturate(0.6);
+}
+.rung-scope:has([data-rung-chip="0"]:is(:hover, :focus-visible)) [data-orb-ring="0"],
+.rung-scope:has([data-rung-chip="1"]:is(:hover, :focus-visible)) [data-orb-ring="1"],
+.rung-scope:has([data-rung-chip="2"]:is(:hover, :focus-visible)) [data-orb-ring="2"],
+.rung-scope:has([data-rung-chip="3"]:is(:hover, :focus-visible)) [data-orb-ring="3"] {
+  stroke: var(--signal);
+  stroke-opacity: 0.85;
+}
+
+/* Recall answer reveal: flips down from the top edge like a card turning over. */
+.flip-in {
+  transform-origin: 50% 0;
+  animation: flip-in 520ms var(--spring-settle) backwards;
+}
+@keyframes flip-in {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateX(-80deg);
+  }
+  40% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flip-in {
+    animation: none;
+  }
+}

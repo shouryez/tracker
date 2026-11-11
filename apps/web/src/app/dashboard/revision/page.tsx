@@ -28,6 +28,8 @@ import { PageHeader } from "@/components/page-header";
 import { Tabs } from "@/components/tabs";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton, SnoozeButton } from "@/components/review-actions";
+import { CurveHover } from "@/components/memory-curve";
+import { RevisionDeck, type DeckCard } from "@/components/revision-deck";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
@@ -80,6 +82,20 @@ async function RevisionContent() {
   const left = queue.today.length;
   const first = queue.today[0];
   const { end: endToday } = localDay(tz, now);
+  const deck: DeckCard[] = queue.today.map((p) => {
+    const days = Math.floor((now - p.state.lastAt) / DAY_MS);
+    return {
+      problemId: p.problemId,
+      title: p.title,
+      url: p.url,
+      difficulty: p.difficulty,
+      topics: topicsOf(p.topics).slice(0, 3).map(topicLabel),
+      rung: Math.min(6, p.state.step + 1),
+      due: dueLabel(p.state.dueAt, now, endOfToday),
+      overdueDays: Math.max(0, Math.floor((now - p.state.dueAt) / DAY_MS)),
+      lastSolved: days <= 0 ? "today" : days === 1 ? "yesterday" : `${days} days ago`,
+    };
+  });
   const overdueCount = queue.today.filter((p) => now - p.state.dueAt >= DAY_MS).length;
   const dueThisWeek = left + queue.upcoming.slice(0, 6).reduce((n, v) => n + v, 0);
   const heaviestIdx = queue.upcoming
@@ -151,7 +167,7 @@ async function RevisionContent() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="grid grid-cols-12 gap-4">
+        <div className="rung-scope grid grid-cols-12 gap-4">
           {left === 0 && queue.reviewedToday > 0 && (
             <CelebrateOnce id={`queue-${localDate(tz, now)}`} />
           )}
@@ -200,6 +216,7 @@ async function RevisionContent() {
                     <Play size={14} fill="currentColor" aria-hidden="true" /> Revise {left} due now
                   </a>
                 )}
+                <RevisionDeck cards={deck} />
                 <span className="inline-flex h-10 items-center gap-2 rounded-full px-4 text-13 text-ink-2 shadow-[inset_0_0_0_1px_var(--line-2)]">
                   {dueThisWeek} this week{heaviest ? ` · busiest ${heaviest}` : ""}
                 </span>
@@ -467,7 +484,13 @@ function QueueTable({
             const step = Math.min(5, Math.max(0, p.state.step));
             const overdue = now - p.state.dueAt >= DAY_MS;
             return (
-              <tr key={p.problemId} className="border-b border-line last:border-b-0">
+              <CurveHover
+                as="tr"
+                key={p.problemId}
+                curve={{ lastAt: p.state.lastAt, dueAt: p.state.dueAt, now }}
+                data-rung={step}
+                className="border-b border-line transition-[opacity,filter] duration-[var(--dur-base)] last:border-b-0"
+              >
                 <td className="px-3 py-3">
                   <Link
                     href={`/dashboard/problems/${p.problemId}`}
@@ -512,7 +535,7 @@ function QueueTable({
                 >
                   {dueLabel(p.state.dueAt, now, endOfToday)}
                 </td>
-              </tr>
+              </CurveHover>
             );
           })}
         </tbody>
@@ -536,8 +559,11 @@ function ReviewRow({
   const solves = p.state.history.length + 1;
   const overdue = Math.floor((now - p.state.dueAt) / DAY_MS);
   return (
-    <li
-      className="surface-inset flex flex-col gap-3 rounded-[16px] p-3.5 transition-[border-color] duration-[var(--dur-base)] hover:border-line-2 sm:flex-row sm:items-center"
+    <CurveHover
+      as="li"
+      curve={{ lastAt: p.state.lastAt, dueAt: p.state.dueAt, now }}
+      data-rung={Math.min(5, Math.max(0, p.state.step))}
+      className="surface-inset flex flex-col gap-3 rounded-[16px] p-3.5 transition-[border-color,opacity,filter] duration-[var(--dur-base)] hover:border-line-2 sm:flex-row sm:items-center"
       style={{ animation: `rise-in 420ms var(--ease-out) ${index * 50}ms backwards` }}
     >
       <div className="min-w-0 flex-1">
@@ -581,11 +607,11 @@ function ReviewRow({
         >
           <Play size={13} aria-hidden="true" /> Re-solve
         </a>
-        <ManualReview problemId={p.problemId} />
+        <ManualReview problemId={p.problemId} step={p.state.step} />
         {p.state.dueAt <= endOfToday && <SnoozeButton problemId={p.problemId} />}
         <RetireButton problemId={p.problemId} retired={false} />
       </div>
-    </li>
+    </CurveHover>
   );
 }
 
