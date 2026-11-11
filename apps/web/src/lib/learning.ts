@@ -86,7 +86,7 @@ export async function getLearning(userId: string): Promise<LearningProblem[]> {
   const logsBy = new Map<string, ReviewEvent[]>();
   for (const r of logs as unknown as { problem_id: string; action: string; at: number }[]) {
     const e: ReviewEvent =
-      r.action === "retire" || r.action === "restore"
+      r.action === "retire" || r.action === "restore" || r.action === "snooze"
         ? { kind: r.action, at: r.at }
         : { kind: "manual", at: r.at, rating: r.action as "remembered" | "shaky" | "forgot" };
     logsBy.set(r.problem_id, [...(logsBy.get(r.problem_id) ?? []), e]);

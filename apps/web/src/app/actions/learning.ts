@@ -31,6 +31,21 @@ export async function logReview(problemId: string, action: ReviewActionName): Pr
   updateTag(userTag(user.id));
 }
 
+/** Undo for the toast: removes your latest log of `action` on this problem (last 15 minutes). */
+export async function undoReview(problemId: string, action: ReviewActionName): Promise<void> {
+  const user = await getCurrentUser();
+  if (isDemoUser(user) || !Id.safeParse(problemId).success || !Action.safeParse(action).success) {
+    return;
+  }
+  await db().execute(sql`
+    delete from review_logs where id = (
+      select id from review_logs
+      where user_id = ${user.id} and problem_id = ${problemId} and action = ${action}
+        and at > now() - interval '15 minutes'
+      order by at desc limit 1)`);
+  updateTag(userTag(user.id));
+}
+
 const NOTE_MAX = 10_000;
 
 export async function saveProblemNote(problemId: string, body: string): Promise<{ ok: boolean }> {

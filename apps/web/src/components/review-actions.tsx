@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Archive, ArchiveRestore, Check, Minus, X } from "lucide-react";
+import { Archive, ArchiveRestore, Check, Clock3, Minus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
-import { logReview, type ReviewActionName } from "@/app/actions/learning";
+import { logReview, undoReview, type ReviewActionName } from "@/app/actions/learning";
 import { burstFrom } from "@/components/dashboard/celebrate";
 
 const MANUAL: {
@@ -56,6 +56,15 @@ export function ManualReview({ problemId, className }: { problemId: string; clas
           : action === "shaky"
             ? "Same interval again"
             : "Back tomorrow",
+        {
+          action: {
+            label: "Undo",
+            onClick: () => {
+              setDone(null);
+              void undoReview(problemId, action);
+            },
+          },
+        },
       );
     });
 
@@ -106,8 +115,11 @@ export function RetireButton({ problemId, retired }: { problemId: string; retire
       aria-label={label}
       onClick={() =>
         startTransition(async () => {
-          await logReview(problemId, retired ? "restore" : "retire");
-          toast.success(retired ? "Back in your revision queue" : "Removed from revision");
+          const action = retired ? "restore" : "retire";
+          await logReview(problemId, action);
+          toast.success(retired ? "Back in your revision queue" : "Removed from revision", {
+            action: { label: "Undo", onClick: () => void undoReview(problemId, action) },
+          });
         })
       }
       className="h-[30px] px-2"
@@ -118,4 +130,27 @@ export function RetireButton({ problemId, retired }: { problemId: string; retire
   );
 }
 
-// DsaKaro
+/** "Not today": a due revision comes back tomorrow, on the same rung. Undo from the toast. */
+export function SnoozeButton({ problemId }: { problemId: string }) {
+  const [pending, startTransition] = useTransition();
+  return (
+    <Button
+      size="sm"
+      variant="ghost"
+      loading={pending}
+      title="Not today: bring it back tomorrow"
+      onClick={() =>
+        startTransition(async () => {
+          await logReview(problemId, "snooze");
+          toast("Back tomorrow, same rung", {
+            action: { label: "Undo", onClick: () => void undoReview(problemId, "snooze") },
+          });
+        })
+      }
+      className="h-[30px] px-2.5"
+    >
+      <Clock3 size={14} strokeWidth={1.75} aria-hidden="true" />
+      <span className="text-[12.5px]">Not today</span>
+    </Button>
+  );
+}

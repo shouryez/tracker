@@ -206,3 +206,15 @@ test("interval ladder", () => {
 });
 
 // DsaKaro
+
+test("snooze pushes a due revision a day out without changing the rung", () => {
+  const s = foldEvents([solve(0, "solution")])!;
+  // Due on day 1; snoozed on day 2 (overdue) → due day 3, same rung, no new history.
+  const z = foldEvents([solve(0, "solution"), { kind: "snooze", at: T0 + 2 * DAY }])!;
+  assert.equal(z.dueAt, T0 + 3 * DAY);
+  assert.equal(z.step, s.step);
+  assert.equal(z.history.length, s.history.length);
+  // Snoozing before it's due moves it a day past its due date.
+  const early = foldEvents([solve(0, "solution"), { kind: "snooze", at: T0 + DAY / 2 }])!;
+  assert.equal(early.dueAt, T0 + 2 * DAY);
+});

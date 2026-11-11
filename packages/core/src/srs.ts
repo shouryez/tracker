@@ -31,7 +31,9 @@ export type ReviewEvent =
     }
   | { kind: "manual"; at: number; rating: ManualRating }
   | { kind: "retire"; at: number }
-  | { kind: "restore"; at: number };
+  | { kind: "restore"; at: number }
+  /** "Not today": due again a day later, same rung, no grade. */
+  | { kind: "snooze"; at: number };
 
 export type ReviewLogEntry = {
   at: number;
@@ -100,6 +102,9 @@ export function nextStep(step: number, result: ReviewResult, proven: boolean): n
 export function applyEvent(state: ReviewState | null, e: ReviewEvent): ReviewState | null {
   if (e.kind === "retire" || e.kind === "restore") {
     return state && { ...state, retired: e.kind === "retire" };
+  }
+  if (e.kind === "snooze") {
+    return state && { ...state, dueAt: Math.max(state.dueAt, e.at) + DAY_MS };
   }
   if (!state) {
     if (e.kind !== "solve") return null; // nothing to review before the first solve

@@ -26,7 +26,7 @@ import { REVISION_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 import { PageHeader } from "@/components/page-header";
 import { Tabs } from "@/components/tabs";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
-import { ManualReview, RetireButton } from "@/components/review-actions";
+import { ManualReview, RetireButton, SnoozeButton } from "@/components/review-actions";
 import { TimeAgo } from "@/components/time-ago";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
@@ -579,6 +579,7 @@ function ReviewRow({
           <Play size={13} aria-hidden="true" /> Re-solve
         </a>
         <ManualReview problemId={p.problemId} />
+        {p.state.dueAt <= endOfToday && <SnoozeButton problemId={p.problemId} />}
         <RetireButton problemId={p.problemId} retired={false} />
       </div>
     </li>

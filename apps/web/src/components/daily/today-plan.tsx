@@ -63,11 +63,14 @@ export function TodayPlanList({
   const [pending, start] = useTransition();
   const [title, setTitle] = useState("");
   const input = useRef<HTMLInputElement>(null);
-  const [items, apply] = useOptimistic(plan.items, (state, op: Op) => {
+  const [allItems, apply] = useOptimistic(plan.items, (state, op: Op) => {
     if ("add" in op) return [...state, op.add];
     if (op.removed) return state.filter((i) => i.id !== op.id);
     return state.map((i) => (i.id === op.id ? { ...i, done: op.done ?? i.done } : i));
   });
+  // Removed items hide at once and are deleted when the Undo toast closes.
+  const [hidden, setHidden] = useState<ReadonlySet<string>>(() => new Set());
+  const items = allItems.filter((i) => !hidden.has(i.id));
   const done = items.filter((i) => i.done).length;
   const carried = items.filter((i) => i.day < plan.day && !i.done).length;
   const shown = compact ? items.slice(0, 6) : items;
@@ -86,10 +89,38 @@ export function TodayPlanList({
   }
 
   function remove(item: PlanItem) {
-    start(async () => {
-      apply({ id: item.id, removed: true });
-      const res = await removePlanItem(item.id);
-      if (!res.ok) toast.error(res.error);
+    setHidden((h) => new Set(h).add(item.id));
+    let settled = false;
+    const commit = () => {
+      if (settled) return;
+      settled = true;
+      start(async () => {
+        const res = await removePlanItem(item.id);
+        if (!res.ok) {
+          toast.error(res.error);
+          setHidden((h) => {
+            const n = new Set(h);
+            n.delete(item.id);
+            return n;
+          });
+        }
+      });
+    };
+    toast(`Removed “${item.title}”`, {
+      duration: 5000,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          settled = true;
+          setHidden((h) => {
+            const n = new Set(h);
+            n.delete(item.id);
+            return n;
+          });
+        },
+      },
+      onAutoClose: commit,
+      onDismiss: commit,
     });
   }
 
