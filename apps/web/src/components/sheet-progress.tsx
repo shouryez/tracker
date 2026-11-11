@@ -123,21 +123,24 @@ export function SheetConstellation({ steps }: { steps: StepCount[] }) {
         role="img"
         aria-label={`Sheet map: ${live.map((s) => `${short(s.name)} ${s.done} of ${s.total}`).join(", ")}`}
       >
-        {/* Faint path through the steps in order */}
-        <polyline
-          points={live
-            .map((_, i) => {
-              const r = Math.floor(i / cols);
-              const c = i % cols;
-              return `${c * cell + cell / 2},${r * cell + cell / 2}`;
-            })
-            .join(" ")}
-          fill="none"
-          stroke="var(--ink)"
-          strokeOpacity=".07"
-          strokeWidth="1.5"
-          strokeDasharray="3 6"
-        />
+        {/* Faint path through each row of steps, left to right */}
+        {Array.from({ length: rows }, (_, r) => {
+          const inRow = live.slice(r * cols, r * cols + cols);
+          if (inRow.length < 2) return null;
+          return (
+            <line
+              key={r}
+              x1={cell / 2}
+              x2={(inRow.length - 1) * cell + cell / 2}
+              y1={r * cell + cell / 2}
+              y2={r * cell + cell / 2}
+              stroke="var(--ink)"
+              strokeOpacity=".07"
+              strokeWidth="1.5"
+              strokeDasharray="3 6"
+            />
+          );
+        })}
         {live.map((s, i) => {
           const r = Math.floor(i / cols);
           const c = i % cols;
