@@ -105,7 +105,7 @@ export function BookCover({
   return (
     <div
       className={cn(
-        "relative isolate flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-[12px] p-3.5 text-white",
+        "@container relative isolate flex aspect-[3/4] flex-col justify-between overflow-hidden rounded-[14px] p-3.5 text-white",
         "shadow-[inset_0_1px_0_rgba(255,255,255,.12),0_18px_30px_-18px_rgba(0,0,0,.7)]",
         "transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] group-hover/book:-translate-y-1.5",
         className,
@@ -130,7 +130,7 @@ export function BookCover({
         )}
       </div>
       <div className="flex flex-col gap-2 pl-2">
-        <span className="text-[clamp(20px,2vw,26px)] leading-[.95] font-[680] tracking-[-0.03em] break-words">
+        <span className="text-[clamp(13px,14cqw,26px)] leading-[.95] font-[680] tracking-[-0.03em]">
           {words.slice(0, 2).join(" ")}
           {words.length > 2 && (
             <>

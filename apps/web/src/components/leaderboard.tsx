@@ -38,7 +38,7 @@ function Avatar({ r, size = 32 }: { r: BoardRow; size?: number }) {
     .join("");
   return (
     <span
-      className="grid shrink-0 place-items-center overflow-hidden rounded-full bg-[linear-gradient(135deg,var(--violet),var(--primary))] text-[11px] font-[600] text-white"
+      className="grid shrink-0 place-items-center overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] text-[11px] font-[650] text-ink"
       style={{ width: size, height: size }}
     >
       {r.avatarUrl ? (
@@ -150,7 +150,9 @@ export function Leaderboard({
               key={r.userId}
               className={cn(
                 "grid grid-cols-[28px_auto_1fr_auto] items-center gap-x-3 gap-y-1.5 rounded-[12px] px-2.5 py-2.5 transition-colors",
-                me ? "border border-violet-line bg-violet-soft" : "hover:bg-surface-2/70",
+                me
+                  ? "bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] shadow-[inset_0_0_0_1px_var(--line-2)]"
+                  : "hover:bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]",
               )}
               style={{ animation: `rise-in 420ms var(--ease-out) ${i * 40}ms backwards` }}
             >
@@ -176,14 +178,13 @@ export function Leaderboard({
                 </span>
               </span>
               <span className="num text-right text-[18px]">{label(r, metric)}</span>
-              <span className="relative col-span-3 col-start-2 h-1.5 overflow-hidden rounded-full bg-surface-3">
+              <span className="relative col-span-3 col-start-2 h-1.5 overflow-hidden rounded-full bg-line">
                 <span
                   className="absolute inset-y-0 left-0 origin-left animate-[grow-x_800ms_var(--ease-out)_backwards] rounded-full"
                   style={{
                     width: `${Math.max(2, (value(r, metric) / top) * 100)}%`,
-                    background: me
-                      ? "var(--violet)"
-                      : "linear-gradient(90deg, color-mix(in srgb, var(--primary) 45%, transparent), var(--primary))",
+                    // Your bar in mint (data); everyone else's neutral.
+                    background: me ? "var(--signal)" : "var(--line-3)",
                   }}
                 />
               </span>

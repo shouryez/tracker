@@ -249,7 +249,7 @@ async function GroupContent({
           </p>
         </Card>
 
-        <Card className="col-span-12 xl:col-span-7">
+        <Card className="col-span-12 flex flex-col xl:col-span-7">
           <CardHeader>
             <CardTitle icon={icon(Clock3)}>Today, by hour</CardTitle>
             <CardSub>one row per person · last 12 hours</CardSub>
@@ -261,6 +261,28 @@ async function GroupContent({
             timeZone={profile?.timezone ?? "Asia/Kolkata"}
             viewerId={user.id}
           />
+          {/* The group's day in three numbers; sits at the bottom so the card has no gap. */}
+          <dl className="mt-auto grid grid-cols-3 gap-2.5 pt-5">
+            {[
+              { label: "Studying now", value: String(liveCount) },
+              {
+                label: "Solved today",
+                value: String(room.reduce((n, m) => n + m.solvedToday, 0)),
+              },
+              {
+                label: "Focus today",
+                value: formatDuration(room.reduce((n, m) => n + m.focusTodayMs, 0)),
+              },
+            ].map((x) => (
+              <div
+                key={x.label}
+                className="surface-inset flex flex-col gap-1 rounded-[16px] px-3.5 py-3"
+              >
+                <dt className="text-12 text-ink-3">{x.label}</dt>
+                <dd className="num font-display text-[22px] leading-none">{x.value}</dd>
+              </div>
+            ))}
+          </dl>
         </Card>
 
         {/* This week: the board, then the people. */}
