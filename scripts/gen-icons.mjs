@@ -1,4 +1,4 @@
-// Renders the DSA करो mark (क hanging from a lime headline, on a dark tile) as PNG icons for
+// Renders the DSA करो mark (the Accepted grid, on a dark tile) as PNG icons for
 // the extension and the web app, plus the web favicon.ico. The artwork comes from
 // packages/ui/src/brand.ts, the same data the app's <LogoMark> draws.
 // Run from the repo root: node scripts/gen-icons.mjs
@@ -36,5 +36,3 @@ writeFileSync(out("apps/web/src/app/favicon.ico"), ico([16, 32, 48].map((s) => [
 writeFileSync(out("apps/web/src/app/icon.png"), png(512));
 writeFileSync(out("apps/web/src/app/apple-icon.png"), png(180));
 console.log("Wrote extension icons, favicon.ico, icon.png and apple-icon.png");
-
-// DsaKaro
