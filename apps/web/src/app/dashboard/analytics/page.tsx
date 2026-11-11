@@ -153,7 +153,7 @@ async function AnalyticsContent({
 
       <div key={range} className="stagger-in grid grid-cols-12 gap-3.5">
         <KpiStrip
-          className="col-span-12 xl:grid-cols-none"
+          className="col-span-12"
           items={[
             { label: "Solved", value: a.solved, note: RANGE_LABEL[range].toLowerCase() },
             {
