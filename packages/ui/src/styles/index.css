@@ -353,14 +353,14 @@
 /* Frosted glass for sticky bars and floating panels. */
 @utility glass {
   background: var(--overlay);
-  backdrop-filter: saturate(160%) blur(16px);
   -webkit-backdrop-filter: saturate(160%) blur(16px);
+  backdrop-filter: saturate(160%) blur(16px);
   /* Touch screens: a near-solid fill instead. A backdrop blur over scrolling content is
      redrawn on every scroll frame, and stacked bars (header, toolbar, dock) add up on phones. */
   @media (pointer: coarse) {
     background: color-mix(in srgb, var(--overlay) 30%, var(--bg));
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
@@ -373,8 +373,8 @@
     var(--glass-rim) border-box;
   border: 1px solid transparent;
   box-shadow: var(--glass-hi), var(--e3);
-  backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     background:
       linear-gradient(var(--glass-solid), var(--glass-solid)) padding-box,
@@ -390,8 +390,8 @@
     var(--glass-rim) border-box;
   border: 1px solid transparent;
   box-shadow: var(--glass-hi), var(--e3);
-  backdrop-filter: blur(18px) saturate(150%);
   -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     background:
       linear-gradient(var(--glass-solid), var(--glass-solid)) padding-box,
