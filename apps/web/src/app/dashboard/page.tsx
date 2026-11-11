@@ -24,6 +24,7 @@ import { PlanSuggestions, SheetPicks } from "@/components/daily/plan-suggestions
 import { StartStudyButton } from "@/components/daily/study-bar";
 import { TodayPlanList } from "@/components/daily/today-plan";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
+import { GettingStarted } from "@/components/dashboard/getting-started";
 import { FocusOrb } from "@/components/orbit/focus-orb";
 import { PageHeader } from "@/components/page-header";
 import { SignalType } from "@/components/fx/signal-type";
@@ -38,9 +39,15 @@ import {
   getUnseenNudges,
   getWeekReview,
 } from "@/lib/daily-data";
-import { getLearning, getTopicTargets, masteryOf, revisionQueue } from "@/lib/learning";
+import {
+  getLearning,
+  getTopicTargets,
+  masteryOf,
+  reviewHistory,
+  revisionQueue,
+} from "@/lib/learning";
 import { getFollowedSheets, getSheetPicks, getTodayPlan, getTodaySuggestions } from "@/lib/plan";
-import { getSessionStats } from "@/lib/sessions-data";
+import { getExtensionTokens, getSessionStats } from "@/lib/sessions-data";
 import { getMyGroups, getStreakFreezes } from "@/lib/social-data";
 import { requestNow } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
@@ -84,13 +91,14 @@ async function Today() {
   const tz = profile.timezone;
   const cap = profile.reviewCap;
 
-  const [accounts, learning, targets, freezes, sessionStats, groups] = await Promise.all([
+  const [accounts, learning, targets, freezes, sessionStats, groups, tokens] = await Promise.all([
     getAccounts(user.id),
     getLearning(user.id),
     getTopicTargets(),
     getStreakFreezes(user.id),
     getSessionStats(user.id),
     getMyGroups(user.id),
+    getExtensionTokens(user.id),
   ]);
   const [plan, suggestions, picks, focus, active, followed, nudges, localActivity] =
     await Promise.all([
@@ -162,6 +170,54 @@ async function Today() {
     : [];
   const studying = hall.filter((m) => m.state === "studying").length;
 
+  // Getting started (B13): derived from what's already loaded.
+  const startSteps = [
+    {
+      key: "platform",
+      label: "Link a platform",
+      hint: "LeetCode, Codeforces or GFG",
+      href: "/dashboard/settings#platforms",
+      done: accounts.length > 0,
+    },
+    {
+      key: "extension",
+      label: "Connect the extension",
+      hint: "The timer starts itself",
+      href: "/extension/connect",
+      done: tokens.length > 0,
+    },
+    {
+      key: "sheet",
+      label: "Follow a sheet",
+      hint: "Striver, NeetCode, Blind 75…",
+      href: "/dashboard/sheets",
+      done: followed.length > 0,
+    },
+    {
+      key: "solve",
+      label: "Solve a problem",
+      hint: "Any platform counts",
+      href: "/dashboard/sheets",
+      done: stats.solved.total > 0,
+    },
+    {
+      key: "review",
+      label: "Grade a revision",
+      hint: "Remembered, shaky or forgot",
+      href: "/dashboard/revision",
+      done: reviewHistory(learning, 1).length > 0,
+    },
+  ];
+
+  // Gentle streak cue: evening, a streak to keep, nothing solved yet today. No pop-ups.
+  const hour = Number(
+    new Intl.DateTimeFormat("en-GB", { hour: "numeric", hourCycle: "h23", timeZone: tz }).format(
+      now,
+    ),
+  );
+  const evening = hour >= 20 || hour < profile.dayResetHour;
+  const streakAtRisk = stats.streak > 0 && evening && (last7.at(-1)?.count ?? 0) === 0;
+
   return (
     <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} solved={stats.solved.total} />
@@ -188,6 +244,7 @@ async function Today() {
         }
       />
       <NudgeBanner nudges={nudges} />
+      <GettingStarted steps={startSteps} />
       <Suspense fallback={null}>
         <WeeklyReviewPrompt userId={user.id} tz={tz} now={now} />
       </Suspense>
@@ -469,12 +526,24 @@ async function Today() {
             <CardTitle icon={<Flame />}>Streak</CardTitle>
             <Pill>{stats.activeDays} active days</Pill>
           </CardHeader>
-          <p className="num font-display text-[52px]">
+          <p
+            className={
+              streakAtRisk
+                ? "num font-display text-[52px] motion-safe:animate-[streak-breathe_2.4s_ease-in-out_3]"
+                : "num font-display text-[52px]"
+            }
+          >
             {stats.streak}
             <small className="ml-2 font-sans text-[15px] font-[500] tracking-normal text-ink-3">
               {stats.streak === 1 ? "day" : "days"}
             </small>
           </p>
+          {streakAtRisk && (
+            <p className="-mt-2 text-13 text-ink-2">
+              <span className="font-[600] text-primary">One easy problem keeps it.</span> The day
+              ends at {String(profile.dayResetHour).padStart(2, "0")}:00.
+            </p>
+          )}
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               {last7.map((d, i) => (

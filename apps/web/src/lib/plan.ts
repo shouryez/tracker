@@ -20,6 +20,9 @@ import { localDate, localDay } from "@/lib/time";
 // Unfinished items roll over: they stay on the list, with their date, until they're done
 // or removed (like Microsoft To Do's overdue tasks), for up to CARRY_DAYS.
 
+/** Plan positions from here up were set by dragging Today's list (see reorderPlanItems). */
+export const MANUAL_ORDER = 1_000_000;
+
 export type PlanKind =
   "revision" | "next" | "stretch" | "shared" | "contest" | "drill" | "sheet" | "custom";
 
@@ -124,7 +127,10 @@ export async function getTodayPlan(
     where day = ${day}
        or least(done_at, solved_at, marked_at) is null
        or least(done_at, solved_at, marked_at) >= ${since}::timestamptz
-    order by day, position, created_at`)) as unknown as {
+    -- Items placed by hand (position >= MANUAL_ORDER) first, in that order; the rest by day.
+    order by (position >= ${MANUAL_ORDER}) desc,
+             case when position >= ${MANUAL_ORDER} then position end,
+             day, position, created_at`)) as unknown as {
     id: string;
     kind: PlanKind;
     title: string;

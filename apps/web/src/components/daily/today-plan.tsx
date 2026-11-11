@@ -2,19 +2,32 @@
 
 import Link from "next/link";
 import {
+  useEffect,
+  useLayoutEffect,
   useOptimistic,
   useRef,
   useState,
   useSyncExternalStore,
   useTransition,
+  type KeyboardEvent,
+  type PointerEvent,
   type ReactNode,
 } from "react";
-import { ArrowUpRight, CalendarClock, Plus, Trash2 } from "lucide-react";
+import { ArrowUpRight, CalendarClock, GripVertical, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, DifficultyTag, ProgressRing, Tag, cn, inputClasses } from "@upsolve/ui";
-import { addPlanTask, removePlanItem, setPlanItemDone } from "@/app/actions/daily";
+import {
+  addPlanTask,
+  removePlanItem,
+  reorderPlanItems,
+  setPlanItemDone,
+} from "@/app/actions/daily";
 import { CelebrateOnce, burstFrom } from "@/components/dashboard/celebrate";
+import { BudgetRibbon, fmtMin } from "@/components/daily/budget-ribbon";
+import { SignalType } from "@/components/fx/signal-type";
 import { AnimatedCheckbox } from "@/components/fx/toggles";
+import { vanishText } from "@/components/fx/vanish";
+import { feel, reducedMotion } from "@/lib/feel";
 import type { PlanItem, PlanKind, TodayPlan } from "@/lib/plan";
 
 export const KIND: Record<
@@ -42,7 +55,6 @@ function estimate(item: PlanItem): number {
   if (item.difficulty === "hard") return 55;
   return 30;
 }
-const BUDGETS = [30, 60, 90, 120, 180];
 const BUDGET_EVENT = "dsakaro:budget";
 function subscribeBudget(cb: () => void) {
   window.addEventListener(BUDGET_EVENT, cb);
@@ -60,7 +72,14 @@ function readBudget(key: string): number | null {
     return null;
   }
 }
-const fmtMin = (m: number) => (m < 60 ? `${m} min` : `${m % 60 ? (m / 60).toFixed(1) : m / 60} h`);
+/** The add-task placeholder cycles through ideas while the box is empty. */
+const IDEAS = [
+  "Add your own task, e.g. OS notes ch. 4",
+  "Revise DP on grids",
+  "Watch Striver's graph intro",
+  "Mock interview with a friend",
+  "Re-read my sliding window notes",
+];
 
 type Op = { id: string; done?: boolean; removed?: boolean } | { add: PlanItem };
 
@@ -98,6 +117,12 @@ export function TodayPlanList({
   const [pending, start] = useTransition();
   const [title, setTitle] = useState("");
   const input = useRef<HTMLInputElement>(null);
+  const [idea, setIdea] = useState(0);
+  useEffect(() => {
+    if (title || reducedMotion()) return;
+    const t = window.setInterval(() => setIdea((n) => (n + 1) % IDEAS.length), 3500);
+    return () => clearInterval(t);
+  }, [title]);
   const [allItems, apply] = useOptimistic(plan.items, (state, op: Op) => {
     if ("add" in op) return [...state, op.add];
     if (op.removed) return state.filter((i) => i.id !== op.id);
@@ -105,7 +130,16 @@ export function TodayPlanList({
   });
   // Removed items hide at once and are deleted when the Undo toast closes.
   const [hidden, setHidden] = useState<ReadonlySet<string>>(() => new Set());
-  const items = allItems.filter((i) => !hidden.has(i.id));
+  // An order you dragged the list into, applied over the server's until it refreshes.
+  const [order, setOrder] = useState<string[] | null>(null);
+  const visible = allItems.filter((i) => !hidden.has(i.id));
+  const items = order
+    ? [...visible].sort((a, b) => {
+        const x = order.indexOf(a.id);
+        const y = order.indexOf(b.id);
+        return (x < 0 ? 1e9 : x) - (y < 0 ? 1e9 : y);
+      })
+    : visible;
   const done = items.filter((i) => i.done).length;
   // "I have an hour today": items past the budget are dimmed under a divider. Kept per day.
   const budgetKey = `dsakaro:budget:${plan.day}`;
@@ -123,6 +157,7 @@ export function TodayPlanList({
   };
   const left = items.filter((i) => !i.done);
   const leftMin = left.reduce((n, i) => n + estimate(i), 0);
+  const ends = left.reduce<number[]>((acc, i) => [...acc, (acc.at(-1) ?? 0) + estimate(i)], []);
   const beyond = new Set<string>();
   let cutId: string | null = null;
   if (budget) {
@@ -139,6 +174,85 @@ export function TodayPlanList({
   const shown = compact ? items.slice(0, 6) : items;
   // The item you're on: on the full list it opens up with its actions.
   const currentId = compact ? null : (items.find((i) => !i.done)?.id ?? null);
+
+  // ---- Drag to reorder (FLIP: rows glide to their new place). Keyboard: arrows on a grip.
+  const rows = useRef(new Map<string, HTMLLIElement>());
+  const before = useRef<Map<string, number> | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const snapshot = () => {
+    const m = new Map<string, number>();
+    rows.current.forEach((el, id) => m.set(id, el.getBoundingClientRect().top));
+    before.current = m;
+  };
+  const idsKey = items.map((i) => i.id).join(",");
+  useLayoutEffect(() => {
+    const prev = before.current;
+    before.current = null;
+    if (!prev || reducedMotion()) return;
+    rows.current.forEach((el, id) => {
+      const top = prev.get(id);
+      if (top === undefined) return;
+      const d = top - el.getBoundingClientRect().top;
+      if (Math.abs(d) > 1)
+        el.animate([{ transform: `translateY(${d}px)` }, { transform: "none" }], {
+          duration: 240,
+          easing: "cubic-bezier(.2,.8,.2,1)",
+        });
+    });
+  }, [idsKey]);
+  const moveTo = (id: string, to: number) => {
+    const ids = items.map((i) => i.id);
+    const from = ids.indexOf(id);
+    if (from < 0 || to === from || to < 0 || to >= ids.length) return false;
+    snapshot();
+    ids.splice(to, 0, ...ids.splice(from, 1));
+    setOrder(ids);
+    feel.tick();
+    return true;
+  };
+  const persist = (ids: string[]) => {
+    const real = ids.filter((id) => !id.startsWith("tmp-"));
+    if (real.length < 2) return;
+    start(async () => {
+      const res = await reorderPlanItems(real);
+      if (!res.ok) toast.error(res.error);
+    });
+  };
+  const onGripDown = (id: string, e: PointerEvent<HTMLButtonElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragId(id);
+  };
+  const onGripMove = (id: string, e: PointerEvent<HTMLButtonElement>) => {
+    if (dragId !== id) return;
+    // The slot is the number of other rows whose middle sits above the pointer.
+    let to = 0;
+    items.forEach((it) => {
+      if (it.id === id) return;
+      const el = rows.current.get(it.id);
+      if (el && e.clientY > el.getBoundingClientRect().top + el.offsetHeight / 2) to++;
+    });
+    moveTo(id, to);
+  };
+  const onGripUp = (id: string) => {
+    if (dragId !== id) return;
+    setDragId(null);
+    if (order) persist(items.map((i) => i.id));
+  };
+  const onGripKey = (id: string, e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    const ids = items.map((i) => i.id);
+    const from = ids.indexOf(id);
+    const to = from + (e.key === "ArrowUp" ? -1 : 1);
+    if (moveTo(id, to)) {
+      ids.splice(to, 0, ...ids.splice(from, 1));
+      persist(ids);
+      // Keep focus on the grip that moved.
+      requestAnimationFrame(() =>
+        rows.current.get(id)?.querySelector<HTMLButtonElement>("[data-grip]")?.focus(),
+      );
+    }
+  };
 
   function toggle(item: PlanItem, el: HTMLElement) {
     if (item.auto) return; // solved today: stays done
@@ -190,6 +304,7 @@ export function TodayPlanList({
   function add() {
     const t = title.trim();
     if (!t) return;
+    vanishText(input.current);
     setTitle("");
     start(async () => {
       apply({
@@ -235,11 +350,21 @@ export function TodayPlanList({
         </ProgressRing>
         <div className="min-w-0 flex-1">
           <p className="text-15 font-[600]">
-            {items.length === 0
-              ? "Nothing planned yet"
-              : done === items.length
-                ? "All done. Great day."
-                : `${items.length - done} left today`}
+            {items.length === 0 ? (
+              "Nothing planned yet"
+            ) : done === items.length ? (
+              <SignalType
+                text="All done. Great day."
+                trigger="mount"
+                once={`plan-done-${plan.day}`}
+                glowColor="var(--signal)"
+                interference={0}
+                clickCycle={false}
+                instability={0}
+              />
+            ) : (
+              `${items.length - done} left today`
+            )}
           </p>
           <p className="text-12 text-ink-3">
             {items.length === 0
@@ -255,34 +380,17 @@ export function TodayPlanList({
       </div>
 
       {!compact && left.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 text-12 text-ink-3">
-          <span className="mr-1">
-            About <span className="tnum font-[600] text-ink-2">{fmtMin(leftMin)}</span> left. Time
-            today:
-          </span>
-          {BUDGETS.map((b) => (
-            <button
-              key={b}
-              type="button"
-              aria-pressed={budget === b}
-              onClick={() => setBudget(budget === b ? null : b)}
-              className={cn(
-                "tnum h-7 rounded-full px-2.5 font-[600] transition-colors",
-                budget === b
-                  ? "bg-mint-soft text-signal-text shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--signal)_45%,transparent)]"
-                  : "glass-control text-ink-2 hover:text-ink",
-              )}
-            >
-              {fmtMin(b)}
-            </button>
-          ))}
-        </div>
+        <BudgetRibbon budget={budget} onChange={setBudget} ends={ends} leftMin={leftMin} />
       )}
 
       <ul className="flex flex-col gap-1.5">
         {shown.map((item) => (
           <li
             key={item.id}
+            ref={(el) => {
+              if (el) rows.current.set(item.id, el);
+              else rows.current.delete(item.id);
+            }}
             data-cut={
               item.id === cutId ? `Past your ${fmtMin(budget ?? 0)}, these can wait` : undefined
             }
@@ -291,6 +399,8 @@ export function TodayPlanList({
               beyond.has(item.id) && "opacity-55",
               "group/item relative isolate flex flex-wrap items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
               item.id === currentId && "border-line bg-surface-2/60",
+              dragId === item.id &&
+                "z-10 scale-[1.015] border-line-2 bg-surface-2 shadow-e2 transition-[transform,box-shadow]",
               "first:[&>.rail]:top-1/2 last:[&>.rail]:bottom-1/2",
             )}
           >
@@ -302,6 +412,22 @@ export function TodayPlanList({
                 item.done ? "bg-signal/70" : "bg-line-2",
               )}
             />
+            {!compact && (
+              <button
+                type="button"
+                data-grip=""
+                data-cursor="grab"
+                aria-label={`Move ${item.title}: drag, or use the arrow keys`}
+                onPointerDown={(e) => onGripDown(item.id, e)}
+                onPointerMove={(e) => onGripMove(item.id, e)}
+                onPointerUp={() => onGripUp(item.id)}
+                onPointerCancel={() => onGripUp(item.id)}
+                onKeyDown={(e) => onGripKey(item.id, e)}
+                className="-ml-1.5 grid h-7 w-4 shrink-0 cursor-grab touch-none place-items-center rounded text-ink-4 opacity-0 transition-opacity group-hover/item:opacity-100 focus-visible:opacity-100 active:cursor-grabbing pointer-coarse:opacity-60"
+              >
+                <GripVertical size={13} aria-hidden="true" />
+              </button>
+            )}
             <AnimatedCheckbox
               checked={item.done}
               disabled={item.auto || pending}
@@ -332,6 +458,11 @@ export function TodayPlanList({
                   </span>
                 )}
                 {item.difficulty && !compact && <DifficultyTag difficulty={item.difficulty} />}
+                {item.id === currentId && (
+                  <span className="inline-flex h-5 shrink-0 items-center rounded-full bg-mint-soft px-2 text-11 font-[650] text-signal-text">
+                    Up next
+                  </span>
+                )}
               </span>
               {(item.detail || item.day < plan.day) && (
                 <span className="flex min-w-0 items-center gap-1.5 text-11 text-ink-3">
@@ -447,7 +578,7 @@ export function TodayPlanList({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={140}
-          placeholder="Add your own task, e.g. OS notes ch. 4"
+          placeholder={IDEAS[idea]}
           className={inputClasses({ className: "h-[38px] flex-1" })}
         />
         <Button

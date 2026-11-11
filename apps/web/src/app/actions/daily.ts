@@ -31,7 +31,13 @@ import { db, userTag } from "@/lib/db";
 import { getContests, getUpsolve } from "@/lib/contests-data";
 import { getProfile } from "@/lib/data";
 import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/lib/learning";
-import { ON_LIST, ON_TODAY_LIST, SAME_SHEET_ITEM, getTodaySuggestions } from "@/lib/plan";
+import {
+  MANUAL_ORDER,
+  ON_LIST,
+  ON_TODAY_LIST,
+  SAME_SHEET_ITEM,
+  getTodaySuggestions,
+} from "@/lib/plan";
 import { getStudyContents, type StudyContents } from "@/lib/study-data";
 import { queueTufPush } from "@/lib/tuf-sync";
 import { localDate, requestNow, tzOffsetMs } from "@/lib/time";
@@ -132,6 +138,27 @@ export async function removePlanItem(id: string): Promise<DailyResult> {
   return { ok: true };
 }
 
+/**
+ * Saves the order you dragged Today's list into (FRONTEND-PLAN B1). Positions from
+ * MANUAL_ORDER up mean "placed by hand": the plan query lists those first, in that order,
+ * then everything else by day and position as before. One statement, only your own items.
+ */
+export async function reorderPlanItems(ids: string[]): Promise<DailyResult> {
+  const user = await me();
+  const parsed = z.array(Id).min(1).max(100).safeParse(ids);
+  if (!user || !parsed.success) return fail("Couldn't save the order.");
+  const rows = sql.join(
+    parsed.data.map((id, i) => sql`(${id}::uuid, ${MANUAL_ORDER + i})`),
+    sql`, `,
+  );
+  await db().execute(sql`
+    update plan_items p set position = v.pos
+    from (values ${rows}) as v(id, pos)
+    where p.id = v.id and p.user_id = ${user.id}`);
+  updateTag(userTag(user.id));
+  return { ok: true };
+}
+
 /** Adds problems to today's plan (mistake drills, "add to today" on a problem page). */
 export async function addProblemsToPlan(
   problemIds: string[],
@@ -172,11 +199,16 @@ export async function addProblemsToPlan(
   return { ok: true };
 }
 
-/** Position after everything already on the day's list, so new items land at the bottom. */
+/**
+ * Position after everything already on the day's list, so new items land at the bottom
+ * (after any items you ordered by hand, which sit at MANUAL_ORDER and up).
+ */
 async function nextPosition(userId: string, day: string) {
   const [row] = (await db().execute(sql`
     select coalesce(max(position), -1) + 1 as next from plan_items
-    where user_id = ${userId} and day = ${day}`)) as unknown as { next: number }[];
+    where user_id = ${userId} and (day = ${day} or position >= ${MANUAL_ORDER})`)) as unknown as {
+    next: number;
+  }[];
   return Number(row?.next ?? 0);
 }
 

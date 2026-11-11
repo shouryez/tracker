@@ -917,3 +917,11 @@ main :is(.surface-card, .surface-hero):nth-child(n + 5) {
     animation: none;
   }
 }
+
+/* Streak at risk (Today): the number breathes ember three times, then rests. */
+@keyframes streak-breathe {
+  50% {
+    color: var(--primary);
+    text-shadow: 0 0 24px color-mix(in srgb, var(--primary) 45%, transparent);
+  }
+}
