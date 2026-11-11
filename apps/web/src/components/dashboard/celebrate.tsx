@@ -2,13 +2,26 @@
 
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { SignalType } from "@/components/fx/signal-type";
 
 const MILESTONES = [7, 14, 30, 50, 75, 100, 150, 200, 365];
 const SOLVED = [10, 25, 50, 100, 150, 200, 300, 500, 750, 1000];
 
 /** "Share your card" for a milestone: the image is drawn on the server from your numbers. */
 function offerCard(title: string, kind: "streak" | "solved") {
-  toast.success(title, {
+  // The milestone powers on like a sign inside the toast.
+  const headline = (
+    <SignalType
+      text={title}
+      trigger="mount"
+      delay={0.25}
+      glow={0.8}
+      interference={0}
+      clickCycle={false}
+      instability={0.4}
+    />
+  );
+  toast.success(headline, {
     description: "Your share card is ready.",
     duration: 10_000,
     action: {

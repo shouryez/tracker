@@ -26,6 +26,7 @@ import { TodayPlanList } from "@/components/daily/today-plan";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
 import { FocusOrb } from "@/components/orbit/focus-orb";
 import { PageHeader } from "@/components/page-header";
+import { SignalType } from "@/components/fx/signal-type";
 import { StudyBuddy } from "@/components/study-buddy";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { buddyLevel } from "@/lib/buddies";
@@ -166,7 +167,19 @@ async function Today() {
       <StreakCelebration streak={stats.streak} solved={stats.solved.total} />
       <PageHeader
         eyebrow={`${new Date(now).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: tz })} · study day ends ${String(profile.dayResetHour).padStart(2, "0")}:00`}
-        title={`${greeting(tz, now)}, ${firstName}`}
+        title={
+          <SignalType
+            text={`${greeting(tz, now)}, ${firstName}`}
+            once="today-greeting"
+            trigger="mount"
+            unlit="dim"
+            outlineOpacity={0.14}
+            glow={0.35}
+            flickers={2}
+            instability={0.12}
+            interference={0.6}
+          />
+        }
         actions={
           <>
             <AutoSync stale={needsSync(accounts)} />

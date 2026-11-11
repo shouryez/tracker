@@ -20,6 +20,7 @@ import {
   cn,
 } from "@upsolve/ui";
 import { CelebrateOnce } from "@/components/dashboard/celebrate";
+import { SignalType } from "@/components/fx/signal-type";
 import { dueLabel, ResultTag, reviewUrl } from "@/components/learning";
 import { FocusOrb, LadderChips } from "@/components/orbit/focus-orb";
 import { REVISION_TABS, SectionTabs } from "@/components/orbit/section-tabs";
@@ -173,11 +174,13 @@ async function RevisionContent() {
             <div className="flex min-w-0 flex-1 flex-col gap-5">
               <div>
                 <p className="font-display text-[clamp(26px,2.6vw,36px)] leading-[1.08] text-balance">
-                  {left
-                    ? `${left} to prove today${overdueCount ? `, ${overdueCount} overdue` : ""}.`
-                    : queue.reviewedToday
-                      ? "All caught up for today."
-                      : "Nothing due today."}
+                  {left ? (
+                    `${left} to prove today${overdueCount ? `, ${overdueCount} overdue` : ""}.`
+                  ) : queue.reviewedToday ? (
+                    <SignalType text="All caught up for today." glowColor="var(--signal)" />
+                  ) : (
+                    "Nothing due today."
+                  )}
                 </p>
                 <p className="mt-2 text-[15px] text-ink-2">
                   {problems.length - retired.length} problems on the ladder · {retired.length}{" "}

@@ -7,6 +7,7 @@ import { Button, ButtonArrow, Card, CheckDraw, LogoMark, buttonClasses, cn } fro
 import { createExtensionToken } from "@/app/actions/extension";
 import { EXTENSION_STORE_URL } from "@/lib/extension-link";
 import { CelebrateOnce } from "@/components/dashboard/celebrate";
+import { SignalType } from "@/components/fx/signal-type";
 
 // Must match apps/extension/entrypoints/web-bridge.content.ts.
 const WEB = "upsolve-web";
@@ -97,7 +98,8 @@ export function ConnectExtension() {
         <CelebrateOnce id="extension-connected" />
         <Link2 state="connected" />
         <p className="text-20 font-[600]">
-          Connected: <em className="font-display font-normal">{browserLabel()}</em>
+          <SignalType text="Connected:" trigger="mount" glowColor="var(--signal)" />{" "}
+          <em className="font-display font-normal">{browserLabel()}</em>
         </p>
         <p className="text-[13.5px] text-white/75">
           Open any LeetCode or GFG problem. The timer starts on its own, and your LeetCode history

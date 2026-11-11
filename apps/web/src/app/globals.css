@@ -614,3 +614,38 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
     animation: none;
   }
 }
+
+/* Signal Type (components/fx/signal-type.tsx): neon letters. JS only flips data-s per letter;
+   unlit by default so it reads the same before hydration. */
+.signal-type .st-w {
+  display: inline-block;
+  white-space: nowrap;
+}
+.signal-type .st-l {
+  -webkit-text-fill-color: var(--st-off-fill);
+  -webkit-text-stroke: var(--st-off-stroke);
+  text-shadow: none;
+}
+.signal-type .st-l[data-s="on"],
+.signal-type .st-l[data-s="lit"] {
+  -webkit-text-fill-color: currentColor;
+  -webkit-text-stroke: 0 transparent;
+  text-shadow: var(--st-halo);
+}
+.signal-type .st-l[data-s="flash"] {
+  -webkit-text-fill-color: var(--st-flash-fill);
+  -webkit-text-stroke: 0 transparent;
+  text-shadow: var(--st-flash);
+}
+/* Settling after the strike (and after a glitch): the halo eases in; the letter itself cuts on. */
+.signal-type .st-l[data-s="lit"] {
+  transition: text-shadow 0.5s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .signal-type .st-l {
+    -webkit-text-fill-color: currentColor !important;
+    -webkit-text-stroke: 0 transparent !important;
+    text-shadow: var(--st-halo) !important;
+    transition: none !important;
+  }
+}

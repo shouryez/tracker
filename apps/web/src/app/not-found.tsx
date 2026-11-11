@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ButtonArrow, Logo, Stacky, Starfield, buttonClasses } from "@upsolve/ui";
 import { Meteors } from "@/components/fx/decor";
+import { SignalType } from "@/components/fx/signal-type";
 import { DecodeText } from "@/components/fx/text";
 
-/** Site-wide 404: Stacky thinking it over, chrome numerals that decode on load, a verdict chip, meteors. */
+/** Site-wide 404: Stacky thinking it over, chrome numerals that decode on load, a verdict chip, a neon headline, meteors. */
 export default function NotFound() {
   return (
     <div className="relative grid min-h-dvh place-items-center overflow-hidden bg-[#08080d] px-4 text-white">
@@ -25,7 +26,21 @@ export default function NotFound() {
           <DecodeText text="404" duration={700} />
         </p>
         <h1 className="mt-2 font-display text-[clamp(30px,4.4vw,48px)] leading-none tracking-[-0.02em]">
-          Wrong answer. <em className="text-signal">Let&apos;s upsolve it.</em>
+          <SignalType
+            text="Wrong answer."
+            trigger="mount"
+            delay={0.5}
+            glowColor="#f26d82"
+            instability={0.5}
+          />{" "}
+          <SignalType
+            text="Let's upsolve it."
+            trigger="mount"
+            delay={1.3}
+            order="start"
+            glowColor="var(--signal)"
+            className="text-signal"
+          />
         </h1>
         <p className="mt-3 max-w-[40ch] text-[14.5px] text-white/70">
           This page doesn&apos;t exist, or the link has expired.
@@ -45,5 +60,3 @@ export default function NotFound() {
     </div>
   );
 }
-
-// DsaKaro
