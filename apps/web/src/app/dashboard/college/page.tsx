@@ -13,7 +13,7 @@ import {
   buttonClasses,
 } from "@upsolve/ui";
 import { Leaderboard, MetricTabs, ScoreExplainer } from "@/components/leaderboard";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { RangeControl } from "@/components/range-control";
 import { PrefSwitch } from "@/components/social";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
@@ -62,7 +62,6 @@ async function CollegeContent({
       <SectionTabs tabs={PEOPLE_TABS} />
       <PageHeader
         eyebrow="College · leaderboards"
-        glow={PAGE_GLOW.college}
         title={
           <>
             {collegeName}, <em>this week.</em>
@@ -104,12 +103,12 @@ async function CollegeContent({
       <>
         {header("Opt-in, and only visible to students who opt in")}
         <div className="grid grid-cols-12 gap-3.5">
-          <Card tier="hero" beam className="col-span-12 flex flex-col gap-5 xl:col-span-7">
+          <Card tier="hero" className="col-span-12 flex flex-col gap-5 xl:col-span-7">
             <div className="flex items-start justify-between gap-4">
-              <span className="grid size-12 place-items-center rounded-[14px] bg-white/12">
+              <span className="glass-control grid size-12 place-items-center rounded-[16px]">
                 <Lock size={20} aria-hidden="true" />
               </span>
-              <span className="flex items-center gap-3 rounded-full bg-white/10 py-1.5 pr-1.5 pl-3.5 text-13">
+              <span className="glass-control flex items-center gap-3 rounded-full py-1.5 pr-1.5 pl-3.5 text-13">
                 Appear on the boards
                 <PrefSwitch
                   pref="onLeaderboards"
@@ -119,10 +118,10 @@ async function CollegeContent({
               </span>
             </div>
             <div>
-              <p className="text-30 leading-tight font-[600] tracking-[-0.03em]">
-                Join {collegeName}&apos;s <em className="font-display font-normal">boards.</em>
+              <p className="font-display text-[clamp(26px,2.6vw,36px)] leading-[1.08]">
+                Join {collegeName}&apos;s boards.
               </p>
-              <p className="mt-2 max-w-[60ch] text-14 leading-relaxed text-white/75">
+              <p className="mt-2 max-w-[60ch] text-14 leading-relaxed text-ink-2">
                 Boards are opt-in: only students who switch this on appear, and only they can see
                 the boards. Never your email, notes or sessions. Switch it off any time.
               </p>
@@ -135,7 +134,7 @@ async function CollegeContent({
               </CardTitle>
             </CardHeader>
             <div className="surface-inset flex items-center gap-3 rounded-[14px] p-3">
-              <span className="grid size-9 place-items-center rounded-full bg-[linear-gradient(135deg,var(--violet),var(--primary))] text-12 font-[600] text-white">
+              <span className="grid size-9 place-items-center rounded-full bg-[color-mix(in_srgb,var(--ink)_10%,transparent)] text-12 font-[650] text-ink">
                 {(profile.name ?? profile.handle ?? "Y")[0]?.toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
@@ -212,7 +211,7 @@ async function CollegeContent({
         </Card>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
-          <Card className="lamp">
+          <Card>
             <CardHeader>
               <CardTitle>Where you stand</CardTitle>
               <CardSub>{rows.length} students · score</CardSub>

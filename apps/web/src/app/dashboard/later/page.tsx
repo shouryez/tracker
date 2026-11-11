@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { TOPICS } from "@upsolve/core";
 import { Card, CardHeader, CardTitle, LogoMark, SkeletonCard } from "@upsolve/ui";
 import { LaterList } from "@/components/daily/later-list";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getSavedItems } from "@/lib/daily-data";
 import { LIBRARY_TABS, SectionTabs } from "@/components/orbit/section-tabs";
@@ -41,7 +41,6 @@ async function LaterContent() {
       <SectionTabs tabs={LIBRARY_TABS} />
       <PageHeader
         eyebrow="Saved for later"
-        glow={PAGE_GLOW.sheets}
         title={
           <>
             Saved for later <em>· {open.length}</em>
@@ -54,22 +53,22 @@ async function LaterContent() {
           <LaterList items={items} topics={TOPIC_LIST} />
         </Card>
         <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-4">
-          <Card className="lamp">
+          <Card>
             <CardHeader>
               <CardTitle>Save from any tab</CardTitle>
             </CardHeader>
             <div
               aria-hidden="true"
-              className="flex flex-col gap-2.5 rounded-[14px] bg-surface-2 p-3.5 shadow-[inset_0_0_0_1px_var(--line-2),0_24px_40px_-24px_rgba(0,0,0,.7)]"
+              className="surface-inset flex flex-col gap-2.5 rounded-[18px] p-3.5"
             >
               <span className="flex items-center gap-2">
                 <LogoMark size={18} />
                 <span className="text-[12.5px] font-[600]">DsaKaro</span>
                 <span className="ml-auto text-12 text-ink-3">youtube.com</span>
               </span>
-              <span className="h-16 rounded-[8px] bg-[linear-gradient(135deg,#2b1a1a,#161013)]" />
+              <span className="h-16 rounded-[12px] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--ink)_10%,transparent),color-mix(in_srgb,var(--ink)_3%,transparent))]" />
               <span className="text-[12.5px] font-[550]">The video you&apos;re watching</span>
-              <span className="grid h-8 place-items-center rounded-[8px] bg-signal text-[12.5px] font-[550] text-signal-ink">
+              <span className="gloss grid h-8 place-items-center rounded-full text-[12.5px] font-[600]">
                 Save for later
               </span>
             </div>
@@ -79,18 +78,24 @@ async function LaterContent() {
             </p>
           </Card>
           {byTopic.length > 0 && (
-            <Card tier="inset">
+            <Card>
               <CardHeader>
                 <CardTitle>By topic</CardTitle>
               </CardHeader>
-              <ul className="flex flex-col">
+              <ul className="flex flex-col gap-2.5">
                 {byTopic.map(([t, n]) => (
                   <li
                     key={t}
-                    className="flex justify-between border-t border-line py-2 text-13 first:border-t-0"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 text-13"
                   >
-                    <span>{t}</span>
-                    <span className="tnum font-mono">{n}</span>
+                    <span className="truncate">{t}</span>
+                    <span className="tnum text-ink-2">{n}</span>
+                    <span className="col-span-2 h-1.5 overflow-hidden rounded-full bg-line">
+                      <span
+                        className="block h-full rounded-full bg-signal"
+                        style={{ width: `${(n / byTopic[0]![1]) * 100}%` }}
+                      />
+                    </span>
                   </li>
                 ))}
               </ul>

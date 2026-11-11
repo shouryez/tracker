@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import type React from "react";
 import { Card, CardHeader, CardSub, CardTitle, DifficultyTag, SkeletonCard, cn } from "@upsolve/ui";
 import { GoalsForm } from "@/components/daily/goals-form";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getWeekReview } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -108,11 +108,10 @@ async function ReviewContent() {
   const step = 3;
 
   return (
-    <div className="mx-auto flex w-full max-w-[920px] flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <SectionTabs tabs={INSIGHTS_TABS} />
       <PageHeader
         eyebrow={`Weekly review · week of ${fmtDay(week.weekStart, { day: "numeric", month: "short" })}`}
-        glow={PAGE_GLOW.revision}
         title={
           <>
             Your week, <em>in five minutes</em>
@@ -126,7 +125,10 @@ async function ReviewContent() {
           <li key={t} className="flex flex-1 flex-col gap-1.5">
             <span
               className="h-[3px] rounded-full"
-              style={{ background: i + 1 < step ? "var(--signal)" : "var(--ink)" }}
+              style={{
+                background:
+                  i + 1 < step ? "var(--signal)" : i + 1 === step ? "var(--ink)" : "var(--line-2)",
+              }}
             />
             <span className="text-12 text-ink">
               {i + 1} · {t}
@@ -140,21 +142,21 @@ async function ReviewContent() {
           <CardTitle>1 · Look back</CardTitle>
           <CardSub>vs the week before</CardSub>
         </CardHeader>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5 max-lg:[&>*:last-child]:col-span-full">
           {compare.map((c) => {
             const top = Math.max(1, c.now, c.prev);
             const d = c.now - c.prev;
             return (
               <div
                 key={c.label}
-                className="surface-inset flex flex-col gap-2.5 rounded-[12px] p-3.5"
+                className="surface-inset flex flex-col gap-2.5 rounded-[16px] p-3.5"
               >
                 <span className="text-12 text-ink-2">{c.label}</span>
                 <span className="flex items-baseline gap-2">
-                  <span className="num text-[26px]">{c.now}</span>
+                  <span className="num font-display text-[28px] leading-none">{c.now}</span>
                   <span
                     className={cn(
-                      "font-mono text-11",
+                      "tnum text-12 font-[600]",
                       d > 0 ? "text-signal-text" : d < 0 ? "text-bad" : "text-ink-3",
                     )}
                   >
@@ -163,8 +165,8 @@ async function ReviewContent() {
                 </span>
                 <span className="flex flex-col gap-1">
                   <span className="flex items-center gap-2">
-                    <span className="w-8 font-mono text-[10.5px] text-ink-3">this</span>
-                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-surface-4">
+                    <span className="w-8 text-11 text-ink-3">this</span>
+                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
                       <span
                         className="block h-full rounded-full"
                         style={{ width: `${(c.now / top) * 100}%`, background: c.color }}
@@ -172,8 +174,8 @@ async function ReviewContent() {
                     </span>
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="w-8 font-mono text-[10.5px] text-ink-3">prev</span>
-                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-surface-4">
+                    <span className="w-8 text-11 text-ink-3">prev</span>
+                    <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
                       <span
                         className="block h-full rounded-full bg-line-3"
                         style={{ width: `${(c.prev / top) * 100}%` }}
@@ -184,17 +186,17 @@ async function ReviewContent() {
               </div>
             );
           })}
-          <div className="surface-inset flex flex-col gap-2.5 rounded-[12px] p-3.5">
+          <div className="surface-inset flex flex-col gap-2.5 rounded-[16px] p-3.5">
             <span className="text-12 text-ink-2">Focus</span>
-            <span className="num text-[26px]">
+            <span className="num font-display text-[28px] leading-none">
               {focusH}
               <small className="ml-0.5 text-[.5em] text-ink-3">h</small>
             </span>
             <span className="flex items-center gap-2">
-              <span className="w-8 font-mono text-[10.5px] text-ink-3">goal</span>
-              <span className="h-1 flex-1 overflow-hidden rounded-full bg-surface-4">
+              <span className="w-8 text-11 text-ink-3">goal</span>
+              <span className="h-1 flex-1 overflow-hidden rounded-full bg-line">
                 <span
-                  className="block h-full rounded-full bg-[var(--amber)]"
+                  className="block h-full rounded-full bg-[var(--sky)]"
                   style={{
                     width: `${Math.min(100, (focusH / Math.max(1, week.goals.focusHours)) * 100)}%`,
                   }}
@@ -218,46 +220,46 @@ async function ReviewContent() {
                     ? week.bestDay?.date === d.date
                       ? "var(--signal)"
                       : "color-mix(in srgb, var(--signal) 45%, transparent)"
-                    : "var(--surface-4)",
+                    : "var(--line-2)",
                 }}
               />
-              <span className="font-mono text-11 text-ink-3">
-                {fmtDay(d.date, { weekday: "narrow" })}
-              </span>
+              <span className="text-11 text-ink-3">{fmtDay(d.date, { weekday: "narrow" })}</span>
             </div>
           ))}
         </div>
       </Card>
 
-      <Card className="p-[22px]">
-        <CardHeader>
-          <CardTitle>2 · What stood out</CardTitle>
-        </CardHeader>
-        <ul className="flex flex-col">
-          {notes.map((n, i) => (
-            <li
-              key={i}
-              className="flex items-center gap-3 border-t border-line py-3 text-14 first:border-t-0"
-            >
-              <i className="size-2 shrink-0 rounded-[2px]" style={{ background: n.color }} />
-              <span className="flex-1">{n.text}</span>
-              {n.href && (
-                <Link href={n.href} className="text-12 text-ink-2 hover:text-ink">
-                  {n.cta}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-      </Card>
+      <div className="grid gap-3.5 xl:grid-cols-2">
+        <Card className="p-[22px]">
+          <CardHeader>
+            <CardTitle>2 · What stood out</CardTitle>
+          </CardHeader>
+          <ul className="flex flex-col">
+            {notes.map((n, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-3 border-t border-line py-3 text-14 first:border-t-0"
+              >
+                <i className="size-2 shrink-0 rounded-full" style={{ background: n.color }} />
+                <span className="flex-1">{n.text}</span>
+                {n.href && (
+                  <Link href={n.href} className="text-12 text-ink-2 hover:text-ink">
+                    {n.cta}
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        </Card>
 
-      <Card className="lamp p-[22px]">
-        <CardHeader>
-          <CardTitle>3 · This week&apos;s targets</CardTitle>
-          <CardSub>they show as rings on Today</CardSub>
-        </CardHeader>
-        <GoalsForm weekStart={week.weekStart} initial={week.goals} />
-      </Card>
+        <Card className="p-[22px]">
+          <CardHeader>
+            <CardTitle>3 · This week&apos;s targets</CardTitle>
+            <CardSub>they show as rings on Today</CardSub>
+          </CardHeader>
+          <GoalsForm weekStart={week.weekStart} initial={week.goals} />
+        </Card>
+      </div>
     </div>
   );
 }

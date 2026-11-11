@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Card, SkeletonCard } from "@upsolve/ui";
 import { RecallQuiz } from "@/components/daily/recall-quiz";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getRecallDeck, getRecallStats } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
@@ -42,7 +42,6 @@ async function RecallContent({
       <SectionTabs tabs={REVISION_TABS} />
       <PageHeader
         eyebrow="Recall · 2 minutes"
-        glow={PAGE_GLOW.revision}
         title={
           <>
             Name the pattern <em>· round {round + 1}</em>
@@ -53,14 +52,14 @@ async function RecallContent({
           stats.answered > 0 && (
             <div className="flex gap-5">
               <div className="text-right">
-                <p className="num text-[22px]">
+                <p className="num font-display text-[26px] leading-none">
                   {Math.round((stats.correct / stats.answered) * 100)}
                   <small className="text-[.55em] text-ink-3">%</small>
                 </p>
                 <p className="text-12 text-ink-3">right this week</p>
               </div>
               <div className="text-right">
-                <p className="num text-[22px]">
+                <p className="num font-display text-[26px] leading-none">
                   {stats.streakDays}
                   <small className="ml-0.5 text-[.55em] text-ink-3">days</small>
                 </p>
@@ -74,13 +73,13 @@ async function RecallContent({
       <div className="relative pt-3.5">
         <div
           aria-hidden="true"
-          className="absolute inset-x-10 top-0 h-16 rounded-[16px] bg-surface-2 shadow-[inset_0_0_0_1px_var(--line)]"
+          className="absolute inset-x-10 top-0 h-16 rounded-[24px] bg-[color-mix(in_srgb,var(--ink)_4%,transparent)] shadow-[inset_0_0_0_1px_var(--line)]"
         />
         <div
           aria-hidden="true"
-          className="absolute inset-x-5 top-[7px] h-16 rounded-[16px] bg-surface-3 shadow-[inset_0_0_0_1px_var(--line)]"
+          className="absolute inset-x-5 top-[7px] h-16 rounded-[24px] bg-[color-mix(in_srgb,var(--ink)_7%,transparent)] shadow-[inset_0_0_0_1px_var(--line-2)]"
         />
-        <Card className="lamp relative p-6 sm:p-7">
+        <Card className="relative p-6 sm:p-7">
           <RecallQuiz key={`${day}-${round}`} cards={cards} round={round} />
         </Card>
       </div>

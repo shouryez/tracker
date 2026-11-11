@@ -99,14 +99,14 @@ async function GroupsContent() {
                 />
               );
             })}
-            <span className="grid size-11 place-items-center rounded-[13px] bg-white/15">
+            <span className="glass-control grid size-11 place-items-center rounded-[14px]">
               <Crown size={20} />
             </span>
           </span>
-          <p className="text-24 font-[600]">
-            Better with <em className="font-display font-normal">friends.</em>
+          <p className="font-display text-[clamp(24px,2.4vw,32px)] leading-[1.08]">
+            Better with friends.
           </p>
-          <p className="max-w-[54ch] text-14 text-white/75">
+          <p className="max-w-[54ch] text-14 text-ink-2">
             A group gets its own weekly leaderboard and a study room where you can see who&apos;s
             solving what right now.
           </p>

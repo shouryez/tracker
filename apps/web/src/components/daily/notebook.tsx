@@ -105,13 +105,10 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
       {/* Index cards, one per topic, laid out like a notebook spread. */}
       <div className="columns-1 gap-4 md:columns-2 xl:columns-3">
         {groups.map(([t, list]) => (
-          <section
-            key={t}
-            className="surface-card mb-4 break-inside-avoid rounded-lg p-[18px] [background-image:repeating-linear-gradient(180deg,transparent_0_27px,var(--line)_27px_28px)] [background-position:0_64px] [background-repeat:no-repeat] [background-size:100%_calc(100%-64px)]"
-          >
+          <section key={t} className="surface-card mb-4 break-inside-avoid rounded-[24px] p-5">
             <div className="mb-3 flex flex-col gap-2">
               <span className="flex items-center gap-2">
-                <span className="label-mono">{label(t || null)}</span>
+                <span className="text-15 font-[650] text-ink">{label(t || null)}</span>
                 <span className="ml-auto tnum text-12 text-ink-3">
                   {list.length} problem{list.length === 1 ? "" : "s"}
                 </span>
@@ -191,7 +188,7 @@ export function MistakeJournal({
   }
 
   return (
-    <div className="flex flex-col gap-3.5">
+    <div className="grid gap-3.5 lg:grid-cols-2">
       {mistakes.map((m) => (
         <Card key={`${m.topic}:${m.tag}`} className="flex flex-col gap-3">
           <p className="text-15">
@@ -209,7 +206,7 @@ export function MistakeJournal({
               <Link
                 key={p.id}
                 href={`/dashboard/problems/${p.id}`}
-                className="rounded-full border border-line-2 px-2.5 py-1 text-12 transition-colors hover:border-line-3 hover:bg-surface-2"
+                className="glass-control rounded-full px-3 py-1 text-12 transition-transform hover:-translate-y-px"
               >
                 {p.title}
               </Link>
@@ -233,8 +230,10 @@ export function MistakeJournal({
         </Card>
       ))}
       {verdicts.length > 0 && (
-        <Card>
-          <p className="mb-3 label-mono">Where submissions fail (last 120 days)</p>
+        <Card className="lg:col-span-2">
+          <p className="mb-3 text-14 font-[600] text-ink-2">
+            Where submissions fail · last 120 days
+          </p>
           <ul className="flex flex-col gap-2.5">
             {verdicts.map((v) => {
               const bad = ((v.wa + v.tle) / v.total) * 100;

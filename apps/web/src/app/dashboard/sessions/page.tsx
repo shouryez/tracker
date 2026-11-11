@@ -178,7 +178,6 @@ async function SessionsContent() {
         {history}
         <Card tier="hero" className="overflow-hidden">
           <EmptyState
-            className="[&_p]:text-white/75 [&>p:first-of-type]:text-white"
             icon={<Puzzle size={18} />}
             title={
               <>
