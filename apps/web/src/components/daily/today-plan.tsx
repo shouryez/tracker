@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useOptimistic, useRef, useState, useTransition, type ReactNode } from "react";
+import {
+  useOptimistic,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+  type ReactNode,
+} from "react";
 import { ArrowUpRight, CalendarClock, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, DifficultyTag, ProgressRing, Tag, cn, inputClasses } from "@upsolve/ui";
@@ -26,6 +33,34 @@ export const KIND: Record<
   sheet: { label: "From sheet", tone: "neutral" },
   custom: { label: "Task", tone: "neutral" },
 };
+
+/** Rough minutes per item, for the time budget (a revision is quicker than a fresh medium). */
+function estimate(item: PlanItem): number {
+  if (item.kind === "revision") return 15;
+  if (item.difficulty === "easy") return 20;
+  if (item.difficulty === "medium") return 35;
+  if (item.difficulty === "hard") return 55;
+  return 30;
+}
+const BUDGETS = [30, 60, 90, 120, 180];
+const BUDGET_EVENT = "dsakaro:budget";
+function subscribeBudget(cb: () => void) {
+  window.addEventListener(BUDGET_EVENT, cb);
+  window.addEventListener("storage", cb);
+  return () => {
+    window.removeEventListener(BUDGET_EVENT, cb);
+    window.removeEventListener("storage", cb);
+  };
+}
+function readBudget(key: string): number | null {
+  try {
+    const v = Number(localStorage.getItem(key));
+    return v > 0 ? v : null;
+  } catch {
+    return null;
+  }
+}
+const fmtMin = (m: number) => (m < 60 ? `${m} min` : `${m % 60 ? (m / 60).toFixed(1) : m / 60} h`);
 
 type Op = { id: string; done?: boolean; removed?: boolean } | { add: PlanItem };
 
@@ -72,6 +107,34 @@ export function TodayPlanList({
   const [hidden, setHidden] = useState<ReadonlySet<string>>(() => new Set());
   const items = allItems.filter((i) => !hidden.has(i.id));
   const done = items.filter((i) => i.done).length;
+  // "I have an hour today": items past the budget are dimmed under a divider. Kept per day.
+  const budgetKey = `dsakaro:budget:${plan.day}`;
+  const budget = useSyncExternalStore(
+    subscribeBudget,
+    () => readBudget(budgetKey),
+    () => null,
+  );
+  const setBudget = (v: number | null) => {
+    try {
+      if (v) localStorage.setItem(budgetKey, String(v));
+      else localStorage.removeItem(budgetKey);
+    } catch {}
+    window.dispatchEvent(new Event(BUDGET_EVENT));
+  };
+  const left = items.filter((i) => !i.done);
+  const leftMin = left.reduce((n, i) => n + estimate(i), 0);
+  const beyond = new Set<string>();
+  let cutId: string | null = null;
+  if (budget) {
+    let used = 0;
+    for (const i of left) {
+      used += estimate(i);
+      if (used > budget) {
+        cutId ??= i.id;
+        beyond.add(i.id);
+      }
+    }
+  }
   const carried = items.filter((i) => i.day < plan.day && !i.done).length;
   const shown = compact ? items.slice(0, 6) : items;
   // The item you're on: on the full list it opens up with its actions.
@@ -191,11 +254,41 @@ export function TodayPlanList({
         {action}
       </div>
 
+      {!compact && left.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-12 text-ink-3">
+          <span className="mr-1">
+            About <span className="tnum font-[600] text-ink-2">{fmtMin(leftMin)}</span> left. Time
+            today:
+          </span>
+          {BUDGETS.map((b) => (
+            <button
+              key={b}
+              type="button"
+              aria-pressed={budget === b}
+              onClick={() => setBudget(budget === b ? null : b)}
+              className={cn(
+                "tnum h-7 rounded-full px-2.5 font-[600] transition-colors",
+                budget === b
+                  ? "bg-mint-soft text-signal-text shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--signal)_45%,transparent)]"
+                  : "glass-control text-ink-2 hover:text-ink",
+              )}
+            >
+              {fmtMin(b)}
+            </button>
+          ))}
+        </div>
+      )}
+
       <ul className="flex flex-col gap-1.5">
         {shown.map((item) => (
           <li
             key={item.id}
+            data-cut={
+              item.id === cutId ? `Past your ${fmtMin(budget ?? 0)}, these can wait` : undefined
+            }
             className={cn(
+              "data-[cut]:mt-7 data-[cut]:before:absolute data-[cut]:before:-top-6 data-[cut]:before:left-2.5 data-[cut]:before:text-12 data-[cut]:before:font-[600] data-[cut]:before:text-ink-3 data-[cut]:before:content-[attr(data-cut)]",
+              beyond.has(item.id) && "opacity-55",
               "group/item relative isolate flex flex-wrap items-center gap-3 rounded-[12px] border border-transparent px-2.5 py-2 transition-colors hover:border-line hover:bg-surface-2/60",
               item.id === currentId && "border-line bg-surface-2/60",
               "first:[&>.rail]:top-1/2 last:[&>.rail]:bottom-1/2",

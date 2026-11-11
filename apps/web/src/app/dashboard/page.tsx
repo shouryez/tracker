@@ -29,7 +29,13 @@ import { StudyBuddy } from "@/components/study-buddy";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { buddyLevel } from "@/lib/buddies";
 import { buildStats, getAccounts, getLocalActivity, getProfile, needsSync } from "@/lib/data";
-import { getActiveFocus, getFocusSummary, getStudyHall, getUnseenNudges } from "@/lib/daily-data";
+import {
+  getActiveFocus,
+  getFocusSummary,
+  getStudyHall,
+  getUnseenNudges,
+  getWeekReview,
+} from "@/lib/daily-data";
 import { getLearning, getTopicTargets, masteryOf, revisionQueue } from "@/lib/learning";
 import { getFollowedSheets, getSheetPicks, getTodayPlan, getTodaySuggestions } from "@/lib/plan";
 import { getSessionStats } from "@/lib/sessions-data";
@@ -168,6 +174,9 @@ async function Today() {
         }
       />
       <NudgeBanner nudges={nudges} />
+      <Suspense fallback={null}>
+        <WeeklyReviewPrompt userId={user.id} tz={tz} now={now} />
+      </Suspense>
       {accounts.length === 0 && (
         <Card className="flex flex-wrap items-center gap-4">
           <div className="min-w-[min(100%,260px)] flex-1">
@@ -528,5 +537,38 @@ function TodaySkeleton() {
         <SkeletonCard lines={6} className="col-span-12 h-[520px] xl:col-span-4" />
       </div>
     </div>
+  );
+}
+
+/**
+ * Once a week: if this week's targets aren't set, a slim card asks for the five-minute review.
+ * Weeks start Monday; it disappears as soon as the targets are saved.
+ */
+async function WeeklyReviewPrompt({
+  userId,
+  tz,
+  now,
+}: {
+  userId: string;
+  tz: string;
+  now: number;
+}) {
+  const week = await getWeekReview(userId, tz, now);
+  if (week.saved) return null;
+  return (
+    <Card className="flex flex-wrap items-center gap-4 py-4">
+      <span className="glass-control grid size-10 shrink-0 place-items-center rounded-[14px]">
+        <ListChecks size={17} aria-hidden="true" />
+      </span>
+      <div className="min-w-[min(100%,240px)] flex-1">
+        <p className="text-15 font-[600]">Your week, in five minutes</p>
+        <p className="text-13 text-ink-3">
+          Look back at last week and set this week&apos;s targets. They show up as rings here.
+        </p>
+      </div>
+      <Link href="/dashboard/review" className={buttonClasses({ variant: "secondary" })}>
+        Do the weekly review <ButtonArrow />
+      </Link>
+    </Card>
   );
 }
