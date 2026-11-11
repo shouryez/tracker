@@ -162,6 +162,13 @@
       "when": 1793560811575,
       "tag": "0022_glossy_the_watchers",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794367063467,
+      "tag": "0023_mixed_mac_gargan",
+      "breakpoints": true
     }
   ]
 }

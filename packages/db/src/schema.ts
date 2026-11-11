@@ -57,6 +57,8 @@ export const reviewAction = pgEnum("review_action", [
   "forgot",
   "retire",
   "restore",
+  /** "Not today": pushes a due revision to tomorrow without changing its rung. */
+  "snooze",
 ]);
 
 // ---------------------------------------------------------------- helpers
