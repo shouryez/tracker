@@ -433,7 +433,7 @@ export function WeekHours({ days, resetHour }: { days: WeekHoursDay[]; resetHour
   }));
   return (
     <div className="overflow-x-auto">
-      <div className="flex min-w-[760px] flex-col gap-2">
+      <div className="flex min-w-[620px] flex-col gap-2">
         <div className="grid grid-cols-[56px_minmax(0,1fr)_64px] gap-3">
           <span />
           <div className="relative h-3.5 font-mono text-11 text-ink-3">

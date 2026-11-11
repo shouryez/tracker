@@ -13,7 +13,7 @@ import {
   Tag,
   buttonClasses,
 } from "@upsolve/ui";
-import { PAGE_GLOW, PageHeader } from "@/components/page-header";
+import { PageHeader } from "@/components/page-header";
 import { HonestSplit, SessionItem } from "@/components/sessions";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { LabTimer } from "@/components/daily/lab-timer";
@@ -93,7 +93,7 @@ async function SessionsContent() {
   });
 
   const lab = (
-    <Card id="lab" glow="var(--signal-mark)" className="scroll-mt-24">
+    <Card id="lab" className="scroll-mt-24">
       <CardHeader>
         <CardTitle icon={<Timer size={14} />} tint="var(--signal-mark)">
           Study session
@@ -133,7 +133,7 @@ async function SessionsContent() {
   );
 
   const history = (
-    <Card className="h-full">
+    <Card className="flex-1">
       <CardHeader>
         <CardTitle icon={<History size={14} />} tint="var(--violet)">
           Recent study sessions
@@ -151,7 +151,6 @@ async function SessionsContent() {
   const header = (
     <PageHeader
       eyebrow="Sessions · timed by the extension"
-      glow={PAGE_GLOW.sessions}
       title="Sessions"
       subtitle="Only study tabs count. The clock pauses on anything else and breaks are kept separate."
       actions={
@@ -280,93 +279,24 @@ async function SessionsContent() {
         ]}
       />
 
-      <Card className="p-[22px]">
-        <CardHeader>
-          <CardTitle>Your week, hour by hour</CardTitle>
-          <CardSub>study day starts {String(resetHour).padStart(2, "0")}:00</CardSub>
-        </CardHeader>
-        <WeekHours days={weekHours} resetHour={resetHour} />
-      </Card>
-
-      <div className="flex flex-wrap items-start gap-4">
-        <Card className="min-w-0 flex-[2_1_560px]">
-          <CardHeader>
-            <CardTitle>Sessions</CardTitle>
-            <CardSub>newest first</CardSub>
-          </CardHeader>
-          {week.length === 0 ? (
-            <p className="text-13 text-ink-2">Start a session and it shows up here.</p>
-          ) : (
-            <ul className="flex flex-col">
-              {week.map((x) => {
-                const span = Math.max(1, x.endedAt - x.startedAt);
-                const what =
-                  x.label ??
-                  ([...x.problems.map((p) => p.title), ...x.videos.map((v) => v.title)]
-                    .slice(0, 3)
-                    .join(" · ") ||
-                    "Study session");
-                return (
-                  <li
-                    key={x.id}
-                    className="grid grid-cols-[92px_minmax(0,1fr)_auto] items-center gap-3.5 border-t border-line py-3 first:border-t-0"
-                  >
-                    <span className="flex flex-col">
-                      <span className="text-13 font-[550]">
-                        {new Date(x.startedAt).toLocaleDateString("en-GB", {
-                          weekday: "short",
-                          day: "numeric",
-                          timeZone: tz,
-                        })}
-                      </span>
-                      <span className="font-mono text-[11.5px] text-ink-3">
-                        {new Date(x.startedAt).toLocaleTimeString("en-GB", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          timeZone: tz,
-                        })}
-                      </span>
-                    </span>
-                    <span className="flex min-w-0 flex-col gap-1.5">
-                      <span className="truncate text-[13.5px]">{what}</span>
-                      <span className="flex h-[5px] gap-0.5">
-                        <i
-                          className="rounded-[2px] bg-[var(--amber)]"
-                          style={{ flex: `${x.focusMs} 1 0` }}
-                        />
-                        {x.awayMs > 0 && (
-                          <i
-                            className="rounded-[2px] bg-line-3"
-                            style={{ flex: `${x.awayMs} 1 0` }}
-                          />
-                        )}
-                        {span - x.focusMs - x.awayMs > 60_000 && (
-                          <i
-                            className="rounded-[2px] bg-mint"
-                            style={{ flex: `${span - x.focusMs - x.awayMs} 1 0` }}
-                          />
-                        )}
-                      </span>
-                    </span>
-                    <span className="flex flex-col items-end">
-                      <span className="font-mono text-14 font-[550]">
-                        {formatDuration(x.focusMs)}
-                      </span>
-                      <span className="text-12 text-ink-3">{x.tracked ? "tracked" : "timer"}</span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </Card>
-
-        <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-4">
-          <Card>
+      <div className="grid gap-3.5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-3.5">
+          <Card className="p-[22px]">
+            <CardHeader>
+              <CardTitle>Your week, hour by hour</CardTitle>
+              <CardSub>study day starts {String(resetHour).padStart(2, "0")}:00</CardSub>
+            </CardHeader>
+            <WeekHours days={weekHours} resetHour={resetHour} />
+          </Card>
+          {history}
+        </div>
+        <div className="flex min-w-0 flex-col gap-3.5">
+          {lab}
+          <Card className="flex flex-1 flex-col">
             <CardHeader>
               <CardTitle>Where the time went</CardTitle>
             </CardHeader>
-            <div className="flex items-center gap-5">
+            <div className="mb-4 flex items-center gap-5">
               <svg
                 viewBox="0 0 120 120"
                 width="120"
@@ -374,14 +304,7 @@ async function SessionsContent() {
                 role="img"
                 aria-label={split.map((x) => `${x.label} ${formatDuration(x.ms)}`).join(", ")}
               >
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="46"
-                  fill="none"
-                  stroke="var(--surface-4)"
-                  strokeWidth="14"
-                />
+                <circle cx="60" cy="60" r="46" fill="none" stroke="var(--line)" strokeWidth="14" />
                 {split.map((x) => {
                   const frac = weekFocus ? x.ms / weekFocus : 0;
                   const el = (
@@ -432,31 +355,30 @@ async function SessionsContent() {
                 ))}
               </ul>
             </div>
+            <details className="group mt-auto border-t border-line pt-3.5">
+              <summary className="cursor-pointer list-none text-13 font-[550] text-ink-2 hover:text-ink [&::-webkit-details-marker]:hidden">
+                What counts as study <span className="text-ink-3 group-open:hidden">&rarr;</span>
+              </summary>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {[
+                  "leetcode.com",
+                  "geeksforgeeks.org",
+                  "codeforces.com",
+                  "takeuforward.org",
+                  "neetcode.io",
+                  "Striver on YouTube",
+                  "study channels",
+                ].map((t) => (
+                  <Tag key={t}>{t}</Tag>
+                ))}
+              </div>
+              <p className="mt-3 text-12 text-ink-3">
+                Anything else pauses the clock after 30 seconds. Turn this off in Settings →
+                Extension.
+              </p>
+            </details>
           </Card>
-          {lab}
-          <Card tier="inset">
-            <CardHeader>
-              <CardTitle>Counted as study</CardTitle>
-            </CardHeader>
-            <div className="flex flex-wrap gap-1.5">
-              {[
-                "leetcode.com",
-                "geeksforgeeks.org",
-                "codeforces.com",
-                "takeuforward.org",
-                "neetcode.io",
-                "Striver on YouTube",
-                "study channels",
-              ].map((t) => (
-                <Tag key={t}>{t}</Tag>
-              ))}
-            </div>
-            <p className="mt-3 text-12 text-ink-3">
-              Anything else pauses the clock after 30 seconds. Turn this off in Settings →
-              Extension.
-            </p>
-          </Card>
-        </aside>
+        </div>
       </div>
 
       {sessions.length > 0 && (
@@ -466,13 +388,13 @@ async function SessionsContent() {
             <CardSub>latest {sessions.length}</CardSub>
           </CardHeader>
           <div className="mb-4">
-            <p className="mb-2 label-mono">How you solved</p>
+            <p className="mb-2 text-13 font-[600] text-ink-2">How you solved</p>
             <HonestSplit solo={solo} hint={hint} solution={solution} />
           </div>
           <div className="flex flex-col gap-4">
             {groups.map((g) => (
               <section key={g.label}>
-                <p className="mb-1 label-mono">
+                <p className="mb-1 text-13 font-[600] text-ink-2">
                   {g.label} · {formatDuration(g.items.reduce((n, x) => n + x.activeMs, 0))}
                 </p>
                 <ul>
