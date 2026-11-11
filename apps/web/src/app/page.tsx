@@ -35,6 +35,7 @@ import { SCENE_SCRIPT } from "@/components/landing/hero/scene-script";
 import { BookCover } from "@/components/sheet-identity";
 import { PlatformMark } from "@/components/site-icons";
 import { StudyBuddy } from "@/components/study-buddy";
+import { GhostType } from "@/components/fx/ghost-type";
 
 // Marketing site, Lamplight. Static: every number in a mock is illustrative and labelled
 // as an example; claims match what the product does today.
@@ -827,9 +828,19 @@ function Footer() {
             aria-hidden="true"
             className="absolute inset-0 -z-10 bg-[radial-gradient(rgba(255,255,255,.05)_1px,transparent_1.4px)] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_40%,#000,transparent)] bg-[length:22px_22px]"
           />
-          <h2 className="mx-auto max-w-[16ch] text-[clamp(36px,5.4vw,72px)] leading-[1] font-[640] tracking-[-0.05em]">
-            Stop counting. <span className="text-white/50">Start upsolving.</span>
-          </h2>
+          <GhostType
+            as="h2"
+            text="Stop counting."
+            completions={[
+              " Start upsolving.",
+              " Revise before you forget.",
+              " Let the timer start itself.",
+              " Find your weakest topic.",
+            ]}
+            accentColor="#86d9c2"
+            ghostOpacity={0.4}
+            className="mx-auto max-w-[16ch] text-[clamp(36px,5.4vw,72px)] leading-[1] font-[640] tracking-[-0.05em]"
+          />
           <p className="mx-auto mt-4 max-w-[46ch] text-15 text-white/70">
             Free for students. Sign in with Google and your history is here in seconds.
           </p>

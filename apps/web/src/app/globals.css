@@ -649,3 +649,92 @@ html[data-ios] [data-hero-stage][data-active] :is([data-part="persp"], [data-par
     transition: none !important;
   }
 }
+
+/* Ghost Type (components/fx/ghost-type.tsx): a headline that writes itself with AI-style
+   completions. Every sentence sits invisibly in the same grid cell to reserve the space. */
+.ghost-type .gt-box {
+  display: inline-grid;
+  text-align: left;
+}
+.ghost-type .gt-cell {
+  grid-area: 1 / 1;
+}
+.ghost-type .gt-ghost {
+  opacity: var(--gt-ghost);
+}
+.ghost-type .gt-caret {
+  display: inline-block;
+  margin-left: 0.04em;
+  background: var(--gt-accent);
+  vertical-align: -0.1em;
+}
+/* Negative right margins keep the caret from taking space, so lines wrap like the reserved box. */
+.ghost-type .gt-caret-bar {
+  width: 0.07em;
+  height: 0.92em;
+  margin-right: -0.11em;
+  border-radius: 1px;
+}
+.ghost-type .gt-caret-block {
+  width: 0.5em;
+  height: 0.92em;
+  margin-right: -0.54em;
+  opacity: 0.5;
+}
+.ghost-type .gt-caret-underscore {
+  width: 0.5em;
+  height: 0.07em;
+  margin-right: -0.54em;
+  vertical-align: -0.04em;
+}
+.ghost-type .gt-blink {
+  animation: gt-blink 1.05s steps(1) infinite;
+}
+@keyframes gt-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.ghost-type .gt-hint {
+  display: inline-block;
+  margin-left: 0.4em;
+  padding: 0.2em 0.55em;
+  border-radius: 0.55em;
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  font-size: max(11px, 0.22em);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.2;
+  vertical-align: 0.6em;
+  opacity: 0.6;
+  animation: rise-in 300ms ease-out backwards;
+}
+.ghost-type .gt-selected {
+  border-radius: 0.08em;
+  background: color-mix(in srgb, var(--gt-accent) 34%, transparent);
+}
+.ghost-type .gt-sweep {
+  background: linear-gradient(
+      90deg,
+      currentColor 0 40%,
+      var(--gt-accent) 50%,
+      currentColor 60% 100%
+    )
+    100% 0 / 300% 100% no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gt-sweep 900ms ease-out forwards;
+}
+@keyframes gt-sweep {
+  to {
+    background-position: 0 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ghost-type .gt-blink,
+  .ghost-type .gt-sweep,
+  .ghost-type .gt-hint {
+    animation: none;
+  }
+}
