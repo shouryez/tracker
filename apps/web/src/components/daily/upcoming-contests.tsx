@@ -66,7 +66,7 @@ export function UpcomingContests({ contests, tz }: { contests: UpcomingRow[]; tz
           { value: "atcoder", label: "AtCoder" },
         ]}
       />
-      <ul className="flex flex-col gap-2">
+      <ul className="grid gap-2 lg:grid-cols-2">
         {shown.map((c) => {
           const soon = now !== null && c.startsAt - now < 6 * 3_600_000;
           return (
@@ -130,5 +130,3 @@ export function UpcomingContests({ contests, tz }: { contests: UpcomingRow[]; tz
     </div>
   );
 }
-
-// DsaKaro

@@ -20,6 +20,7 @@ import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { isBuddyId } from "@/lib/buddies";
 import { classifySaved } from "@/lib/daily-data";
 import { db, userTag } from "@/lib/db";
+import { getContests, getUpsolve } from "@/lib/contests-data";
 import { getProfile } from "@/lib/data";
 import { getLearning, getNextCandidates, getTopicTargets, masteryOf } from "@/lib/learning";
 import { ON_LIST, ON_TODAY_LIST, SAME_SHEET_ITEM, getTodaySuggestions } from "@/lib/plan";
@@ -253,6 +254,56 @@ export async function addSheetItemsToPlan(sheetId: string, itemKeys: string[]): 
     );
   updateTag(userTag(user.id));
   return { ok: true, added: rows.length };
+}
+
+const UpsolveKeys = z.array(z.string().min(1).max(200)).min(1).max(12);
+
+/**
+ * Adds contest problems you didn't finish to today's list. Keys are "platform:externalId";
+ * the upsolve list is recomputed here, so titles and links never come from the client.
+ */
+export async function addUpsolveToPlan(keys: string[]): Promise<AddResult> {
+  const user = await me();
+  if (!user) return { ok: false, error: "Sign in first." };
+  const parsed = UpsolveKeys.safeParse(keys);
+  if (!parsed.success) return { ok: false, error: "Nothing to add." };
+  const wanted = new Set(parsed.data);
+  const recent = await getUpsolve(user.id, await getContests(user.id));
+  const picked = recent.flatMap((c) =>
+    c.problems
+      .filter((p) => p.status === "todo" && wanted.has(`${c.platform}:${p.externalId}`))
+      .map((p) => ({ ...p, contest: c.name })),
+  );
+  if (picked.length === 0) return { ok: false, error: "Nothing left to upsolve." };
+  const day = await today(user.id);
+  const urls = picked.map((p) => p.url);
+  const onList = (await db().execute(sql`
+    select pi.url, pi.problem_id as "problemId" from plan_items pi
+    where pi.user_id = ${user.id} and ${ON_LIST(day)}
+      and (pi.url in ${urls} or pi.problem_id is not null)`)) as unknown as {
+    url: string | null;
+    problemId: string | null;
+  }[];
+  const have = new Set(onList.flatMap((r) => [r.url, r.problemId].filter(Boolean)));
+  const fresh = picked.filter((p) => !have.has(p.url) && !(p.problemId && have.has(p.problemId)));
+  if (fresh.length === 0) return { ok: false, error: "Already on today's list." };
+  const start = await nextPosition(user.id, day);
+  await db()
+    .insert(planItems)
+    .values(
+      fresh.map((p, i) => ({
+        userId: user.id,
+        day,
+        kind: "contest",
+        problemId: p.problemId,
+        title: p.title,
+        url: p.url,
+        detail: `Upsolve · ${p.contest}`,
+        position: start + i,
+      })),
+    );
+  updateTag(userTag(user.id));
+  return { ok: true, added: fresh.length };
 }
 
 // ---------------------------------------------------------------- next problem

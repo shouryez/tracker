@@ -20,8 +20,6 @@ export const PLATFORM_PROFILE_URL: Partial<Record<Platform, (handle: string) => 
 /** Line colour per platform for sparklines (direct-labelled, so colour is decoration only). */
 export const PLATFORM_STROKE: Partial<Record<Platform, string>> = {
   leetcode: "var(--medium)",
-  codeforces: "var(--primary)",
+  codeforces: "var(--sky)",
   geeksforgeeks: "var(--easy)",
 };
-
-// DsaKaro

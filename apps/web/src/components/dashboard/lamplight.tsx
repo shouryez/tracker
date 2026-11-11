@@ -793,18 +793,25 @@ export function ContestCalendar({
   return (
     <div className="flex flex-col gap-3">
       <div className="overflow-x-auto">
-        <div className="grid min-w-[860px] grid-cols-14 border-y border-line">
+        <div className="grid min-w-[860px] grid-cols-14 gap-1.5">
           {days.map((d, i) => (
             <div
               key={d.key}
               className={cn(
-                "flex min-h-[150px] flex-col gap-1.5 border-l border-line px-1.5 py-2 first:border-l-0",
+                "flex min-h-[150px] flex-col gap-1.5 rounded-[14px] px-1.5 py-2",
                 i === 0
-                  ? "bg-surface-2"
-                  : d.weekend && "bg-[color-mix(in_srgb,var(--ink)_1.5%,transparent)]",
+                  ? "bg-[color-mix(in_srgb,var(--signal)_8%,transparent)] shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--signal)_35%,transparent)]"
+                  : d.weekend
+                    ? "bg-[color-mix(in_srgb,var(--ink)_4%,transparent)]"
+                    : "bg-[color-mix(in_srgb,var(--ink)_2%,transparent)]",
               )}
             >
-              <span className={cn("font-mono text-[10.5px]", i === 0 ? "text-ink" : "text-ink-3")}>
+              <span
+                className={cn(
+                  "px-0.5 text-[11.5px] font-[600]",
+                  i === 0 ? "text-signal-text" : "text-ink-3",
+                )}
+              >
                 {d.label}
               </span>
               {(byDay.get(d.key) ?? []).map((c) => {
