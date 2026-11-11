@@ -12,15 +12,18 @@ import type { PlanItem, PlanKind, TodayPlan } from "@/lib/plan";
 
 export const KIND: Record<
   PlanKind,
-  { label: string; tone: "revise" | "primary" | "medium" | "info" | "signal" | "hard" | "neutral" }
+  {
+    label: string;
+    tone: "revise" | "primary" | "medium" | "info" | "signal" | "success" | "hard" | "neutral";
+  }
 > = {
   revision: { label: "Revision", tone: "revise" },
-  next: { label: "Next", tone: "primary" },
+  next: { label: "Next", tone: "success" },
   stretch: { label: "Stretch", tone: "medium" },
   shared: { label: "From a friend", tone: "info" },
-  contest: { label: "Contest", tone: "signal" },
+  contest: { label: "Upsolve", tone: "info" },
   drill: { label: "Drill", tone: "hard" },
-  sheet: { label: "From sheet", tone: "primary" },
+  sheet: { label: "From sheet", tone: "neutral" },
   custom: { label: "Task", tone: "neutral" },
 };
 
@@ -247,7 +250,7 @@ export function TodayPlanList({
                     href={item.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-8 items-center rounded-[8px] bg-signal px-3 text-[12.5px] font-[550] text-signal-ink"
+                    className="glass-control inline-flex h-8 items-center gap-1.5 rounded-full px-3.5 text-[12.5px] font-[600] text-ink transition-transform hover:-translate-y-px"
                   >
                     Open problem
                   </a>
@@ -257,7 +260,7 @@ export function TodayPlanList({
                     type="button"
                     disabled={pending}
                     onClick={(e) => toggle(item, e.currentTarget)}
-                    className="inline-flex h-8 items-center rounded-[8px] border border-line-2 bg-surface-3 px-3 text-[12.5px] font-[550]"
+                    className="inline-flex h-8 items-center rounded-full px-3.5 text-[12.5px] font-[600] text-signal-text shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--signal)_40%,transparent)] transition-colors hover:bg-[color-mix(in_srgb,var(--signal)_12%,transparent)]"
                   >
                     Mark done
                   </button>
@@ -266,7 +269,7 @@ export function TodayPlanList({
                   type="button"
                   disabled={pending}
                   onClick={() => remove(item)}
-                  className="inline-flex h-8 items-center rounded-[8px] px-3 text-[12.5px] font-[550] text-ink-2 hover:bg-surface-3"
+                  className="inline-flex h-8 items-center rounded-full px-3.5 text-[12.5px] font-[550] text-ink-3 transition-colors hover:bg-[color-mix(in_srgb,var(--ink)_6%,transparent)] hover:text-ink"
                 >
                   Skip
                 </button>
