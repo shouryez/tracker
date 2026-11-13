@@ -420,3 +420,113 @@ idea says what it costs per use, because that decides pricing later.
 A natural paid tier falls out of this: tracking, honesty, revision and sheets stay free
 forever; the AI set (interview call, autopsy, flashcards, coach) is the Pro plan. The AI
 spend is then always covered by revenue, never by free users.
+
+---
+
+## 8. Round 3 — no filler (14 Nov 2026)
+
+The brief: only features whose functionality carries them, small or big. So this round
+starts from the product's own mechanics — the loops we already run — and asks where a loop
+is silently broken for a real user. Every idea here closes a loop that exists today and
+leaks. At the end: what I considered and rejected as filler, so the cut line is visible.
+
+### 8.1 The extension can protect the solve, not just watch it
+
+1. **Spoiler shield.** LeetCode and GFG print the topic tags, difficulty and "related
+   topics" right on the problem page — and the tag _is_ the hint ("binary search" tag =
+   the approach, leaked before you think). The extension blurs tags, acceptance rate and
+   company lists until you submit or reveal (a reveal counts as a hint rung). Tiny to
+   build, extension-only, no migration — and it makes our honesty system honest at the
+   source. No other product does this because no other product cares about honesty.
+2. **Blind re-solve.** The moment a due revision starts on LeetCode, your previous
+   accepted code is one click away — and everyone peeks. During a scheduled re-solve the
+   extension hides your old submissions and the editorial tab until you submit. Peeking
+   is allowed but recorded, like a hint. Revision becomes a real test instead of a
+   re-reading. Small build, huge integrity gain for the product's core promise.
+3. **Park it.** Forty minutes in, no progress. Today the user closes the tab and the
+   attempt evaporates — no record, no return. A "Park it" button in the extension ends
+   the session as "parked" and books a fresh-eyes retry for tomorrow, with your own
+   where-I-got-stuck note (one line). Tomorrow it's on Today with that note. We already
+   store non-AC sessions; this gives them a future instead of a graveyard.
+4. **The half-done shelf.** The web-side twin of parking: every problem you attempted but
+   never solved, in one place, sorted by how close you got (time spent, WAs, hints).
+   Right now these problems exist in the data and nowhere in the UI. Closing open loops
+   is the cheapest motivation there is.
+
+### 8.2 Revision that tests the right thing
+
+5. **Revise the pattern, not just the problem.** Re-solving the same problem tests memory
+   of _that problem_; interviews test _transfer_. When a revision is due, offer two
+   doors: "Re-solve it" (memory) or "Solve its sibling" (an unseen problem with the same
+   pattern, from the similar-problems data we already have). Solving the sibling solo
+   clears the revision and counts stronger. This turns our scheduler from flashcards
+   into actual skill training — I think it's the most innovative item in this round.
+6. **Proof it stuck.** We already store both sessions, but never show the payoff:
+   "First solve: 42 min, with a hint. Re-solve 7 days later: 11 min, solo." One line on
+   the problem page and in the weekly review. It is the product's entire promise —
+   _you remembered it_ — made visible with data we have. Near-zero build cost.
+7. **Contest warm-up.** Fifteen minutes before a CF/LeetCode contest (times are public),
+   a warm-up set: two quick siblings of your recent misses. Athletes warm up; nobody
+   warms up for contests. Uses the ratings/timing data plus similar problems.
+
+### 8.3 The data already knows this — say it
+
+8. **Twin detection.** Sheets link the same problem on two platforms (TUF rows carry both
+   the LeetCode and GFG link). When you open the GFG twin of something you solved on
+   LeetCode, the memory panel says so: "You solved this as 'Maximum Subarray' on
+   LeetCode, 12 days ago — solo." Kills silent double-counting and silent re-grinding.
+   Pure join on data we have.
+9. **Search my notes.** Search finds problems; it can't find _your own words_. "What was
+   my trick for monotonic stacks?" should hit your takeaways, patterns and notes — the
+   knowledge base the user wrote themselves is currently write-only. A "my notes" scope
+   in search. Small, and it compounds with every note the user writes.
+10. **Fatigue guardrail.** Three Wrong Answers inside 25 minutes after 11pm is a tired
+    brain donating WAs to its own stats. One quiet line, rest-day-card style: "Three
+    misses in a row this late usually means tomorrow-you solves it in ten minutes. Park
+    it?" Uses submission timestamps only; ties into Park it (8.1.3).
+
+### 8.4 One big one
+
+11. **Interview countdown.** The user sets one date: "OA on Dec 2." The scheduler then
+    works backwards — revisions compress so everything important lands _before_ the date,
+    sheet pace re-weights toward the company's topic profile, the last 48h switches to
+    recall-only (no new problems), and the interview-day kit (4.7) fires on the morning.
+    After the date, everything relaxes back. This is the M1 `target_date` migration we
+    already discussed, grown into the feature it was always meant to be. Placement
+    season is a countdown; the product should breathe with it.
+
+### 8.5 Small trust feature
+
+12. **Export everything.** One button: all your solves, sessions, notes and takeaways as
+    CSV/JSON. Costs an afternoon, and it's the difference between "my data is held" and
+    "my data is mine." Students recommend tools they trust.
+
+### 8.6 Considered and rejected as filler
+
+- **Time-of-day stats** ("you solve best at 7am"): a fun fact, changes no behavior.
+- **Pre-solve time guess / calibration game:** adds a tap of friction to every solve for a
+  skill only marginally trained this way.
+- **Post-AC complexity quiz:** wrap-up already asks for pattern and takeaway; a third
+  prompt starts eroding wrap-up completion.
+- **Public profile themes, badges, more confetti:** decoration, not function.
+- **In-app chat:** WhatsApp exists; we'd build a worse one.
+
+### 8.7 Round 3 ranked
+
+| Rank | Idea                         | Why it's genuine                               | Size | Migration |
+| ---- | ---------------------------- | ---------------------------------------------- | ---- | --------- |
+| 1    | Revise the pattern (8.2.5)   | Trains transfer, which is what interviews test | M    | No        |
+| 2    | Spoiler shield (8.1.1)       | Stops the leak before the timer even starts    | S    | No        |
+| 3    | Blind re-solve (8.1.2)       | Makes revision a test, not a re-read           | S    | No        |
+| 4    | Park it + half-done shelf    | Gives every abandoned attempt a future         | S–M  | No        |
+| 5    | Proof it stuck (8.2.6)       | The product's promise, shown from own data     | S    | No        |
+| 6    | Interview countdown (8.4.11) | The placement-season feature                   | L    | Yes (M1)  |
+| 7    | Twin detection (8.3.8)       | Pure join, real confusion removed              | S    | No        |
+| 8    | Search my notes (8.3.9)      | Unlocks the user's own knowledge base          | S    | No        |
+| 9    | Contest warm-up (8.2.7)      | Small, real, nobody does it                    | S–M  | No        |
+| 10   | Fatigue guardrail (8.3.10)   | Caring, cheap, on-brand                        | S    | No        |
+| 11   | Export everything (8.5.12)   | Trust                                          | S    | No        |
+
+Nine of eleven need no migration and no AI. The shield, blind re-solve, park it and
+proof-it-stuck together make one coherent theme: **the product starts defending the
+quality of a solve, not just counting it.**
