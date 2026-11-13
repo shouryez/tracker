@@ -15,6 +15,7 @@ import {
 import { TopicRadar } from "@/components/charts/insights";
 import { PageHeader } from "@/components/page-header";
 import { BadgesCard } from "./badges-card";
+import { ReadinessCard } from "./readiness-card";
 import { DailyChart, WeekCompare } from "@/components/charts/daily-linked";
 import { PracticeTopicButton } from "@/components/daily/practice-topic";
 import { RangeControl } from "@/components/range-control";
@@ -202,7 +203,21 @@ async function AnalyticsContent({
           ]}
         />
 
-        <Card className="col-span-12 p-[22px] xl:col-span-8">
+        <Suspense
+          fallback={<SkeletonCard lines={4} className="col-span-12 h-[260px] xl:col-span-8" />}
+        >
+          <ReadinessCard userId={user.id} tz={tz} now={now} />
+        </Suspense>
+
+        <Card className="col-span-12 p-[22px] xl:col-span-4">
+          <CardHeader>
+            <CardTitle>This week vs last</CardTitle>
+            <CardSub>drag to compare</CardSub>
+          </CardHeader>
+          <WeekCompare days={a.daily} />
+        </Card>
+
+        <Card className="col-span-12 p-[22px]">
           <CardHeader>
             <CardTitle>Submissions per day</CardTitle>
             <span className="flex gap-3 text-12 text-ink-3">
@@ -221,14 +236,6 @@ async function AnalyticsContent({
           <p className="mt-2 text-12 text-ink-3">
             Last 30 days. LeetCode and GFG sync only report Accepted; the extension sees the rest.
           </p>
-        </Card>
-
-        <Card className="col-span-12 p-[22px] xl:col-span-4">
-          <CardHeader>
-            <CardTitle>This week vs last</CardTitle>
-            <CardSub>drag to compare</CardSub>
-          </CardHeader>
-          <WeekCompare days={a.daily} />
         </Card>
 
         <Card className="lamp col-span-12 p-[22px]">
