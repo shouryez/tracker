@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { Command } from "cmdk";
+import { toast } from "sonner";
 import {
   Bookmark,
   Briefcase,
@@ -18,6 +19,7 @@ import {
   LogOut,
   MessageSquarePlus,
   Moon,
+  PenLine,
   Puzzle,
   Search,
 } from "lucide-react";
@@ -27,6 +29,7 @@ import { getProblemPeek, type ProblemPeek } from "@/app/actions/peek";
 import { quickSearch, type QuickResult } from "@/app/actions/search";
 import { ACCOUNT, MENU, SOCIAL, TOOLKIT } from "@/app/dashboard/_components/nav-links";
 import { openNextPicker } from "@/components/daily/next-problem";
+import { openLogSolve } from "@/components/log-solve";
 import { openFeedback } from "@/app/dashboard/_components/feedback-button";
 
 /** Other components open the palette with this event (e.g. the header search). */
@@ -268,6 +271,22 @@ export function CommandPalette() {
                 onSelect={() => go("/dashboard/interview", "Mock interview")}
               >
                 Start a mock interview
+              </Item>
+              <Item
+                value="log a solve manually by hand record offline phone"
+                icon={<PenLine size={14} />}
+                onSelect={() =>
+                  window.location.pathname.startsWith("/dashboard/problems/")
+                    ? run(openLogSolve)
+                    : run(() => {
+                        router.push("/dashboard/search");
+                        toast("Which problem?", {
+                          description: "Search for it, open it, then press Log a solve.",
+                        });
+                      })
+                }
+              >
+                Log a solve
               </Item>
               <Item
                 value="grade revisions swipe deck review due"

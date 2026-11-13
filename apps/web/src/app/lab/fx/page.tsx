@@ -10,6 +10,8 @@ import { PracticeCalendar, type CalDay } from "@/components/practice-calendar";
 import { deriveBadges } from "@/lib/badges";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
 import { CurveHover } from "@/components/memory-curve";
+import { NoteMarkup } from "@/components/note-markup";
+import { RestDayCard } from "@/components/daily/rest-day-card";
 import { RatingChart } from "@/components/rating-chart";
 import { SheetConstellation } from "@/components/sheet-progress";
 import { BookCover } from "@/components/sheet-identity";
@@ -180,6 +182,13 @@ export default function FxLab() {
       </div>
       <Card>
         <CardHeader>
+          <CardTitle>Note markup</CardTitle>
+        </CardHeader>
+        <NoteMarkup text={LAB_NOTE} />
+      </Card>
+      <RestDayCard streak={46} tomorrow="2026-11-14" />
+      <Card>
+        <CardHeader>
           <CardTitle>Session receipt</CardTitle>
         </CardHeader>
         <SessionReceipt
@@ -189,6 +198,7 @@ export default function FxLab() {
           focusMs={71 * 60_000}
           awayMs={9 * 60_000}
           switches={14}
+          goal={3}
           contents={{
             problems: [
               {
@@ -230,3 +240,6 @@ export default function FxLab() {
     </main>
   );
 }
+
+const LAB_NOTE =
+  "Approach: binary search on the answer `k`, see https://leetcode.com/problems/koko-eating-bananas/\n\n```cpp\n// smallest k that finishes in h hours\nint minEatingSpeed(vector<int>& piles, int h) {\n  int lo = 1, hi = *max_element(piles.begin(), piles.end());\n  while (lo < hi) {\n    int k = lo + (hi - lo) / 2;\n    long t = 0;\n    for (int p : piles) t += (p + k - 1) / k;\n    if (t <= h) hi = k; else lo = k + 1;\n  }\n  return lo;\n}\n```\n\n```python\ndef ok(k): return sum((p + k - 1) // k for p in piles) <= h  # ceil\n```\nMistake to remember: `long` for t, it overflows.";

@@ -202,3 +202,13 @@ Recommended order: **F1 → F2 → F3+F4 → F5+F7 → F6+F8**, then M1 as the f
 From tier 3, the highest value per effort: **F9, F15, F14, F12, F16** (all tiny-to-medium, no
 migrations), then F10, F13, F17, F11, F18.
 Each lands as its own commit with screenshots, per the FRONTEND-PLAN checklist.
+
+## Build log
+
+- F1 mock interview, F2 readiness score, F3 practice calendar, F4 ICS feed: shipped.
+- F5 log a solve (problem page + palette), F7 search filters: shipped.
+- F6 notes v2 (code fences, highlighter, inline code, links, template, preview; notebook and
+  session notes), F8 session goal (notch + receipt), rest-day guard on Today, palette
+  "Log a solve": shipped.
+- Next: tier 3 in order F9, F15, F14, F12, F16, then F10, F13, F17, F11, F18. Tier 2 waits on
+  migrations.

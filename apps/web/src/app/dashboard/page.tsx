@@ -21,6 +21,7 @@ import { NudgeBanner } from "@/components/daily/nudge-banner";
 import { ReviewSessionButton } from "@/components/daily/review-session";
 import { NowSolving } from "@/components/daily/now-solving";
 import { PlanSuggestions, SheetPicks } from "@/components/daily/plan-suggestions";
+import { RestDayCard } from "@/components/daily/rest-day-card";
 import { StartStudyButton } from "@/components/daily/study-bar";
 import { TodayPlanList } from "@/components/daily/today-plan";
 import { StreakCelebration } from "@/components/dashboard/celebrate";
@@ -52,7 +53,7 @@ import {
 import { getFollowedSheets, getSheetPicks, getTodayPlan, getTodaySuggestions } from "@/lib/plan";
 import { getExtensionTokens, getSessionStats } from "@/lib/sessions-data";
 import { getMyGroups, getStreakFreezes } from "@/lib/social-data";
-import { requestNow } from "@/lib/time";
+import { localDate, requestNow } from "@/lib/time";
 import { AutoSync } from "./_components/auto-sync";
 
 export const metadata: Metadata = { title: "Today" };
@@ -221,6 +222,16 @@ async function Today() {
   const evening = hour >= 20 || hour < profile.dayResetHour;
   const streakAtRisk = stats.streak > 0 && evening && (last7.at(-1)?.count ?? 0) === 0;
 
+  // Rest-day guard (F8): a long streak while focus fell three finished days in a row, and no
+  // freeze already planned.
+  const todayIso = localDate(tz, now);
+  const [f0 = 0, f1 = 0, f2 = 0, f3 = 0] = week.slice(2, 6);
+  const restDay =
+    stats.streak >= 14 && f0 > f1 && f1 > f2 && f2 > f3 && !freezes.some((f) => f.end >= todayIso);
+  const tomorrow = new Date(Date.parse(`${todayIso}T12:00:00Z`) + 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+
   return (
     <div className="flex flex-col gap-6">
       <StreakCelebration streak={stats.streak} solved={stats.solved.total} />
@@ -262,6 +273,7 @@ async function Today() {
       <Suspense fallback={null}>
         <WeeklyReviewPrompt userId={user.id} tz={tz} now={now} />
       </Suspense>
+      {restDay && <RestDayCard streak={stats.streak} tomorrow={tomorrow} />}
       {accounts.length === 0 && (
         <Card className="flex flex-wrap items-center gap-4">
           <div className="min-w-[min(100%,260px)] flex-1">

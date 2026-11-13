@@ -28,6 +28,7 @@ export function SessionReceipt({
   awayMs,
   switches,
   contents,
+  goal = null,
 }: {
   label: string | null;
   /** When the session ended (ms). */
@@ -37,6 +38,8 @@ export function SessionReceipt({
   awayMs: number | null;
   switches: number | null;
   contents: StudyContents | null;
+  /** "Aim for N problems", when one was set. */
+  goal?: number | null;
 }) {
   useEffect(() => {
     if (!reducedMotion()) feel.print();
@@ -49,6 +52,9 @@ export function SessionReceipt({
     ...(awayMs !== null ? ([["Away (not counted)", clock(awayMs)]] as [string, string][]) : []),
     ...(switches !== null ? ([["Tab switches", String(switches)]] as [string, string][]) : []),
     ["Problems", `${solved} solved / ${problems.length}`],
+    ...(goal
+      ? ([["Goal", `${solved}/${goal}${solved >= goal ? " · hit" : ""}`]] as [string, string][])
+      : []),
     ...(contents?.videos.length
       ? ([["Videos", String(contents.videos.length)]] as [string, string][])
       : []),

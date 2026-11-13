@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { Button, SegmentedControl, inputClasses } from "@upsolve/ui";
@@ -10,6 +10,12 @@ import { burst } from "@/components/dashboard/celebrate";
 import { Modal } from "@/components/fx/overlay";
 
 type How = "solo" | "hint" | "solution";
+
+const LOG_SOLVE_EVENT = "dsakaro:log-solve";
+/** Opens the "Log a solve" dialog on the current problem page (the command palette uses it). */
+export function openLogSolve() {
+  window.dispatchEvent(new Event(LOG_SOLVE_EVENT));
+}
 
 /**
  * "Log a solve" (FEATURES-PLAN F5): for a solve the extension couldn't see. Minutes, how you
@@ -22,6 +28,11 @@ export function LogSolveButton({ problemId, title }: { problemId: string; title:
   const [how, setHow] = useState<How>("solo");
   const [when, setWhen] = useState<"now" | "yesterday">("now");
   const [pending, start] = useTransition();
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(LOG_SOLVE_EVENT, onOpen);
+    return () => window.removeEventListener(LOG_SOLVE_EVENT, onOpen);
+  }, []);
   return (
     <>
       <Button variant="ghost" onClick={() => setOpen(true)}>

@@ -3,7 +3,15 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
 import { createPortal } from "react-dom";
-import { BookOpenCheck, Maximize2, Pause, PictureInPicture2, Play, Square } from "lucide-react";
+import {
+  BookOpenCheck,
+  Maximize2,
+  Pause,
+  PictureInPicture2,
+  Play,
+  Square,
+  Target,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button, cn } from "@upsolve/ui";
 import {
@@ -18,6 +26,8 @@ import { Modal } from "@/components/fx/overlay";
 import type { ActiveFocus } from "@/lib/daily-data";
 import { focusElapsed, focusPhase, focusTotals } from "@/lib/focus";
 import { labStart, labStop, type LabTotals } from "@/lib/ext-bridge";
+import { feel } from "@/lib/feel";
+import { GOAL_STEPS, readGoal, setGoal, useSessionGoal } from "@/lib/session-goal";
 import type { StudyContents } from "@/lib/study-data";
 import {
   closePopout,
@@ -49,6 +59,8 @@ export type StudyEnd = {
   label?: string | null;
   /** When it ended (ms). */
   at?: number;
+  /** "Aim for N problems", when one was set. */
+  goal?: number | null;
 };
 
 /** What a study session added up to, with Save / Discard. Shared by the Lab and the study bar. */
@@ -84,6 +96,7 @@ export function StudySummaryModal({
             awayMs={summary.totals?.awayMs ?? null}
             switches={summary.totals?.switches ?? null}
             contents={summary.contents}
+            goal={summary.goal ?? null}
           />
           {summary.totals && summary.totals.awayMs > 10 * 60_000 && (
             <p className="text-13 text-ink-2">
@@ -125,6 +138,7 @@ export async function endStudy(active: ActiveFocus): Promise<StudyEnd> {
     contents,
     label: active.label,
     at: Date.now(),
+    goal: readGoal(active.id),
   };
 }
 
@@ -166,6 +180,7 @@ export async function saveStudy(active: ActiveFocus, end: StudyEnd, discard: boo
     toast.error(res.error);
     return false;
   }
+  setGoal(active.id, null);
   if (!discard) {
     void burst({ small: true });
     toast.success("Session saved", {
@@ -252,6 +267,8 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
   // Sessions has its own timer (and its own polling), but the pop-out is drawn from here.
   const onSessions = pathname === "/dashboard/sessions";
   const live = useLabLive(active && (!onSessions || pip) ? active.id : null);
+  const goal = useSessionGoal(active?.id ?? null);
+  const done = useGoalProgress(active?.id ?? null, goal);
   useAutoPauseSync(active && !onSessions ? active.pausedAt !== null : null, live);
 
   useEffect(() => {
@@ -383,6 +400,19 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
             >
               {clock(elapsed)}
             </span>
+            {goal && (
+              <span
+                className={cn(
+                  "tnum rounded-full px-2 py-0.5 text-11 font-[650]",
+                  done !== null && done >= goal
+                    ? "bg-[color-mix(in_srgb,var(--signal)_24%,transparent)] text-signal-text"
+                    : "bg-[color-mix(in_srgb,var(--ink)_8%,transparent)] text-ink-2",
+                )}
+                aria-label={`Goal: ${done ?? 0} of ${goal} problems solved`}
+              >
+                {done ?? 0}/{goal}
+              </span>
+            )}
           </button>
           <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-300 ease-[var(--ease-out)] group-data-[open]/notch:grid-cols-[1fr]">
             <span className="flex min-w-0 items-center gap-1.5 overflow-hidden">
@@ -409,6 +439,22 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
                   <PictureInPicture2 size={13} aria-hidden="true" />
                 </Button>
               )}
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={
+                  goal ? `Goal: ${goal} problems. Change it` : "Set a goal for this session"
+                }
+                title="Aim for N problems"
+                onClick={() => {
+                  const i = GOAL_STEPS.indexOf(goal as (typeof GOAL_STEPS)[number]);
+                  setGoal(active.id, GOAL_STEPS[(i + 1) % GOAL_STEPS.length] ?? null);
+                  feel.tick();
+                }}
+              >
+                <Target size={13} aria-hidden="true" />
+                {goal ? `Aim ${goal}` : "Goal"}
+              </Button>
               <Button
                 variant="secondary"
                 size="sm"
@@ -459,6 +505,40 @@ export function StudyBar({ active }: { active: ActiveFocus | null }) {
       />
     </>
   );
+}
+
+/**
+ * Problems solved so far in the session, polled while a goal is set (every 90 s, and when
+ * the tab comes back). Celebrates once when the goal is reached.
+ */
+function useGoalProgress(id: string | null, goal: number | null) {
+  const [done, setDone] = useState<number | null>(null);
+  useEffect(() => {
+    if (!id || !goal) return;
+    let alive = true;
+    let cheered = false;
+    const load = async () => {
+      if (document.visibilityState !== "visible") return;
+      const c = await getStudySummary(id).catch(() => null);
+      if (!alive || !c) return;
+      const n = c.problems.filter((p) => p.outcome === "solved" || p.outcome === "synced").length;
+      setDone(n);
+      if (n >= goal && !cheered) {
+        cheered = true;
+        feel.milestone();
+        toast.success("Session goal hit", { description: `${n} solved. Keep going or call it.` });
+      }
+    };
+    void load();
+    const t = window.setInterval(load, 90_000);
+    document.addEventListener("visibilitychange", load);
+    return () => {
+      alive = false;
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", load);
+    };
+  }, [id, goal]);
+  return goal ? done : null;
 }
 
 /**
