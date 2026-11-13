@@ -16,6 +16,7 @@ import { TopicRadar } from "@/components/charts/insights";
 import { PageHeader } from "@/components/page-header";
 import { BadgesCard } from "./badges-card";
 import { ReadinessCard } from "./readiness-card";
+import { CalendarCard } from "./calendar-card";
 import { DailyChart, WeekCompare } from "@/components/charts/daily-linked";
 import { PracticeTopicButton } from "@/components/daily/practice-topic";
 import { RangeControl } from "@/components/range-control";
@@ -216,6 +217,10 @@ async function AnalyticsContent({
           </CardHeader>
           <WeekCompare days={a.daily} />
         </Card>
+
+        <Suspense fallback={<SkeletonCard lines={5} className="col-span-12 h-[420px]" />}>
+          <CalendarCard userId={user.id} tz={tz} now={now} />
+        </Suspense>
 
         <Card className="col-span-12 p-[22px]">
           <CardHeader>

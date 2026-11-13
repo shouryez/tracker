@@ -55,6 +55,8 @@ import { LearningSettings } from "./learning-settings";
 import { PasswordSettings } from "./password-settings";
 import { PublicToggle } from "./public-toggle";
 import { ReminderSettings } from "./reminder-settings";
+import { CalendarSubscribe } from "./calendar-subscribe";
+import { calendarUrl } from "@/lib/calendar-feed";
 import { SectionNav } from "./section-nav";
 import { StreakFreezes } from "./streak-freezes";
 
@@ -326,6 +328,11 @@ async function SettingsContent() {
               contestReminders: profile.contestReminders,
             }}
           />
+          <div className="mt-5">
+            <CalendarSubscribe
+              url={calendarUrl(process.env.NEXT_PUBLIC_SITE_URL ?? "https://dsakaro.site", user.id)}
+            />
+          </div>
         </Card>
       )}
 

@@ -6,6 +6,7 @@ import { DailyChart, WeekCompare } from "@/components/charts/daily-linked";
 import { SessionReceipt } from "@/components/daily/session-receipt";
 import { HallOrbit } from "@/components/hall-orbit";
 import { HoloCard } from "@/components/holo-card";
+import { PracticeCalendar, type CalDay } from "@/components/practice-calendar";
 import { deriveBadges } from "@/lib/badges";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
 import { CurveHover } from "@/components/memory-curve";
@@ -16,6 +17,23 @@ import { BookCover } from "@/components/sheet-identity";
 export const metadata: Metadata = { title: "Effects lab", robots: { index: false } };
 
 const DAY = 86_400_000;
+const LAB_CAL: Record<string, CalDay> = Object.fromEntries(
+  Array.from({ length: 30 }, (_, i) => {
+    const d = `2026-11-${String(i + 1).padStart(2, "0")}`;
+    const past = i + 1 < 13;
+    return [
+      d,
+      {
+        solved: past && i % 3 ? ["Koko Eating Bananas", "Merge Intervals"] : [],
+        solvedCount: past && i % 3 ? (i % 4) + 1 : 0,
+        revised: past ? i % 3 : 0,
+        due: !past && i % 2 ? ["Two Sum", "LRU Cache"] : [],
+        dueCount: !past && i % 2 ? (i % 5) + 1 : 0,
+        contests: i % 7 === 0 ? [{ name: "Weekly Contest 476", time: "8:00 am" }] : [],
+      } satisfies CalDay,
+    ];
+  }),
+);
 const LAB_DAYS = Array.from({ length: 30 }, (_, i) => ({
   date: new Date(Date.UTC(2026, 9, 13 + i)).toISOString().slice(0, 10),
   ac: (i * 7) % 5,
@@ -50,6 +68,12 @@ export default function FxLab() {
   return (
     <main id="main" className="mx-auto flex w-[min(1100px,100%-32px)] flex-col gap-6 py-10">
       <h1 className="font-display text-[40px]">Effects lab</h1>
+      <Card>
+        <CardHeader>
+          <CardTitle>Practice calendar</CardTitle>
+        </CardHeader>
+        <PracticeCalendar days={LAB_CAL} today="2026-11-13" minMonth="2026-06" maxMonth="2026-12" />
+      </Card>
       <Card className="flex items-center gap-6">
         <HallOrbit
           label="Hostel B"
