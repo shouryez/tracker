@@ -21,27 +21,52 @@ export type SearchResults = {
 /** Escapes LIKE wildcards so "%" and "_" are matched literally. */
 const likeEscape = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
-export async function search(userId: string, query: string): Promise<SearchResults> {
+/** Search filters (FEATURES-PLAN F7), all from GET params so a filtered search can be shared. */
+export type SearchFilters = {
+  difficulty?: Difficulty;
+  status?: "solved" | "unsolved" | "due";
+  /** A TOPICS id. */
+  topic?: string;
+  /** For status "due": the problems due now, from the learning engine. */
+  dueIds?: string[];
+};
+
+export async function search(
+  userId: string,
+  query: string,
+  filters: SearchFilters = {},
+): Promise<SearchResults> {
   "use cache";
   cacheTag(userTag(userId), "sheets");
   cacheLife("minutes");
 
   const q = query.trim().toLowerCase();
   const like = `%${likeEscape(q)}%`;
+  const solvedExpr = sql`exists (
+               select 1 from submissions s join platform_problems pp on pp.id = s.platform_problem_id
+               where s.user_id = ${userId} and s.verdict = 'AC' and pp.problem_id = p.id
+             )`;
+  const tags = TOPICS.find((t) => t.id === filters.topic)?.tags;
+  const where = [sql`lower(p.title) like ${like}`];
+  if (filters.difficulty) where.push(sql`p.difficulty = ${filters.difficulty}`);
+  if (tags) where.push(sql`p.topics && ${`{${tags.join(",")}}`}::text[]`);
+  if (filters.status === "solved") where.push(solvedExpr);
+  if (filters.status === "unsolved") where.push(sql`not ${solvedExpr}`);
+  if (filters.status === "due")
+    where.push(sql`p.id = any(${`{${(filters.dueIds ?? []).join(",")}}`}::uuid[])`);
   const [problems, sheets] = await Promise.all([
     db().execute(sql`
       select p.id, p.title, p.difficulty,
-             exists (
-               select 1 from submissions s join platform_problems pp on pp.id = s.platform_problem_id
-               where s.user_id = ${userId} and s.verdict = 'AC' and pp.problem_id = p.id
-             ) as solved,
+             ${solvedExpr} as solved,
              (select count(distinct si.sheet_id)::int from sheet_items si where si.problem_id = p.id) as sheets
       from problems p
-      where lower(p.title) like ${like}
+      where ${sql.join(where, sql` and `)}
       order by (lower(p.title) = ${q}) desc, (lower(p.title) like ${`${likeEscape(q)}%`}) desc,
                sheets desc, length(p.title)
       limit 30`),
-    db().execute(sql`
+    q.length < 2
+      ? Promise.resolve([])
+      : db().execute(sql`
       select slug, name, author from sheets
       where lower(name) like ${like} or lower(coalesce(author, '')) like ${like}
       order by position`),
@@ -50,11 +75,12 @@ export async function search(userId: string, query: string): Promise<SearchResul
   return {
     problems: problems as unknown as SearchResults["problems"],
     sheets: sheets as unknown as SearchResults["sheets"],
-    topics: TOPICS.filter((t) => t.label.toLowerCase().includes(q)).map((t) => ({
-      id: t.id,
-      label: t.label,
-    })),
+    topics:
+      q.length < 2
+        ? []
+        : TOPICS.filter((t) => t.label.toLowerCase().includes(q)).map((t) => ({
+            id: t.id,
+            label: t.label,
+          })),
   };
 }
-
-// DsaKaro
