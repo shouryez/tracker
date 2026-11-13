@@ -324,3 +324,99 @@ The first seven need no migration and can ship one after another like the F seri
 3. **Campus intel:** who moderates reports, and what is the minimum before anything shows?
 4. **Phone:** an installable web app with a share target first, or a native app later?
 5. **Colleges:** is a paid batch dashboard part of the plan?
+
+---
+
+## 7. Round 2 — AI and other APIs (14 Nov 2026)
+
+Decisions so far: **Plan my week (2.6) is cut.** **Watched it? Prove it (2.1) is in.**
+A final feature list file comes once we finish discussing; until then ideas collect here.
+
+Everything below assumes we are now open to a language-model API (one cheap/fast model for
+small jobs, one strong model for the few expensive jobs) and to other external APIs. Each
+idea says what it costs per use, because that decides pricing later.
+
+### 7.1 AI on the solve loop (the extension already sees everything)
+
+1. **The interview call.** The user's words: "AI call". After you solve a problem, DsaKaro
+   can _call you_ — a voice conversation (browser mic + TTS, or a real phone call via an
+   India-friendly voice API like Exotel/Twilio) where an AI interviewer asks: "Walk me
+   through your approach. Why binary search on the answer? What's the complexity? What if
+   the array had negatives?" Five minutes, out loud, like the real thing. Nobody practices
+   _speaking_ their solutions — it's the top interview failure and zero products train it.
+   Transcript + a 3-line scorecard saved to the problem. Cost: one strong-model
+   conversation, worth being a paid feature. **This is the flagship of round 2.**
+2. **Explain it to keep it.** A lighter sibling: to mark a solve "solo", you type (or speak)
+   two sentences on your approach. A cheap model checks the explanation actually matches the
+   problem. The Feynman test built into the honesty system — "solo" starts meaning
+   "can explain it", which is what interviews test.
+3. **WA autopsy.** The extension can capture your Wrong Answer submission. An AI names the
+   bug class — off-by-one, int overflow, wrong base case, unhandled duplicate — and pre-fills
+   the wrap-up mistake tags. Over months you get a personal bug profile: "You have overflowed
+   on multiplication 7 times. Check constraints before you code." Nobody knows their own
+   bug distribution; we would be the first product to show it.
+4. **Spot YOUR bug, generated.** AI takes your own accepted code and re-breaks it with one
+   of _your_ typical bug classes (from 7.1.3). You find the bug on your phone in 90 seconds.
+   Infinite personalized drills from your own code — this turns the code vault (3.5) into a
+   training ground instead of a filing cabinet.
+5. **The honest hint.** A Socratic hint mode in the extension: the AI is prompted to _never_
+   reveal the algorithm — it only asks you questions ("What happens to the window when the
+   sum exceeds k?"). Opening it still counts as "hint" in the honesty system. This is the
+   only AI-hint design that is honesty-safe; everyone else's AI just leaks the answer.
+
+### 7.2 AI on memory and revision
+
+6. **Notes become flashcards.** A cheap model turns each takeaway/note into one active-recall
+   question ("What is the invariant when binary-searching on the answer?"). Due revisions
+   start with the question; you answer in your head, flip, then re-solve if you got it wrong.
+   Spaced repetition upgraded from "re-solve everything" to "recall first, re-solve what slipped".
+7. **The Sunday voice coach.** Once a week, a 60-second generated audio note (TTS) from your
+   actual data: "You did 9 problems, 6 solo. Graphs slipped — three saw-solution in a row.
+   Two revisions due Monday. One good thing: your DP recall is holding." A coach in your
+   pocket, costs one small-model call + TTS per user per week.
+8. **Interview narration bank.** After each solve, AI drafts the 30-second way to _tell_ it
+   in an interview, from your own code and takeaway. Before an interview you read 10
+   narrations, not 10 editorials.
+
+### 7.3 Other APIs (no AI needed)
+
+9. **GitHub auto-push.** Every Accepted solution auto-commits to the user's own
+   `dsa-solutions` repo (GitHub API, their OAuth): clean folder per topic, README table
+   auto-updated, green squares every day they practice. Students do this manually or with
+   flaky extensions (LeetHub is half-broken); recruiters genuinely look at it. Pairs with
+   the code vault — we store it AND it is publicly theirs.
+10. **In-app recall judge.** A code-execution API (Judge0 or Piston, both cheap/free) lets
+    revision happen inside DsaKaro: blank editor, the problem's samples, run, pass. "Re-solved
+    from scratch" becomes verifiable instead of self-reported.
+11. **Photo in, problem tracked.** Phone camera → a vision model reads a problem from a
+    book page, a projector slide, or an OA screenshot → matched to our problem index →
+    tracked/added to a sheet. College students meet half their problems on paper.
+12. **The 9pm streak call.** If the streak is about to break and today's plan is untouched,
+    an actual phone call (or WhatsApp voice note): "It's DsaKaro. One problem keeps the
+    streak. It's 14 minutes of your evening." Opt-in, crazy, memorable, and the kind of
+    thing that gets screenshotted onto Instagram.
+13. **Forward the OA email.** Users forward an OA invite (HackerRank/HackerEarth mail) to
+    oa@dsakaro.site. We parse company + deadline and stand up a countdown with an OA-mode
+    (2.8) practice plan sized to the days left. Inbound email parsing is one webhook.
+14. **Voice log.** "Solved Koko, 25 minutes, one hint" spoken into the phone → parsed by a
+    cheap model → the same manual-solve write F5 does. For the problems solved in the lab,
+    in class, on paper.
+
+### 7.4 How round 2 ranks
+
+| Rank | Idea                           | Why                                                 | Cost per use     |
+| ---- | ------------------------------ | --------------------------------------------------- | ---------------- |
+| 1    | Interview call (7.1.1)         | Trains the skill interviews actually test; flagship | High → paid tier |
+| 2    | WA autopsy + bug profile       | Unique data, compounds forever                      | Low              |
+| 3    | GitHub auto-push (7.3.9)       | Huge want, no AI cost, recruiters see it            | Free             |
+| 4    | Notes → flashcards (7.2.6)     | Upgrades the core revision loop                     | Very low         |
+| 5    | Honest hint (7.1.5)            | The only honesty-safe AI hint on the market         | Low              |
+| 6    | Explain it to keep it          | Makes "solo" mean something                         | Very low         |
+| 7    | In-app recall judge            | Verifiable revision, no AI                          | Free-ish         |
+| 8    | Sunday voice coach             | Retention + feels premium                           | Very low         |
+| 9    | 9pm streak call                | Marketing gold, opt-in                              | Low              |
+| 10   | Photo in / voice log / OA mail | Each small, each removes a real daily friction      | Low              |
+
+A natural paid tier falls out of this: tracking, honesty, revision and sheets stay free
+forever; the AI set (interview call, autopsy, flashcards, coach) is the Pro plan. The AI
+spend is then always covered by revenue, never by free users.
