@@ -30,6 +30,7 @@ import {
 } from "@/components/site-icons";
 import { sheetIdentity } from "@/components/sheet-identity";
 import { NoteEditor } from "@/components/note-editor";
+import { NoteMarkup } from "@/components/note-markup";
 import { PLATFORM_LABEL } from "@/components/platform-meta";
 import { ManualReview, RetireButton } from "@/components/review-actions";
 import { Tabs } from "@/components/tabs";
@@ -387,9 +388,10 @@ async function ProblemContent({
                                   </p>
                                 )}
                                 {t.s.note && (
-                                  <p className="mt-2 border-l-2 border-line-3 pl-2.5 text-13 text-ink-2 italic">
-                                    {t.s.note}
-                                  </p>
+                                  <NoteMarkup
+                                    text={t.s.note}
+                                    className="mt-2 border-l-2 border-line-3 pl-2.5 text-ink-2"
+                                  />
                                 )}
                                 <p className="mt-0.5 tnum text-12 text-ink-3">
                                   <TimeAgo date={t.s.at} />

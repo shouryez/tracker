@@ -9,6 +9,7 @@ import { Button, Card, DifficultyTag, EmptyState, Tag, cn, inputClasses } from "
 import { addProblemsToPlan } from "@/app/actions/daily";
 import type { MistakePattern, NotebookEntry } from "@/lib/daily-data";
 import { reducedMotion } from "@/lib/feel";
+import { NoteMarkup } from "@/components/note-markup";
 
 const QUIZ_KEY = "dsakaro:notebook-quiz";
 const QUIZ_EVENT = "dsakaro:notebook-quiz";
@@ -209,9 +210,10 @@ export function NotebookView({ entries, topics }: { entries: NotebookEntry[]; to
                     </p>
                   )}
                   {e.note && (
-                    <p className="mt-1 line-clamp-3 text-12 whitespace-pre-line text-ink-2">
-                      {e.note}
-                    </p>
+                    <NoteMarkup
+                      text={e.note}
+                      className="mt-1 max-h-[7.5rem] overflow-hidden text-12 text-ink-2 print:max-h-none"
+                    />
                   )}
                 </li>
               ))}
