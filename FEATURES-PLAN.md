@@ -106,5 +106,99 @@ topic (from `TOPICS`) — all GET params so results stay shareable; server filte
 | M3  | **Duels**: challenge a group member to the same unsolved problem; first AC (extension-verified) wins; result on the group feed                                  | `duels` table                                 | Social retention; pairs with nudges (B9)                                                            |
 | M4  | **Custom revision ladder**: choose intervals (e.g. 1·2·5·10·21·45 for a near exam)                                                                              | `profiles.intervals jsonb`                    | Power users + exam crunch; scheduler already takes intervals as input                               |
 
+## Tier 3 — the inventive set (no one else can build these; our data makes them possible)
+
+### F9. Ghost race: beat your past self
+
+Every solved problem stores your best active time (`state.bestMs`). On a re-solve, race it:
+
+- Revision rows and the deck show "your record: 18:42". Opening a re-solve arms the ghost;
+  the extension timer page is untouched, but when the solve lands, DsaKaro compares times:
+  beat it → "6:12 faster than March you", confetti pixel carries the delta into the toast.
+- The problem page gets a tiny two-lane race bar (then vs now) in the attempt timeline.
+- Pure read of existing data + one comparison at ingest display time. No schema change.
+
+### F10. Plan-first gate
+
+The habit that actually passes interviews: say the approach before touching the keyboard.
+
+- On a problem page (and in mock interviews), "Plan first" box: one or two lines, 60-second
+  soft timer, then the Solve buttons light up. Saved as a prefix in the problem note
+  (`> Plan: …`), so after the solve you see your plan next to what actually worked.
+- Weekly review counts "planned solves" vs blind ones and their pass rates — the data will
+  show plans win, which teaches the habit better than any lecture. Note column exists.
+
+### F11. Stuck rescue
+
+The extension already knows you've been on one problem for 25+ minutes with no submits
+(`NowSolving` has the live session). When that happens, the Today card offers a rescue path
+instead of letting you rot:
+
+- A structured de-stuck checklist, one step at a time: re-read constraints aloud → state the
+  brute force and its complexity → name the pattern family (Recall-style multiple choice) →
+  take the hint honestly → or bank it: "save and move on", which snoozes it onto Today with
+  a "came back stuck" tag in the note.
+- No nagging: appears once per session, dismissible, never a notification. Web-only read of
+  the live session; no schema change.
+
+### F12. Night-before sheet
+
+One click before an interview or exam: a printable single page compiled from _your_ data —
+your top takeaway per weak topic, your three most-repeated mistake tags with the one-line
+fix you wrote, the problems that failed a review twice (titles only, as prompts), and the
+pattern → signal table from Recall. Print CSS exists; this is a curated server component at
+`/dashboard/notebook/crib`. No schema change.
+
+### F13. Progress mirror
+
+"You, 90 days ago" — replay `getLearning` history with a cutoff and diff it against today:
+topics that went from 20 → 70 mastery, median medium time then vs now, ladder population
+then vs now. One card on Insights with a slider (30/90/180 days) and a shareable
+`api/share-card?mirror=90` variant. All derivable from event history; no schema change.
+
+### F14. Warm-up button
+
+Procrastination killer on Today: "Warm up (5 min)" opens the easiest problem you've already
+solved and are due to see again anyway (or any old easy), with a 5-minute cap on the clock.
+Finishing the warm-up triggers the "start a real session?" prompt. One picker function; no
+schema change.
+
+### F15. Quick-check revision (tiered re-solves)
+
+Re-solving every ring-5 problem in full wastes hours. For rungs 4+ only: a "Quick check"
+path on the deck and queue — recall the approach, reveal your own takeaway, self-grade.
+Rungs 1–3 and anything that failed its last review still require a real re-solve (the
+button simply isn't offered). Grades log through the existing events; the gate is UI logic.
+Cuts revision time roughly in half at the top of the ladder without going soft on new
+memories. No schema change.
+
+### F16. LeetCode Daily on Today
+
+Server-side fetch of LeetCode's public daily-challenge endpoint (no key), cached for the
+day: a "Daily challenge" suggestion chip on Today with one-tap add. Small, loved, sticky.
+No schema change.
+
+### F17. Takeaway cards
+
+After a solve with a written takeaway, offer "Share this insight": a next/og card — problem
+title, your one-line takeaway, your handle, the DSA करो mark — sized for WhatsApp/X. Every
+share is marketing with substance. Route only; no schema change.
+
+### F18. Rubber-duck recorder (local only)
+
+In mock interviews and on hard problems: "Explain your approach out loud — 90 seconds."
+Records with MediaRecorder, plays back, and is **never uploaded** (kept in memory /
+IndexedDB on that device, stated plainly). Communication is the half of interviews nobody
+practises; this makes it a one-button habit. No schema change; mic permission prompt.
+
+## Tier 3-M — inventive, but migration-gated
+
+| #   | Feature         | Schema change                                   | Idea                                                                                                                                                                               |
+| --- | --------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M5  | **Power hour**  | `sprints` table (group, starts_at, problem ids) | A group schedules a synced 60-minute sprint: same 3 problems for everyone, live room leaderboard while it runs, receipt for the group after. Rooms and presence already exist      |
+| M6  | **Calibration** | `recall_answers.confidence smallint`            | Recall asks "sure / think so / guessing" before revealing; Insights draws your calibration curve ("when you say sure, you're right 94%") — the metacognition metric no tracker has |
+
 Recommended order: **F1 → F2 → F3+F4 → F5+F7 → F6+F8**, then M1 as the first migration.
+From tier 3, the highest value per effort: **F9, F15, F14, F12, F16** (all tiny-to-medium, no
+migrations), then F10, F13, F17, F11, F18.
 Each lands as its own commit with screenshots, per the FRONTEND-PLAN checklist.
