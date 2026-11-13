@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition, type ReactNode } from "reac
 import { Command } from "cmdk";
 import {
   Bookmark,
+  Briefcase,
   Check,
   ListPlus,
   Layers,
@@ -261,6 +262,13 @@ export function CommandPalette() {
             </Group>
 
             <Group heading="Actions">
+              <Item
+                value="mock interview start round practice pressure"
+                icon={<Briefcase size={14} />}
+                onSelect={() => go("/dashboard/interview", "Mock interview")}
+              >
+                Start a mock interview
+              </Item>
               <Item
                 value="grade revisions swipe deck review due"
                 icon={<Layers size={14} />}

@@ -34,6 +34,7 @@ import {
   Trophy,
   UsersRound,
   type LucideIcon,
+  Briefcase,
 } from "lucide-react";
 import { Logo, LogoMark, THEME_STORAGE_KEY, ThemeToggle, Tooltip, cn } from "@upsolve/ui";
 import { openCommandPalette } from "@/components/command-palette";
@@ -51,6 +52,7 @@ export const MENU: NavItem[] = [
   { label: "Revision", href: "/dashboard/revision", icon: RotateCcw, match: ["/dashboard/recall"] },
   { label: "Sheets", href: "/dashboard/sheets", icon: ListChecks },
   { label: "Contests", href: "/dashboard/contests", icon: Trophy },
+  { label: "Interview", href: "/dashboard/interview", icon: Briefcase },
 ];
 export const TOOLKIT: NavItem[] = [
   { label: "Sessions", href: "/dashboard/sessions", icon: Timer },
