@@ -42,6 +42,7 @@ import type { SheetItemLink } from "@upsolve/db";
 import { getProblemDetail, getSolveMedian, type ProblemDetail } from "@/lib/problem-data";
 import { formatDuration } from "@/lib/sessions-data";
 import { localDay, requestNow } from "@/lib/time";
+import { LogSolveButton } from "@/components/log-solve";
 
 export const metadata: Metadata = { title: "Problem" };
 
@@ -199,6 +200,7 @@ async function ProblemContent({
             title={problem.title}
             groups={myGroups.map((g) => ({ id: g.id, name: g.name }))}
           />
+          <LogSolveButton problemId={problem.id} title={problem.title} />
           {firstVersion && (
             <a
               href={firstVersion.url}
