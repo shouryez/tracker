@@ -24,6 +24,19 @@ Reply with one JSON object and nothing else:
 Rules: pick the single most likely class. Never write corrected code or the full solution, and never name the approach or data structure that would fix it: say what is wrong, not what to use instead.
 Never reveal the intended algorithm beyond naming what this code does wrong.`;
 
+/** Catches up on failed submissions saved while AI was off or a call failed. */
+export async function autopsyPending(userId: string, limit = 5): Promise<number> {
+  const rows = (await db().execute(sql`
+    select sc.submission_id as id from submission_code sc
+    join submissions s on s.id = sc.submission_id
+    where sc.user_id = ${userId} and s.verdict in ('WA', 'TLE', 'RE', 'MLE')
+      and not exists (select 1 from bug_findings bf where bf.submission_id = sc.submission_id)
+    order by s.submitted_at desc limit ${limit}`)) as unknown as { id: string }[];
+  let done = 0;
+  for (const r of rows) if (await runAutopsy(userId, r.id)) done++;
+  return done;
+}
+
 export async function runAutopsy(userId: string, submissionId: string): Promise<boolean> {
   const [row] = (await db().execute(sql`
     select s.verdict, s.language, sc.code, sc.failing_input as "failingInput",

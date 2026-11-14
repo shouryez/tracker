@@ -95,7 +95,13 @@ A3 uses A2's bug classes and needs stored code.
 - **Shipped** in 4aa8aca: A1, A4, A5, A6.
 - **Shipped** in d06eb75: A2 (code capture, autopsy, bug profile). The AI part turns on when
   `NVIDIA_API_KEY` is set on Vercel.
-- **Next:** A3, once the key is in and some accepted code has been saved.
+- **Shipped** 15 Nov 2026: A3 Spot your bug (`/dashboard/bugs/drill`). The model picks one
+  line of an accepted solution and its broken version; the drill is built server-side so the
+  answer line is certain and never sent before you pick. Class choice is weighted by your
+  autopsies, misses (x1.6) and quick catches (x0.6). "This isn't a bug" drops a drill
+  uncounted. 40 drills a day.
+- AI model: `nvidia/nemotron-3.5-lightning-30b-a3b` with thinking off (~1 s a call). Qwen 2.5
+  Coder was retired on NVIDIA in May 2026.
 - Decided: NVIDIA's API, code storage OK (deletable in Settings), free for everyone for now.
   Migration 0024 applied 14 Nov 2026.
 

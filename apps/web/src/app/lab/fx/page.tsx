@@ -9,6 +9,7 @@ import { HoloCard } from "@/components/holo-card";
 import { PracticeCalendar, type CalDay } from "@/components/practice-calendar";
 import { deriveBadges } from "@/lib/badges";
 import { ProofItStuck } from "@/components/proof-it-stuck";
+import { SpotYourBug } from "@/components/spot-your-bug";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
 import { CurveHover } from "@/components/memory-curve";
 import { NoteMarkup } from "@/components/note-markup";
@@ -202,6 +203,20 @@ export default function FxLab() {
             latest: { at: Date.UTC(2026, 10, 9), activeMs: 11 * 60_000, independence: "solo" },
             days: 7,
             verdict: "stuck",
+          }}
+        />
+      </Card>
+      <Card className="w-full max-w-[760px] p-[22px]" id="spot-your-bug">
+        <CardHeader>
+          <CardTitle>Spot your bug</CardTitle>
+        </CardHeader>
+        <SpotYourBug
+          initial={{
+            id: "00000000-0000-4000-8000-000000000000",
+            title: "Koko Eating Bananas",
+            language: "python3",
+            failingInput: "piles = [3, 6, 7, 11], h = 8",
+            code: "class Solution:\n    def minEatingSpeed(self, piles: List[int], h: int) -> int:\n        lo, hi = 1, max(piles)\n        while lo < hi:\n            mid = (lo + hi) // 2\n            hours = sum((p + mid - 1) // mid for p in piles)\n            if hours >= h:\n                hi = mid\n            else:\n                lo = mid + 1\n        return lo",
           }}
         />
       </Card>

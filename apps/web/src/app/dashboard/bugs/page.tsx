@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Bug } from "lucide-react";
+import Link from "next/link";
+import { revalidateTag } from "next/cache";
+import { after } from "next/server";
+import { ArrowRight, Bug, Crosshair } from "lucide-react";
 import { Card, CardHeader, CardSub, CardTitle, SkeletonCard } from "@upsolve/ui";
 import { FindingCard } from "@/components/bug-autopsy";
 import { INSIGHTS_TABS, SectionTabs } from "@/components/orbit/section-tabs";
@@ -9,6 +12,9 @@ import { aiEnabled } from "@/lib/ai";
 import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { BUG_CLASSES } from "@/lib/bug-classes";
 import { getBugProfile } from "@/lib/bug-data";
+import { getDrillStats } from "@/lib/drills";
+import { autopsyPending } from "@/lib/autopsy";
+import { userTag } from "@/lib/db";
 import { requestNow } from "@/lib/time";
 
 export const metadata: Metadata = { title: "Bug profile" };
@@ -33,7 +39,16 @@ export default function BugsPage() {
 async function BugsContent() {
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your bug profile.</p>;
-  const profile = await getBugProfile(user.id, requestNow());
+  const [profile, drills] = await Promise.all([
+    getBugProfile(user.id, requestNow()),
+    getDrillStats(user.id),
+  ]);
+  if (profile.pending > 0 && aiEnabled()) {
+    const userId = user.id;
+    after(async () => {
+      if (await autopsyPending(userId)) revalidateTag(userTag(userId), { expire: 0 });
+    });
+  }
   const top = profile.classes[0];
   const max = Math.max(1, ...profile.classes.map((c) => c.count));
 
@@ -50,6 +65,30 @@ async function BugsContent() {
         subtitle="Every Wrong Answer, time limit or runtime error the extension saw, sorted into what went wrong. Your top ones also show in the pre-submit checklist."
       />
 
+      {aiEnabled() && (
+        <Link
+          href="/dashboard/bugs/drill"
+          className="surface-inset group flex flex-wrap items-center gap-3 rounded-[16px] px-4 py-3.5 transition-colors hover:bg-surface-2"
+        >
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-surface-3 text-ink">
+            <Crosshair size={16} aria-hidden="true" />
+          </span>
+          <span className="min-w-[200px] flex-1">
+            <span className="block text-14 font-[650]">Spot your bug</span>
+            <span className="block text-13 text-ink-2">
+              {drills.total
+                ? `You've caught ${drills.caught} of ${drills.total}. The ones you miss come back more often.`
+                : "Your own accepted code with one of your usual bugs put in. Find it in 90 seconds."}
+            </span>
+          </span>
+          <ArrowRight
+            size={16}
+            className="text-ink-3 transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </Link>
+      )}
+
       {profile.total === 0 ? (
         <Card className="p-[22px]">
           <div className="flex items-start gap-3">
@@ -62,7 +101,7 @@ async function BugsContent() {
                 {!aiEnabled()
                   ? "Bug autopsy is switching on soon. Your failed submissions are being saved, so they'll be examined then."
                   : profile.pending > 0
-                    ? `${profile.pending} failed submission${profile.pending === 1 ? " is" : "s are"} being examined.`
+                    ? `${profile.pending} failed submission${profile.pending === 1 ? " is" : "s are"} being examined. Refresh in a minute.`
                     : "Solve on LeetCode with the extension on. The next Wrong Answer gets an autopsy: the bug, the line and what to check next time."}
               </p>
             </div>
@@ -93,6 +132,9 @@ async function BugsContent() {
                     <span className="tnum text-12 text-ink-3">
                       <span className="font-[600] text-ink">{c.count}</span>
                       {c.recent ? ` · ${c.recent} recent` : ""}
+                      {drills.byClass[c.bugClass]
+                        ? ` · drills ${drills.byClass[c.bugClass]!.caught}/${drills.byClass[c.bugClass]!.caught + drills.byClass[c.bugClass]!.missed}`
+                        : ""}
                     </span>
                   </span>
                   <span className="h-2 overflow-hidden rounded-full bg-surface-3">
