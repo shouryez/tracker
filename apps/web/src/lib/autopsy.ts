@@ -21,7 +21,7 @@ Reply with one JSON object and nothing else:
 {"bug_class": "<one of: ${Object.keys(BUG_CLASSES).join(", ")}>",
  "line": <1-based line number of the bug, or null>,
  "explanation": "<one or two short sentences, second person, about this code only>"}
-Rules: pick the single most likely class. Never write corrected code or the full solution.
+Rules: pick the single most likely class. Never write corrected code or the full solution, and never name the approach or data structure that would fix it: say what is wrong, not what to use instead.
 Never reveal the intended algorithm beyond naming what this code does wrong.`;
 
 export async function runAutopsy(userId: string, submissionId: string): Promise<boolean> {

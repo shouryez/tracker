@@ -5,7 +5,9 @@ import "server-only";
 // server env (NVIDIA_API_KEY); without it every AI feature quietly stays off.
 
 const ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions";
-const DEFAULT_MODEL = "qwen/qwen2.5-coder-32b-instruct";
+// Fast and accurate on our autopsy samples (about 1 s with thinking off). Qwen 2.5 Coder
+// was retired on NVIDIA in May 2026.
+const DEFAULT_MODEL = "nvidia/nemotron-3.5-lightning-30b-a3b";
 const TIMEOUT_MS = 45_000;
 
 export const aiEnabled = () => Boolean(process.env.NVIDIA_API_KEY);
@@ -34,6 +36,9 @@ export async function chatJson(
         ],
         temperature: opts.temperature ?? 0.2,
         max_tokens: opts.maxTokens ?? 600,
+        // Reasoning models otherwise spend the whole token budget thinking and reply with
+        // no content. Models without a thinking switch ignore this.
+        chat_template_kwargs: { enable_thinking: false },
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
