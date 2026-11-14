@@ -42,7 +42,7 @@ const RESULT: Record<ReviewLogEntry["result"], { label: string; tone: "ac" | "tl
 export function ResultTag({
   entry,
 }: {
-  entry: Pick<ReviewLogEntry, "result" | "proven" | "manual">;
+  entry: Pick<ReviewLogEntry, "result" | "proven" | "manual" | "sibling">;
 }) {
   const r = RESULT[entry.result];
   return (
@@ -51,7 +51,13 @@ export function ResultTag({
         {r.label}
       </Tag>
       <span className="font-mono text-[10.5px] text-ink-3">
-        {entry.proven ? "re-solved" : entry.manual ? "self-graded" : "synced"}
+        {entry.sibling
+          ? "sibling solve"
+          : entry.proven
+            ? "re-solved"
+            : entry.manual
+              ? "self-graded"
+              : "synced"}
       </span>
     </span>
   );
@@ -191,5 +197,3 @@ export function UpcomingStrip({ upcoming, now }: { upcoming: number[]; now: numb
     </div>
   );
 }
-
-// DsaKaro

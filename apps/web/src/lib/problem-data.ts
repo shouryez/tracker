@@ -29,6 +29,8 @@ export type ProblemDetail = {
     id: string;
     mode: "practice" | "review" | "interview";
     at: Date;
+    /** When it ended (or started, while open). */
+    endedAt: Date;
     activeMs: number;
     submits: number;
     outcome: "open" | "solved" | "abandoned";
@@ -40,6 +42,8 @@ export type ProblemDetail = {
   }[];
   note: { body: string; updatedAt: Date } | null;
   similar: { id: string; title: string; difficulty: Difficulty | null; url: string | null }[];
+  /** Explanation videos of this problem watched in the app's player. */
+  watches: { at: number; watchedMs: number; title: string }[];
 };
 
 export async function getProblemDetail(
@@ -59,7 +63,7 @@ export async function getProblemDetail(
   }[];
   if (!problem) return null;
 
-  const [versions, sheets, submissions, sessions, notes, similar] = await Promise.all([
+  const [versions, sheets, submissions, sessions, notes, similar, watches] = await Promise.all([
     db().execute(sql`
       select platform, url, title from platform_problems
       where problem_id = ${problemId}
@@ -76,7 +80,9 @@ export async function getProblemDetail(
       where s.user_id = ${userId} and pp.problem_id = ${problemId}
       order by s.submitted_at desc limit 200`),
     db().execute(sql`
-      select ps.id, ps.mode, ps.started_at as at, ps.active_ms as "activeMs", ps.submits,
+      select ps.id, ps.mode, ps.started_at as at,
+             coalesce(ps.ended_at, ps.started_at) as "endedAt",
+             ps.active_ms as "activeMs", ps.submits,
              ps.outcome, ps.independence, ps.note, ps.mistake_tags as "mistakeTags",
              ps.pattern, ps.takeaway
       from practice_sessions ps join platform_problems pp on pp.id = ps.platform_problem_id
@@ -101,6 +107,13 @@ export async function getProblemDetail(
                cardinality(array(select unnest(p.topics) intersect select unnest(me.topics))) desc,
                min(si.position)
       limit 5`),
+    db().execute(sql`
+      select (extract(epoch from vw.started_at) * 1000)::float8 as at,
+             vw.watched_ms as "watchedMs", vw.title
+      from video_watches vw
+      join sheet_items si on si.sheet_id = vw.sheet_id and si.item_key = vw.item_key
+      where vw.user_id = ${userId} and si.problem_id = ${problemId}
+      order by vw.started_at desc limit 50`),
   ]);
 
   const toDate = (v: unknown) => (v instanceof Date ? v : new Date(String(v)));
@@ -115,16 +128,19 @@ export async function getProblemDetail(
     sessions: (sessions as unknown as ProblemDetail["sessions"]).map((s) => ({
       ...s,
       at: toDate(s.at),
+      endedAt: toDate(s.endedAt),
     })),
     note: (() => {
       const n = (notes as unknown as { body: string; updatedAt: unknown }[])[0];
       return n ? { body: n.body, updatedAt: toDate(n.updatedAt) } : null;
     })(),
     similar: similar as unknown as ProblemDetail["similar"],
+    watches: (watches as unknown as ProblemDetail["watches"]).map((w) => ({
+      ...w,
+      at: Number(w.at),
+    })),
   };
 }
-
-// DsaKaro
 
 export type SolveMedian = { medianMs: number; solvers: number };
 

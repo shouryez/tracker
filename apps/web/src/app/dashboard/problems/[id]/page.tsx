@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, ViewTransition } from "react";
-import { ExternalLink, Play, Timer } from "lucide-react";
+import { ExternalLink, MonitorPlay, Play, Timer } from "lucide-react";
 import { INTERVAL_DAYS, topicLabel, topicsOf } from "@upsolve/core";
 import {
   ButtonArrow,
@@ -42,6 +42,9 @@ import { getMyGroups } from "@/lib/social-data";
 import type { SheetItemLink } from "@upsolve/db";
 import { getProblemDetail, getSolveMedian, type ProblemDetail } from "@/lib/problem-data";
 import { formatDuration } from "@/lib/sessions-data";
+import { proofItStuck } from "@/lib/proof";
+import { watchBefore } from "@/lib/watched";
+import { ProofItStuck } from "@/components/proof-it-stuck";
 import { localDay, requestNow } from "@/lib/time";
 import { LogSolveButton } from "@/components/log-solve";
 
@@ -98,14 +101,31 @@ async function ProblemContent({
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your problems.</p>;
 
-  const [problem, learning, profile, myGroups, median] = await Promise.all([
+  const [detail, learning, profile, myGroups, median] = await Promise.all([
     getProblemDetail(user.id, id),
     getLearning(user.id),
     getProfile(user.id),
     getMyGroups(user.id),
     getSolveMedian(id),
   ]);
-  if (!problem) notFound();
+  if (!detail) notFound();
+  // Watched it? Prove it (A1): a solve right after watching the explanation video counts as
+  // having seen the solution, whatever was answered.
+  const videoFor = new Map(
+    detail.sessions.map((x) => [
+      x.id,
+      x.outcome === "solved" ? watchBefore(x.endedAt.getTime(), detail.watches) : null,
+    ]),
+  );
+  const problem = {
+    ...detail,
+    sessions: detail.sessions.map((x) =>
+      videoFor.get(x.id) ? { ...x, independence: "solution" as const } : x,
+    ),
+  };
+  const watchedSolve = problem.sessions
+    .filter((x) => videoFor.get(x.id))
+    .sort((a, b) => b.at.getTime() - a.at.getTime())[0];
   const review = learning.find((p) => p.problemId === id) ?? null;
   const now = requestNow();
   const { end: endOfToday } = localDay(profile?.timezone ?? "Asia/Kolkata", now);
@@ -115,6 +135,11 @@ async function ProblemContent({
     .filter((x) => x.outcome === "solved" && x.activeMs > 30_000)
     .map((x) => x.activeMs);
   const solvedBest = solvedTimes.length ? Math.min(...solvedTimes) : null;
+  const proof = proofItStuck(
+    problem.sessions
+      .filter((x) => x.outcome === "solved")
+      .map((x) => ({ at: x.at.getTime(), activeMs: x.activeMs, independence: x.independence })),
+  );
   const solveUrl = problem.versions[0]?.url ?? problem.sheets[0]?.links[0]?.url ?? null;
   const firstVersion = problem.versions[0];
   const firstMark = firstVersion ? platformMarkId(firstVersion.platform) : null;
@@ -260,6 +285,23 @@ async function ProblemContent({
           },
         ]}
       />
+
+      {watchedSolve && videoFor.get(watchedSolve.id) && (
+        <div className="surface-inset flex items-start gap-3 rounded-[16px] px-4 py-3">
+          <span className="mt-0.5 grid size-8 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--amber)_16%,transparent)] text-medium">
+            <MonitorPlay size={15} aria-hidden="true" />
+          </span>
+          <p className="text-13 text-ink-2">
+            <span className="font-[600] text-ink">Watched it? Prove it.</span> You watched the
+            explanation video{" "}
+            {watchedGap(watchedSolve.endedAt.getTime() - videoFor.get(watchedSolve.id)!.at)} this
+            solve, so it counts as having seen the solution.{" "}
+            {review && !review.state.retired
+              ? `A solo re-solve is on your revision list (${dueLabel(review.state.dueAt, now, endOfToday)}).`
+              : "Solve it again on your own to make it yours."}
+          </p>
+        </div>
+      )}
 
       {lastSession && (
         <Card className="p-[22px]">
@@ -428,6 +470,15 @@ async function ProblemContent({
         </div>
 
         <div className="col-span-12 flex flex-col gap-3.5 xl:col-span-4">
+          {proof && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Proof it stuck</CardTitle>
+                <CardSub>first solve vs latest</CardSub>
+              </CardHeader>
+              <ProofItStuck proof={proof} />
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>On the ladder</CardTitle>
@@ -616,6 +667,12 @@ async function ProblemContent({
       </div>
     </>
   );
+}
+
+/** "just before", "3 hours before", "a day before". */
+function watchedGap(ms: number) {
+  const h = Math.round(ms / 3_600_000);
+  return h < 1 ? "just before" : h < 24 ? `${h} hour${h === 1 ? "" : "s"} before` : "a day before";
 }
 
 function countMistakes(sessions: ProblemDetail["sessions"]): [string, number][] {

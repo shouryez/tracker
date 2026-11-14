@@ -11,6 +11,7 @@ import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getWeekReview } from "@/lib/daily-data";
 import { getProfile } from "@/lib/data";
 import { getLearning, getTopicTargets, masteryOf } from "@/lib/learning";
+import { getStuckSince } from "@/lib/proof";
 import { requestNow } from "@/lib/time";
 import { INSIGHTS_TABS, SectionTabs } from "@/components/orbit/section-tabs";
 
@@ -42,10 +43,11 @@ async function ReviewContent() {
   const profile = await getProfile(user.id);
   const tz = profile?.timezone ?? "Asia/Kolkata";
   const now = requestNow();
-  const [week, learning, targets] = await Promise.all([
+  const [week, learning, targets, stuck] = await Promise.all([
     getWeekReview(user.id, tz, now),
     getLearning(user.id),
     getTopicTargets(),
+    getStuckSince(user.id, now - 7 * 86_400_000),
   ]);
   const weakest = masteryOf(learning, targets, now)
     .filter((m) => m.solved > 0)
@@ -93,6 +95,22 @@ async function ReviewContent() {
         </>
       ),
     });
+  if (stuck[0]) {
+    const top = stuck[0];
+    const m = (ms: number) => Math.max(1, Math.round(ms / 60_000));
+    notes.push({
+      color: "var(--signal)",
+      text: (
+        <>
+          {stuck.length} problem{stuck.length === 1 ? "" : "s"} stuck this week. Best:{" "}
+          <span className="font-[600]">{top.title}</span>, {m(top.first.activeMs)} min the first
+          time, {m(top.latest.activeMs)} min {top.days} days later.
+        </>
+      ),
+      href: `/dashboard/problems/${top.problemId}`,
+      cta: "See it",
+    });
+  }
   if (weakest)
     notes.push({
       color: "var(--rose)",

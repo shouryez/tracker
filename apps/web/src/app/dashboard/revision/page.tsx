@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, ViewTransition } from "react";
-import { CircleCheck, CircleX, History, Play, RotateCcw } from "lucide-react";
-import { topicLabel, topicsOf } from "@upsolve/core";
+import { CircleCheck, CircleX, History, Play, RotateCcw, Shuffle } from "lucide-react";
+import { isSibling, mainPattern, topicLabel, topicsOf, type Difficulty } from "@upsolve/core";
 import {
   ButtonArrow,
   Card,
@@ -35,10 +35,12 @@ import { getCurrentUser, isDemoUser } from "@/lib/auth";
 import { getProfile } from "@/lib/data";
 import {
   getLearning,
+  getNextCandidates,
   getTopicTargets,
   masteryOf,
   reviewHistory,
   revisionQueue,
+  type NextCandidate,
   type QueueEntry,
 } from "@/lib/learning";
 import { localDate, localDay, requestNow } from "@/lib/time";
@@ -62,10 +64,11 @@ async function RevisionContent() {
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your revision queue.</p>;
 
-  const [profile, problems, targets] = await Promise.all([
+  const [profile, problems, targets, candidates] = await Promise.all([
     getProfile(user.id),
     getLearning(user.id),
     getTopicTargets(),
+    getNextCandidates(user.id),
   ]);
   const tz = profile?.timezone ?? "Asia/Kolkata";
   const now = requestNow();
@@ -79,6 +82,7 @@ async function RevisionContent() {
     ? Math.round((recent.filter((h) => h.result === "pass").length / recent.length) * 100)
     : null;
 
+  const siblings = pickSiblings(queue.today, candidates);
   const left = queue.today.length;
   const first = queue.today[0];
   const { end: endToday } = localDay(tz, now);
@@ -272,6 +276,7 @@ async function RevisionContent() {
                             now={now}
                             endOfToday={endOfToday}
                             index={i}
+                            sibling={siblings.get(p.problemId) ?? null}
                           />
                         ))}
                       </ul>
@@ -563,11 +568,13 @@ function ReviewRow({
   now,
   endOfToday,
   index,
+  sibling,
 }: {
   p: QueueEntry;
   now: number;
   endOfToday: number;
   index: number;
+  sibling: NextCandidate | null;
 }) {
   const topics = topicsOf(p.topics).slice(0, 2).map(topicLabel);
   const solves = p.state.history.length + 1;
@@ -614,6 +621,22 @@ function ReviewRow({
             </Tag>
           ))}
         </div>
+        {sibling && (
+          <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-12 text-ink-3">
+            <Shuffle size={12} aria-hidden="true" className="text-info" />
+            Or prove the pattern:
+            <a
+              href={sibling.url ?? `/dashboard/problems/${sibling.problemId}`}
+              target={sibling.url ? "_blank" : undefined}
+              rel="noreferrer"
+              className="font-[600] text-ink-2 underline decoration-[var(--line-3)] underline-offset-2 hover:text-ink"
+              title="Solve this one on your own: it clears this revision and climbs two rungs"
+            >
+              {sibling.title}
+            </a>
+            <span>· unseen, same idea. Solo clears this one, two rungs up.</span>
+          </p>
+        )}
       </div>
       <div className="flex flex-wrap items-center gap-1.5">
         <a
@@ -631,6 +654,32 @@ function ReviewRow({
       </div>
     </CurveHover>
   );
+}
+
+const DIFF_RANK: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 };
+
+/**
+ * Revise the pattern (FINAL-FEATURES A5): for each due revision, one unseen problem from
+ * your sheets with the same main pattern, no harder than the original. Each is offered once.
+ */
+function pickSiblings(due: QueueEntry[], candidates: NextCandidate[]) {
+  const out = new Map<string, NextCandidate>();
+  const used = new Set<string>();
+  for (const p of due) {
+    if (!mainPattern(p.topics)) continue;
+    const cap = p.difficulty ? DIFF_RANK[p.difficulty] : 1;
+    const c = candidates.find(
+      (c) =>
+        !used.has(c.problemId) &&
+        (c.difficulty ? DIFF_RANK[c.difficulty] : 1) <= cap &&
+        isSibling(p.topics, c.tags),
+    );
+    if (c) {
+      out.set(p.problemId, c);
+      used.add(c.problemId);
+    }
+  }
+  return out;
 }
 
 function RevisionSkeleton() {

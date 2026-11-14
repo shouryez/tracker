@@ -13,6 +13,10 @@ const SLOW_FACTOR = 1.2;
 /** An Accepted submission this close to a timed session is that session's own submit. */
 const SAME_SOLVE_MS = 3 * 3_600_000;
 const HISTORY_KEEP = 30;
+/** A sibling solve this soon before the due time still counts (due "today", local time). */
+const TRANSFER_SLACK_MS = 12 * 3_600_000;
+/** Rungs a solo sibling solve climbs: more than a re-solve, since it proves transfer. */
+const TRANSFER_STEPS = 2;
 const DAY_MS = 86_400_000;
 
 export type Independence = "solo" | "hint" | "solution";
@@ -33,7 +37,9 @@ export type ReviewEvent =
   | { kind: "retire"; at: number }
   | { kind: "restore"; at: number }
   /** "Not today": due again a day later, same rung, no grade. */
-  | { kind: "snooze"; at: number };
+  | { kind: "snooze"; at: number }
+  /** A solo first solve of a sibling problem (same pattern) while this one was due. */
+  | { kind: "transfer"; at: number; sibling: string };
 
 export type ReviewLogEntry = {
   at: number;
@@ -42,6 +48,8 @@ export type ReviewLogEntry = {
   manual: boolean;
   /** Step after this review. */
   step: number;
+  /** Cleared by solving this sibling problem instead (Revise the pattern). */
+  sibling?: string;
 };
 
 export type ReviewState = {
@@ -106,6 +114,28 @@ export function applyEvent(state: ReviewState | null, e: ReviewEvent): ReviewSta
   if (e.kind === "snooze") {
     return state && { ...state, dueAt: Math.max(state.dueAt, e.at) + DAY_MS };
   }
+  if (e.kind === "transfer") {
+    if (!state || !transferApplies(state, e.at)) return state;
+    const step = Math.min(state.step + TRANSFER_STEPS, MAX_STEP);
+    return {
+      ...state,
+      step,
+      dueAt: e.at + intervalMs(step),
+      lastAt: e.at,
+      lastResult: "pass",
+      history: [
+        ...state.history,
+        {
+          at: e.at,
+          result: "pass" as const,
+          proven: true,
+          manual: false,
+          step,
+          sibling: e.sibling,
+        },
+      ].slice(-HISTORY_KEEP),
+    };
+  }
   if (!state) {
     if (e.kind !== "solve") return null; // nothing to review before the first solve
     const step = firstStep(e.independence);
@@ -148,6 +178,11 @@ export function applyEvent(state: ReviewState | null, e: ReviewEvent): ReviewSta
       { at: e.at, result, proven, manual: e.kind === "manual", step },
     ].slice(-HISTORY_KEEP),
   };
+}
+
+/** Whether a sibling solve at `at` can clear this revision: it's due, and nothing came since. */
+export function transferApplies(state: ReviewState, at: number): boolean {
+  return !state.retired && at >= state.dueAt - TRANSFER_SLACK_MS && at > state.lastAt;
 }
 
 export function foldEvents(events: ReviewEvent[]): ReviewState | null {
@@ -227,5 +262,3 @@ export function buildQueue<T extends QueueItem>(
 export function reviewsSince(states: ReviewState[], since: number): number {
   return states.reduce((n, s) => n + s.history.filter((h) => h.at >= since).length, 0);
 }
-
-// DsaKaro

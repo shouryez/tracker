@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { SignalType } from "@/components/fx/signal-type";
 import { feel } from "@/lib/feel";
 
-const KEY = "dsakaro:badges";
+// v2: milestone ladders gave every tier its own id, so start a fresh record (no burst of toasts).
+const KEY = "dsakaro:badges:v2";
 
 /**
  * Celebrates a badge (or a new tier) the first time this browser sees it (FRONTEND-PLAN

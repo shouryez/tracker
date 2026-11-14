@@ -8,6 +8,7 @@ import { HallOrbit } from "@/components/hall-orbit";
 import { HoloCard } from "@/components/holo-card";
 import { PracticeCalendar, type CalDay } from "@/components/practice-calendar";
 import { deriveBadges } from "@/lib/badges";
+import { ProofItStuck } from "@/components/proof-it-stuck";
 import { SplitFlapCountdown } from "@/components/fx/split-flap";
 import { CurveHover } from "@/components/memory-curve";
 import { NoteMarkup } from "@/components/note-markup";
@@ -167,7 +168,12 @@ export default function FxLab() {
             className="lg:grid-cols-4"
             badges={deriveBadges({
               days: Array.from({ length: 364 }, (_, i) => (i > 300 ? 1 : i % 3)),
-              solved: 412,
+              solved: 162,
+              solvedDates: Array.from(
+                { length: 162 },
+                (_, i) => Date.UTC(2026, 3, 1) + i * 86_400_000,
+              ),
+              now: Date.UTC(2026, 10, 13),
               platformsSolved: ["leetcode", "codeforces"],
               retired: 12,
               sheetsFinished: 0,
@@ -185,6 +191,19 @@ export default function FxLab() {
           <CardTitle>Note markup</CardTitle>
         </CardHeader>
         <NoteMarkup text={LAB_NOTE} />
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Proof it stuck</CardTitle>
+        </CardHeader>
+        <ProofItStuck
+          proof={{
+            first: { at: Date.UTC(2026, 10, 2), activeMs: 42 * 60_000, independence: "hint" },
+            latest: { at: Date.UTC(2026, 10, 9), activeMs: 11 * 60_000, independence: "solo" },
+            days: 7,
+            verdict: "stuck",
+          }}
+        />
       </Card>
       <RestDayCard streak={46} tomorrow="2026-11-14" />
       <Card>
