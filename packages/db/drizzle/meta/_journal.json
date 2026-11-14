@@ -169,6 +169,13 @@
       "when": 1794367063467,
       "tag": "0023_mixed_mac_gargan",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794634878774,
+      "tag": "0024_bug_autopsy",
+      "breakpoints": true
     }
   ]
 }

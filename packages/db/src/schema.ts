@@ -851,4 +851,80 @@ export const collegeVerifications = pgTable(
   ],
 ).enableRLS();
 
-// DsaKaro
+/**
+ * The code of a submission and, for a failed one, the failing test (FINAL-FEATURES A2, A3).
+ * Captured by the extension from the user's own submit; deletable from Settings.
+ */
+export const submissionCode = pgTable(
+  "submission_code",
+  {
+    submissionId: uuid("submission_id")
+      .primaryKey()
+      .references(() => submissions.id, { onDelete: "cascade" }),
+    userId: userRef(),
+    language: text("language"),
+    code: text("code").notNull(),
+    /** For a failed submission: the judge's failing input, expected and actual output. */
+    failingInput: text("failing_input"),
+    expected: text("expected"),
+    actual: text("actual"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("submission_code_user_idx").on(t.userId, t.createdAt.desc()),
+    ownerCanRead(t.userId),
+  ],
+).enableRLS();
+
+/** WA autopsy (A2): the bug class an AI model found in a failed submission. */
+export const bugFindings = pgTable(
+  "bug_findings",
+  {
+    submissionId: uuid("submission_id")
+      .primaryKey()
+      .references(() => submissions.id, { onDelete: "cascade" }),
+    userId: userRef(),
+    /** One of the fixed bug classes (off-by-one, overflow, ...). */
+    bugClass: text("bug_class").notNull(),
+    /** One or two sentences: what went wrong, in the user's code. */
+    explanation: text("explanation").notNull(),
+    /** 1-based line the bug is on, when the model could point at one. */
+    line: integer("line"),
+    /** The user's own correction of the class, if they changed it. */
+    userClass: text("user_class"),
+    model: text("model").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("bug_findings_user_idx").on(t.userId, t.createdAt.desc()), ownerCanRead(t.userId)],
+).enableRLS();
+
+/** Spot your bug (A3): one of your accepted solutions with one of your typical bugs put in. */
+export const bugDrills = pgTable(
+  "bug_drills",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: userRef(),
+    problemId: uuid("problem_id")
+      .notNull()
+      .references(() => problems.id, { onDelete: "cascade" }),
+    /** The accepted submission the drill was made from. */
+    sourceSubmissionId: uuid("source_submission_id").references(() => submissions.id, {
+      onDelete: "set null",
+    }),
+    language: text("language"),
+    bugClass: text("bug_class").notNull(),
+    brokenCode: text("broken_code").notNull(),
+    /** 1-based line the bug is on: the answer. */
+    bugLine: integer("bug_line").notNull(),
+    failingInput: text("failing_input"),
+    explanation: text("explanation").notNull(),
+    model: text("model").notNull(),
+    createdAt: createdAt(),
+    answeredAt: timestamp("answered_at", { withTimezone: true }),
+    /** The line the user picked, and how long it took them. */
+    pickedLine: integer("picked_line"),
+    correct: boolean("correct"),
+    answerMs: integer("answer_ms"),
+  },
+  (t) => [index("bug_drills_user_idx").on(t.userId, t.createdAt.desc()), ownerCanRead(t.userId)],
+).enableRLS();
