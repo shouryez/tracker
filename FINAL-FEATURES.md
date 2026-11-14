@@ -90,6 +90,11 @@ What changes:
 **Order:** A1, A4 and A6 first (no dependencies, no migration). A5 next. A2 before A3, since
 A3 uses A2's bug classes and needs stored code.
 
+## Status (14 Nov 2026)
+
+- **Shipped** in 4aa8aca: A1, A4, A5, A6.
+- **Waiting on decisions:** A2, A3 (AI provider, code storage, migration).
+
 ## Cut
 
 - Plan my week (2.6).
