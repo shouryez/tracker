@@ -93,7 +93,11 @@ A3 uses A2's bug classes and needs stored code.
 ## Status (14 Nov 2026)
 
 - **Shipped** in 4aa8aca: A1, A4, A5, A6.
-- **Waiting on decisions:** A2, A3 (AI provider, code storage, migration).
+- **Shipped** in d06eb75: A2 (code capture, autopsy, bug profile). The AI part turns on when
+  `NVIDIA_API_KEY` is set on Vercel.
+- **Next:** A3, once the key is in and some accepted code has been saved.
+- Decided: NVIDIA's API, code storage OK (deletable in Settings), free for everyone for now.
+  Migration 0024 applied 14 Nov 2026.
 
 ## Cut
 
