@@ -10,6 +10,7 @@ import {
   submissionFromCheck,
   submissionIdFromPath,
   titleFromDocument,
+  submitUrlSlug,
 } from "./leetcode.ts";
 import { advance, categorize, classify, describe, newLab, totals } from "./lab.ts";
 import {
@@ -472,4 +473,11 @@ test("lab: a video whose channel can't be read yet never auto-pauses", () => {
     cat: "away",
     sure: true,
   });
+});
+
+test("LeetCode submit URLs give the problem slug; other URLs don't", () => {
+  assert.equal(submitUrlSlug("https://leetcode.com/problems/two-sum/submit/"), "two-sum");
+  assert.equal(submitUrlSlug("/problems/koko-eating-bananas/submit/"), "koko-eating-bananas");
+  assert.equal(submitUrlSlug("/problems/two-sum/interpret_solution/"), null);
+  assert.equal(submitUrlSlug("/submissions/detail/123/check/"), null);
 });

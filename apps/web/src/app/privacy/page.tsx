@@ -10,14 +10,14 @@ export const metadata: Metadata = {
     "What DsaKaro and its browser extension collect, why, who can see it, and how to delete it.",
 };
 
-const UPDATED = "29 October 2026";
+const UPDATED = "14 November 2026";
 const CONTACT = "cutubuildlabs@gmail.com";
 
 // Plain, static and specific: it says only what the app and extension actually do
 // (apps/extension, lib/ext-ingest.ts, actions/verification.ts). Update it with them.
 
 const NEVER = [
-  "Your code, on any site",
+  "Your code anywhere except your own LeetCode submissions",
   "Your passwords or your LeetCode / GFG cookies",
   "Which websites you visit (Lab mode keeps only two totals)",
   "Selling or renting your data, or showing you ads",
@@ -71,12 +71,19 @@ export default function PrivacyPage() {
               On LeetCode and GeeksforGeeks problem pages: which problem you have open, how long you
               actively worked on it, whether the timer is running or paused, and each judged
               submission&apos;s verdict, language, runtime, memory and time. If you answer the short
-              card after an Accepted, also how you solved it, the pattern and your one-line note.{" "}
-              <strong>Your code is never read or sent.</strong>
+              card after an Accepted, also how you solved it, the pattern and your one-line note.
+            </Item>
+            <Item label="Your submitted code (extension, LeetCode)">
+              When you press Submit on LeetCode, the extension saves the code of that submission
+              and, if it fails, the failing test LeetCode shows you. It&apos;s used for bug autopsy:
+              the code of a failed submission is sent to our AI provider (NVIDIA&apos;s API) to name
+              the bug, and the answer is stored with it. Only you can see it. Delete all of it any
+              time in Settings, Browser extension. Code you type but don&apos;t submit is never
+              read.
             </Item>
             <Item label="History import (extension)">
               When you connect, the extension reads your past LeetCode submissions using your own
-              logged-in LeetCode session, inside your browser, and sends only the same details as
+              logged-in LeetCode session, inside your browser, and sends only the verdict details
               above (never code). Your LeetCode cookies never leave your browser.
             </Item>
             <Item label="takeUforward sheet sync (extension)">
@@ -174,6 +181,7 @@ export default function PrivacyPage() {
                 unsubscribe link in any email.
               </li>
               <li>Disconnect a coding profile, or disconnect the extension, in Settings.</li>
+              <li>Delete all your saved code, and the bug autopsies made from it, in Settings.</li>
               <li>
                 Uninstalling the extension deletes everything it stored in your browser; unsent
                 sessions are discarded.

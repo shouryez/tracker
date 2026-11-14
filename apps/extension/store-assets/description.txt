@@ -33,7 +33,7 @@ YOUR DASHBOARD
 Everything lands on dsakaro.site: a heatmap of your solves, streaks, a spaced-repetition revision queue (1, 3, 7, 16, 35 and 90 days), your Striver, NeetCode and Blind 75 sheets ticked automatically, a daily to-do list, and study groups with friends. Free for students.
 
 PRIVACY FIRST
-• Your code is never read or sent.
+• Only the code you submit on LeetCode is saved, for bug autopsy on failed submissions. Delete it any time in Settings.
 • Your passwords and LeetCode / GFG cookies never leave your browser.
 • Focus mode keeps only two totals (focus and away time), never the sites you visit.
 • No ads, no selling data.

@@ -1,6 +1,7 @@
 import { browser } from "wxt/browser";
 import { defineBackground } from "wxt/utils/define-background";
 import type {
+  ExtCodeRequest,
   ExtHistoryItem,
   ExtMeResponse,
   ExtSession,
@@ -210,6 +211,22 @@ async function status(): Promise<Status> {
   };
 }
 
+/** One submission's code (WA autopsy). Best effort: one retry, never queued. */
+async function putCode(body: ExtCodeRequest): Promise<PutResult> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await api("/api/ext/code", { method: "POST", body: JSON.stringify(body) });
+      if (!res) return { ok: false, error: "Not connected" };
+      if (await handleAuthFailure(res)) return { ok: false, error: "Disconnected", auth: true };
+      if (res.ok || refused(res)) return { ok: res.ok, stored: 1 } as PutResult;
+    } catch {
+      // Offline: try once more below.
+    }
+    await new Promise((r) => setTimeout(r, 3000));
+  }
+  return { ok: false, error: "Couldn't upload code" };
+}
+
 async function handle(msg: Message): Promise<unknown> {
   switch (msg.type) {
     case "session:put":
@@ -218,6 +235,8 @@ async function handle(msg: Message): Promise<unknown> {
       return { ok: true };
     case "history:put":
       return putHistory(msg.items);
+    case "code:put":
+      return putCode(msg.body);
     case "auth:set":
       await store.setToken(msg.token);
       await store.setAuthError(null);

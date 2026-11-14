@@ -18,6 +18,12 @@ export function checkUrlSubmissionId(url: string): string | null {
   return m ? m[1]! : null;
 }
 
+/** The problem slug of a Submit request URL (/problems/<slug>/submit/), else null. */
+export function submitUrlSlug(url: string): string | null {
+  const m = /\/problems\/([a-z0-9-]+)\/submit\/?(?:[?#]|$)/.exec(url);
+  return m ? m[1]! : null;
+}
+
 /** "/problems/two-sum/submissions/2181194085/" → "2181194085" (the page LeetCode shows after Submit). */
 export function submissionIdFromPath(pathname: string): string | null {
   const m = /^\/problems\/[a-z0-9-]+\/submissions\/(\d{1,20})(?:\/|$)/.exec(pathname);
@@ -57,6 +63,11 @@ export type CheckResponse = {
   memory?: number;
   status_memory?: string;
   task_finish_time?: number;
+  /** For a failed submission: the failing input, expected and actual output. */
+  last_testcase?: string;
+  expected_output?: string;
+  code_output?: string;
+  runtime_error?: string;
 };
 
 export function submissionFromCheck(
@@ -114,5 +125,3 @@ export function historyItem(row: HistoryRow): ExtHistoryItem | null {
 export function newerId(a: string, b: string): boolean {
   return a.length !== b.length ? a.length > b.length : a > b;
 }
-
-// DsaKaro

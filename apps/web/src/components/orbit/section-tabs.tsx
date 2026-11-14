@@ -68,6 +68,7 @@ export const LIBRARY_TABS: SectionTab[] = [
 export const INSIGHTS_TABS: SectionTab[] = [
   { label: "This week", href: "/dashboard/review" },
   { label: "All time", href: "/dashboard/analytics" },
+  { label: "Bugs", href: "/dashboard/bugs" },
 ];
 export const PEOPLE_TABS: SectionTab[] = [
   { label: "Groups", href: "/dashboard/groups" },

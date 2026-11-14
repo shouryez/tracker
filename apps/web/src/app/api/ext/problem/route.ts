@@ -3,6 +3,8 @@ import type { ExtProblemContext } from "@upsolve/contracts";
 import { INTERVAL_DAYS, MISTAKE_CHECKS, TOPIC_GUIDE, topicLabel, topicsOf } from "@upsolve/core";
 import { db } from "@/lib/db";
 import { authenticateExtension, unauthorized } from "@/lib/ext-auth";
+import { BUG_CLASSES } from "@/lib/bug-classes";
+import { topBugClasses } from "@/lib/bug-data";
 import { getLearning } from "@/lib/learning";
 import { getProblemDetail } from "@/lib/problem-data";
 
@@ -124,7 +126,10 @@ export async function GET(request: Request) {
   }
 
   const mine = mistakeRows as unknown as { tag: string; n: number }[];
+  // Your own top bug classes from WA autopsy come first: they're the most specific.
+  const bugs = await topBugClasses(userId, 2);
   const checklist: ExtProblemContext["checklist"] = [
+    ...bugs.map((b) => ({ text: BUG_CLASSES[b.bugClass].advice, mine: b.n })),
     ...mine
       .filter((m) => MISTAKE_CHECKS[m.tag])
       .slice(0, 3)
@@ -166,5 +171,3 @@ export async function GET(request: Request) {
   };
   return Response.json(body);
 }
-
-// DsaKaro

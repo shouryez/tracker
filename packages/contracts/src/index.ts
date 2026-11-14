@@ -79,6 +79,22 @@ export type ExtSessionsRequest = z.infer<typeof ExtSessionsRequest>;
 export type ExtHistoryItem = z.infer<typeof ExtHistoryItem>;
 export type ExtHistoryRequest = z.infer<typeof ExtHistoryRequest>;
 
+/**
+ * The code of one of the user's own submissions, captured on submit (FINAL-FEATURES A2):
+ * for a failed one, also the failing test the judge reported. Sent once per submission.
+ */
+export const ExtCodeRequest = z.object({
+  platform: z.enum(["leetcode"]),
+  titleSlug: slug,
+  title: z.string().max(200).nullable(),
+  submission: ExtSubmission,
+  code: z.string().min(1).max(64_000),
+  failingInput: z.string().max(4_000).nullable(),
+  expected: z.string().max(4_000).nullable(),
+  actual: z.string().max(4_000).nullable(),
+});
+export type ExtCodeRequest = z.infer<typeof ExtCodeRequest>;
+
 /** Save-for-later from the extension (popup, context menu). */
 export const ExtSaveRequest = z.object({
   url: z.url().max(2000),
@@ -202,4 +218,3 @@ export type ExtMeResponse = {
 };
 
 export type ExtSyncResponse = { ok: true; stored: number } | { ok: false; error: string };
-

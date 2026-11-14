@@ -1,5 +1,6 @@
 // Messages between the content scripts, the popup and the background worker.
 import type {
+  ExtCodeRequest,
   ExtHistoryItem,
   ExtMeResponse,
   ExtProblemContext,
@@ -57,6 +58,8 @@ export type LabLive = LabTotals & {
 export type Message =
   | { type: "session:put"; session: ExtSession; flush: boolean }
   | { type: "history:put"; items: ExtHistoryItem[] }
+  /** The code of one submission, for WA autopsy. Sent once; not queued. */
+  | { type: "code:put"; body: ExtCodeRequest }
   | { type: "auth:set"; token: string }
   | { type: "auth:clear" }
   | { type: "status" }

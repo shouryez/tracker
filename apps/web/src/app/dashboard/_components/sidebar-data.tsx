@@ -105,7 +105,9 @@ export function ExtensionPromo({ connected }: { connected: boolean }) {
       <p className="text-[14px] leading-tight font-[600] text-ink">
         Time every problem automatically
       </p>
-      <p className="mt-1 text-12 text-ink-3">LeetCode and GFG. Your code is never uploaded.</p>
+      <p className="mt-1 text-12 text-ink-3">
+        LeetCode and GFG. Only your own submitted code is saved, for bug autopsy.
+      </p>
       <Link
         href="/extension/connect"
         className="glass-control mt-3 flex h-9 items-center justify-center rounded-full text-13 font-[600] text-ink transition-[transform,background-color] duration-[var(--dur-base)] hover:-translate-y-px active:scale-[.97]"

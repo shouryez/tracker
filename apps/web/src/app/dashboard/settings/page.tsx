@@ -59,6 +59,8 @@ import { CalendarSubscribe } from "./calendar-subscribe";
 import { calendarUrl } from "@/lib/calendar-feed";
 import { SectionNav } from "./section-nav";
 import { StreakFreezes } from "./streak-freezes";
+import { CodeSettings } from "./code-settings";
+import { savedCodeCount } from "@/lib/bug-data";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -137,9 +139,10 @@ async function SettingsContent() {
     getStreakFreezes(user.id),
     getHasPassword(user.id),
   ]);
-  const [best, verification] = await Promise.all([
+  const [best, verification, codeCount] = await Promise.all([
     bestHour(user.id, profile?.timezone ?? "Asia/Kolkata"),
     getMyVerification(user.id),
+    savedCodeCount(user.id),
   ]);
   const now = requestNow();
   const today = localDate(profile?.timezone ?? "Asia/Kolkata", now);
@@ -279,6 +282,7 @@ async function SettingsContent() {
             lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
           }))}
         />
+        <CodeSettings count={codeCount} />
       </Card>
 
       {profile && (

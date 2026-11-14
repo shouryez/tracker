@@ -43,6 +43,8 @@ import type { SheetItemLink } from "@upsolve/db";
 import { getProblemDetail, getSolveMedian, type ProblemDetail } from "@/lib/problem-data";
 import { formatDuration } from "@/lib/sessions-data";
 import { proofItStuck } from "@/lib/proof";
+import { getProblemFindings } from "@/lib/bug-data";
+import { FindingCard } from "@/components/bug-autopsy";
 import { watchBefore } from "@/lib/watched";
 import { ProofItStuck } from "@/components/proof-it-stuck";
 import { localDay, requestNow } from "@/lib/time";
@@ -101,12 +103,13 @@ async function ProblemContent({
   const user = await getCurrentUser();
   if (isDemoUser(user)) return <p className="text-ink-2">Sign in to see your problems.</p>;
 
-  const [detail, learning, profile, myGroups, median] = await Promise.all([
+  const [detail, learning, profile, myGroups, median, findings] = await Promise.all([
     getProblemDetail(user.id, id),
     getLearning(user.id),
     getProfile(user.id),
     getMyGroups(user.id),
     getSolveMedian(id),
+    getProblemFindings(user.id, id),
   ]);
   if (!detail) notFound();
   // Watched it? Prove it (A1): a solve right after watching the explanation video counts as
@@ -359,6 +362,26 @@ async function ProblemContent({
             )}
             <NoteEditor problemId={problem.id} initial={problem.note?.body ?? ""} />
           </Card>
+
+          {findings.length > 0 && (
+            <Card className="p-[22px]">
+              <CardHeader>
+                <CardTitle>Bug autopsy</CardTitle>
+                <CardSub>
+                  why {findings.length === 1 ? "a submission" : `${findings.length} submissions`}{" "}
+                  failed ·{" "}
+                  <Link href="/dashboard/bugs" className="underline underline-offset-2">
+                    your bug profile
+                  </Link>
+                </CardSub>
+              </CardHeader>
+              <div className="flex flex-col gap-2.5">
+                {findings.slice(0, 5).map((f) => (
+                  <FindingCard key={f.submissionId} finding={f} />
+                ))}
+              </div>
+            </Card>
+          )}
           <Card>
             <Tabs
               items={[
